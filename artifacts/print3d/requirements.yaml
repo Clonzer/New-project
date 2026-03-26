@@ -1,0 +1,23 @@
+packages:
+  "framer-motion": "For smooth page transitions, futuristic animations, and glassmorphism hover effects."
+  "date-fns": "For formatting order dates and join dates."
+  "react-hook-form": "For robust form state management in order and listing forms."
+  "@hookform/resolvers": "For Zod validation integration with react-hook-form."
+
+images:
+  - path: "artifacts/print3d/public/images/hero-bg.png"
+    description: "Futuristic 3D printing conceptual art, glowing neon cyan and purple neon lines, dark background, deep space vibe, highly detailed, abstract."
+    aspect_ratio: "16:9"
+  - path: "artifacts/print3d/public/images/abstract-printer.png"
+    description: "Sleek modern 3D printer illuminated by neon lights in a dark studio, cinematic lighting, glass and metal textures, cyberpunk aesthetic."
+    aspect_ratio: "1:1"
+  - path: "artifacts/print3d/public/images/model-placeholder-1.png"
+    description: "A 3D printed geometric abstract sculpture, dark metallic finish with glowing purple accents, studio lighting."
+    aspect_ratio: "4:3"
+  - path: "artifacts/print3d/public/images/model-placeholder-2.png"
+    description: "A complex 3D printed mechanical gear mechanism, futuristic, illuminated by cyan light."
+    aspect_ratio: "4:3"
+
+notes:
+  - Assuming a mock current user ID of 1 for dashboard and ordering workflows since there is no explicit auth/me endpoint.
+  - Using generated hooks from @workspace/api-client-react as instructed.

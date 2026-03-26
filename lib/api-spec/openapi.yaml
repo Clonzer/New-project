@@ -1,0 +1,1080 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: 3D Print Marketplace API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: users
+    description: User profile operations
+  - name: printers
+    description: Seller equipment & capability registration
+  - name: listings
+    description: Model catalog listings
+  - name: orders
+    description: Print job orders
+  - name: reviews
+    description: Ratings and reviews
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [buyer, seller, both]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                  total:
+                    type: integer
+                required: [users, total]
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /printers:
+    get:
+      operationId: listPrinters
+      tags: [printers]
+      summary: List all registered printers
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: integer
+        - name: technology
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of printers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  printers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Printer"
+                  total:
+                    type: integer
+                required: [printers, total]
+    post:
+      operationId: createPrinter
+      tags: [printers]
+      summary: Register a printer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePrinterRequest"
+      responses:
+        "201":
+          description: Registered printer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Printer"
+
+  /printers/{printerId}:
+    get:
+      operationId: getPrinter
+      tags: [printers]
+      summary: Get printer by ID
+      parameters:
+        - name: printerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Printer details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Printer"
+    patch:
+      operationId: updatePrinter
+      tags: [printers]
+      summary: Update printer info
+      parameters:
+        - name: printerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePrinterRequest"
+      responses:
+        "200":
+          description: Updated printer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Printer"
+    delete:
+      operationId: deletePrinter
+      tags: [printers]
+      summary: Remove a registered printer
+      parameters:
+        - name: printerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Printer deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /listings:
+    get:
+      operationId: listListings
+      tags: [listings]
+      summary: List model catalog listings
+      parameters:
+        - name: sellerId
+          in: query
+          schema:
+            type: integer
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  listings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Listing"
+                  total:
+                    type: integer
+                required: [listings, total]
+    post:
+      operationId: createListing
+      tags: [listings]
+      summary: Create a model listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateListingRequest"
+      responses:
+        "201":
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+
+  /listings/{listingId}:
+    get:
+      operationId: getListing
+      tags: [listings]
+      summary: Get listing by ID
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Listing details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: buyerId
+          in: query
+          schema:
+            type: integer
+        - name: sellerId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, printing, shipped, delivered, cancelled]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Order"
+                  total:
+                    type: integer
+                required: [orders, total]
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place a print order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by ID
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusRequest"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List reviews
+      parameters:
+        - name: revieweeId
+          in: query
+          schema:
+            type: integer
+        - name: reviewerId
+          in: query
+          schema:
+            type: integer
+        - name: orderId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+                  total:
+                    type: integer
+                required: [reviews, total]
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Submit a review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+      responses:
+        "201":
+          description: Created review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+
+  /sellers:
+    get:
+      operationId: listSellers
+      tags: [users]
+      summary: List seller shops
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of sellers with shop info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sellers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SellerShop"
+                  total:
+                    type: integer
+                required: [sellers, total]
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required: [error, message]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [buyer, seller, both]
+        rating:
+          type: number
+          format: float
+          nullable: true
+        reviewCount:
+          type: integer
+        location:
+          type: string
+          nullable: true
+        joinedAt:
+          type: string
+          format: date-time
+        shopName:
+          type: string
+          nullable: true
+        shopMode:
+          type: string
+          enum: [catalog, open, both]
+          nullable: true
+        platformFeePercent:
+          type: number
+          nullable: true
+        defaultShippingCost:
+          type: number
+          nullable: true
+          description: Default shipping charge for custom projects (seller-set)
+        totalPrints:
+          type: integer
+        totalOrders:
+          type: integer
+      required: [id, username, displayName, email, role, reviewCount, joinedAt, totalPrints, totalOrders]
+
+    UserDetail:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            printers:
+              type: array
+              items:
+                $ref: "#/components/schemas/Printer"
+            recentReviews:
+              type: array
+              items:
+                $ref: "#/components/schemas/Review"
+            listings:
+              type: array
+              items:
+                $ref: "#/components/schemas/Listing"
+
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+          description: Plaintext password (hashed server-side; never stored as plaintext)
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [buyer, seller, both]
+        location:
+          type: string
+          nullable: true
+        shopName:
+          type: string
+          nullable: true
+        shopMode:
+          type: string
+          enum: [catalog, open, both]
+          nullable: true
+      required: [username, displayName, email, password, role]
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        shopName:
+          type: string
+          nullable: true
+        shopMode:
+          type: string
+          enum: [catalog, open, both]
+          nullable: true
+        defaultShippingCost:
+          type: number
+          nullable: true
+
+    Printer:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        equipmentCategory:
+          type: string
+          enum: [printing_3d, woodworking, metalworking, services, other]
+        toolOrServiceType:
+          type: string
+          nullable: true
+        name:
+          type: string
+        technology:
+          type: string
+          enum: [FDM, SLA, SLS, MSLA, MJF, DMLS, other]
+        brand:
+          type: string
+        model:
+          type: string
+        buildVolume:
+          type: string
+          nullable: true
+        materials:
+          type: array
+          items:
+            type: string
+        layerResolutionMin:
+          type: number
+          nullable: true
+        layerResolutionMax:
+          type: number
+          nullable: true
+        pricePerHour:
+          type: number
+          nullable: true
+        pricePerGram:
+          type: number
+          nullable: true
+        isActive:
+          type: boolean
+        description:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        totalJobsCompleted:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, equipmentCategory, name, technology, brand, model, materials, isActive, totalJobsCompleted, createdAt]
+
+    CreatePrinterRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+        equipmentCategory:
+          type: string
+          enum: [printing_3d, woodworking, metalworking, services, other]
+          nullable: true
+        toolOrServiceType:
+          type: string
+          nullable: true
+        name:
+          type: string
+        technology:
+          type: string
+          enum: [FDM, SLA, SLS, MSLA, MJF, DMLS, other]
+        brand:
+          type: string
+        model:
+          type: string
+        buildVolume:
+          type: string
+          nullable: true
+        materials:
+          type: array
+          items:
+            type: string
+        layerResolutionMin:
+          type: number
+          nullable: true
+        layerResolutionMax:
+          type: number
+          nullable: true
+        pricePerHour:
+          type: number
+          nullable: true
+        pricePerGram:
+          type: number
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+      required: [userId, name, technology, brand, model, materials]
+
+    UpdatePrinterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        equipmentCategory:
+          type: string
+          enum: [printing_3d, woodworking, metalworking, services, other]
+          nullable: true
+        toolOrServiceType:
+          type: string
+          nullable: true
+        materials:
+          type: array
+          items:
+            type: string
+        pricePerHour:
+          type: number
+          nullable: true
+        pricePerGram:
+          type: number
+          nullable: true
+        isActive:
+          type: boolean
+        description:
+          type: string
+          nullable: true
+
+    Listing:
+      type: object
+      properties:
+        id:
+          type: integer
+        sellerId:
+          type: integer
+        sellerName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        shippingCost:
+          type: number
+          description: Shipping charge set by seller for this listing
+        estimatedDaysMin:
+          type: integer
+        estimatedDaysMax:
+          type: integer
+        material:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        orderCount:
+          type: integer
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, sellerId, sellerName, title, category, tags, basePrice, shippingCost, estimatedDaysMin, estimatedDaysMax, orderCount, isActive, createdAt]
+
+    CreateListingRequest:
+      type: object
+      properties:
+        sellerId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        shippingCost:
+          type: number
+          nullable: true
+        estimatedDaysMin:
+          type: integer
+        estimatedDaysMax:
+          type: integer
+        material:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+      required: [sellerId, title, category, tags, basePrice, estimatedDaysMin, estimatedDaysMax]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        buyerId:
+          type: integer
+        sellerId:
+          type: integer
+        listingId:
+          type: integer
+          nullable: true
+        buyerName:
+          type: string
+        sellerName:
+          type: string
+        title:
+          type: string
+        fileUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        material:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        platformFee:
+          type: number
+        shippingCost:
+          type: number
+        totalPrice:
+          type: number
+        status:
+          type: string
+          enum: [pending, accepted, printing, shipped, delivered, cancelled]
+        shippingAddress:
+          type: string
+        trackingNumber:
+          type: string
+          nullable: true
+        estimatedDelivery:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, buyerId, sellerId, buyerName, sellerName, title, quantity, unitPrice, platformFee, shippingCost, totalPrice, status, shippingAddress, createdAt, updatedAt]
+
+    CreateOrderRequest:
+      type: object
+      properties:
+        buyerId:
+          type: integer
+        sellerId:
+          type: integer
+        listingId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        fileUrl:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        material:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        shippingCost:
+          type: number
+          nullable: true
+          description: Shipping portion of the order (from listing or seller default)
+        shippingAddress:
+          type: string
+      required: [buyerId, sellerId, title, quantity, unitPrice, shippingAddress]
+
+    UpdateOrderStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, accepted, printing, shipped, delivered, cancelled]
+        trackingNumber:
+          type: string
+          nullable: true
+        estimatedDelivery:
+          type: string
+          format: date-time
+          nullable: true
+      required: [status]
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        reviewerId:
+          type: integer
+        revieweeId:
+          type: integer
+        reviewerName:
+          type: string
+        revieweeName:
+          type: string
+        reviewerAvatarUrl:
+          type: string
+          nullable: true
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, orderId, reviewerId, revieweeId, reviewerName, revieweeName, rating, createdAt]
+
+    CreateReviewRequest:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        reviewerId:
+          type: integer
+        revieweeId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+      required: [orderId, reviewerId, revieweeId, rating]
+
+    SellerShop:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        displayName:
+          type: string
+        shopName:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        rating:
+          type: number
+          nullable: true
+        reviewCount:
+          type: integer
+        location:
+          type: string
+          nullable: true
+        shopMode:
+          type: string
+          enum: [catalog, open, both]
+          nullable: true
+        totalPrints:
+          type: integer
+        printerCount:
+          type: integer
+        listingCount:
+          type: integer
+        joinedAt:
+          type: string
+          format: date-time
+      required: [id, username, displayName, reviewCount, totalPrints, printerCount, listingCount, joinedAt]
