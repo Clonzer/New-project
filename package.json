@@ -10,6 +10,7 @@
     "build:frontend": "pnpm --filter @workspace/print3d build",
     "build:backend": "pnpm --filter @workspace/api-server build",
     "db:migrate": "pnpm --filter @workspace/scripts run migrate",
+    "start": "pnpm run start:render",
     "start:backend": "node artifacts/api-server/dist/index.cjs",
     "start:render": "pnpm run db:migrate && pnpm run start:backend",
     "typecheck:libs": "tsc --build",
