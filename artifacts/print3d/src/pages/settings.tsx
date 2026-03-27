@@ -217,13 +217,33 @@ export default function Settings() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm text-zinc-400 mb-1">Profile picture URL</p>
+                        <p className="text-sm text-zinc-400 mb-1">Profile picture</p>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="mb-3 bg-black/30 border-white/10 text-white w-72 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1 file:text-xs file:text-white"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              setForm((current) => ({
+                                ...current,
+                                avatarUrl: typeof reader.result === "string" ? reader.result : current.avatarUrl,
+                              }));
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
                         <Input
                           value={form.avatarUrl}
                           onChange={(event) => setForm((current) => ({ ...current, avatarUrl: event.target.value }))}
                           placeholder="https://..."
                           className="bg-black/30 border-white/10 text-white w-72"
                         />
+                        <p className="mt-2 text-xs text-zinc-500">
+                          Upload an image directly or paste a hosted image URL.
+                        </p>
                       </div>
                     </div>
 

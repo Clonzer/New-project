@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
+  brandsForCategory,
+  catalogItemsForCategoryAndBrand,
   catalogItemsForCategory,
   categoryLabel,
   type EquipmentCategoryId,
@@ -78,6 +80,7 @@ export default function Register() {
   /** 0 = account form, 1 = shop (seller/both), 2 = equipment */
   const [step, setStep] = useState(0);
   const [equipCategory, setEquipCategory] = useState<EquipmentCategoryId | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [selectedPrinter, setSelectedPrinter] = useState<CatalogEquipmentItem | null>(null);
   const [savedUser, setSavedUser] = useState<User | null>(null);
 
@@ -310,7 +313,10 @@ export default function Register() {
                             <button
                               key={c.id}
                               type="button"
-                              onClick={() => setEquipCategory(c.id)}
+                              onClick={() => {
+                                setEquipCategory(c.id);
+                                setSelectedBrand(null);
+                              }}
                               className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
                             >
                               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
@@ -318,6 +324,32 @@ export default function Register() {
                               </div>
                               <p className="text-white font-semibold text-sm">{c.title}</p>
                               <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{c.blurb}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    ) : !selectedBrand ? (
+                      <motion.div key="reg-brand" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBrand(null)}
+                          className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
+                        </button>
+                        <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} - choose a brand first.</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {brandsForCategory(equipCategory).map((brand) => (
+                            <button
+                              key={brand}
+                              type="button"
+                              onClick={() => setSelectedBrand(brand)}
+                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                            >
+                              <p className="text-white font-semibold text-sm">{brand}</p>
+                              <p className="text-zinc-500 text-xs mt-1">
+                                {catalogItemsForCategoryAndBrand(equipCategory, brand).length} models
+                              </p>
                             </button>
                           ))}
                         </div>
@@ -333,7 +365,7 @@ export default function Register() {
                         </button>
                         <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} — pick a common setup or Other.</p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {catalogItemsForCategory(equipCategory).map((p) => (
+                          {catalogItemsForCategoryAndBrand(equipCategory, selectedBrand).map((p) => (
                             <button
                               key={p.id}
                               type="button"
@@ -364,7 +396,7 @@ export default function Register() {
                           onClick={() => { setSelectedPrinter(null); printerForm.reset(); }}
                           className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors"
                         >
-                          <ChevronLeft className="w-4 h-4" /> Change item
+                          <ChevronLeft className="w-4 h-4" /> Change model
                         </button>
 
                         <div className="flex items-center gap-3 mb-6 p-4 bg-primary/10 border border-primary/25 rounded-2xl">

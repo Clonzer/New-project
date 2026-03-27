@@ -134,6 +134,14 @@ export function catalogItemsForCategory(cat: EquipmentCategoryId): CatalogEquipm
   return EQUIPMENT_CATALOG.filter((e) => e.category === cat);
 }
 
+export function brandsForCategory(cat: EquipmentCategoryId): string[] {
+  return Array.from(new Set(catalogItemsForCategory(cat).map((item) => item.brand)));
+}
+
+export function catalogItemsForCategoryAndBrand(cat: EquipmentCategoryId, brand: string): CatalogEquipmentItem[] {
+  return catalogItemsForCategory(cat).filter((item) => item.brand === brand);
+}
+
 export function categoryLabel(cat: EquipmentCategoryId): string {
   const c = EQUIPMENT_CATEGORY_CHOICES.find((x) => x.id === cat);
   return c?.title ?? cat;

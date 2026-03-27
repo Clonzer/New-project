@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   useListOrders, useListListings, useListPrinters, useUpdateOrderStatus,
   useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
-  getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey,
+  useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
 } from "@workspace/api-client-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
+  brandsForCategory,
+  catalogItemsForCategoryAndBrand,
   catalogItemsForCategory,
   categoryLabel,
   type EquipmentCategoryId,
@@ -68,6 +70,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
   const { toast } = useToast();
   const createPrinter = useCreatePrinter();
   const [equipCategory, setEquipCategory] = useState<EquipmentCategoryId | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [selected, setSelected] = useState<CatalogEquipmentItem | null>(null);
   const [pricePerHour, setPricePerHour] = useState("");
   const [pricePerGram, setPricePerGram] = useState("");
@@ -80,7 +83,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
   const [customToolType, setCustomToolType] = useState("");
 
   const reset = () => {
-    setEquipCategory(null); setSelected(null); setPricePerHour(""); setPricePerGram(""); setDescription("");
+    setEquipCategory(null); setSelectedBrand(null); setSelected(null); setPricePerHour(""); setPricePerGram(""); setDescription("");
     setCustomBrand(""); setCustomModel(""); setCustomTech(""); setCustomMaterials(""); setCustomVolume("");
     setCustomToolType("");
   };
@@ -147,7 +150,10 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setEquipCategory(c.id)}
+                    onClick={() => {
+                      setEquipCategory(c.id);
+                      setSelectedBrand(null);
+                    }}
                     className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
                   >
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
@@ -159,6 +165,28 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
                 ))}
               </div>
             </motion.div>
+          ) : !selectedBrand ? (
+            <motion.div key="brand" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <button type="button" onClick={() => setSelectedBrand(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
+                <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
+              </button>
+              <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} - choose a brand first.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {brandsForCategory(equipCategory).map((brand) => (
+                  <button
+                    key={brand}
+                    type="button"
+                    onClick={() => setSelectedBrand(brand)}
+                    className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                  >
+                    <p className="text-white font-semibold text-sm">{brand}</p>
+                    <p className="text-zinc-500 text-xs mt-1">
+                      {catalogItemsForCategoryAndBrand(equipCategory, brand).length} models
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
           ) : !selected ? (
             <motion.div key="pick" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <button type="button" onClick={() => setEquipCategory(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
@@ -166,7 +194,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
               </button>
               <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} — pick a common setup or Other.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {catalogItemsForCategory(equipCategory).map(p => (
+                {catalogItemsForCategoryAndBrand(equipCategory, selectedBrand).map(p => (
                   <button
                     key={p.id}
                     type="button"
@@ -193,7 +221,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
           ) : (
             <motion.div key="details" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
               <button type="button" onClick={() => setSelected(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> Change item
+                <ChevronLeft className="w-4 h-4" /> Change model
               </button>
 
               <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/25 mb-5">
@@ -453,6 +481,7 @@ export default function Dashboard() {
   const salesParams = { sellerId: user?.id };
   const listingParams = { sellerId: user?.id };
   const printerParams = { userId: user?.id };
+  const writtenReviewParams = { reviewerId: user?.id };
   const { data: myPurchases, refetch: refetchPurchases } = useListOrders(purchaseParams, {
     query: { enabled: !!user, queryKey: getListOrdersQueryKey(purchaseParams) },
   });
@@ -464,6 +493,9 @@ export default function Dashboard() {
   });
   const { data: myPrinters, refetch: refetchPrinters } = useListPrinters(printerParams, {
     query: { enabled: !!user && isSeller(user?.role), queryKey: getListPrintersQueryKey(printerParams) },
+  });
+  const { data: myReviews } = useListReviews(writtenReviewParams, {
+    query: { enabled: !!user, queryKey: getListReviewsQueryKey(writtenReviewParams) },
   });
 
   const updateStatus = useUpdateOrderStatus();
@@ -515,6 +547,9 @@ export default function Dashboard() {
   const totalRevenue = mySales?.orders.filter(o => o.status === "delivered" || o.status === "shipped").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const pendingRevenue = mySales?.orders.filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const totalFeesPaid = mySales?.orders.reduce((sum, o) => sum + o.platformFee, 0) ?? 0;
+  const averageOrderValue = mySales?.orders.length ? totalRevenue / mySales.orders.length : 0;
+  const activeEquipmentCount = myPrinters?.printers.filter((printer) => printer.isActive).length ?? 0;
+  const totalCatalogItems = myListings?.listings.length ?? 0;
 
   if (!user) {
     return (
@@ -579,14 +614,14 @@ export default function Dashboard() {
           {isSellerUser && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               {[
-                { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" },
-                { label: "Pending Revenue",  value: `$${pendingRevenue.toFixed(2)}`, icon: Clock, color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/20" },
-                { label: "Total Sales",      value: mySales?.total ?? 0,             icon: TrendingUp, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
-                { label: "Platform Fees",    value: `$${totalFeesPaid.toFixed(2)}`,  icon: Package, color: "text-zinc-400", bg: "bg-white/5 border-white/10" },
+                { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-300", panel: "bg-emerald-500/8 border-emerald-400/15" },
+                { label: "Pending Revenue",  value: `$${pendingRevenue.toFixed(2)}`, icon: Clock, color: "text-yellow-300", panel: "bg-yellow-500/8 border-yellow-400/15" },
+                { label: "Total Sales",      value: mySales?.total ?? 0, icon: TrendingUp, color: "text-sky-300", panel: "bg-sky-500/8 border-sky-400/15" },
+                { label: "Platform Fees",    value: `$${totalFeesPaid.toFixed(2)}`, icon: Package, color: "text-zinc-200", panel: "bg-white/5 border-white/10" },
               ].map((stat, i) => {
                 const Icon = stat.icon;
                 return (
-                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className={`glass-panel p-5 rounded-2xl border ${stat.bg}`}>
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className={`rounded-2xl border p-5 backdrop-blur-xl shadow-none ${stat.panel}`}>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</p>
                       <Icon className={`w-4 h-4 ${stat.color}`} />
@@ -598,9 +633,13 @@ export default function Dashboard() {
             </div>
           )}
 
-          <Tabs defaultValue="purchases" className="w-full">
+          <Tabs defaultValue={isSellerUser ? "overview" : "purchases"} className="w-full">
             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8 flex flex-wrap h-auto w-fit gap-1">
+              {isSellerUser && (
+                <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Overview</TabsTrigger>
+              )}
               <TabsTrigger value="purchases" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Orders</TabsTrigger>
+              <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Reviews</TabsTrigger>
               {isSellerUser && (
                 <>
                   <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Manage Sales</TabsTrigger>
@@ -609,6 +648,53 @@ export default function Dashboard() {
                 </>
               )}
             </TabsList>
+
+            {isSellerUser && (
+              <TabsContent value="overview" className="mt-0">
+                <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Seller overview</h2>
+                      <p className="text-sm text-zinc-500 mt-1">A quick view of sales momentum, catalog health, and shop readiness.</p>
+                    </div>
+                    <div className="grid gap-4 p-6 md:grid-cols-2">
+                      {[
+                        { label: "Average order value", value: `$${averageOrderValue.toFixed(2)}` },
+                        { label: "Active equipment", value: activeEquipmentCount },
+                        { label: "Catalog listings", value: totalCatalogItems },
+                        { label: "Open sales pipeline", value: mySales?.orders.filter((order) => order.status !== "delivered" && order.status !== "cancelled").length ?? 0 },
+                      ].map((item) => (
+                        <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                          <p className="text-xs uppercase tracking-wider text-zinc-500">{item.label}</p>
+                          <p className="mt-2 text-2xl font-display font-bold text-white">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Quick actions</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Shortcuts for the most common seller tasks.</p>
+                    </div>
+                    <div className="p-6 space-y-3">
+                      <button type="button" onClick={() => setShowAddListing(true)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-primary/40 hover:bg-primary/10">
+                        <p className="font-semibold text-white">Add a new catalog listing</p>
+                        <p className="mt-1 text-sm text-zinc-400">Publish a model or made-to-order product from your dashboard.</p>
+                      </button>
+                      <button type="button" onClick={() => setShowAddPrinter(true)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-accent/40 hover:bg-accent/10">
+                        <p className="font-semibold text-white">Register more equipment</p>
+                        <p className="mt-1 text-sm text-zinc-400">Add another machine, service, or workshop capability.</p>
+                      </button>
+                      <Link href="/settings" className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-4 transition hover:border-white/20 hover:bg-white/10">
+                        <p className="font-semibold text-white">Update shop settings</p>
+                        <p className="mt-1 text-sm text-zinc-400">Edit branding, shipping defaults, verification, and payments.</p>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            )}
 
             {/* ── Buyer Orders ── */}
             <TabsContent value="purchases" className="mt-0">
@@ -646,6 +732,40 @@ export default function Dashboard() {
                           <p className="text-xs text-zinc-500">incl. ${order.platformFee.toFixed(2)} platform fee</p>
                           {order.trackingNumber && <p className="text-xs text-accent">Tracking: {order.trackingNumber}</p>}
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="reviews" className="mt-0">
+              <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                <div className="p-6 border-b border-white/10 bg-white/5">
+                  <h2 className="text-xl font-bold text-white">Reviews you've left</h2>
+                  <p className="text-sm text-zinc-500 mt-1">A history of the feedback you have submitted after completed orders.</p>
+                </div>
+                {!myReviews?.reviews.length ? (
+                  <div className="p-16 text-center">
+                    <CheckCircle2 className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                    <p className="text-zinc-500">No reviews submitted yet.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-white/5">
+                    {myReviews.reviews.map((review) => (
+                      <div key={review.id} className="p-6">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-lg font-semibold text-white">{review.revieweeName}</p>
+                            <p className="text-sm text-zinc-500">Order #{review.orderId} · {format(new Date(review.createdAt), "MMM d, yyyy")}</p>
+                          </div>
+                          <div className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-sm text-yellow-300">
+                            {review.rating}/5
+                          </div>
+                        </div>
+                        <p className="mt-4 text-sm leading-relaxed text-zinc-300">
+                          {review.comment?.trim() || "No written comment was included with this rating."}
+                        </p>
                       </div>
                     ))}
                   </div>

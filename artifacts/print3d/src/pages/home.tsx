@@ -128,6 +128,13 @@ export default function Home() {
     { label: "Featured Products", value: formatCount(featuredListings.length), icon: Layers3 },
   ];
 
+  const orbitItems = [
+    { label: "FDM", top: "8%", left: "16%", delay: 0 },
+    { label: "SLA", top: "22%", right: "10%", delay: 0.4 },
+    { label: "CNC", bottom: "24%", left: "8%", delay: 0.9 },
+    { label: "Laser", bottom: "10%", right: "16%", delay: 1.2 },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
       <Navbar />
@@ -265,6 +272,38 @@ export default function Home() {
               </div>
 
               <div className="space-y-4">
+                <div className="glass-panel relative overflow-hidden rounded-[1.75rem] border border-white/10 p-5 min-h-[18rem]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(159,229,255,0.18),transparent_42%),linear-gradient(135deg,rgba(255,255,255,0.02),transparent)]" />
+                  <div className="relative z-10">
+                    <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Marketplace activity</p>
+                    <h3 className="mt-2 text-2xl font-display font-bold text-white">Live production pulse</h3>
+                    <p className="mt-2 max-w-xs text-sm text-zinc-400">
+                      A visual filler for the hero that reinforces the marketplace motion without adding empty dead space.
+                    </p>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+                      className="relative h-40 w-40 rounded-full border border-[#9fe5ff]/20"
+                    >
+                      <div className="absolute inset-6 rounded-full border border-white/10" />
+                      <div className="absolute inset-[4.5rem] rounded-full bg-[#9fe5ff]/15 blur-xl" />
+                      {orbitItems.map((item) => (
+                        <motion.div
+                          key={item.label}
+                          animate={{ y: [0, -6, 0], opacity: [0.8, 1, 0.8] }}
+                          transition={{ duration: 3 + item.delay, repeat: Infinity, delay: item.delay }}
+                          className="absolute rounded-full border border-white/10 bg-black/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md"
+                          style={item}
+                        >
+                          {item.label}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </div>
+                </div>
+
                 {stats.map((stat, index) => {
                   const Icon = stat.icon;
                   return (
