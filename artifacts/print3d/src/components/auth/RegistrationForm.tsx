@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createUser, type User, type CreateUserRequestRole } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 
@@ -166,6 +167,22 @@ export function RegistrationForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <GoogleAuthButton
+            role={form.watch("role")}
+            location={form.watch("location") || undefined}
+            onAuthed={async (user) => {
+              setSuccess("Signed in with Google.");
+              await onRegistered(user);
+            }}
+          />
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-white/10" />
+            </div>
+            <div className="relative flex justify-center text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+              <span className="bg-background px-3">or continue with email</span>
+            </div>
+          </div>
           <FormField
             control={form.control}
             name="role"

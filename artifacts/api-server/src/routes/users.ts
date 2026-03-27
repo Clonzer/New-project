@@ -17,6 +17,7 @@ function publicUser(u: UserRow) {
     passwordHash: _p,
     emailVerificationCodeHash: _code,
     emailVerificationExpiresAt: _expires,
+    authProviderSubject: _authSubject,
     ...rest
   } = u;
   return rest;
@@ -184,7 +185,23 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     res.status(400).json({ error: "validation_error", message: parsed.error.message });
     return;
   }
-  const [user] = await db.update(usersTable).set(parsed.data).where(eq(usersTable.id, userId)).returning();
+  const normalized = {
+    ...parsed.data,
+    displayName: parsed.data.displayName?.trim(),
+    bio: parsed.data.bio?.trim() || null,
+    avatarUrl: parsed.data.avatarUrl?.trim() || null,
+    location: parsed.data.location?.trim() || null,
+    shopName: parsed.data.shopName?.trim() || null,
+    bannerUrl: parsed.data.bannerUrl?.trim() || null,
+    websiteUrl: parsed.data.websiteUrl?.trim() || null,
+    instagramHandle: parsed.data.instagramHandle?.trim() || null,
+    supportEmail: parsed.data.supportEmail?.trim() || null,
+    shippingRegions: parsed.data.shippingRegions?.trim() || null,
+    shippingPolicy: parsed.data.shippingPolicy?.trim() || null,
+    returnPolicy: parsed.data.returnPolicy?.trim() || null,
+    customOrderPolicy: parsed.data.customOrderPolicy?.trim() || null,
+  };
+  const [user] = await db.update(usersTable).set(normalized).where(eq(usersTable.id, userId)).returning();
   if (!user) {
     res.status(404).json({ error: "not_found", message: "User not found" });
     return;

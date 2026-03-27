@@ -44,6 +44,18 @@ export interface User {
   reviewCount: number;
   location?: string | null;
   emailVerifiedAt?: string | null;
+  bannerUrl?: string | null;
+  websiteUrl?: string | null;
+  instagramHandle?: string | null;
+  supportEmail?: string | null;
+  shippingRegions?: string | null;
+  shippingPolicy?: string | null;
+  taxRate?: number | null;
+  processingDaysMin?: number | null;
+  processingDaysMax?: number | null;
+  returnPolicy?: string | null;
+  customOrderPolicy?: string | null;
+  authProvider?: string | null;
   joinedAt: string;
   shopName?: string | null;
   shopMode?: UserShopMode;
@@ -193,6 +205,17 @@ export interface UpdateUserRequest {
   shopName?: string | null;
   shopMode?: UpdateUserRequestShopMode;
   defaultShippingCost?: number | null;
+  bannerUrl?: string | null;
+  websiteUrl?: string | null;
+  instagramHandle?: string | null;
+  supportEmail?: string | null;
+  shippingRegions?: string | null;
+  shippingPolicy?: string | null;
+  taxRate?: number | null;
+  processingDaysMin?: number | null;
+  processingDaysMax?: number | null;
+  returnPolicy?: string | null;
+  customOrderPolicy?: string | null;
 }
 
 export type CreatePrinterRequestTechnology =

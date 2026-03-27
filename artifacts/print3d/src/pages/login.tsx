@@ -3,6 +3,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -45,6 +46,16 @@ export default function Login() {
             <p className="text-zinc-400 text-sm text-center mb-8">
               Use your email or username and your password.
             </p>
+
+            <div className="mb-6 flex justify-center">
+              <GoogleAuthButton
+                role="buyer"
+                onAuthed={() => {
+                  toast({ title: "Welcome back", description: "Signed in with Google." });
+                  setLocation(redirect);
+                }}
+              />
+            </div>
 
             <LoginForm
               onSuccess={() => {

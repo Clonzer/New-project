@@ -3,6 +3,7 @@ import { compare, hash } from "bcryptjs";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
+import { OAuth2Client } from "google-auth-library";
 import { type AuthedRequest, getTokenFromRequest, requireAuth, signAccessToken, verifyAccessToken } from "../lib/auth";
 import { confirmEmailVerificationCode, sendEmailVerificationCode } from "../lib/email-verification";
 import { isEmailDeliveryConfigured } from "../lib/mailer";
@@ -10,6 +11,8 @@ import { isEmailDeliveryConfigured } from "../lib/mailer";
 const router: IRouter = Router();
 
 const JWT_EXPIRES = process.env["JWT_EXPIRES_IN"] ?? "7d";
+const GOOGLE_CLIENT_ID = process.env["GOOGLE_CLIENT_ID"]?.trim() || "";
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 type UserRow = typeof usersTable.$inferSelect;
 
@@ -21,6 +24,28 @@ function publicUser(u: UserRow) {
     ...rest
   } = u;
   return rest;
+}
+
+async function createSession(res: Parameters<typeof router.post>[1] extends never ? never : any, row: UserRow) {
+  const token = signAccessToken({ id: row.id, email: row.email }, JWT_EXPIRES);
+  res.cookie("access_token", token, {
+    httpOnly: true,
+    secure: process.env["NODE_ENV"] === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  });
+  res.json({ token, user: publicUser(row) });
+}
+
+async function generateUniqueUsername(seed: string) {
+  const normalized = seed.toLowerCase().replace(/[^a-z0-9_-]+/g, "_").replace(/^_+|_+$/g, "") || "maker";
+  for (let index = 0; index < 20; index += 1) {
+    const candidate = index === 0 ? normalized : `${normalized}_${Math.floor(100 + Math.random() * 900)}`;
+    const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, candidate));
+    if (!existing) return candidate;
+  }
+  return `maker_${Date.now().toString().slice(-6)}`;
 }
 
 router.post("/auth/login", async (req, res) => {
@@ -58,20 +83,86 @@ router.post("/auth/login", async (req, res) => {
       return;
     }
 
-    const token = signAccessToken({ id: row.id, email: row.email }, JWT_EXPIRES);
-
-    res.cookie("access_token", token, {
-      httpOnly: true,
-      secure: process.env["NODE_ENV"] === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
-
-    res.json({ token, user: publicUser(row) });
+    await createSession(res, row);
   } catch (error) {
     console.error("authLogin", error);
     res.status(500).json({ error: "server_error", message: "Could not sign in. Please try again." });
+  }
+});
+
+router.post("/auth/google", async (req, res) => {
+  try {
+    if (!googleClient || !GOOGLE_CLIENT_ID) {
+      res.status(503).json({
+        error: "google_not_configured",
+        message: "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID on Render first.",
+      });
+      return;
+    }
+
+    const credential = String(req.body?.credential ?? "").trim();
+    const requestedRole = req.body?.role === "seller" || req.body?.role === "both" ? req.body.role : "buyer";
+    const location = String(req.body?.location ?? "").trim() || null;
+    if (!credential) {
+      res.status(400).json({ error: "validation_error", message: "Google sign-in did not return a valid credential." });
+      return;
+    }
+
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    const email = payload?.email?.trim().toLowerCase();
+    const subject = payload?.sub?.trim();
+    const displayName = payload?.name?.trim() || payload?.given_name?.trim() || "Google User";
+    const avatarUrl = payload?.picture?.trim() || null;
+
+    if (!email || !subject || !payload?.email_verified) {
+      res.status(400).json({ error: "validation_error", message: "Your Google account must have a verified email address." });
+      return;
+    }
+
+    let [row] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+
+    if (!row) {
+      const username = await generateUniqueUsername(email.split("@")[0] || displayName);
+      [row] = await db
+        .insert(usersTable)
+        .values({
+          username,
+          displayName,
+          email,
+          avatarUrl,
+          role: requestedRole,
+          location,
+          emailVerifiedAt: new Date(),
+          authProvider: "google",
+          authProviderSubject: subject,
+          shopName: requestedRole === "buyer" ? null : "",
+          shopMode: requestedRole === "buyer" ? null : "both",
+        })
+        .returning();
+    } else if (
+      row.authProvider !== "google" ||
+      row.authProviderSubject !== subject ||
+      (row.role === "buyer" && requestedRole !== "buyer")
+    ) {
+      [row] = await db
+        .update(usersTable)
+        .set({
+          authProvider: "google",
+          authProviderSubject: subject,
+          emailVerifiedAt: row.emailVerifiedAt ?? new Date(),
+          avatarUrl: row.avatarUrl || avatarUrl,
+          role: row.role === "buyer" && requestedRole !== "buyer" ? requestedRole : row.role,
+          shopMode: row.role === "buyer" && requestedRole !== "buyer" ? "both" : row.shopMode,
+        })
+        .where(eq(usersTable.id, row.id))
+        .returning();
+    }
+
+    await createSession(res, row);
+  } catch (error) {
+    console.error("authGoogle", error);
+    res.status(500).json({ error: "server_error", message: "Could not complete Google sign-in. Please try again." });
   }
 });
 

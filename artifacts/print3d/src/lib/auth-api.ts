@@ -49,3 +49,12 @@ export async function authConfirmEmailVerification(code: string) {
     credentials: "include",
   });
 }
+
+export async function authGoogle(credential: string, role: "buyer" | "seller" | "both", location?: string) {
+  return customFetch<{ token: string; user: User }>("/api/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ credential, role, location }),
+    skipAuth: true,
+    credentials: "include",
+  });
+}

@@ -40,8 +40,19 @@ export default function Settings() {
     location: user?.location ?? "",
     avatarUrl: user?.avatarUrl ?? "",
     shopName: user?.shopName ?? "",
+    bannerUrl: user?.bannerUrl ?? "",
+    websiteUrl: user?.websiteUrl ?? "",
+    instagramHandle: user?.instagramHandle ?? "",
+    supportEmail: user?.supportEmail ?? "",
     shopMode: user?.shopMode ?? "open",
     defaultShippingCost: user?.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
+    shippingRegions: user?.shippingRegions ?? "",
+    shippingPolicy: user?.shippingPolicy ?? "",
+    taxRate: user?.taxRate != null ? String(user.taxRate) : "",
+    processingDaysMin: user?.processingDaysMin != null ? String(user.processingDaysMin) : "1",
+    processingDaysMax: user?.processingDaysMax != null ? String(user.processingDaysMax) : "7",
+    returnPolicy: user?.returnPolicy ?? "",
+    customOrderPolicy: user?.customOrderPolicy ?? "",
   });
 
   useEffect(() => {
@@ -52,8 +63,19 @@ export default function Settings() {
       location: user.location ?? "",
       avatarUrl: user.avatarUrl ?? "",
       shopName: user.shopName ?? "",
+      bannerUrl: user.bannerUrl ?? "",
+      websiteUrl: user.websiteUrl ?? "",
+      instagramHandle: user.instagramHandle ?? "",
+      supportEmail: user.supportEmail ?? "",
       shopMode: user.shopMode ?? "open",
       defaultShippingCost: user.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
+      shippingRegions: user.shippingRegions ?? "",
+      shippingPolicy: user.shippingPolicy ?? "",
+      taxRate: user.taxRate != null ? String(user.taxRate) : "",
+      processingDaysMin: user.processingDaysMin != null ? String(user.processingDaysMin) : "1",
+      processingDaysMax: user.processingDaysMax != null ? String(user.processingDaysMax) : "7",
+      returnPolicy: user.returnPolicy ?? "",
+      customOrderPolicy: user.customOrderPolicy ?? "",
     });
   }, [user]);
 
@@ -70,6 +92,9 @@ export default function Settings() {
     if (!user) return;
     try {
       const shipping = form.defaultShippingCost.trim() === "" ? null : parseFloat(form.defaultShippingCost);
+      const taxRate = form.taxRate.trim() === "" ? null : parseFloat(form.taxRate);
+      const processingDaysMin = form.processingDaysMin.trim() === "" ? null : parseInt(form.processingDaysMin, 10);
+      const processingDaysMax = form.processingDaysMax.trim() === "" ? null : parseInt(form.processingDaysMax, 10);
       await updateUser.mutateAsync({
         userId: user.id,
         data: {
@@ -78,8 +103,19 @@ export default function Settings() {
           location: form.location.trim() || null,
           avatarUrl: form.avatarUrl.trim() || null,
           shopName: form.shopName.trim() || null,
+          bannerUrl: form.bannerUrl.trim() || null,
+          websiteUrl: form.websiteUrl.trim() || null,
+          instagramHandle: form.instagramHandle.trim() || null,
+          supportEmail: form.supportEmail.trim() || null,
           shopMode: form.shopMode,
           defaultShippingCost: shipping != null && Number.isFinite(shipping) ? shipping : null,
+          shippingRegions: form.shippingRegions.trim() || null,
+          shippingPolicy: form.shippingPolicy.trim() || null,
+          taxRate: taxRate != null && Number.isFinite(taxRate) ? taxRate : null,
+          processingDaysMin: processingDaysMin != null && Number.isFinite(processingDaysMin) ? processingDaysMin : null,
+          processingDaysMax: processingDaysMax != null && Number.isFinite(processingDaysMax) ? processingDaysMax : null,
+          returnPolicy: form.returnPolicy.trim() || null,
+          customOrderPolicy: form.customOrderPolicy.trim() || null,
         },
       });
       await refreshUser();
@@ -317,6 +353,92 @@ export default function Settings() {
                           />
                           <p className="text-xs text-zinc-500 mt-1">This is charged once for custom jobs without a listing.</p>
                         </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Tax rate (%)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min={0}
+                              value={form.taxRate}
+                              onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
+                              placeholder="e.g. 20"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Shipping regions</label>
+                            <Input
+                              value={form.shippingRegions}
+                              onChange={(event) => setForm((current) => ({ ...current, shippingRegions: event.target.value }))}
+                              placeholder="UK, EU, USA"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days min</label>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={form.processingDaysMin}
+                              onChange={(event) => setForm((current) => ({ ...current, processingDaysMin: event.target.value }))}
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days max</label>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={form.processingDaysMax}
+                              onChange={(event) => setForm((current) => ({ ...current, processingDaysMax: event.target.value }))}
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Support email</label>
+                            <Input
+                              type="email"
+                              value={form.supportEmail}
+                              onChange={(event) => setForm((current) => ({ ...current, supportEmail: event.target.value }))}
+                              placeholder="support@yourshop.com"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Website URL</label>
+                            <Input
+                              value={form.websiteUrl}
+                              onChange={(event) => setForm((current) => ({ ...current, websiteUrl: event.target.value }))}
+                              placeholder="https://yourshop.com"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Instagram handle</label>
+                            <Input
+                              value={form.instagramHandle}
+                              onChange={(event) => setForm((current) => ({ ...current, instagramHandle: event.target.value }))}
+                              placeholder="@yourshop"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Banner image URL</label>
+                            <Input
+                              value={form.bannerUrl}
+                              onChange={(event) => setForm((current) => ({ ...current, bannerUrl: event.target.value }))}
+                              placeholder="https://..."
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                        </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-2">Shop Mode</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -344,6 +466,36 @@ export default function Settings() {
                               </button>
                             ))}
                           </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
+                          <textarea
+                            value={form.shippingPolicy}
+                            onChange={(event) => setForm((current) => ({ ...current, shippingPolicy: event.target.value }))}
+                            rows={3}
+                            placeholder="Explain dispatch times, carriers, tracking, and packaging."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Custom order policy</label>
+                          <textarea
+                            value={form.customOrderPolicy}
+                            onChange={(event) => setForm((current) => ({ ...current, customOrderPolicy: event.target.value }))}
+                            rows={3}
+                            placeholder="Requirements for file prep, quoting, revisions, and communication."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Returns and refunds policy</label>
+                          <textarea
+                            value={form.returnPolicy}
+                            onChange={(event) => setForm((current) => ({ ...current, returnPolicy: event.target.value }))}
+                            rows={3}
+                            placeholder="How you handle damaged items, cancellations, and refund windows."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
                         </div>
                         <div className="flex justify-end">
                           <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
