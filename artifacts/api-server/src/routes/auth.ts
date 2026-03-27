@@ -18,20 +18,34 @@ function publicUser(u: UserRow) {
 
 router.post("/auth/login", async (req, res) => {
   try {
-    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    const identifier = String(req.body?.email ?? req.body?.identifier ?? "").trim();
     const password = String(req.body?.password ?? "");
-    if (!email || !password) {
-      res.status(400).json({ error: "validation_error", message: "Email and password are required." });
+    if (!identifier || !password) {
+      res.status(400).json({ error: "validation_error", message: "Email or username and password are required." });
       return;
     }
 
-    const [row] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    const normalizedEmail = identifier.toLowerCase();
+    const [row] = await db
+      .select()
+      .from(usersTable)
+      .where(identifier.includes("@") ? eq(usersTable.email, normalizedEmail) : eq(usersTable.username, identifier));
     if (!row?.passwordHash) {
       res.status(401).json({ error: "unauthorized", message: "Invalid email or password." });
       return;
     }
 
-    const ok = await compare(password, row.passwordHash);
+    let ok = false;
+    if (row.passwordHash.startsWith("$2")) {
+      ok = await compare(password, row.passwordHash);
+    } else {
+      ok = password === row.passwordHash;
+      if (ok) {
+        const upgradedHash = await hash(password, 12);
+        await db.update(usersTable).set({ passwordHash: upgradedHash }).where(eq(usersTable.id, row.id));
+        row.passwordHash = upgradedHash;
+      }
+    }
     if (!ok) {
       res.status(401).json({ error: "unauthorized", message: "Invalid email or password." });
       return;

@@ -8,7 +8,8 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Link } from "wouter";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -27,11 +28,15 @@ export function LoginForm({
   const { login } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const prefilledEmail =
+    typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("email")?.trim() ?? "";
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: prefilledEmail, password: "" },
   });
+  const shouldSuggestSignup = !!error && /account|not found|incorrect/i.test(error);
 
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
@@ -52,7 +57,17 @@ export function LoginForm({
         <Alert variant="destructive" className="border-red-500/40 bg-red-950/40">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Sign in failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription className="space-y-2">
+            <p>{error}</p>
+            {shouldSuggestSignup ? (
+              <p>
+                Need an account?{" "}
+                <Link href="/register" className="underline hover:text-white">
+                  Create one instead
+                </Link>
+              </p>
+            ) : null}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -84,12 +99,23 @@ export function LoginForm({
               <FormItem>
                 <FormLabel className="text-zinc-300">Password</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    autoComplete="current-password"
-                    className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl pr-12"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="absolute inset-y-0 right-0 flex min-w-[4.5rem] items-center justify-center gap-1 px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 transition hover:text-white"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span>{showPassword ? "Hide" : "Show"}</span>
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

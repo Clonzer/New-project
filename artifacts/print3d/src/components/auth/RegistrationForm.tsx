@@ -18,7 +18,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createUser, type User, type CreateUserRequestRole } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Link } from "wouter";
 
 const registrationSchema = z
   .object({
@@ -73,6 +74,8 @@ export function RegistrationForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const { login } = useAuth();
 
   const form = useForm<RegistrationFormValues>({
@@ -89,6 +92,14 @@ export function RegistrationForm({
   });
   const passwordValue = useWatch({ control: form.control, name: "password" }) || "";
   const passwordStrength = useMemo(() => getPasswordStrength(passwordValue), [passwordValue]);
+  const enteredEmail = form.watch("email")?.trim().toLowerCase() ?? "";
+  const loginHref = enteredEmail ? `/login?email=${encodeURIComponent(enteredEmail)}` : "/login";
+  const shouldSuggestLogin =
+    !!error &&
+    (/email already exists/i.test(error) ||
+      /already have an account/i.test(error) ||
+      /account was created/i.test(error) ||
+      /sign in with your email/i.test(error));
 
   const onSubmit = async (data: RegistrationFormValues) => {
     setError(null);
@@ -132,7 +143,17 @@ export function RegistrationForm({
         <Alert variant="destructive" className="border-red-500/40 bg-red-950/40">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Registration failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription className="space-y-2">
+            <p>{error}</p>
+            {shouldSuggestLogin ? (
+              <p>
+                Already have an account?{" "}
+                <Link href={loginHref} className="underline hover:text-white">
+                  Sign in instead
+                </Link>
+              </p>
+            ) : null}
+          </AlertDescription>
         </Alert>
       )}
       {success && !error && (
@@ -243,16 +264,27 @@ export function RegistrationForm({
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-300">Password</FormLabel>
-                  <FormControl>
+              <FormItem>
+                <FormLabel className="text-zinc-300">Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
                     <Input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
-                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
+                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl pr-12"
                       {...field}
                     />
-                  </FormControl>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="absolute inset-y-0 right-0 flex min-w-[4.5rem] items-center justify-center gap-1 px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 transition hover:text-white"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span>{showPassword ? "Hide" : "Show"}</span>
+                    </button>
+                  </div>
+                </FormControl>
                   <div className="mt-2">
                     <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                       <div
@@ -275,18 +307,29 @@ export function RegistrationForm({
               control={form.control}
               name="passwordConfirm"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-300">Confirm password</FormLabel>
-                  <FormControl>
+              <FormItem>
+                <FormLabel className="text-zinc-300">Confirm password</FormLabel>
+                <FormControl>
+                  <div className="relative">
                     <Input
-                      type="password"
+                      type={showPasswordConfirm ? "text" : "password"}
                       autoComplete="new-password"
-                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
+                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl pr-12"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordConfirm((current) => !current)}
+                      className="absolute inset-y-0 right-0 flex min-w-[4.5rem] items-center justify-center gap-1 px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 transition hover:text-white"
+                      aria-label={showPasswordConfirm ? "Hide password confirmation" : "Show password confirmation"}
+                    >
+                      {showPasswordConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span>{showPasswordConfirm ? "Hide" : "Show"}</span>
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
               )}
             />
           </div>

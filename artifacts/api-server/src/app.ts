@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type ErrorRequestHandler, type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "node:path";
@@ -22,6 +22,41 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "not_found", message: "That API route does not exist." });
+});
+
+const apiErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
+  if (!req.path.startsWith("/api")) {
+    next(error);
+    return;
+  }
+
+  if (res.headersSent) {
+    next(error);
+    return;
+  }
+
+  if (error instanceof SyntaxError && "body" in error) {
+    res.status(400).json({
+      error: "invalid_json",
+      message: "The request body is not valid JSON.",
+    });
+    return;
+  }
+
+  console.error("apiUnhandledError", {
+    path: req.path,
+    method: req.method,
+    error,
+  });
+  res.status(500).json({
+    error: "server_error",
+    message: "The server could not complete that request. Please try again.",
+  });
+};
+
+app.use(apiErrorHandler);
 
 const frontendDistPath = path.resolve(process.cwd(), "artifacts", "print3d", "dist", "public");
 
