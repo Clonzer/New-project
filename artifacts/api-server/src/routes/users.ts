@@ -37,16 +37,45 @@ router.post("/users", async (req, res) => {
     return;
   }
   const { password, ...rest } = parsed.data;
+  const username = rest.username.trim();
+  const displayName = rest.displayName.trim();
   const email = rest.email.trim().toLowerCase();
+  const shopName = rest.shopName?.trim() || null;
+
+  if (username.length < 3 || displayName.length < 2) {
+    res.status(400).json({
+      error: "validation_error",
+      message: "Username and display name must contain real characters.",
+    });
+    return;
+  }
+
   const passwordHash = await hash(password, 12);
   try {
     const [user] = await db
       .insert(usersTable)
-      .values({ ...rest, email, passwordHash })
+      .values({
+        ...rest,
+        username,
+        displayName,
+        email,
+        shopName,
+        location: rest.location?.trim() || null,
+        bio: rest.bio?.trim() || null,
+        avatarUrl: rest.avatarUrl?.trim() || null,
+        passwordHash,
+      })
       .returning();
     res.status(201).json(publicUser(user));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
+    if (/relation .*users.* does not exist|column .* does not exist/i.test(msg)) {
+      res.status(503).json({
+        error: "schema_not_ready",
+        message: "Database schema is not ready yet. Redeploy after migrations complete.",
+      });
+      return;
+    }
     if (/duplicate key|unique constraint/i.test(msg)) {
       if (/username/i.test(msg)) {
         res.status(409).json({ error: "conflict", message: "Username is already taken." });

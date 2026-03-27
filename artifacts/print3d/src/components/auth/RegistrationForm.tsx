@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -21,8 +22,12 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const registrationSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    displayName: z.string().min(2, "Display name must be at least 2 characters"),
+    username: z
+      .string()
+      .trim()
+      .min(3, "Username must be at least 3 characters")
+      .regex(/^[a-zA-Z0-9_-]+$/, "Use letters, numbers, underscores, or hyphens only"),
+    displayName: z.string().trim().min(2, "Display name must be at least 2 characters"),
     email: z.string().email("Enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     passwordConfirm: z.string().min(1, "Confirm your password"),
@@ -35,6 +40,28 @@ const registrationSchema = z
   });
 
 export type RegistrationFormValues = z.infer<typeof registrationSchema>;
+
+function getPasswordStrength(password: string) {
+  const checks = [
+    password.length >= 8,
+    /[a-z]/.test(password) && /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+    password.length >= 12,
+  ];
+  const score = checks.filter(Boolean).length;
+
+  if (score <= 1) {
+    return { label: "Weak", color: "bg-red-500", textColor: "text-red-300", width: "20%" };
+  }
+  if (score <= 3) {
+    return { label: "Fair", color: "bg-yellow-500", textColor: "text-yellow-300", width: "60%" };
+  }
+  if (score === 4) {
+    return { label: "Good", color: "bg-sky-500", textColor: "text-sky-300", width: "80%" };
+  }
+  return { label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-300", width: "100%" };
+}
 
 export function RegistrationForm({
   onRegistered,
@@ -60,6 +87,8 @@ export function RegistrationForm({
       location: "",
     },
   });
+  const passwordValue = useWatch({ control: form.control, name: "password" }) || "";
+  const passwordStrength = useMemo(() => getPasswordStrength(passwordValue), [passwordValue]);
 
   const onSubmit = async (data: RegistrationFormValues) => {
     setError(null);
@@ -224,8 +253,19 @@ export function RegistrationForm({
                       {...field}
                     />
                   </FormControl>
+                  <div className="mt-2">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: passwordValue ? passwordStrength.width : "0%" }}
+                      />
+                    </div>
+                    <p className={`mt-2 text-xs ${passwordStrength.textColor}`}>
+                      Password strength: {passwordValue ? passwordStrength.label : "Enter a password"}
+                    </p>
+                  </div>
                   <FormDescription className="text-zinc-500 text-xs">
-                    At least 8 characters.
+                    Use 8+ characters with a mix of upper/lowercase, numbers, and symbols.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
