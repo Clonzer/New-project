@@ -24,6 +24,9 @@ export const usersTable = pgTable("users", {
   totalOrders: integer("total_orders").notNull().default(0),
   /** bcrypt hash; never returned to clients */
   passwordHash: text("password_hash"),
+  emailVerifiedAt: timestamp("email_verified_at"),
+  emailVerificationCodeHash: text("email_verification_code_hash"),
+  emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
 });
 

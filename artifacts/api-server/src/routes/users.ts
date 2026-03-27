@@ -5,13 +5,20 @@ import { eq } from "drizzle-orm";
 import { CreateUserBody, UpdateUserBody } from "@workspace/api-zod";
 import { hash } from "bcryptjs";
 import { type AuthedRequest, requireAuth, requireSelf } from "../lib/auth";
+import { sendEmailVerificationCode } from "../lib/email-verification";
+import { isEmailDeliveryConfigured } from "../lib/mailer";
 
 const router: IRouter = Router();
 
 type UserRow = typeof usersTable.$inferSelect;
 
 function publicUser(u: UserRow) {
-  const { passwordHash: _p, ...rest } = u;
+  const {
+    passwordHash: _p,
+    emailVerificationCodeHash: _code,
+    emailVerificationExpiresAt: _expires,
+    ...rest
+  } = u;
   return rest;
 }
 
@@ -66,6 +73,13 @@ router.post("/users", async (req, res) => {
         passwordHash,
       })
       .returning();
+    if (isEmailDeliveryConfigured()) {
+      try {
+        await sendEmailVerificationCode(user.id);
+      } catch (error) {
+        console.error("sendVerificationAfterSignup", { userId: user.id, error });
+      }
+    }
     res.status(201).json(publicUser(user));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);

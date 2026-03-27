@@ -75,6 +75,13 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string) 
       if (!listing || !listing.isActive) {
         throw new Error(`Listing ${item.listingId} is no longer available.`);
       }
+      const [seller] = await db.select().from(usersTable).where(eq(usersTable.id, listing.sellerId));
+      if (!seller) {
+        throw new Error("The seller for this listing no longer exists.");
+      }
+      if (!seller.emailVerifiedAt) {
+        throw new Error("This seller has not verified their email yet, so checkout is temporarily unavailable.");
+      }
       const subtotal = listing.basePrice * quantity;
       const shippingCost = (listing.shippingCost ?? 0) * quantity;
       const platformFee = Number((subtotal * PLATFORM_FEE_PERCENT).toFixed(2));
@@ -114,6 +121,9 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string) 
     const [seller] = await db.select().from(usersTable).where(eq(usersTable.id, sellerId));
     if (!seller) {
       throw new Error("The selected seller no longer exists.");
+    }
+    if (!seller.emailVerifiedAt) {
+      throw new Error("This seller has not verified their email yet, so checkout is temporarily unavailable.");
     }
 
     const subtotal = unitPrice * quantity;

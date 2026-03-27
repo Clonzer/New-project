@@ -4,6 +4,8 @@ import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { type AuthedRequest, getTokenFromRequest, requireAuth, signAccessToken, verifyAccessToken } from "../lib/auth";
+import { confirmEmailVerificationCode, sendEmailVerificationCode } from "../lib/email-verification";
+import { isEmailDeliveryConfigured } from "../lib/mailer";
 
 const router: IRouter = Router();
 
@@ -12,7 +14,12 @@ const JWT_EXPIRES = process.env["JWT_EXPIRES_IN"] ?? "7d";
 type UserRow = typeof usersTable.$inferSelect;
 
 function publicUser(u: UserRow) {
-  const { passwordHash: _p, ...rest } = u;
+  const {
+    passwordHash: _p,
+    emailVerificationCodeHash: _code,
+    emailVerificationExpiresAt: _expires,
+    ...rest
+  } = u;
   return rest;
 }
 
@@ -31,7 +38,7 @@ router.post("/auth/login", async (req, res) => {
       .from(usersTable)
       .where(identifier.includes("@") ? eq(usersTable.email, normalizedEmail) : eq(usersTable.username, identifier));
     if (!row?.passwordHash) {
-      res.status(401).json({ error: "unauthorized", message: "Invalid email or password." });
+      res.status(401).json({ error: "unauthorized", message: "Invalid email, username, or password." });
       return;
     }
 
@@ -47,7 +54,7 @@ router.post("/auth/login", async (req, res) => {
       }
     }
     if (!ok) {
-      res.status(401).json({ error: "unauthorized", message: "Invalid email or password." });
+      res.status(401).json({ error: "unauthorized", message: "Invalid email, username, or password." });
       return;
     }
 
@@ -71,6 +78,68 @@ router.post("/auth/login", async (req, res) => {
 router.post("/auth/logout", (_req, res) => {
   res.clearCookie("access_token", { path: "/" });
   res.json({ ok: true });
+});
+
+router.post("/auth/verify-email/request", requireAuth, async (req: AuthedRequest, res) => {
+  try {
+    if (!isEmailDeliveryConfigured()) {
+      res.status(503).json({
+        error: "email_not_configured",
+        message: "Email verification is not configured yet. Add the SMTP settings on Render first.",
+      });
+      return;
+    }
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+    if (!user) {
+      res.status(404).json({ error: "not_found", message: "User account not found." });
+      return;
+    }
+    if (user.emailVerifiedAt) {
+      res.json({ ok: true, alreadyVerified: true, email: user.email });
+      return;
+    }
+
+    const result = await sendEmailVerificationCode(user.id);
+    res.json({ ok: true, email: result.email, expiresAt: result.expiresAt.toISOString() });
+  } catch (error) {
+    console.error("authRequestEmailVerification", error);
+    res.status(500).json({ error: "server_error", message: "Could not send the verification code." });
+  }
+});
+
+router.post("/auth/verify-email/confirm", requireAuth, async (req: AuthedRequest, res) => {
+  try {
+    const code = String(req.body?.code ?? "").trim();
+    if (!/^\d{6}$/.test(code)) {
+      res.status(400).json({ error: "validation_error", message: "Enter the 6-digit verification code from your email." });
+      return;
+    }
+
+    const result = await confirmEmailVerificationCode(req.auth!.userId, code);
+    if (!result.ok) {
+      if (result.reason === "missing_code") {
+        res.status(400).json({ error: "verification_missing", message: "Request a verification code before trying to confirm your email." });
+        return;
+      }
+      if (result.reason === "expired") {
+        res.status(400).json({ error: "verification_expired", message: "That verification code has expired. Request a new code and try again." });
+        return;
+      }
+      res.status(400).json({ error: "verification_invalid", message: "That verification code is incorrect." });
+      return;
+    }
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+    if (!user) {
+      res.status(404).json({ error: "not_found", message: "User account not found." });
+      return;
+    }
+    res.json({ ok: true, user: publicUser(user) });
+  } catch (error) {
+    console.error("authConfirmEmailVerification", error);
+    res.status(500).json({ error: "server_error", message: "Could not verify that code. Please try again." });
+  }
 });
 
 router.get("/auth/me", async (req, res) => {

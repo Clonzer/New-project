@@ -1,9 +1,9 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { listingsTable, usersTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { CreateListingBody } from "@workspace/api-zod";
-import { type AuthedRequest, requireAuth } from "../lib/auth";
+import { type AuthedRequest, requireAuth, requireVerifiedSeller } from "../lib/auth";
 
 const router: IRouter = Router();
 
@@ -12,13 +12,16 @@ router.get("/listings", async (req, res) => {
   const offset = Number(req.query.offset) || 0;
   const sellerId = req.query.sellerId ? Number(req.query.sellerId) : undefined;
   const category = req.query.category as string | undefined;
+  const conditions = [eq(listingsTable.isActive, true)];
+  if (sellerId) conditions.push(eq(listingsTable.sellerId, sellerId));
+  if (category) conditions.push(eq(listingsTable.category, category));
+  const whereClause = and(...conditions);
 
   let query = db.select().from(listingsTable).$dynamic();
-  if (sellerId) query = query.where(eq(listingsTable.sellerId, sellerId));
-  if (category) query = query.where(eq(listingsTable.category, category));
+  query = query.where(whereClause).orderBy(desc(listingsTable.orderCount), desc(listingsTable.createdAt));
 
   const rows = await query.limit(limit).offset(offset);
-  const total = await db.$count(listingsTable);
+  const total = await db.$count(listingsTable, whereClause);
 
   const listings = await Promise.all(rows.map(async (l) => {
     const [seller] = await db.select({ displayName: usersTable.displayName }).from(usersTable).where(eq(usersTable.id, l.sellerId));
@@ -28,7 +31,7 @@ router.get("/listings", async (req, res) => {
   res.json({ listings, total });
 });
 
-router.post("/listings", requireAuth, async (req: AuthedRequest, res) => {
+router.post("/listings", requireAuth, requireVerifiedSeller, async (req: AuthedRequest, res) => {
   const parsed = CreateListingBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "validation_error", message: parsed.error.message });

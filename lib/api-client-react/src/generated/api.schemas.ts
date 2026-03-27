@@ -43,6 +43,7 @@ export interface User {
   rating?: number | null;
   reviewCount: number;
   location?: string | null;
+  emailVerifiedAt?: string | null;
   joinedAt: string;
   shopName?: string | null;
   shopMode?: UserShopMode;

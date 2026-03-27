@@ -3,7 +3,7 @@ import { db } from "@workspace/db";
 import { printersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { CreatePrinterBody, UpdatePrinterBody } from "@workspace/api-zod";
-import { type AuthedRequest, requireAuth } from "../lib/auth";
+import { type AuthedRequest, requireAuth, requireVerifiedSeller } from "../lib/auth";
 
 const router: IRouter = Router();
 
@@ -22,7 +22,7 @@ router.get("/printers", async (req, res) => {
   res.json({ printers, total });
 });
 
-router.post("/printers", requireAuth, async (req: AuthedRequest, res) => {
+router.post("/printers", requireAuth, requireVerifiedSeller, async (req: AuthedRequest, res) => {
   const parsed = CreatePrinterBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "validation_error", message: parsed.error.message });
@@ -51,7 +51,7 @@ router.get("/printers/:printerId", async (req, res) => {
   res.json(printer);
 });
 
-router.patch("/printers/:printerId", requireAuth, async (req: AuthedRequest, res) => {
+router.patch("/printers/:printerId", requireAuth, requireVerifiedSeller, async (req: AuthedRequest, res) => {
   const printerId = Number(req.params.printerId);
   const parsed = UpdatePrinterBody.safeParse(req.body);
   if (!parsed.success) {
@@ -80,7 +80,7 @@ router.patch("/printers/:printerId", requireAuth, async (req: AuthedRequest, res
   res.json(printer);
 });
 
-router.delete("/printers/:printerId", requireAuth, async (req: AuthedRequest, res) => {
+router.delete("/printers/:printerId", requireAuth, requireVerifiedSeller, async (req: AuthedRequest, res) => {
   const printerId = Number(req.params.printerId);
   const [existing] = await db.select().from(printersTable).where(eq(printersTable.id, printerId));
   if (!existing) {

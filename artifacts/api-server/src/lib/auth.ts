@@ -1,7 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt, { type SignOptions } from "jsonwebtoken";
+import { db } from "@workspace/db";
+import { usersTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
 
-const JWT_SECRET = process.env["JWT_SECRET"] ?? "dev-only-change-in-production";
+const JWT_SECRET = process.env["JWT_SECRET"]?.trim() || "dev-only-change-in-production";
+const USING_FALLBACK_JWT_SECRET = JWT_SECRET === "dev-only-change-in-production";
+
+if (USING_FALLBACK_JWT_SECRET) {
+  console.warn("JWT_SECRET is missing or blank; using the built-in fallback secret. Set JWT_SECRET on Render.");
+}
 
 export type AuthClaims = {
   userId: number;
@@ -10,6 +18,7 @@ export type AuthClaims = {
 
 export type AuthedRequest = Request & {
   auth?: AuthClaims;
+  authUser?: typeof usersTable.$inferSelect;
 };
 
 function getBearerToken(req: Request): string | null {
@@ -57,6 +66,31 @@ export function requireAuth(req: AuthedRequest, res: Response, next: NextFunctio
     return;
   }
   req.auth = claims;
+  next();
+}
+
+export async function requireVerifiedSeller(req: AuthedRequest, res: Response, next: NextFunction) {
+  if (!req.auth?.userId) {
+    res.status(401).json({ error: "unauthorized", message: "Authentication required." });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth.userId));
+  if (!user) {
+    res.status(404).json({ error: "not_found", message: "User account not found." });
+    return;
+  }
+
+  req.authUser = user;
+
+  if ((user.role === "seller" || user.role === "both") && !user.emailVerifiedAt) {
+    res.status(403).json({
+      error: "email_verification_required",
+      message: "Verify your email before creating listings, equipment, or other seller content.",
+    });
+    return;
+  }
+
   next();
 }
 

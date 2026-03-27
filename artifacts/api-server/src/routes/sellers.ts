@@ -1,19 +1,21 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { usersTable, printersTable, listingsTable } from "@workspace/db/schema";
-import { eq, or } from "drizzle-orm";
+import { desc, eq, or, sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
 router.get("/sellers", async (req, res) => {
   const limit = Number(req.query.limit) || 20;
   const offset = Number(req.query.offset) || 0;
+  const sellerFilter = or(eq(usersTable.role, "seller"), eq(usersTable.role, "both"));
 
   const sellers = await db.select().from(usersTable)
-    .where(or(eq(usersTable.role, "seller"), eq(usersTable.role, "both")))
+    .where(sellerFilter)
+    .orderBy(desc(sql`coalesce(${usersTable.rating}, 0)`), desc(usersTable.reviewCount), desc(usersTable.totalPrints))
     .limit(limit).offset(offset);
 
-  const total = sellers.length;
+  const total = await db.$count(usersTable, sellerFilter);
 
   const enriched = await Promise.all(sellers.map(async (s) => {
     const printers = await db.select({ id: printersTable.id })

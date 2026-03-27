@@ -15,7 +15,7 @@ export type AuthContextValue = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (identifier: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -58,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      const { token, user: u } = await authLogin(email, password);
+    async (identifier: string, password: string) => {
+      const { token, user: u } = await authLogin(identifier, password);
       setStoredAccessToken(token);
       setUser(u);
       await queryClient.invalidateQueries();

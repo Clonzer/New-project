@@ -43,7 +43,7 @@ export default function Login() {
           <div className="glass-panel rounded-3xl border border-white/10 p-8 md:p-10">
             <h1 className="text-3xl font-display font-bold text-white mb-2 text-center">Sign in</h1>
             <p className="text-zinc-400 text-sm text-center mb-8">
-              Use the email and password for your account.
+              Use your email or username and your password.
             </p>
 
             <LoginForm

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { authChangePassword } from "@/lib/auth-api";
+import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { Bell, ChevronRight, CreditCard, Shield, Store, User } from "lucide-react";
@@ -26,6 +26,9 @@ export default function Settings() {
   const [activeSection, setActiveSection] = useState("profile");
   const [paymentEnabled, setPaymentEnabled] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isRequestingVerification, setIsRequestingVerification] = useState(false);
+  const [isConfirmingVerification, setIsConfirmingVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -61,6 +64,7 @@ export default function Settings() {
   }, []);
 
   const isSeller = useMemo(() => user?.role === "seller" || user?.role === "both", [user?.role]);
+  const isVerified = !!user?.emailVerifiedAt;
 
   const handleSave = async () => {
     if (!user) return;
@@ -111,6 +115,46 @@ export default function Settings() {
       });
     } finally {
       setIsUpdatingPassword(false);
+    }
+  };
+
+  const sendVerificationCode = async () => {
+    try {
+      setIsRequestingVerification(true);
+      const result = await authRequestEmailVerification();
+      toast({
+        title: result.alreadyVerified ? "Email already verified" : "Verification code sent",
+        description: result.alreadyVerified
+          ? "This account is already verified."
+          : `A 6-digit code was sent to ${result.email ?? "your email address"}.`,
+      });
+      await refreshUser();
+    } catch (error) {
+      toast({
+        title: "Could not send verification code",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsRequestingVerification(false);
+    }
+  };
+
+  const confirmVerificationCode = async () => {
+    try {
+      setIsConfirmingVerification(true);
+      await authConfirmEmailVerification(verificationCode.trim());
+      setVerificationCode("");
+      await refreshUser();
+      toast({ title: "Email verified", description: "Seller features are now fully enabled for this account." });
+    } catch (error) {
+      toast({
+        title: "Verification failed",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsConfirmingVerification(false);
     }
   };
 
@@ -330,6 +374,57 @@ export default function Settings() {
                 {activeSection === "security" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Security</h2>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+                      <div>
+                        <p className="text-sm font-medium text-white">Email verification</p>
+                        <p className="mt-1 text-sm text-zinc-400">
+                          {isVerified
+                            ? "This account is verified."
+                            : isSeller
+                              ? "Verify your email to create listings, manage equipment, and process seller work."
+                              : "You can verify now, or wait until you want to sell on the platform."}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <div
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            isVerified
+                              ? "bg-emerald-500/15 text-emerald-300"
+                              : "bg-yellow-500/15 text-yellow-200"
+                          }`}
+                        >
+                          {isVerified ? "Verified" : "Not verified"}
+                        </div>
+                        {!isVerified ? (
+                          <NeonButton
+                            glowColor="primary"
+                            onClick={() => void sendVerificationCode()}
+                            disabled={isRequestingVerification}
+                          >
+                            {isRequestingVerification ? "Sending..." : "Send verification code"}
+                          </NeonButton>
+                        ) : null}
+                      </div>
+                      {!isVerified ? (
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          <Input
+                            value={verificationCode}
+                            onChange={(event) => setVerificationCode(event.target.value)}
+                            inputMode="numeric"
+                            maxLength={6}
+                            placeholder="Enter 6-digit code"
+                            className="bg-black/30 border-white/10 text-white"
+                          />
+                          <NeonButton
+                            glowColor="primary"
+                            onClick={() => void confirmVerificationCode()}
+                            disabled={isConfirmingVerification}
+                          >
+                            {isConfirmingVerification ? "Verifying..." : "Verify email"}
+                          </NeonButton>
+                        </div>
+                      ) : null}
+                    </div>
                     <div>
                       <label className="block text-sm text-zinc-400 mb-1.5">Current Password</label>
                       <Input

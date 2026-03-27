@@ -111,6 +111,14 @@ router.patch("/orders/:orderId", requireAuth, async (req: AuthedRequest, res) =>
   const allowedForSeller = new Set(["accepted", "printing", "shipped", "cancelled"]);
 
   if (isSeller) {
+    const [seller] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+    if (!seller?.emailVerifiedAt) {
+      res.status(403).json({
+        error: "email_verification_required",
+        message: "Verify your email before managing seller orders.",
+      });
+      return;
+    }
     if (!allowedForSeller.has(nextStatus)) {
       res.status(403).json({ error: "forbidden", message: "Sellers cannot apply that status transition." });
       return;

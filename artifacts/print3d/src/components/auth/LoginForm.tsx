@@ -12,7 +12,7 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  identifier: z.string().trim().min(1, "Enter your email or username"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -34,7 +34,7 @@ export function LoginForm({
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: prefilledEmail, password: "" },
+    defaultValues: { identifier: prefilledEmail, password: "" },
   });
   const shouldSuggestSignup = !!error && /account|not found|incorrect/i.test(error);
 
@@ -42,7 +42,7 @@ export function LoginForm({
     setError(null);
     setSubmitting(true);
     try {
-      await login(data.email.trim().toLowerCase(), data.password);
+      await login(data.identifier.trim(), data.password);
       onSuccess?.();
     } catch (e) {
       setError(getApiErrorMessage(e));
@@ -75,15 +75,14 @@ export function LoginForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
-            name="email"
+            name="identifier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-zinc-300">Email</FormLabel>
+                <FormLabel className="text-zinc-300">Email or username</FormLabel>
                 <FormControl>
                   <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
+                    autoComplete="username"
+                    placeholder="you@example.com or maker_name"
                     className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
                     {...field}
                   />
