@@ -18,6 +18,7 @@ import {
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocalePreferences } from "@/lib/locale-preferences";
 
 type HeroSlide =
   | {
@@ -51,7 +52,7 @@ function formatCount(value: number | undefined) {
   return new Intl.NumberFormat("en-GB").format(value ?? 0);
 }
 
-function listingToSlide(listing: Listing): HeroSlide {
+function listingToSlide(listing: Listing, formatPrice: (amountUsd: number) => string): HeroSlide {
   return {
     kind: "listing",
     id: `listing-${listing.id}`,
@@ -63,7 +64,7 @@ function listingToSlide(listing: Listing): HeroSlide {
       `Produced by ${listing.sellerName} with ${listing.material || "custom materials"} and ready to order.`,
     imageUrl: listing.imageUrl ?? null,
     badge: listing.category,
-    metaA: `$${listing.basePrice.toFixed(2)} base`,
+    metaA: `${formatPrice(listing.basePrice)} base`,
     metaB: `${listing.estimatedDaysMin}-${listing.estimatedDaysMax} day lead time`,
     cta: "Order this print",
   };
@@ -90,6 +91,7 @@ function sellerToSlide(seller: SellerShop): HeroSlide {
 export default function Home() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { formatPrice } = useLocalePreferences();
 
   const { data: sellersData, isLoading: loadingSellers } = useListSellers({ limit: 6 });
   const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 6 });
@@ -97,8 +99,8 @@ export default function Home() {
   const featuredSellers = sellersData?.sellers ?? [];
   const featuredListings = listingsData?.listings ?? [];
   const slides = useMemo(
-    () => [...featuredListings.slice(0, 3).map(listingToSlide), ...featuredSellers.slice(0, 3).map(sellerToSlide)],
-    [featuredListings, featuredSellers],
+    () => [...featuredListings.slice(0, 3).map((listing) => listingToSlide(listing, formatPrice)), ...featuredSellers.slice(0, 3).map(sellerToSlide)],
+    [featuredListings, featuredSellers, formatPrice],
   );
 
   useEffect(() => {

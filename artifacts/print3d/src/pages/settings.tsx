@@ -8,6 +8,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";
+import {
+  COUNTRY_OPTIONS,
+  CURRENCY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  persistLocalePreferences,
+} from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { Bell, ChevronRight, CreditCard, Shield, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +46,9 @@ export default function Settings() {
     bio: user?.bio ?? "",
     location: user?.location ?? "",
     avatarUrl: user?.avatarUrl ?? "",
+    countryCode: user?.countryCode ?? "GB",
+    languageCode: user?.languageCode ?? "en-GB",
+    currencyCode: user?.currencyCode ?? "GBP",
     shopName: user?.shopName ?? "",
     bannerUrl: user?.bannerUrl ?? "",
     websiteUrl: user?.websiteUrl ?? "",
@@ -63,6 +72,9 @@ export default function Settings() {
       bio: user.bio ?? "",
       location: user.location ?? "",
       avatarUrl: user.avatarUrl ?? "",
+      countryCode: user.countryCode ?? "GB",
+      languageCode: user.languageCode ?? "en-GB",
+      currencyCode: user.currencyCode ?? "GBP",
       shopName: user.shopName ?? "",
       bannerUrl: user.bannerUrl ?? "",
       websiteUrl: user.websiteUrl ?? "",
@@ -107,6 +119,9 @@ export default function Settings() {
           bio: form.bio.trim() || null,
           location: form.location.trim() || null,
           avatarUrl: form.avatarUrl.trim() || null,
+          countryCode: form.countryCode.trim() || null,
+          languageCode: form.languageCode.trim() || null,
+          currencyCode: form.currencyCode.trim() || null,
           shopName: form.shopName.trim() || null,
           bannerUrl: form.bannerUrl.trim() || null,
           websiteUrl: form.websiteUrl.trim() || null,
@@ -122,6 +137,11 @@ export default function Settings() {
           returnPolicy: form.returnPolicy.trim() || null,
           customOrderPolicy: form.customOrderPolicy.trim() || null,
         },
+      });
+      persistLocalePreferences({
+        countryCode: form.countryCode,
+        languageCode: form.languageCode,
+        currencyCode: form.currencyCode,
       });
       await refreshUser();
       toast({ title: "Settings saved", description: "Your account details were updated." });
@@ -288,6 +308,59 @@ export default function Settings() {
                       </div>
                     </div>
 
+                    <div className="grid gap-4 lg:grid-cols-3">
+                      <div>
+                        <label className="block text-sm text-zinc-400 mb-1.5">Country</label>
+                        <select
+                          value={form.countryCode}
+                          onChange={(event) => {
+                            const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === event.target.value);
+                            setForm((current) => ({
+                              ...current,
+                              countryCode: event.target.value,
+                              currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
+                              languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
+                            }));
+                          }}
+                          className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        >
+                          {COUNTRY_OPTIONS.map((option) => (
+                            <option key={option.code} value={option.code}>
+                              {option.flag} {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-zinc-400 mb-1.5">Language</label>
+                        <select
+                          value={form.languageCode}
+                          onChange={(event) => setForm((current) => ({ ...current, languageCode: event.target.value }))}
+                          className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        >
+                          {LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.code} value={option.code}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-zinc-400 mb-1.5">Currency</label>
+                        <select
+                          value={form.currencyCode}
+                          onChange={(event) => setForm((current) => ({ ...current, currencyCode: event.target.value }))}
+                          className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        >
+                          {CURRENCY_OPTIONS.map((option) => (
+                            <option key={option.code} value={option.code}>
+                              {option.code} - {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-sm text-zinc-400 mb-1.5">Display Name</label>
                       <Input
@@ -435,7 +508,24 @@ export default function Settings() {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Banner image URL</label>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Banner image</label>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              className="mb-3 bg-black/30 border-white/10 text-white text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1 file:text-xs file:text-white"
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  setForm((current) => ({
+                                    ...current,
+                                    bannerUrl: typeof reader.result === "string" ? reader.result : current.bannerUrl,
+                                  }));
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
                             <Input
                               value={form.bannerUrl}
                               onChange={(event) => setForm((current) => ({ ...current, bannerUrl: event.target.value }))}
@@ -444,6 +534,11 @@ export default function Settings() {
                             />
                           </div>
                         </div>
+                        {form.bannerUrl ? (
+                          <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                            <img src={form.bannerUrl} alt="Shop banner preview" className="h-36 w-full object-cover" />
+                          </div>
+                        ) : null}
                         <div>
                           <label className="block text-sm text-zinc-400 mb-2">Shop Mode</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

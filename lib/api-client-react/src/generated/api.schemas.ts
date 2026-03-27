@@ -39,6 +39,9 @@ export interface User {
   email: string;
   bio?: string | null;
   avatarUrl?: string | null;
+  countryCode?: string | null;
+  languageCode?: string | null;
+  currencyCode?: string | null;
   role: UserRole;
   rating?: number | null;
   reviewCount: number;
@@ -181,6 +184,9 @@ export interface CreateUserRequest {
   password: string;
   bio?: string | null;
   avatarUrl?: string | null;
+  countryCode?: string | null;
+  languageCode?: string | null;
+  currencyCode?: string | null;
   role: CreateUserRequestRole;
   location?: string | null;
   shopName?: string | null;
@@ -201,6 +207,9 @@ export interface UpdateUserRequest {
   displayName?: string;
   bio?: string | null;
   avatarUrl?: string | null;
+  countryCode?: string | null;
+  languageCode?: string | null;
+  currencyCode?: string | null;
   location?: string | null;
   shopName?: string | null;
   shopMode?: UpdateUserRequestShopMode;

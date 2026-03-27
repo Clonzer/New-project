@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Box, ShieldCheck, Upload } from "lucide-react";
 
 const orderSchema = z.object({
@@ -35,6 +36,7 @@ export default function OrderFlow() {
   const sellerId = searchParams.get("sellerId");
 
   const { user } = useAuth();
+  const { formatPrice } = useLocalePreferences();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -390,22 +392,22 @@ export default function OrderFlow() {
                 <div className="space-y-3 text-sm mb-6">
                   <div className="flex justify-between text-zinc-300">
                     <span>Subtotal (x{quantity})</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-zinc-300">
                     <span>Platform Fee (10%)</span>
-                    <span>${platformFee.toFixed(2)}</span>
+                    <span>{formatPrice(platformFee)}</span>
                   </div>
                   <div className="flex justify-between text-zinc-300">
                     <span>Shipping</span>
-                    <span>${lineShipping.toFixed(2)}</span>
+                    <span>{formatPrice(lineShipping)}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center pt-6 border-t border-white/10 mb-6">
                   <span className="font-medium text-white">Total</span>
                   <span className="text-2xl font-display font-bold text-primary text-glow-primary">
-                    ${total.toFixed(2)}
+                    {formatPrice(total)}
                   </span>
                 </div>
 

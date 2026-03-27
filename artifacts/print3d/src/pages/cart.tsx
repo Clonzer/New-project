@@ -19,10 +19,12 @@ import {
   writeCart,
 } from "@/lib/cart-storage";
 import { createCheckoutSession } from "@/lib/payments-api";
+import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Box, ShoppingBag, Trash2 } from "lucide-react";
 
 export default function Cart() {
   const { user } = useAuth();
+  const { formatPrice } = useLocalePreferences();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const [lines, setLines] = useState<CartLine[]>(() => readCart());
@@ -162,7 +164,7 @@ export default function Cart() {
                       <p className="font-semibold text-white truncate">{listing.title}</p>
                       <p className="text-xs text-zinc-500 mb-2">by {listing.sellerName}</p>
                       <p className="text-sm text-zinc-400">
-                        ${listing.basePrice.toFixed(2)} each - shipping ${(listing.shippingCost ?? 0).toFixed(2)} / unit
+                        {formatPrice(listing.basePrice)} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
                       </p>
                       <div className="flex items-center gap-3 mt-3">
                         <span className="text-xs text-zinc-500">Qty</span>
@@ -201,20 +203,20 @@ export default function Cart() {
                 <div className="space-y-2 text-sm text-zinc-300 mb-4">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>${shippingTotal.toFixed(2)}</span>
+                    <span>{formatPrice(shippingTotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Platform fee (10%)</span>
-                    <span>${platformFee.toFixed(2)}</span>
+                    <span>{formatPrice(platformFee)}</span>
                   </div>
                 </div>
                 <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-white/10 mb-6">
                   <span>Total</span>
-                  <span className="text-primary">${grandTotal.toFixed(2)}</span>
+                  <span className="text-primary">{formatPrice(grandTotal)}</span>
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm text-zinc-400 mb-2">Shipping address</label>

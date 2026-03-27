@@ -71,6 +71,9 @@ router.post("/users", async (req, res) => {
         location: rest.location?.trim() || null,
         bio: rest.bio?.trim() || null,
         avatarUrl: rest.avatarUrl?.trim() || null,
+        countryCode: rest.countryCode?.trim().toUpperCase() || null,
+        languageCode: rest.languageCode?.trim() || null,
+        currencyCode: rest.currencyCode?.trim().toUpperCase() || null,
         passwordHash,
       })
       .returning();
@@ -190,6 +193,9 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     displayName: parsed.data.displayName?.trim(),
     bio: parsed.data.bio?.trim() || null,
     avatarUrl: parsed.data.avatarUrl?.trim() || null,
+    countryCode: parsed.data.countryCode?.trim().toUpperCase() || null,
+    languageCode: parsed.data.languageCode?.trim() || null,
+    currencyCode: parsed.data.currencyCode?.trim().toUpperCase() || null,
     location: parsed.data.location?.trim() || null,
     shopName: parsed.data.shopName?.trim() || null,
     bannerUrl: parsed.data.bannerUrl?.trim() || null,

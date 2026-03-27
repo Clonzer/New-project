@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
 import type { ListingPriceInsight } from "@/lib/listing-pricing";
+import { useLocalePreferences } from "@/lib/locale-preferences";
 
 export function ListingCard({
   listing,
@@ -14,6 +15,7 @@ export function ListingCard({
   priceInsight?: ListingPriceInsight;
 }) {
   const { toast } = useToast();
+  const { formatPrice } = useLocalePreferences();
   const ship = listing.shippingCost ?? 0;
   const priceInsightClassName =
     priceInsight?.tone === "good"
@@ -44,7 +46,7 @@ export function ListingCard({
           <div className="text-right">
             <p className="text-xs text-zinc-300">from</p>
             <p className="font-display font-bold text-lg text-primary text-glow-primary">
-              ${listing.basePrice.toFixed(2)}
+              {formatPrice(listing.basePrice)}
             </p>
           </div>
         </div>
@@ -74,7 +76,7 @@ export function ListingCard({
             <Clock className="w-3.5 h-3.5" />
             <span>Est. {listing.estimatedDaysMin}-{listing.estimatedDaysMax} days</span>
             {ship > 0 && (
-              <span className="text-zinc-500">· +${ship.toFixed(2)} ship</span>
+              <span className="text-zinc-500">· +{formatPrice(ship)} ship</span>
             )}
           </div>
           
