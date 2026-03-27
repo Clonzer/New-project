@@ -69,10 +69,42 @@ router.post("/users", async (req, res) => {
     res.status(201).json(publicUser(user));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
+    const cause =
+      e && typeof e === "object" && "cause" in e && e.cause && typeof e.cause === "object"
+        ? (e.cause as Record<string, unknown>)
+        : undefined;
+    const code =
+      e && typeof e === "object" && "code" in e && typeof (e as { code?: unknown }).code === "string"
+        ? (e as { code: string }).code
+        : typeof cause?.["code"] === "string"
+          ? (cause["code"] as string)
+          : undefined;
+    const detail =
+      e && typeof e === "object" && "detail" in e && typeof (e as { detail?: unknown }).detail === "string"
+        ? (e as { detail: string }).detail
+        : typeof cause?.["detail"] === "string"
+          ? (cause["detail"] as string)
+          : undefined;
+    const constraint =
+      typeof cause?.["constraint"] === "string" ? (cause["constraint"] as string) : undefined;
     if (/relation .*users.* does not exist|column .* does not exist/i.test(msg)) {
       res.status(503).json({
         error: "schema_not_ready",
         message: "Database schema is not ready yet. Redeploy after migrations complete.",
+      });
+      return;
+    }
+    if (code === "42P01" || code === "42703" || code === "42704") {
+      res.status(503).json({
+        error: "schema_not_ready",
+        message: "Database schema is missing required account fields. Redeploy so migrations can finish.",
+      });
+      return;
+    }
+    if (code === "23502") {
+      res.status(400).json({
+        error: "validation_error",
+        message: "Required account data is missing or the database schema is out of date.",
       });
       return;
     }
@@ -88,7 +120,29 @@ router.post("/users", async (req, res) => {
       res.status(409).json({ error: "conflict", message: "A user with these details already exists." });
       return;
     }
-    console.error("createUser", e);
+    if (code === "23505") {
+      res.status(409).json({
+        error: "conflict",
+        message: detail?.includes("email") ? "An account with this email already exists." : "Username is already taken.",
+      });
+      return;
+    }
+    if (code === "23505") {
+      if (constraint === "users_username_key" || detail?.includes("(username)=")) {
+        res.status(409).json({ error: "conflict", message: "Username is already taken." });
+        return;
+      }
+      if (constraint === "users_email_key" || detail?.includes("(email)=")) {
+        res.status(409).json({ error: "conflict", message: "An account with this email already exists." });
+        return;
+      }
+      res.status(409).json({
+        error: "conflict",
+        message: "An account with these details already exists.",
+      });
+      return;
+    }
+    console.error("createUser", { code, msg, detail, error: e });
     res.status(500).json({ error: "server_error", message: "Could not create account. Please try again." });
   }
 });
