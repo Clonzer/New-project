@@ -4,10 +4,23 @@ import { Box, Clock, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
+import type { ListingPriceInsight } from "@/lib/listing-pricing";
 
-export function ListingCard({ listing }: { listing: Listing }) {
+export function ListingCard({
+  listing,
+  priceInsight,
+}: {
+  listing: Listing;
+  priceInsight?: ListingPriceInsight;
+}) {
   const { toast } = useToast();
   const ship = listing.shippingCost ?? 0;
+  const priceInsightClassName =
+    priceInsight?.tone === "good"
+      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+      : priceInsight?.tone === "premium"
+        ? "bg-amber-500/15 text-amber-200 border-amber-500/30"
+        : "bg-sky-500/15 text-sky-200 border-sky-500/30";
 
   return (
     <div className="group relative rounded-2xl overflow-hidden glass-panel border border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] flex flex-col h-full">
@@ -45,6 +58,16 @@ export function ListingCard({ listing }: { listing: Listing }) {
         <Link href={`/shop/${listing.sellerId}`} className="text-sm text-muted-foreground hover:text-accent transition-colors mb-4 line-clamp-1 block">
           by {listing.sellerName}
         </Link>
+
+        {priceInsight ? (
+          <div className="mb-4 rounded-xl border p-3">
+            <div className="flex items-center justify-between gap-3">
+              <Badge className={priceInsightClassName}>{priceInsight.label}</Badge>
+              <span className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">Live market check</span>
+            </div>
+            <p className="mt-2 text-xs text-zinc-400">{priceInsight.detail}</p>
+          </div>
+        ) : null}
         
         <div className="mt-auto space-y-3">
           <div className="flex items-center gap-2 text-xs text-zinc-400">

@@ -18,6 +18,7 @@ import Messages from "@/pages/messages";
 import Pricing from "@/pages/pricing";
 import Cart from "@/pages/cart";
 import SearchPage from "@/pages/search";
+import CompareShops from "@/pages/compare-shops";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/order/new" component={OrderFlowPage} />
       <Route path="/cart" component={CartPage} />
       <Route path="/search" component={SearchPage} />
+      <Route path="/compare-shops" component={CompareShops} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />

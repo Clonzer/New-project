@@ -7,6 +7,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { useSearch } from "wouter";
+import { buildListingPriceInsights } from "@/lib/listing-pricing";
 
 const CATEGORIES = ["All", "Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture"];
 
@@ -31,6 +32,7 @@ export default function Listings() {
       selectedCategory === "All" || l.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
+  const priceInsights = filteredListings ? buildListingPriceInsights(filteredListings) : new Map();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -107,7 +109,7 @@ export default function Listings() {
               </div>
             ) : (
               filteredListings?.map(listing => (
-                <ListingCard key={listing.id} listing={listing} />
+                <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
               ))
             )}
           </div>

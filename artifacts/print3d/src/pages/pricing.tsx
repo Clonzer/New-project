@@ -88,7 +88,7 @@ const PLANS = [
 const FAQS = [
   {
     q: "How does the platform fee work?",
-    a: "When a buyer places an order, their payment is held in escrow by SYNTHIX Print. When you mark the order as shipped, we release your earnings minus the platform fee. For example, on a $100 order with a Pro plan (7% fee), you receive $93.",
+    a: "When a buyer places an order, their payment is held in escrow by SYNTHIX. When you mark the order as shipped, we release your earnings minus the platform fee. For example, on a $100 order with a Pro plan (7% fee), you receive $93.",
   },
   {
     q: "What counts as a 'free listing'?",
@@ -357,7 +357,7 @@ export default function Pricing() {
             <div className="relative z-10">
               <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
               <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">Ready to maximize your earnings?</h2>
-              <p className="text-zinc-300 mb-8 max-w-lg mx-auto">Join thousands of makers who've upgraded their SYNTHIX Print experience.</p>
+              <p className="text-zinc-300 mb-8 max-w-lg mx-auto">Join thousands of makers who've upgraded their SYNTHIX experience.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/register">
                   <NeonButton glowColor="primary" className="px-8 py-4 rounded-full text-base">Start Pro Trial — Free 14 Days</NeonButton>

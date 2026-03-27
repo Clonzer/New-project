@@ -8,7 +8,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                SYNTHIX<span className="font-light text-white/80"> Print</span>
+                SYNTHIX
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm">
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/10 text-center text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center">
-          <p>© {new Date().getFullYear()} SYNTHIX Print. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SYNTHIX. All rights reserved.</p>
           <div className="mt-4 md:mt-0 space-x-4">
             <span>Platform fee: 10% · Released on shipment</span>
           </div>

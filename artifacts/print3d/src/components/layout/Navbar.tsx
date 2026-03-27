@@ -1,18 +1,22 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, GitCompareArrows } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { NeonButton } from "@/components/ui/neon-button";
 import { cartItemCount, CART_CHANGE_EVENT } from "@/lib/cart-storage";
+import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare";
+import { listMessageThreads } from "@/lib/messages-api";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
+  const [comparedCount, setComparedCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -25,6 +29,30 @@ export function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    const syncCompare = () => setComparedCount(getComparedShops().length);
+    syncCompare();
+    window.addEventListener("storage", syncCompare);
+    window.addEventListener(SHOP_COMPARE_CHANGE_EVENT, syncCompare);
+    return () => {
+      window.removeEventListener("storage", syncCompare);
+      window.removeEventListener(SHOP_COMPARE_CHANGE_EVENT, syncCompare);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+
+    void listMessageThreads()
+      .then((result) => {
+        setNotificationCount(result.threads.reduce((sum, thread) => sum + thread.unreadCount, 0));
+      })
+      .catch(() => setNotificationCount(0));
+  }, [user]);
+
   const isActive = (path: string) => location === path;
   const isSeller = user?.role === "seller" || user?.role === "both";
 
@@ -34,7 +62,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 group">
             <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent group-hover:drop-shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300">
-              SYNTHIX<span className="font-light text-white/80"> Print</span>
+              SYNTHIX
             </span>
           </Link>
 
@@ -102,6 +130,30 @@ export function Navbar() {
             </Button>
           </Link>
 
+          {comparedCount > 0 ? (
+            <Link href="/compare-shops">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
+                <GitCompareArrows className="w-5 h-5" />
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-[10px] font-bold text-white flex items-center justify-center">
+                  {comparedCount}
+                </span>
+              </Button>
+            </Link>
+          ) : null}
+
+          {user ? (
+            <Link href="/messages">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
+                <Bell className="w-5 h-5" />
+                {notificationCount > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                    {notificationCount > 99 ? "99+" : notificationCount}
+                  </span>
+                ) : null}
+              </Button>
+            </Link>
+          ) : null}
+
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/dashboard">
@@ -118,14 +170,6 @@ export function Navbar() {
                   <span className="text-sm font-medium hidden sm:block">{user.displayName}</span>
                 </div>
               </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-zinc-400 hover:text-white hidden sm:inline-flex"
-                onClick={() => void logout()}
-              >
-                Log out
-              </Button>
             </div>
           ) : (
             <Link href="/login">
@@ -154,7 +198,10 @@ export function Navbar() {
                 { path: "/explore", label: "Explore Shops" },
                 { path: "/listings", label: "Model Catalog" },
                 { path: "/cart", label: "Cart" },
+                { path: "/compare-shops", label: "Compare Shops" },
+                { path: "/messages", label: "Messages" },
                 { path: "/dashboard", label: "Dashboard" },
+                { path: "/settings", label: "Settings" },
               ].map(r => (
                 <Link key={r.path} href={r.path} onClick={() => setMenuOpen(false)}
                   className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors">
@@ -171,18 +218,6 @@ export function Navbar() {
                   className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors">
                   Sign In
                 </Link>
-              )}
-              {user && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    void logout();
-                  }}
-                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-zinc-400 hover:text-white font-medium transition-colors text-left"
-                >
-                  Log out
-                </button>
               )}
             </nav>
           </motion.div>

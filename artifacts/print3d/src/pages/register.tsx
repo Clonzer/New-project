@@ -183,7 +183,7 @@ export default function Register() {
           <div className="text-center mb-8">
             <Link href="/">
               <span className="font-display font-extrabold text-2xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                SYNTHIX<span className="font-light text-white/80"> Print</span>
+                SYNTHIX
               </span>
             </Link>
           </div>

@@ -1,12 +1,29 @@
+import { useEffect, useState } from "react";
 import { SellerShop } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { Star, MapPin, Printer, Package } from "lucide-react";
+import { Star, MapPin, Printer, Package, GitCompareArrows } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
+import { useToast } from "@/hooks/use-toast";
 
 export function SellerCard({ seller }: { seller: SellerShop }) {
+  const { toast } = useToast();
+  const [isCompared, setIsCompared] = useState(() => isComparedShop(seller.id));
+
+  useEffect(() => {
+    const sync = () => setIsCompared(isComparedShop(seller.id));
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener(SHOP_COMPARE_CHANGE_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(SHOP_COMPARE_CHANGE_EVENT, sync);
+    };
+  }, [seller.id]);
+
   return (
-    <Link href={`/shop/${seller.id}`}>
-      <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden">
+    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden">
         {/* Glow effect behind */}
         <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
@@ -77,8 +94,42 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               <Badge variant="outline" className="text-xs bg-transparent border-accent/30 text-accent font-normal">Custom Jobs</Badge>
             ) : null}
           </div>
+
+          <div className="mt-5 flex gap-2">
+            <Link href={`/shop/${seller.id}`} className="flex-1">
+              <Button className="w-full rounded-xl">View shop</Button>
+            </Link>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+              onClick={() => {
+                const added = toggleComparedShop({
+                  id: seller.id,
+                  displayName: seller.displayName,
+                  shopName: seller.shopName ?? null,
+                  location: seller.location ?? null,
+                  rating: seller.rating ?? null,
+                  reviewCount: seller.reviewCount,
+                  shopMode: seller.shopMode ?? null,
+                  totalPrints: seller.totalPrints,
+                });
+                toast({
+                  title: added ? "Shop added to compare" : "Shop removed from compare",
+                  description: added
+                    ? "Open the compare page to review shops side by side."
+                    : "This maker has been removed from your compare list.",
+                });
+              }}
+            >
+              <GitCompareArrows className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {isCompared ? (
+            <p className="mt-3 text-xs text-accent">Pinned for comparison</p>
+          ) : null}
         </div>
-      </div>
-    </Link>
+    </div>
   );
 }

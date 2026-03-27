@@ -2,24 +2,42 @@ import { useParams, Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useGetUser, useListPrinters, useListListings, useListReviews } from "@workspace/api-client-react";
-import { MapPin, Star, Calendar, MessageSquare, Printer as PrinterIcon, Hammer } from "lucide-react";
+import { MapPin, Star, Calendar, MessageSquare, Printer as PrinterIcon, Hammer, GitCompareArrows } from "lucide-react";
 import { categoryLabel } from "@/lib/equipment-catalog";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 import { NeonButton } from "@/components/ui/neon-button";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
+import { useToast } from "@/hooks/use-toast";
+import { buildListingPriceInsights } from "@/lib/listing-pricing";
 
 export default function Shop() {
   const params = useParams();
   const shopId = parseInt(params.id || "0", 10);
+  const { toast } = useToast();
+  const [isCompared, setIsCompared] = useState(false);
   
   const { data: user, isLoading: loadingUser } = useGetUser(shopId);
   const { data: printersData } = useListPrinters({ userId: shopId });
   const { data: listingsData } = useListListings({ sellerId: shopId });
   const { data: reviewsData } = useListReviews({ revieweeId: shopId });
+  const priceInsights = listingsData?.listings ? buildListingPriceInsights(listingsData.listings) : new Map();
+
+  useEffect(() => {
+    const sync = () => setIsCompared(isComparedShop(shopId));
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener(SHOP_COMPARE_CHANGE_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(SHOP_COMPARE_CHANGE_EVENT, sync);
+    };
+  }, [shopId]);
 
   if (loadingUser) {
     return (
@@ -79,6 +97,31 @@ export default function Shop() {
               </div>
               
               <div className="shrink-0 w-full md:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full py-6 text-lg rounded-xl glass-panel text-white hover:bg-white/10 border-white/20 mb-3"
+                  onClick={() => {
+                    const added = toggleComparedShop({
+                      id: user.id,
+                      displayName: user.displayName,
+                      shopName: user.shopName ?? null,
+                      location: user.location ?? null,
+                      rating: user.rating ?? null,
+                      reviewCount: user.reviewCount,
+                      shopMode: user.shopMode ?? null,
+                      totalPrints: user.totalPrints,
+                    });
+                    toast({
+                      title: added ? "Shop added to compare" : "Shop removed from compare",
+                      description: added
+                        ? "Open compare to review this shop against others."
+                        : "This shop is no longer pinned for comparison.",
+                    });
+                  }}
+                >
+                  <GitCompareArrows className="w-5 h-5 mr-2" />
+                  {isCompared ? "Remove from compare" : "Compare shop"}
+                </Button>
                 {(user.shopMode === "open" || user.shopMode === "both") && (
                   <Link href={`/order/new?sellerId=${user.id}`}>
                     <NeonButton className="w-full py-6 text-lg rounded-xl mb-3">
@@ -110,7 +153,7 @@ export default function Shop() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {listingsData?.listings.map(listing => (
-                    <ListingCard key={listing.id} listing={listing} />
+                    <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
                   ))}
                 </div>
               )}

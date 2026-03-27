@@ -10,6 +10,7 @@ import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerif
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { Bell, ChevronRight, CreditCard, Shield, Store, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
@@ -20,7 +21,7 @@ const SECTIONS = [
 ];
 
 export default function Settings() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const { toast } = useToast();
   const updateUser = useUpdateUser();
   const [activeSection, setActiveSection] = useState("profile");
@@ -87,6 +88,10 @@ export default function Settings() {
 
   const isSeller = useMemo(() => user?.role === "seller" || user?.role === "both", [user?.role]);
   const isVerified = !!user?.emailVerifiedAt;
+  const appOrigin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://your-synthix-domain.onrender.com";
 
   const handleSave = async () => {
     if (!user) return;
@@ -531,6 +536,34 @@ export default function Settings() {
                       <p>Buyer payments are captured before an order enters the seller workflow.</p>
                       <p>Platform fee: 10% of each order subtotal.</p>
                     </div>
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">Render setup checklist</h3>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-zinc-300">
+                        {[
+                          "DATABASE_URL",
+                          "JWT_SECRET",
+                          "STRIPE_SECRET_KEY",
+                          "STRIPE_WEBHOOK_SECRET",
+                          "GOOGLE_CLIENT_ID",
+                          "VITE_GOOGLE_CLIENT_ID",
+                          "SMTP_HOST",
+                          "SMTP_PORT",
+                          "SMTP_USER",
+                          "SMTP_PASS",
+                          "SMTP_FROM",
+                        ].map((item) => (
+                          <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs">
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="mt-4 text-sm text-zinc-400">
+                        Stripe webhook URL: <span className="text-zinc-200">{appOrigin}/api/payments/stripe/webhook</span>
+                      </p>
+                      <p className="mt-2 text-sm text-zinc-400">
+                        In Stripe, subscribe the webhook to <span className="text-zinc-200">checkout.session.completed</span> and <span className="text-zinc-200">checkout.session.expired</span>.
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -634,6 +667,20 @@ export default function Settings() {
                       <NeonButton glowColor="primary" onClick={() => void updatePassword()} disabled={isUpdatingPassword}>
                         {isUpdatingPassword ? "Updating..." : "Update Password"}
                       </NeonButton>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-white">Sign out on this device</p>
+                        <p className="mt-1 text-sm text-zinc-400">Logout has been moved into settings to keep the main header focused on browsing and orders.</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+                        onClick={() => void logout()}
+                      >
+                        Log out
+                      </Button>
                     </div>
                   </div>
                 )}
