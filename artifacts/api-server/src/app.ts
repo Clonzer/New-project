@@ -66,7 +66,19 @@ function resolveFrontendDistPath() {
     path.resolve(runtimeEntry, "..", "..", "..", "artifacts", "print3d", "dist", "public"),
   ];
 
-  return candidates.find((candidate) => existsSync(path.join(candidate, "index.html"))) ?? null;
+  const resolved = candidates.find((candidate) => existsSync(path.join(candidate, "index.html"))) ?? null;
+
+  console.log("Frontend resolution", {
+    cwd: process.cwd(),
+    runtimeEntry,
+    candidates: candidates.map((candidate) => ({
+      path: candidate,
+      hasIndex: existsSync(path.join(candidate, "index.html")),
+    })),
+    resolved,
+  });
+
+  return resolved;
 }
 
 const frontendDistPath = resolveFrontendDistPath();
