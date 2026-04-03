@@ -64,6 +64,16 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
           <p className="text-sm text-zinc-400 line-clamp-2 mb-5 h-10">
             {seller.bio || "Fabrication, additive, and custom work — see shop for details."}
           </p>
+
+          {seller.sellerTags?.length ? (
+            <div className="mb-4 flex flex-wrap gap-1.5">
+              {seller.sellerTags.slice(0, 3).map((tag) => (
+                <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
           
           <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
             <div className="flex items-center gap-2 text-sm text-zinc-300">

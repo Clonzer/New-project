@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 
 const JWT_SECRET = process.env["JWT_SECRET"]?.trim() || "dev-only-change-in-production";
 const USING_FALLBACK_JWT_SECRET = JWT_SECRET === "dev-only-change-in-production";
+const OWNER_EMAILS = new Set(["evanhuelin8@gmail.com", "evanhuelin@gmail.com"]);
 
 if (USING_FALLBACK_JWT_SECRET) {
   console.warn("JWT_SECRET is missing or blank; using the built-in fallback secret. Set JWT_SECRET on Render.");
@@ -20,6 +21,10 @@ export type AuthedRequest = Request & {
   auth?: AuthClaims;
   authUser?: typeof usersTable.$inferSelect;
 };
+
+export function isOwnerEmail(email: string) {
+  return OWNER_EMAILS.has(email.trim().toLowerCase());
+}
 
 function getBearerToken(req: Request): string | null {
   const header = req.headers.authorization;
@@ -83,11 +88,41 @@ export async function requireVerifiedSeller(req: AuthedRequest, res: Response, n
 
   req.authUser = user;
 
-  if ((user.role === "seller" || user.role === "both") && !user.emailVerifiedAt) {
+  if (user.role !== "seller" && user.role !== "both") {
+    res.status(403).json({
+      error: "seller_account_required",
+      message: "Switch this account into seller mode before creating listings or equipment.",
+    });
+    return;
+  }
+
+  if (!user.emailVerifiedAt) {
     res.status(403).json({
       error: "email_verification_required",
       message: "Verify your email before creating listings, equipment, or other seller content.",
     });
+    return;
+  }
+
+  next();
+}
+
+export async function requireOwner(req: AuthedRequest, res: Response, next: NextFunction) {
+  if (!req.auth?.userId) {
+    res.status(401).json({ error: "unauthorized", message: "Authentication required." });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth.userId));
+  if (!user) {
+    res.status(404).json({ error: "not_found", message: "User account not found." });
+    return;
+  }
+
+  req.authUser = user;
+
+  if (!isOwnerEmail(user.email)) {
+    res.status(403).json({ error: "forbidden", message: "This admin panel is restricted to owner accounts." });
     return;
   }
 

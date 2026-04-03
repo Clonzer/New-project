@@ -31,6 +31,24 @@ export async function authChangePassword(currentPassword: string, newPassword: s
   });
 }
 
+export async function authRequestPasswordReset(email: string) {
+  return customFetch<{ ok: boolean }>("/api/auth/password/request-reset", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+    skipAuth: true,
+    credentials: "include",
+  });
+}
+
+export async function authResetPassword(email: string, code: string, newPassword: string) {
+  return customFetch<{ ok: boolean }>("/api/auth/password/reset", {
+    method: "POST",
+    body: JSON.stringify({ email, code, newPassword }),
+    skipAuth: true,
+    credentials: "include",
+  });
+}
+
 export async function authRequestEmailVerification() {
   return customFetch<{ ok: boolean; alreadyVerified?: boolean; email?: string; expiresAt?: string }>(
     "/api/auth/verify-email/request",

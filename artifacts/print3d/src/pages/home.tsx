@@ -140,29 +140,80 @@ export default function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-2xl mb-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm">
-                <Sparkles className="w-4 h-4" />
-                Live marketplace showcase
-              </span>
-              <h1 className="mt-6 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
-                Discover featured makers and products in one live feed.
-              </h1>
-              <p className="mt-5 max-w-xl text-lg text-zinc-300 leading-relaxed">
-                SYNTHIX now pulls the homepage from real shop and catalog data, so featured products, makers, and counts
-                stay tied to the marketplace instead of placeholders.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Link href="/explore">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
-                    Browse makers <ChevronRight className="w-5 h-5 ml-1" />
-                  </NeonButton>
-                </Link>
-                <Link href="/listings">
-                  <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
-                    Browse catalog
-                  </NeonButton>
-                </Link>
+            <div className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm">
+                  <Sparkles className="w-4 h-4" />
+                  Storefront marketplace
+                </span>
+                <h1 className="mt-6 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
+                  One store for custom manufacturing, maker shops, and ready-to-order products.
+                </h1>
+                <p className="mt-5 max-w-xl text-lg text-zinc-300 leading-relaxed">
+                  SYNTHIX is built as a real production marketplace: buyers can discover trusted makers, compare shops,
+                  order listed products, and request custom fabrication from the same storefront.
+                </p>
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                  <Link href="/explore">
+                    <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                      Browse makers <ChevronRight className="w-5 h-5 ml-1" />
+                    </NeonButton>
+                  </Link>
+                  <Link href="/listings">
+                    <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                      Browse catalog
+                    </NeonButton>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="relative min-h-[22rem]">
+                <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(159,229,255,0.18),transparent_32%),linear-gradient(145deg,rgba(13,17,23,0.92),rgba(3,7,18,0.8))] shadow-[0_30px_120px_rgba(0,0,0,0.45)]" />
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="absolute left-6 right-6 top-6 rounded-[1.5rem] border border-white/10 bg-black/35 p-5 backdrop-blur-xl"
+                >
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.22em] text-zinc-500">
+                    <span>Marketplace pulse</span>
+                    <span>Live</span>
+                  </div>
+                  <div className="mt-5 grid grid-cols-2 gap-4">
+                    {stats.slice(0, 4).map((stat, index) => {
+                      const Icon = stat.icon;
+                      return (
+                        <motion.div
+                          key={stat.label}
+                          initial={{ opacity: 0, scale: 0.96 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 + index * 0.08 }}
+                          className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                        >
+                          <div className="flex items-center justify-between">
+                            <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">{stat.label}</p>
+                            <Icon className="w-4 h-4 text-[#9fe5ff]" />
+                          </div>
+                          <p className="mt-3 text-2xl font-display font-bold text-white">{stat.value}</p>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                  className="absolute bottom-8 left-10 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100"
+                >
+                  Verified sellers updated live
+                </motion.div>
+                <motion.div
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                  className="absolute bottom-20 right-10 max-w-[16rem] rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-zinc-200 backdrop-blur-lg"
+                >
+                  Compare shops, inspect specialties, and move from inspiration to checkout in one place.
+                </motion.div>
               </div>
             </div>
 

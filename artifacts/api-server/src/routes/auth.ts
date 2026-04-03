@@ -4,9 +4,10 @@ import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { OAuth2Client } from "google-auth-library";
-import { type AuthedRequest, getTokenFromRequest, requireAuth, signAccessToken, verifyAccessToken } from "../lib/auth";
+import { type AuthedRequest, getTokenFromRequest, isOwnerEmail, requireAuth, signAccessToken, verifyAccessToken } from "../lib/auth";
 import { confirmEmailVerificationCode, sendEmailVerificationCode } from "../lib/email-verification";
 import { isEmailDeliveryConfigured } from "../lib/mailer";
+import { confirmPasswordResetCode, sendPasswordResetCode } from "../lib/password-reset";
 
 const router: IRouter = Router();
 
@@ -21,9 +22,19 @@ function publicUser(u: UserRow) {
     passwordHash: _p,
     emailVerificationCodeHash: _code,
     emailVerificationExpiresAt: _expires,
+    passwordResetCodeHash: _resetCode,
+    passwordResetExpiresAt: _resetExpiry,
     ...rest
   } = u;
   return rest;
+}
+
+function sessionUser(u: UserRow) {
+  return {
+    ...publicUser(u),
+    isOwner: isOwnerEmail(u.email),
+    accountStatus: isOwnerEmail(u.email) ? "owner" : u.accountStatus,
+  };
 }
 
 async function createSession(res: Parameters<typeof router.post>[1] extends never ? never : any, row: UserRow) {
@@ -35,7 +46,7 @@ async function createSession(res: Parameters<typeof router.post>[1] extends neve
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
   });
-  res.json({ token, user: publicUser(row) });
+  res.json({ token, user: sessionUser(row) });
 }
 
 async function generateUniqueUsername(seed: string) {
@@ -171,6 +182,56 @@ router.post("/auth/logout", (_req, res) => {
   res.json({ ok: true });
 });
 
+router.post("/auth/password/request-reset", async (req, res) => {
+  try {
+    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    if (!email) {
+      res.status(400).json({ error: "validation_error", message: "Enter the email address linked to your account." });
+      return;
+    }
+    await sendPasswordResetCode(email);
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("authRequestPasswordReset", error);
+    res.status(500).json({ error: "server_error", message: "Could not send the reset email right now." });
+  }
+});
+
+router.post("/auth/password/reset", async (req, res) => {
+  try {
+    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    const code = String(req.body?.code ?? "").trim();
+    const newPassword = String(req.body?.newPassword ?? "");
+
+    if (!email || !/^\d{6}$/.test(code) || newPassword.length < 8) {
+      res.status(400).json({
+        error: "validation_error",
+        message: "Enter your email, the 6-digit code, and a new password with at least 8 characters.",
+      });
+      return;
+    }
+
+    const result = await confirmPasswordResetCode(email, code, newPassword);
+    if (!result.ok) {
+      if (result.reason === "missing_code") {
+        res.status(400).json({ error: "reset_missing", message: "Request a reset code before trying to change the password." });
+        return;
+      }
+      if (result.reason === "expired") {
+        res.status(400).json({ error: "reset_expired", message: "That reset code has expired. Request a new one and try again." });
+        return;
+      }
+      res.status(400).json({ error: "reset_invalid", message: "That reset code is incorrect." });
+      return;
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("authResetPassword", error);
+    res.status(500).json({ error: "server_error", message: "Could not reset the password right now." });
+  }
+});
+
 router.post("/auth/verify-email/request", requireAuth, async (req: AuthedRequest, res) => {
   try {
     if (!isEmailDeliveryConfigured()) {
@@ -250,7 +311,7 @@ router.get("/auth/me", async (req, res) => {
       res.status(401).json({ error: "unauthorized", message: "User not found." });
       return;
     }
-    res.json({ user: publicUser(row) });
+    res.json({ user: sessionUser(row) });
   } catch (error) {
     console.error("authMe", error);
     res.status(500).json({ error: "server_error", message: "Could not load the current session." });

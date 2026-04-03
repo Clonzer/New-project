@@ -167,7 +167,14 @@ export function Navbar() {
                       )}
                     </div>
                   </div>
-                  <span className="text-sm font-medium hidden sm:block">{user.displayName}</span>
+                  <div className="hidden sm:flex items-center gap-2">
+                    <span className="text-sm font-medium">{user.displayName}</span>
+                    {user.isOwner ? (
+                      <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-amber-200">
+                        Owner
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </Link>
             </div>

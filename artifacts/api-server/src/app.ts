@@ -58,13 +58,27 @@ const apiErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
 
 app.use(apiErrorHandler);
 
-const frontendDistPath = path.resolve(process.cwd(), "artifacts", "print3d", "dist", "public");
+function resolveFrontendDistPath() {
+  const runtimeEntry = process.argv[1] ? path.dirname(process.argv[1]) : process.cwd();
+  const candidates = [
+    path.resolve(process.cwd(), "artifacts", "print3d", "dist", "public"),
+    path.resolve(runtimeEntry, "..", "..", "print3d", "dist", "public"),
+    path.resolve(runtimeEntry, "..", "..", "..", "artifacts", "print3d", "dist", "public"),
+  ];
 
-if (existsSync(frontendDistPath)) {
+  return candidates.find((candidate) => existsSync(path.join(candidate, "index.html"))) ?? null;
+}
+
+const frontendDistPath = resolveFrontendDistPath();
+
+if (frontendDistPath) {
+  console.log(`Serving frontend from ${frontendDistPath}`);
   app.use(express.static(frontendDistPath));
   app.get(/^(?!\/api(?:\/|$)).*/, (_req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
+} else {
+  console.warn("Frontend build output not found. Root requests will return 404 until the client is built.");
 }
 
 export default app;

@@ -31,6 +31,9 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { PortfolioManager } from "@/components/dashboard/PortfolioManager";
+import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -361,8 +364,8 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
       toast({ title: "Listing added!", description: "Your model is now live in the catalog." });
       onClose();
       onSuccess();
-    } catch {
-      toast({ title: "Failed to create listing", variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Failed to create listing", description: getApiErrorMessage(error), variant: "destructive" });
     }
   };
 
@@ -593,6 +596,11 @@ export default function Dashboard() {
             <div>
               <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
                 Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName}</span>
+                {user.isOwner ? (
+                  <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
+                    Owner
+                  </span>
+                ) : null}
               </h1>
               <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
             </div>
@@ -638,6 +646,9 @@ export default function Dashboard() {
               {isSellerUser && (
                 <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Overview</TabsTrigger>
               )}
+              {user.isOwner ? (
+                <TabsTrigger value="admin" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Admin</TabsTrigger>
+              ) : null}
               <TabsTrigger value="purchases" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Orders</TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Reviews</TabsTrigger>
               {isSellerUser && (
@@ -693,8 +704,17 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+                <div className="mt-6">
+                  <PortfolioManager userId={user.id} />
+                </div>
               </TabsContent>
             )}
+
+            {user.isOwner ? (
+              <TabsContent value="admin" className="mt-0">
+                <OwnerAdminPanel />
+              </TabsContent>
+            ) : null}
 
             {/* ── Buyer Orders ── */}
             <TabsContent value="purchases" className="mt-0">

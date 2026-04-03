@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { authRequestPasswordReset, authResetPassword } from "@/lib/auth-api";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 
@@ -26,11 +27,20 @@ export function LoginForm({
   submitLabel?: string;
 }) {
   const { login } = useAuth();
+  const prefilledEmail =
+    typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("email")?.trim() ?? "";
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const prefilledEmail =
-    typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("email")?.trim() ?? "";
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [recoveryState, setRecoveryState] = useState({
+    email: prefilledEmail,
+    code: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
+  const [recovering, setRecovering] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -48,6 +58,40 @@ export function LoginForm({
       setError(getApiErrorMessage(e));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const sendRecoveryCode = async () => {
+    setRecoveryMessage(null);
+    setRecovering(true);
+    try {
+      await authRequestPasswordReset(recoveryState.email.trim());
+      setRecoveryMessage("If that email exists, we sent a 6-digit reset code.");
+    } catch (e) {
+      setRecoveryMessage(getApiErrorMessage(e));
+    } finally {
+      setRecovering(false);
+    }
+  };
+
+  const resetPassword = async () => {
+    if (recoveryState.newPassword !== recoveryState.confirmPassword) {
+      setRecoveryMessage("Your new passwords do not match.");
+      return;
+    }
+    setRecovering(true);
+    try {
+      await authResetPassword(
+        recoveryState.email.trim(),
+        recoveryState.code.trim(),
+        recoveryState.newPassword,
+      );
+      setRecoveryMessage("Password updated. You can sign in now.");
+      setShowRecovery(false);
+    } catch (e) {
+      setRecoveryMessage(getApiErrorMessage(e));
+    } finally {
+      setRecovering(false);
     }
   };
 
@@ -124,8 +168,64 @@ export function LoginForm({
           <NeonButton type="submit" glowColor="primary" className="w-full rounded-xl py-3" disabled={submitting}>
             {submitting ? "Signing in…" : submitLabel}
           </NeonButton>
+          <button
+            type="button"
+            onClick={() => {
+              setShowRecovery((current) => !current);
+              setRecoveryState((current) => ({ ...current, email: current.email || form.getValues("identifier") }));
+            }}
+            className="w-full text-sm text-zinc-400 hover:text-white transition-colors"
+          >
+            Forgot your password?
+          </button>
         </form>
       </Form>
+
+      {showRecovery ? (
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+          <div>
+            <p className="text-sm font-medium text-white">Recover account by email</p>
+            <p className="mt-1 text-xs text-zinc-400">
+              We’ll email a 6-digit code so you can set a new password.
+            </p>
+          </div>
+          <Input
+            value={recoveryState.email}
+            onChange={(event) => setRecoveryState((current) => ({ ...current, email: event.target.value }))}
+            placeholder="Account email"
+            className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+          />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <Input
+              value={recoveryState.code}
+              onChange={(event) => setRecoveryState((current) => ({ ...current, code: event.target.value }))}
+              placeholder="6-digit code"
+              className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+            />
+            <NeonButton glowColor="white" className="rounded-xl px-5" onClick={() => void sendRecoveryCode()} disabled={recovering}>
+              {recovering ? "Sending..." : "Send code"}
+            </NeonButton>
+          </div>
+          <Input
+            type="password"
+            value={recoveryState.newPassword}
+            onChange={(event) => setRecoveryState((current) => ({ ...current, newPassword: event.target.value }))}
+            placeholder="New password"
+            className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+          />
+          <Input
+            type="password"
+            value={recoveryState.confirmPassword}
+            onChange={(event) => setRecoveryState((current) => ({ ...current, confirmPassword: event.target.value }))}
+            placeholder="Confirm new password"
+            className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+          />
+          {recoveryMessage ? <p className="text-sm text-zinc-300">{recoveryMessage}</p> : null}
+          <NeonButton glowColor="primary" className="w-full rounded-xl py-3" onClick={() => void resetPassword()} disabled={recovering}>
+            {recovering ? "Updating..." : "Reset password"}
+          </NeonButton>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -7,10 +7,14 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { useSearch } from "wouter";
+import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 
 export default function Explore() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedMode, setSelectedMode] = useState<"all" | "catalog" | "open" | "both">("all");
+  const [selectedTag, setSelectedTag] = useState("all");
   const { data, isLoading } = useListSellers({ limit: 50 });
 
   useEffect(() => {
@@ -19,11 +23,17 @@ export default function Explore() {
     if (q) setSearchTerm(q);
   }, [rawSearch]);
 
-  const filteredSellers = data?.sellers.filter(s => 
-    s.displayName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.shopName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSellers = data?.sellers.filter((s) => {
+    const q = searchTerm.toLowerCase();
+    const matchesSearch =
+      s.displayName.toLowerCase().includes(q) ||
+      s.shopName?.toLowerCase().includes(q) ||
+      s.location?.toLowerCase().includes(q) ||
+      s.sellerTags?.some((tag) => tag.toLowerCase().includes(q));
+    const matchesMode = selectedMode === "all" || s.shopMode === selectedMode;
+    const matchesTag = selectedTag === "all" || s.sellerTags?.includes(selectedTag);
+    return matchesSearch && matchesMode && matchesTag;
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -50,10 +60,73 @@ export default function Explore() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button className="h-12 px-6 rounded-xl glass-panel border border-white/10 flex items-center gap-2 text-white hover:bg-white/5 transition-colors">
+            <button
+              type="button"
+              onClick={() => setShowFilters((current) => !current)}
+              className="h-12 px-6 rounded-xl glass-panel border border-white/10 flex items-center gap-2 text-white hover:bg-white/5 transition-colors"
+            >
               <SlidersHorizontal className="w-4 h-4" /> Filters
             </button>
           </div>
+
+          {showFilters ? (
+            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Shop mode</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[
+                    { value: "all", label: "All" },
+                    { value: "catalog", label: "Catalog" },
+                    { value: "open", label: "Custom Jobs" },
+                    { value: "both", label: "Both" },
+                  ].map((mode) => (
+                    <button
+                      key={mode.value}
+                      type="button"
+                      onClick={() => setSelectedMode(mode.value as typeof selectedMode)}
+                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                        selectedMode === mode.value
+                          ? "border-primary/50 bg-primary/15 text-white"
+                          : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Specialties</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTag("all")}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                      selectedTag === "all"
+                        ? "border-accent/50 bg-accent/15 text-white"
+                        : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    All tags
+                  </button>
+                  {SHOP_TAG_OPTIONS.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setSelectedTag(tag)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                        selectedTag === tag
+                          ? "border-accent/50 bg-accent/15 text-white"
+                          : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {isLoading ? (

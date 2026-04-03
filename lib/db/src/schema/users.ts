@@ -15,6 +15,8 @@ export const usersTable = pgTable("users", {
   countryCode: text("country_code"),
   languageCode: text("language_code"),
   currencyCode: text("currency_code"),
+  sellerTags: text("seller_tags").array().notNull().default([]),
+  accountStatus: text("account_status").notNull().default("member"),
   role: userRoleEnum("role").notNull().default("buyer"),
   rating: real("rating"),
   reviewCount: integer("review_count").notNull().default(0),
@@ -43,6 +45,8 @@ export const usersTable = pgTable("users", {
   emailVerifiedAt: timestamp("email_verified_at"),
   emailVerificationCodeHash: text("email_verification_code_hash"),
   emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
+  passwordResetCodeHash: text("password_reset_code_hash"),
+  passwordResetExpiresAt: timestamp("password_reset_expires_at"),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
 });
 

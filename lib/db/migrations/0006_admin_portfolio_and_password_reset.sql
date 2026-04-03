@@ -1,0 +1,15 @@
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS seller_tags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN IF NOT EXISTS account_status TEXT NOT NULL DEFAULT 'member',
+ADD COLUMN IF NOT EXISTS password_reset_code_hash TEXT,
+ADD COLUMN IF NOT EXISTS password_reset_expires_at TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS portfolio_items (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  tags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

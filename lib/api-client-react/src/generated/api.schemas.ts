@@ -42,6 +42,7 @@ export interface User {
   countryCode?: string | null;
   languageCode?: string | null;
   currencyCode?: string | null;
+  sellerTags?: string[];
   role: UserRole;
   rating?: number | null;
   reviewCount: number;
@@ -59,6 +60,8 @@ export interface User {
   returnPolicy?: string | null;
   customOrderPolicy?: string | null;
   authProvider?: string | null;
+  accountStatus?: string | null;
+  isOwner?: boolean;
   joinedAt: string;
   shopName?: string | null;
   shopMode?: UserShopMode;
@@ -155,6 +158,15 @@ export type UserDetail = User & {
   printers?: Printer[];
   recentReviews?: Review[];
   listings?: Listing[];
+  portfolio?: Array<{
+    id: number;
+    userId: number;
+    title: string;
+    description?: string | null;
+    imageUrl: string;
+    tags: string[];
+    createdAt: string;
+  }>;
 };
 
 export type CreateUserRequestRole =
@@ -187,6 +199,7 @@ export interface CreateUserRequest {
   countryCode?: string | null;
   languageCode?: string | null;
   currencyCode?: string | null;
+  sellerTags?: string[];
   role: CreateUserRequestRole;
   location?: string | null;
   shopName?: string | null;
@@ -210,6 +223,7 @@ export interface UpdateUserRequest {
   countryCode?: string | null;
   languageCode?: string | null;
   currencyCode?: string | null;
+  sellerTags?: string[];
   location?: string | null;
   shopName?: string | null;
   shopMode?: UpdateUserRequestShopMode;
@@ -381,10 +395,12 @@ export interface SellerShop {
   shopName?: string | null;
   bio?: string | null;
   avatarUrl?: string | null;
+  bannerUrl?: string | null;
   rating?: number | null;
   reviewCount: number;
   location?: string | null;
   shopMode?: SellerShopShopMode;
+  sellerTags?: string[];
   totalPrints: number;
   printerCount: number;
   listingCount: number;

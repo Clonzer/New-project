@@ -15,6 +15,7 @@ import {
   persistLocalePreferences,
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
+import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { Bell, ChevronRight, CreditCard, Shield, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -49,6 +50,7 @@ export default function Settings() {
     countryCode: user?.countryCode ?? "GB",
     languageCode: user?.languageCode ?? "en-GB",
     currencyCode: user?.currencyCode ?? "GBP",
+    sellerTags: user?.sellerTags ?? [],
     shopName: user?.shopName ?? "",
     bannerUrl: user?.bannerUrl ?? "",
     websiteUrl: user?.websiteUrl ?? "",
@@ -75,6 +77,7 @@ export default function Settings() {
       countryCode: user.countryCode ?? "GB",
       languageCode: user.languageCode ?? "en-GB",
       currencyCode: user.currencyCode ?? "GBP",
+      sellerTags: user.sellerTags ?? [],
       shopName: user.shopName ?? "",
       bannerUrl: user.bannerUrl ?? "",
       websiteUrl: user.websiteUrl ?? "",
@@ -122,6 +125,7 @@ export default function Settings() {
           countryCode: form.countryCode.trim() || null,
           languageCode: form.languageCode.trim() || null,
           currencyCode: form.currencyCode.trim() || null,
+          sellerTags: form.sellerTags,
           shopName: form.shopName.trim() || null,
           bannerUrl: form.bannerUrl.trim() || null,
           websiteUrl: form.websiteUrl.trim() || null,
@@ -565,6 +569,35 @@ export default function Settings() {
                                 <p className="text-xs mt-1 opacity-70">{option.desc}</p>
                               </button>
                             ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-2">Shop tags</label>
+                          <div className="flex flex-wrap gap-2">
+                            {SHOP_TAG_OPTIONS.map((tag) => {
+                              const selected = form.sellerTags.includes(tag);
+                              return (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() =>
+                                    setForm((current) => ({
+                                      ...current,
+                                      sellerTags: selected
+                                        ? current.sellerTags.filter((value) => value !== tag)
+                                        : [...current.sellerTags, tag],
+                                    }))
+                                  }
+                                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                                    selected
+                                      ? "border-primary/50 bg-primary/15 text-white"
+                                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                                  }`}
+                                >
+                                  {tag}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
                         <div>

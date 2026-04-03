@@ -5,3 +5,4 @@ export * from "./orders";
 export * from "./reviews";
 export * from "./checkout-sessions";
 export * from "./messages";
+export * from "./portfolio";

@@ -1,10 +1,10 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db/schema";
+import { portfolioTable, usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { CreateUserBody, UpdateUserBody } from "@workspace/api-zod";
 import { hash } from "bcryptjs";
-import { type AuthedRequest, requireAuth, requireSelf } from "../lib/auth";
+import { type AuthedRequest, isOwnerEmail, requireAuth, requireSelf } from "../lib/auth";
 import { sendEmailVerificationCode } from "../lib/email-verification";
 import { isEmailDeliveryConfigured } from "../lib/mailer";
 
@@ -18,6 +18,9 @@ function publicUser(u: UserRow) {
     emailVerificationCodeHash: _code,
     emailVerificationExpiresAt: _expires,
     authProviderSubject: _authSubject,
+    passwordResetCodeHash: _resetCode,
+    passwordResetExpiresAt: _resetExpiry,
+    accountStatus: _accountStatus,
     ...rest
   } = u;
   return rest;
@@ -74,6 +77,8 @@ router.post("/users", async (req, res) => {
         countryCode: rest.countryCode?.trim().toUpperCase() || null,
         languageCode: rest.languageCode?.trim() || null,
         currencyCode: rest.currencyCode?.trim().toUpperCase() || null,
+        sellerTags: rest.sellerTags?.map((tag) => tag.trim()).filter(Boolean) ?? [],
+        accountStatus: isOwnerEmail(email) ? "owner" : "member",
         passwordHash,
       })
       .returning();
@@ -177,8 +182,9 @@ router.get("/users/:userId", async (req, res) => {
   const printers = await db.select().from(printersTable).where(eq(printersTable.userId, userId));
   const listings = await db.select().from(listingsTable).where(eq(listingsTable.sellerId, userId)).limit(10);
   const recentReviews = await db.select().from(reviewsTable).where(eq(reviewsTable.revieweeId, userId)).limit(5);
+  const portfolio = await db.select().from(portfolioTable).where(eq(portfolioTable.userId, userId));
 
-  res.json({ ...publicUser(user), printers, listings, recentReviews });
+  res.json({ ...publicUser(user), printers, listings, recentReviews, portfolio, sellerTags: user.sellerTags });
 });
 
 router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: AuthedRequest, res) => {
@@ -196,6 +202,7 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     countryCode: parsed.data.countryCode?.trim().toUpperCase() || null,
     languageCode: parsed.data.languageCode?.trim() || null,
     currencyCode: parsed.data.currencyCode?.trim().toUpperCase() || null,
+    sellerTags: parsed.data.sellerTags?.map((tag) => tag.trim()).filter(Boolean) ?? undefined,
     location: parsed.data.location?.trim() || null,
     shopName: parsed.data.shopName?.trim() || null,
     bannerUrl: parsed.data.bannerUrl?.trim() || null,
@@ -213,6 +220,44 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     return;
   }
   res.json(publicUser(user));
+});
+
+router.get("/users/:userId/portfolio", async (req, res) => {
+  const userId = Number(req.params.userId);
+  const portfolio = await db.select().from(portfolioTable).where(eq(portfolioTable.userId, userId));
+  res.json({ portfolio });
+});
+
+router.post("/users/:userId/portfolio", requireAuth, requireSelf("userId"), async (req, res) => {
+  const userId = Number(req.params.userId);
+  const title = String(req.body?.title ?? "").trim();
+  const imageUrl = String(req.body?.imageUrl ?? "").trim();
+  const description = String(req.body?.description ?? "").trim() || null;
+  const tags = Array.isArray(req.body?.tags)
+    ? req.body.tags.map((tag: unknown) => String(tag).trim()).filter(Boolean)
+    : [];
+
+  if (!title || !imageUrl) {
+    res.status(400).json({ error: "validation_error", message: "Portfolio items need a title and image." });
+    return;
+  }
+
+  const [item] = await db
+    .insert(portfolioTable)
+    .values({ userId, title, imageUrl, description, tags })
+    .returning();
+
+  res.status(201).json({ item });
+});
+
+router.delete("/users/:userId/portfolio/:portfolioId", requireAuth, requireSelf("userId"), async (req, res) => {
+  const portfolioId = Number(req.params.portfolioId);
+  const [deleted] = await db.delete(portfolioTable).where(eq(portfolioTable.id, portfolioId)).returning();
+  if (!deleted) {
+    res.status(404).json({ error: "not_found", message: "Portfolio item not found." });
+    return;
+  }
+  res.json({ ok: true });
 });
 
 export default router;

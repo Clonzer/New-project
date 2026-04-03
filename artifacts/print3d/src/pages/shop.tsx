@@ -1,17 +1,25 @@
-import { useParams, Link } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "wouter";
+import { format } from "date-fns";
+import { useGetUser, useListListings, useListPrinters, useListReviews } from "@workspace/api-client-react";
+import {
+  Calendar,
+  GitCompareArrows,
+  Hammer,
+  MapPin,
+  MessageSquare,
+  Printer as PrinterIcon,
+  Star,
+} from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { useGetUser, useListPrinters, useListListings, useListReviews } from "@workspace/api-client-react";
-import { MapPin, Star, Calendar, MessageSquare, Printer as PrinterIcon, Hammer, GitCompareArrows } from "lucide-react";
-import { categoryLabel } from "@/lib/equipment-catalog";
-import { format } from "date-fns";
-import { useEffect, useState } from "react";
-import { NeonButton } from "@/components/ui/neon-button";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { NeonButton } from "@/components/ui/neon-button";
+import { categoryLabel } from "@/lib/equipment-catalog";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 import { buildListingPriceInsights } from "@/lib/listing-pricing";
@@ -21,7 +29,7 @@ export default function Shop() {
   const shopId = parseInt(params.id || "0", 10);
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(false);
-  
+
   const { data: user, isLoading: loadingUser } = useGetUser(shopId);
   const { data: printersData } = useListPrinters({ userId: shopId });
   const { data: listingsData } = useListListings({ sellerId: shopId });
@@ -43,7 +51,9 @@ export default function Shop() {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-grow container mx-auto px-4 pt-12"><Skeleton className="h-64 w-full bg-white/5 rounded-3xl" /></main>
+        <main className="flex-grow container mx-auto px-4 pt-12">
+          <Skeleton className="h-64 w-full bg-white/5 rounded-3xl" />
+        </main>
       </div>
     );
   }
@@ -55,14 +65,12 @@ export default function Shop() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
-          
-          {/* Shop Header */}
           <div className="glass-panel rounded-[2rem] p-8 md:p-12 mb-12 relative overflow-hidden border-t border-white/10">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            
+
             <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
                 <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-background">
@@ -75,27 +83,51 @@ export default function Shop() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex-grow">
+                {user.bannerUrl ? (
+                  <div className="mb-5 overflow-hidden rounded-[1.5rem] border border-white/10">
+                    <img
+                      src={user.bannerUrl}
+                      alt={`${user.shopName || user.displayName} banner`}
+                      className="h-40 w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+
                 <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
                   {user.shopName || user.displayName}
                 </h1>
-                
+
                 <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
-                  {user.location && (
-                    <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-primary" /> {user.location}</span>
-                  )}
-                  <span className="flex items-center gap-1"><Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(user.joinedAt), 'MMM yyyy')}</span>
+                  {user.location ? (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4 text-primary" /> {user.location}
+                    </span>
+                  ) : null}
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(user.joinedAt), "MMM yyyy")}
+                  </span>
                   <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {user.rating?.toFixed(1) || "New"} ({user.reviewCount})
                   </span>
                 </div>
-                
+
                 <p className="text-zinc-300 max-w-2xl text-lg leading-relaxed">
-                  {user.bio || "Fabrication, additive manufacturing, and custom work — message for details."}
+                  {user.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
                 </p>
+
+                {user.sellerTags?.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {user.sellerTags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-              
+
               <div className="shrink-0 w-full md:w-auto">
                 <Button
                   variant="outline"
@@ -122,13 +154,11 @@ export default function Shop() {
                   <GitCompareArrows className="w-5 h-5 mr-2" />
                   {isCompared ? "Remove from compare" : "Compare shop"}
                 </Button>
-                {(user.shopMode === "open" || user.shopMode === "both") && (
+                {user.shopMode === "open" || user.shopMode === "both" ? (
                   <Link href={`/order/new?sellerId=${user.id}`}>
-                    <NeonButton className="w-full py-6 text-lg rounded-xl mb-3">
-                      Request custom work
-                    </NeonButton>
+                    <NeonButton className="w-full py-6 text-lg rounded-xl mb-3">Request custom work</NeonButton>
                   </Link>
-                )}
+                ) : null}
                 <Link href="/messages">
                   <Button variant="outline" className="w-full py-6 text-lg rounded-xl glass-panel text-white hover:bg-white/10 border-white/20">
                     <MessageSquare className="w-5 h-5 mr-2" /> Contact seller
@@ -142,9 +172,10 @@ export default function Shop() {
             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8">
               <TabsTrigger value="models" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Catalog Models</TabsTrigger>
               <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Equipment</TabsTrigger>
+              <TabsTrigger value="portfolio" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Portfolio</TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Reviews</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="models" className="mt-0">
               {listingsData?.listings.length === 0 ? (
                 <div className="glass-panel p-12 text-center rounded-2xl border border-white/5">
@@ -152,16 +183,16 @@ export default function Shop() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {listingsData?.listings.map(listing => (
+                  {listingsData?.listings.map((listing) => (
                     <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
                   ))}
                 </div>
               )}
             </TabsContent>
-            
+
             <TabsContent value="printers" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {printersData?.printers.map(printer => (
+                {printersData?.printers.map((printer) => (
                   <div key={printer.id} className="glass-panel p-6 rounded-2xl border border-white/5 flex gap-6">
                     <div className="w-24 h-24 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0">
                       {printer.imageUrl ? (
@@ -178,72 +209,100 @@ export default function Shop() {
                         <div className="flex flex-wrap gap-1.5 justify-end">
                           <Badge className="bg-white/10 text-zinc-200 border border-white/15">{categoryLabel(printer.equipmentCategory ?? "printing_3d")}</Badge>
                           <Badge className="bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30">
-                            {printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? printer.technology : (printer.toolOrServiceType || printer.technology)}
+                            {printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory
+                              ? printer.technology
+                              : printer.toolOrServiceType || printer.technology}
                           </Badge>
                         </div>
                       </div>
                       <p className="text-zinc-400 text-sm mb-3">{printer.brand} {printer.model}</p>
-                      
+
                       <div className="space-y-1 text-sm text-zinc-300">
-                        <p><span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Volume:" : "Capacity:"}</span> {printer.buildVolume || "—"}</p>
+                        <p><span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Volume:" : "Capacity:"}</span> {printer.buildVolume || "-"}</p>
                         <p><span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Materials:" : "Capabilities:"}</span> {printer.materials.join(", ")}</p>
-                        {(printer.pricePerHour || printer.pricePerGram) && (
+                        {printer.pricePerHour || printer.pricePerGram ? (
                           <p className="text-primary font-medium mt-2">
                             {[
                               printer.pricePerHour != null && `$${printer.pricePerHour}/hr`,
                               printer.pricePerGram != null && `$${printer.pricePerGram}/g`,
                             ].filter(Boolean).join(" · ")}
                           </p>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
                 ))}
-                {printersData?.printers.length === 0 && (
+                {printersData?.printers.length === 0 ? (
                   <p className="text-zinc-500 col-span-full">No equipment listed publicly.</p>
-                )}
+                ) : null}
               </div>
             </TabsContent>
 
-            <TabsContent value="reviews" className="mt-0">
-               <div className="space-y-4">
-                  {reviewsData?.reviews.map(review => (
-                    <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden">
-                            {review.reviewerAvatarUrl ? (
-                              <img src={review.reviewerAvatarUrl} alt={review.reviewerName} className="w-full h-full object-cover"/>
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center font-bold text-white text-sm">
-                                {review.reviewerName.charAt(0)}
-                              </div>
-                            )}
+            <TabsContent value="portfolio" className="mt-0">
+              {user.portfolio?.length ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {user.portfolio.map((item) => (
+                    <div key={item.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
+                      <img src={item.imageUrl} alt={item.title} className="h-52 w-full object-cover" />
+                      <div className="p-5">
+                        <h3 className="text-xl font-display font-bold text-white">{item.title}</h3>
+                        {item.description ? <p className="mt-2 text-sm text-zinc-400">{item.description}</p> : null}
+                        {item.tags?.length ? (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {item.tags.map((tag) => (
+                              <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-zinc-300">
+                                {tag}
+                              </span>
+                            ))}
                           </div>
-                          <div>
-                            <p className="font-medium text-white">{review.reviewerName}</p>
-                            <p className="text-xs text-zinc-500">{format(new Date(review.createdAt), 'MMM d, yyyy')}</p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700'}`} />
-                          ))}
-                        </div>
+                        ) : null}
                       </div>
-                      {review.comment && <p className="text-zinc-300">{review.comment}</p>}
                     </div>
                   ))}
-                  {reviewsData?.reviews.length === 0 && (
-                    <p className="text-zinc-500">No reviews yet.</p>
-                  )}
-               </div>
+                </div>
+              ) : (
+                <div className="glass-panel p-12 text-center rounded-2xl border border-white/5">
+                  <p className="text-zinc-500">This shop has not published portfolio projects yet.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="reviews" className="mt-0">
+              <div className="space-y-4">
+                {reviewsData?.reviews.map((review) => (
+                  <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden">
+                          {review.reviewerAvatarUrl ? (
+                            <img src={review.reviewerAvatarUrl} alt={review.reviewerName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center font-bold text-white text-sm">
+                              {review.reviewerName.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white">{review.reviewerName}</p>
+                          <p className="text-xs text-zinc-500">{format(new Date(review.createdAt), "MMM d, yyyy")}</p>
+                        </div>
+                      </div>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Star key={index} className={`w-4 h-4 ${index < review.rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-700"}`} />
+                        ))}
+                      </div>
+                    </div>
+                    {review.comment ? <p className="text-zinc-300">{review.comment}</p> : null}
+                  </div>
+                ))}
+                {reviewsData?.reviews.length === 0 ? <p className="text-zinc-500">No reviews yet.</p> : null}
+              </div>
             </TabsContent>
           </Tabs>
-          
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );
