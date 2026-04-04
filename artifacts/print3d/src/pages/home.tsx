@@ -153,23 +153,23 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-grow">
-        <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
+        <section className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
           <AnimatedGradientBg />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="mb-10">
               {loadingSellers || loadingListings ? (
-                <Skeleton className="mb-8 h-[24rem] rounded-[2rem] bg-white/10" />
+                <Skeleton className="mb-6 h-[30rem] rounded-[2rem] bg-white/10" />
               ) : slides.length ? (
-                <div className="mb-8">
+                <div className="mb-6">
                   <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full">
                     <CarouselContent>
                       {slides.map((slide) => (
                         <CarouselItem key={slide.id}>
                           <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/35">
-                            <div className="grid min-h-[24rem] gap-0 lg:grid-cols-[0.95fr_1.05fr]">
-                              <div className="flex flex-col justify-between border-b border-white/10 bg-[linear-gradient(155deg,rgba(12,18,31,0.95),rgba(8,12,20,0.82))] p-7 lg:border-b-0 lg:border-r">
+                            <div className="grid min-h-[31rem] gap-0 lg:min-h-[36rem] lg:grid-cols-[0.95fr_1.05fr]">
+                              <div className="flex flex-col justify-between border-b border-white/10 bg-[linear-gradient(155deg,rgba(12,18,31,0.95),rgba(8,12,20,0.82))] p-8 lg:border-b-0 lg:border-r lg:p-10">
                                 <div>
                                   <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9fe5ff]">
                                     Marketplace showcase
@@ -206,7 +206,7 @@ export default function Home() {
                                 </div>
                               </div>
                               <Link href={slide.href}>
-                                <div className="group relative min-h-[24rem] cursor-pointer overflow-hidden">
+                                <div className="group relative min-h-[31rem] cursor-pointer overflow-hidden lg:min-h-[36rem]">
                                   {slide.imageUrl ? (
                                     <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                   ) : (
@@ -214,7 +214,7 @@ export default function Home() {
                                   )}
                                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                                  <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-9">
+                                  <div className="relative z-10 flex h-full flex-col justify-between p-8 md:p-10">
                                     <div className="flex items-center justify-between gap-3">
                                       <span className="rounded-full border border-white/15 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-md">
                                         {slide.eyebrow}

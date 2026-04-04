@@ -17,12 +17,14 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, MessageSquareText, Shield, Store, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
-  { id: "shop", label: "Shop Settings", icon: Store },
+  { id: "storefront", label: "Storefront", icon: Store },
+  { id: "shipping", label: "Shipping", icon: Truck },
+  { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
@@ -269,9 +271,9 @@ export default function Settings() {
         <div className="container mx-auto px-4 max-w-5xl">
           <h1 className="text-3xl font-display font-bold text-white mb-8">Settings</h1>
 
-          <div className="flex gap-8 flex-col md:flex-row">
-            <aside className="md:w-56 shrink-0">
-              <nav className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
+          <div className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
+            <aside className="shrink-0">
+              <nav className="glass-panel sticky top-24 rounded-2xl border border-white/10 overflow-hidden">
                 {SECTIONS.map((section, index) => {
                   const Icon = section.icon;
                   return (
@@ -295,13 +297,13 @@ export default function Settings() {
               </nav>
             </aside>
 
-            <div className="flex-grow">
+            <div className="min-w-0">
               <motion.div
                 key={activeSection}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2 }}
-                className="glass-panel rounded-2xl border border-white/10 p-8"
+                className="glass-panel min-h-[42rem] rounded-2xl border border-white/10 p-8 lg:p-10"
               >
                 {activeSection === "profile" && (
                   <div className="space-y-6">
@@ -446,9 +448,9 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeSection === "shop" && (
+                {activeSection === "storefront" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Shop Settings</h2>
+                    <h2 className="text-xl font-bold text-white">Storefront</h2>
                     {!isSeller ? (
                       <p className="text-zinc-400">Upgrade your account to seller mode during registration to manage a shop.</p>
                     ) : (
@@ -461,151 +463,6 @@ export default function Settings() {
                             placeholder="Your Shop Name"
                             className="bg-black/30 border-white/10 text-white"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Default shipping for custom jobs ($)</label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min={0}
-                            value={form.defaultShippingCost}
-                            onChange={(event) =>
-                              setForm((current) => ({ ...current, defaultShippingCost: event.target.value }))
-                            }
-                            placeholder="e.g. 8.00"
-                            className="bg-black/30 border-white/10 text-white"
-                          />
-                          <p className="text-xs text-zinc-500 mt-1">This is charged once for custom jobs without a listing.</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Tax rate (%)</label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min={0}
-                              value={form.taxRate}
-                              onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
-                              placeholder="e.g. 20"
-                              className="bg-black/30 border-white/10 text-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Shipping regions</label>
-                            <Input
-                              value={form.shippingRegions}
-                              onChange={(event) => setForm((current) => ({ ...current, shippingRegions: event.target.value }))}
-                              placeholder="UK, EU, USA"
-                              className="bg-black/30 border-white/10 text-white"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-2">Where you sell</label>
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setForm((current) => ({
-                                  ...current,
-                                  sellingRegions: current.sellingRegions.includes("WORLDWIDE") ? [] : ["WORLDWIDE"],
-                                }))
-                              }
-                              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                                form.sellingRegions.includes("WORLDWIDE")
-                                  ? "border-emerald-400/50 bg-emerald-400/15 text-white"
-                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                              }`}
-                            >
-                              Worldwide
-                            </button>
-                            {COUNTRY_OPTIONS.map((option) => {
-                              const selected = form.sellingRegions.includes(option.code);
-                              return (
-                                <button
-                                  key={option.code}
-                                  type="button"
-                                  onClick={() =>
-                                    setForm((current) => ({
-                                      ...current,
-                                      sellingRegions: current.sellingRegions.includes("WORLDWIDE")
-                                        ? [option.code]
-                                        : selected
-                                          ? current.sellingRegions.filter((value) => value !== option.code)
-                                          : [...current.sellingRegions, option.code],
-                                    }))
-                                  }
-                                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                                    selected
-                                      ? "border-primary/50 bg-primary/15 text-white"
-                                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                                  }`}
-                                >
-                                  {option.flag} {option.code}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          <p className="mt-2 text-xs text-zinc-500">These regions are used to decide whether checkout is allowed for a buyer’s country.</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Domestic shipping ($)</label>
-                            <Input value={form.domesticShippingCost} onChange={(event) => setForm((current) => ({ ...current, domesticShippingCost: event.target.value }))} placeholder="e.g. 6.00" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Europe shipping ($)</label>
-                            <Input value={form.europeShippingCost} onChange={(event) => setForm((current) => ({ ...current, europeShippingCost: event.target.value }))} placeholder="e.g. 14.00" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">North America shipping ($)</label>
-                            <Input value={form.northAmericaShippingCost} onChange={(event) => setForm((current) => ({ ...current, northAmericaShippingCost: event.target.value }))} placeholder="e.g. 18.00" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">International shipping ($)</label>
-                            <Input value={form.internationalShippingCost} onChange={(event) => setForm((current) => ({ ...current, internationalShippingCost: event.target.value }))} placeholder="e.g. 24.00" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Free shipping threshold ($)</label>
-                            <Input value={form.freeShippingThreshold} onChange={(event) => setForm((current) => ({ ...current, freeShippingThreshold: event.target.value }))} placeholder="Optional order total for free shipping" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div className="flex items-end">
-                            <button
-                              type="button"
-                              onClick={() => setForm((current) => ({ ...current, localPickupEnabled: !current.localPickupEnabled }))}
-                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                                form.localPickupEnabled
-                                  ? "border-emerald-400/40 bg-emerald-400/10 text-white"
-                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                              }`}
-                            >
-                              Local pickup {form.localPickupEnabled ? "enabled" : "disabled"}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days min</label>
-                            <Input
-                              type="number"
-                              min={0}
-                              value={form.processingDaysMin}
-                              onChange={(event) => setForm((current) => ({ ...current, processingDaysMin: event.target.value }))}
-                              className="bg-black/30 border-white/10 text-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days max</label>
-                            <Input
-                              type="number"
-                              min={0}
-                              value={form.processingDaysMax}
-                              onChange={(event) => setForm((current) => ({ ...current, processingDaysMax: event.target.value }))}
-                              className="bg-black/30 border-white/10 text-white"
-                            />
-                          </div>
                         </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-1.5">Shop announcement</label>
@@ -796,19 +653,221 @@ export default function Settings() {
                             className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
                           />
                         </div>
+                        <div className="flex justify-end">
+                          <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
+                            {updateUser.isPending ? "Saving..." : "Save Storefront"}
+                          </NeonButton>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeSection === "shipping" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Shipping</h2>
+                    {!isSeller ? (
+                      <p className="text-zinc-400">Seller shipping controls appear here once the account is in seller mode.</p>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Default shipping for custom jobs ($)</label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min={0}
+                            value={form.defaultShippingCost}
+                            onChange={(event) => setForm((current) => ({ ...current, defaultShippingCost: event.target.value }))}
+                            placeholder="e.g. 8.00"
+                            className="bg-black/30 border-white/10 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-2">Where you sell</label>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setForm((current) => ({
+                                  ...current,
+                                  sellingRegions: current.sellingRegions.includes("WORLDWIDE") ? [] : ["WORLDWIDE"],
+                                }))
+                              }
+                              className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                                form.sellingRegions.includes("WORLDWIDE")
+                                  ? "border-emerald-400/50 bg-emerald-400/15 text-white"
+                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                              }`}
+                            >
+                              Worldwide
+                            </button>
+                            {COUNTRY_OPTIONS.map((option) => {
+                              const selected = form.sellingRegions.includes(option.code);
+                              return (
+                                <button
+                                  key={option.code}
+                                  type="button"
+                                  onClick={() =>
+                                    setForm((current) => ({
+                                      ...current,
+                                      sellingRegions: current.sellingRegions.includes("WORLDWIDE")
+                                        ? [option.code]
+                                        : selected
+                                          ? current.sellingRegions.filter((value) => value !== option.code)
+                                          : [...current.sellingRegions, option.code],
+                                    }))
+                                  }
+                                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                                    selected
+                                      ? "border-primary/50 bg-primary/15 text-white"
+                                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                                  }`}
+                                >
+                                  {option.flag} {option.code}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="mt-2 text-xs text-zinc-500">Checkout uses these regions to decide whether a buyer can place an order with you.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Domestic shipping ($)</label>
+                            <Input value={form.domesticShippingCost} onChange={(event) => setForm((current) => ({ ...current, domesticShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Europe shipping ($)</label>
+                            <Input value={form.europeShippingCost} onChange={(event) => setForm((current) => ({ ...current, europeShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">North America shipping ($)</label>
+                            <Input value={form.northAmericaShippingCost} onChange={(event) => setForm((current) => ({ ...current, northAmericaShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">International shipping ($)</label>
+                            <Input value={form.internationalShippingCost} onChange={(event) => setForm((current) => ({ ...current, internationalShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Free shipping threshold ($)</label>
+                            <Input value={form.freeShippingThreshold} onChange={(event) => setForm((current) => ({ ...current, freeShippingThreshold: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Shipping regions note</label>
+                            <Input value={form.shippingRegions} onChange={(event) => setForm((current) => ({ ...current, shippingRegions: event.target.value }))} placeholder="UK, EU, USA" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days min</label>
+                            <Input type="number" min={0} value={form.processingDaysMin} onChange={(event) => setForm((current) => ({ ...current, processingDaysMin: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days max</label>
+                            <Input type="number" min={0} value={form.processingDaysMax} onChange={(event) => setForm((current) => ({ ...current, processingDaysMax: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setForm((current) => ({ ...current, localPickupEnabled: !current.localPickupEnabled }))}
+                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+                            form.localPickupEnabled
+                              ? "border-emerald-400/40 bg-emerald-400/10 text-white"
+                              : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                          }`}
+                        >
+                          Local pickup {form.localPickupEnabled ? "enabled" : "disabled"}
+                        </button>
+                        <div className="flex justify-end">
+                          <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
+                            {updateUser.isPending ? "Saving..." : "Save Shipping"}
+                          </NeonButton>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeSection === "policies" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Policies</h2>
+                    {!isSeller ? (
+                      <p className="text-zinc-400">Seller policy controls appear here once the account is in seller mode.</p>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Tax rate (%)</label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min={0}
+                            value={form.taxRate}
+                            onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
+                            className="bg-black/30 border-white/10 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-2">Shop Mode</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {[
+                              { value: "catalog", label: "Catalog Only", desc: "Only print listed models" },
+                              { value: "open", label: "Open Jobs", desc: "Accept uploaded custom work" },
+                              { value: "both", label: "Both", desc: "Run listings and custom jobs" },
+                            ].map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() =>
+                                  setForm((current) => ({
+                                    ...current,
+                                    shopMode: option.value as "catalog" | "open" | "both",
+                                  }))
+                                }
+                                className={`p-4 rounded-xl border text-left transition-all ${
+                                  form.shopMode === option.value
+                                    ? "border-primary/50 bg-primary/10 text-white"
+                                    : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
+                                }`}
+                              >
+                                <p className="font-medium text-sm">{option.label}</p>
+                                <p className="text-xs mt-1 opacity-70">{option.desc}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
+                          <textarea
+                            value={form.shippingPolicy}
+                            onChange={(event) => setForm((current) => ({ ...current, shippingPolicy: event.target.value }))}
+                            rows={3}
+                            placeholder="Explain dispatch times, carriers, tracking, and packaging."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Custom order policy</label>
+                          <textarea
+                            value={form.customOrderPolicy}
+                            onChange={(event) => setForm((current) => ({ ...current, customOrderPolicy: event.target.value }))}
+                            rows={4}
+                            placeholder="Requirements for file prep, quoting, revisions, and communication."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-1.5">Returns and refunds policy</label>
                           <textarea
                             value={form.returnPolicy}
                             onChange={(event) => setForm((current) => ({ ...current, returnPolicy: event.target.value }))}
-                            rows={3}
+                            rows={4}
                             placeholder="How you handle damaged items, cancellations, and refund windows."
                             className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
                           />
                         </div>
                         <div className="flex justify-end">
                           <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
-                            {updateUser.isPending ? "Saving..." : "Save Shop Settings"}
+                            {updateUser.isPending ? "Saving..." : "Save Policies"}
                           </NeonButton>
                         </div>
                       </>
