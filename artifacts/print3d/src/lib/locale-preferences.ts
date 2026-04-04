@@ -3,11 +3,19 @@ import { useAuth } from "@/hooks/use-auth";
 
 export const LOCALE_PREFERENCES_STORAGE_KEY = "synthix_locale_preferences";
 export const LOCALE_PREFERENCES_CHANGE_EVENT = "synthix:locale-preferences";
+const FX_CACHE_PREFIX = "synthix_fx_";
+const FALLBACK_UPDATED_AT = "static";
 
 export type LocalePreferenceState = {
   countryCode: string;
   languageCode: string;
   currencyCode: string;
+};
+
+type FxState = {
+  rate: number;
+  updatedAt: string;
+  source: "live" | "fallback";
 };
 
 export const COUNTRY_OPTIONS = [
@@ -64,10 +72,7 @@ function getStoredPreferences(): Partial<LocalePreferenceState> {
 }
 
 function inferDefaults(): LocalePreferenceState {
-  const locale =
-    typeof navigator !== "undefined" && navigator.language
-      ? navigator.language
-      : "en-US";
+  const locale = typeof navigator !== "undefined" && navigator.language ? navigator.language : "en-US";
   const region = locale.split("-")[1]?.toUpperCase() || "US";
   const country = COUNTRY_OPTIONS.find((option) => option.code === region) ?? COUNTRY_OPTIONS[0];
   return {
@@ -77,16 +82,29 @@ function inferDefaults(): LocalePreferenceState {
   };
 }
 
+function getFxCacheKey(currencyCode: string) {
+  return `${FX_CACHE_PREFIX}${currencyCode}`;
+}
+
+function readCachedFx(currencyCode: string): FxState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(getFxCacheKey(currencyCode));
+    return raw ? (JSON.parse(raw) as FxState) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistFx(currencyCode: string, value: FxState) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(getFxCacheKey(currencyCode), JSON.stringify(value));
+}
+
 export function persistLocalePreferences(preferences: Partial<LocalePreferenceState>) {
   if (typeof window === "undefined") return;
   const current = getStoredPreferences();
-  localStorage.setItem(
-    LOCALE_PREFERENCES_STORAGE_KEY,
-    JSON.stringify({
-      ...current,
-      ...preferences,
-    }),
-  );
+  localStorage.setItem(LOCALE_PREFERENCES_STORAGE_KEY, JSON.stringify({ ...current, ...preferences }));
   window.dispatchEvent(new Event(LOCALE_PREFERENCES_CHANGE_EVENT));
 }
 
@@ -109,6 +127,64 @@ export function useLocalePreferences() {
   const languageCode = user?.languageCode ?? stored.languageCode ?? fallback.languageCode;
   const currencyCode = user?.currencyCode ?? stored.currencyCode ?? fallback.currencyCode;
 
+  const [fxState, setFxState] = useState<FxState>(() => {
+    const cached = readCachedFx(currencyCode);
+    return cached ?? {
+      rate: USD_EXCHANGE_RATES[currencyCode] ?? 1,
+      updatedAt: FALLBACK_UPDATED_AT,
+      source: "fallback",
+    };
+  });
+
+  useEffect(() => {
+    const cached = readCachedFx(currencyCode);
+    if (cached) {
+      setFxState(cached);
+    } else {
+      setFxState({
+        rate: USD_EXCHANGE_RATES[currencyCode] ?? 1,
+        updatedAt: FALLBACK_UPDATED_AT,
+        source: "fallback",
+      });
+    }
+
+    if (currencyCode === "USD" || typeof window === "undefined") {
+      setFxState({ rate: 1, updatedAt: new Date().toISOString(), source: "live" });
+      return;
+    }
+
+    const controller = new AbortController();
+    const endpoint = `https://api.frankfurter.app/v1/latest?base=USD&symbols=${currencyCode}`;
+
+    void fetch(endpoint, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not fetch live FX rate.");
+        const payload = (await response.json()) as { date?: string; rates?: Record<string, number> };
+        const rate = payload.rates?.[currencyCode];
+        if (!rate) throw new Error("Missing FX rate.");
+        const nextState: FxState = {
+          rate,
+          updatedAt: payload.date || new Date().toISOString(),
+          source: "live",
+        };
+        persistFx(currencyCode, nextState);
+        setFxState(nextState);
+      })
+      .catch(() => {
+        setFxState((current) =>
+          current.rate
+            ? current
+            : {
+                rate: USD_EXCHANGE_RATES[currencyCode] ?? 1,
+                updatedAt: FALLBACK_UPDATED_AT,
+                source: "fallback",
+              },
+        );
+      });
+
+    return () => controller.abort();
+  }, [currencyCode]);
+
   const formatter = useMemo(
     () =>
       new Intl.NumberFormat(languageCode, {
@@ -120,8 +196,8 @@ export function useLocalePreferences() {
   );
 
   const convertPrice = useCallback(
-    (amountUsd: number) => amountUsd * (USD_EXCHANGE_RATES[currencyCode] ?? 1),
-    [currencyCode],
+    (amountUsd: number) => amountUsd * (fxState.rate || 1),
+    [fxState.rate],
   );
 
   const formatPrice = useCallback(
@@ -129,8 +205,7 @@ export function useLocalePreferences() {
     [convertPrice, formatter],
   );
 
-  const selectedCountry =
-    COUNTRY_OPTIONS.find((option) => option.code === countryCode) ?? COUNTRY_OPTIONS[0];
+  const selectedCountry = COUNTRY_OPTIONS.find((option) => option.code === countryCode) ?? COUNTRY_OPTIONS[0];
 
   return {
     countryCode,
@@ -139,5 +214,8 @@ export function useLocalePreferences() {
     selectedCountry,
     formatPrice,
     convertPrice,
+    fxRate: fxState.rate,
+    fxSource: fxState.source,
+    fxUpdatedAt: fxState.updatedAt,
   };
 }

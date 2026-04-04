@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, real, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, real, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -17,6 +17,7 @@ export const usersTable = pgTable("users", {
   currencyCode: text("currency_code"),
   sellerTags: text("seller_tags").array().notNull().default([]),
   accountStatus: text("account_status").notNull().default("member"),
+  planTier: text("plan_tier").notNull().default("starter"),
   role: userRoleEnum("role").notNull().default("buyer"),
   rating: real("rating"),
   reviewCount: integer("review_count").notNull().default(0),
@@ -24,11 +25,20 @@ export const usersTable = pgTable("users", {
   shopName: text("shop_name"),
   shopMode: shopModeEnum("shop_mode"),
   bannerUrl: text("banner_url"),
+  shopAnnouncement: text("shop_announcement"),
+  brandStory: text("brand_story"),
   websiteUrl: text("website_url"),
   instagramHandle: text("instagram_handle"),
   supportEmail: text("support_email"),
   shippingRegions: text("shipping_regions"),
+  sellingRegions: text("selling_regions").array().notNull().default([]),
   shippingPolicy: text("shipping_policy"),
+  domesticShippingCost: real("domestic_shipping_cost").default(0),
+  europeShippingCost: real("europe_shipping_cost").default(0),
+  northAmericaShippingCost: real("north_america_shipping_cost").default(0),
+  internationalShippingCost: real("international_shipping_cost").default(0),
+  freeShippingThreshold: real("free_shipping_threshold"),
+  localPickupEnabled: boolean("local_pickup_enabled").notNull().default(false),
   taxRate: real("tax_rate").default(0),
   processingDaysMin: integer("processing_days_min").default(1),
   processingDaysMax: integer("processing_days_max").default(7),

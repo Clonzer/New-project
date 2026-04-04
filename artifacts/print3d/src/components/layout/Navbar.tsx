@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { cartItemCount, CART_CHANGE_EVENT } from "@/lib/cart-storage";
 import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare";
 import { listMessageThreads } from "@/lib/messages-api";
+import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -63,6 +64,9 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2 group">
             <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent group-hover:drop-shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300">
               SYNTHIX
+            </span>
+            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+              Beta
             </span>
           </Link>
 
@@ -191,6 +195,8 @@ export function Navbar() {
           </Button>
         </div>
       </div>
+
+      <VerifyEmailBanner />
 
       <AnimatePresence>
         {menuOpen && (

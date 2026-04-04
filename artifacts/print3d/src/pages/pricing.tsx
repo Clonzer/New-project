@@ -1,37 +1,36 @@
 import { useState } from "react";
+import { Link } from "wouter";
+import { motion } from "framer-motion";
+import { Check, ChevronDown, ChevronUp, Crown, Star, X, Zap } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
-import { motion } from "framer-motion";
-import { Check, X, Zap, Star, Crown, ChevronDown, ChevronUp } from "lucide-react";
-import { Link } from "wouter";
+
+const ENTERPRISE_CONTACT = "mailto:evanhuelin8@gmail.com?subject=SYNTHIX%20Enterprise%20Inquiry";
 
 const PLANS = [
   {
     id: "starter",
     name: "Starter",
     icon: Zap,
-    iconColor: "text-zinc-400",
+    iconColor: "text-zinc-300",
     price: { monthly: 0, yearly: 0 },
     platformFee: 10,
-    highlight: false,
     badge: null,
-    description: "Perfect for hobbyists and new sellers testing the platform.",
+    highlight: false,
+    description: "A solid launch plan for new makers and smaller shops.",
     features: [
-      { text: "10% platform fee per sale", included: true },
-      { text: "3 free catalog listings", included: true },
-      { text: "Open job orders", included: true },
-      { text: "Basic order management", included: true },
-      { text: "Buyer/seller messaging", included: true },
-      { text: "Reduced platform fee", included: false },
-      { text: "Priority support", included: false },
-      { text: "Analytics dashboard", included: false },
-      { text: "Featured shop placement", included: true },
-      { text: "Custom shop branding", included: false },
+      { text: "10% platform fee", included: true },
+      { text: "3 catalog listings included", included: true },
+      { text: "Custom requests", included: true },
+      { text: "Shop messaging", included: true },
+      { text: "Portfolio and reviews", included: true },
+      { text: "Advanced analytics", included: false },
+      { text: "Enterprise onboarding", included: false },
     ],
-    cta: "Get Started Free",
-    ctaGlow: "white" as const,
+    cta: "Get Started",
+    glow: "white" as const,
   },
   {
     id: "pro",
@@ -40,23 +39,20 @@ const PLANS = [
     iconColor: "text-primary",
     price: { monthly: 19, yearly: 15 },
     platformFee: 7,
-    highlight: true,
     badge: "Most Popular",
-    description: "For active sellers ready to grow their fabrication or services business.",
+    highlight: true,
+    description: "For active sellers ready to grow with lower fees and better tooling.",
     features: [
-      { text: "7% platform fee per sale", included: true },
-      { text: "20 free catalog listings", included: true },
-      { text: "Open job orders", included: true },
-      { text: "Advanced order management", included: true },
-      { text: "Buyer/seller messaging", included: true },
-      { text: "3% reduced platform fee", included: true },
-      { text: "Priority support", included: true },
-      { text: "Analytics dashboard", included: true },
-      { text: "Featured shop placement", included: true },
-      { text: "Custom shop branding", included: false },
+      { text: "7% platform fee", included: true },
+      { text: "20 catalog listings included", included: true },
+      { text: "Custom requests", included: true },
+      { text: "Shop messaging", included: true },
+      { text: "Portfolio and reviews", included: true },
+      { text: "Advanced analytics", included: true },
+      { text: "Enterprise onboarding", included: false },
     ],
-    cta: "Start Pro Trial",
-    ctaGlow: "primary" as const,
+    cta: "Start Pro",
+    glow: "primary" as const,
   },
   {
     id: "elite",
@@ -65,46 +61,57 @@ const PLANS = [
     iconColor: "text-yellow-400",
     price: { monthly: 49, yearly: 39 },
     platformFee: 5,
-    highlight: false,
     badge: "Best Value",
-    description: "For professional shops and high-volume sellers.",
+    highlight: false,
+    description: "For established shops running serious order volume and stronger branding.",
     features: [
-      { text: "5% platform fee per sale", included: true },
-      { text: "Unlimited catalog listings", included: true },
-      { text: "Open job orders", included: true },
-      { text: "Advanced order management", included: true },
-      { text: "Buyer/seller messaging", included: true },
-      { text: "5% reduced platform fee", included: true },
-      { text: "Dedicated support", included: true },
-      { text: "Analytics dashboard", included: true },
-      { text: "Featured shop placement", included: true },
-      { text: "Custom shop branding", included: true },
+      { text: "5% platform fee", included: true },
+      { text: "Unlimited listings", included: true },
+      { text: "Custom requests", included: true },
+      { text: "Priority support", included: true },
+      { text: "Advanced analytics", included: true },
+      { text: "Branding controls", included: true },
+      { text: "Enterprise onboarding", included: false },
     ],
     cta: "Go Elite",
-    ctaGlow: "accent" as const,
+    glow: "accent" as const,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    icon: Crown,
+    iconColor: "text-cyan-300",
+    price: { monthly: 0, yearly: 0 },
+    platformFee: 0,
+    badge: "Contact Us",
+    highlight: false,
+    description: "Managed terms for high-value partners who need custom rollout, support, and commercial setup.",
+    features: [
+      { text: "Custom commercial terms", included: true },
+      { text: "Negotiated fees", included: true },
+      { text: "Dedicated onboarding", included: true },
+      { text: "Managed enterprise status", included: true },
+      { text: "Priority support", included: true },
+      { text: "Branding consultation", included: true },
+      { text: "Procurement workflows", included: true },
+    ],
+    cta: "Contact Us",
+    glow: "primary" as const,
   },
 ];
 
 const FAQS = [
   {
-    q: "How does the platform fee work?",
-    a: "When a buyer places an order, their payment is held in escrow by SYNTHIX. When you mark the order as shipped, we release your earnings minus the platform fee. For example, on a $100 order with a Pro plan (7% fee), you receive $93.",
+    q: "How do account tiers work?",
+    a: "Starter, Pro, and Elite can be self-serve. Enterprise is assigned manually for accounts that need custom commercial terms or rollout support.",
   },
   {
-    q: "What counts as a 'free listing'?",
-    a: "Each model you add to your catalog shop counts as one listing. Open-job orders (custom file uploads from buyers) don't count toward your listing limit. Listings beyond your plan's free allowance are $0.99/month each.",
+    q: "Can owners give someone enterprise features?",
+    a: "Yes. Owner accounts can assign plan tiers, including enterprise, from the private admin panel.",
   },
   {
-    q: "Can I switch plans at any time?",
-    a: "Yes. You can upgrade or downgrade at any time. Upgrades take effect immediately; downgrades take effect at the end of your current billing period.",
-  },
-  {
-    q: "Is there a free trial for paid plans?",
-    a: "Pro comes with a 14-day free trial — no credit card required. Elite plans include a 7-day trial.",
-  },
-  {
-    q: "Are there transaction limits?",
-    a: "No transaction limits on any plan. The platform fee applies to every order regardless of size, but there's no cap on how much you can sell.",
+    q: "Do buyers need a paid plan?",
+    a: "No. Pricing is aimed at sellers. Buyer accounts can browse and order without a subscription.",
   },
 ];
 
@@ -117,256 +124,147 @@ export default function Pricing() {
       <Navbar />
 
       <main className="flex-grow">
-        {/* Hero */}
-        <section className="relative pt-28 pb-16 text-center overflow-hidden">
+        <section className="relative overflow-hidden pb-16 pt-28 text-center">
           <AnimatedGradientBg />
-          <div className="relative z-10 container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="inline-block py-1 px-4 rounded-full bg-white/5 border border-white/10 text-primary text-sm font-semibold mb-6 backdrop-blur-sm">
-                Simple, transparent pricing
+          <div className="container relative z-10 mx-auto px-4">
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm font-semibold text-primary backdrop-blur-sm">
+                Seller pricing
               </span>
-              <h1 className="text-5xl md:text-6xl font-display font-extrabold text-white mb-5 tracking-tight">
-                Grow your shop,<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent">keep more of every sale</span>
+              <h1 className="mt-6 text-5xl font-display font-extrabold tracking-tight text-white md:text-6xl">
+                Pick the seller tier that fits your shop.
               </h1>
-              <p className="text-lg text-zinc-400 max-w-xl mx-auto mb-8">
-                Upgrade your plan to unlock lower platform fees, more catalog listings, and priority support.
+              <p className="mx-auto mt-5 max-w-2xl text-lg text-zinc-400">
+                Lower fees, better tooling, and a clear enterprise path when you need more than a standard seller account.
               </p>
-
-              {/* Billing toggle */}
-              <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-2 py-1.5">
+              <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5">
                 <button
                   onClick={() => setYearly(false)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${!yearly ? "bg-primary text-white shadow-[0_0_12px_rgba(139,92,246,0.5)]" : "text-zinc-400 hover:text-white"}`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${!yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setYearly(true)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${yearly ? "bg-primary text-white shadow-[0_0_12px_rgba(139,92,246,0.5)]" : "text-zinc-400 hover:text-white"}`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
                 >
                   Yearly
-                  <span className="text-[10px] bg-accent/20 text-accent border border-accent/30 px-1.5 py-0.5 rounded-full font-bold">-20%</span>
                 </button>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Pricing cards */}
-        <section className="pb-24 container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto -mt-4">
-            {PLANS.map((plan, i) => {
+        <section className="container mx-auto px-4 pb-24">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {PLANS.map((plan, index) => {
               const Icon = plan.icon;
+              const isEnterprise = plan.id === "enterprise";
               const price = yearly ? plan.price.yearly : plan.price.monthly;
+
               return (
                 <motion.div
                   key={plan.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className={`relative glass-panel rounded-3xl border p-8 flex flex-col transition-all duration-300 ${
-                    plan.highlight
-                      ? "border-primary/50 shadow-[0_0_40px_rgba(139,92,246,0.2)] scale-[1.02] bg-primary/5"
-                      : "border-white/10 hover:border-white/20"
+                  transition={{ delay: index * 0.08, duration: 0.45 }}
+                  className={`glass-panel relative flex flex-col rounded-3xl border p-8 ${
+                    plan.highlight ? "scale-[1.01] border-primary/40 bg-primary/5 shadow-[0_0_40px_rgba(139,92,246,0.18)]" : "border-white/10"
                   }`}
                 >
-                  {plan.badge && (
-                    <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-bold px-4 py-1 rounded-full ${
-                      plan.highlight ? "bg-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.6)]" : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                    }`}>
+                  {plan.badge ? (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-black px-4 py-1 text-xs font-bold text-white">
                       {plan.badge}
                     </div>
-                  )}
-
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.highlight ? "bg-primary/20 border border-primary/30" : "bg-white/5 border border-white/10"}`}>
-                      <Icon className={`w-5 h-5 ${plan.iconColor}`} />
+                  ) : null}
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                      <Icon className={`h-5 w-5 ${plan.iconColor}`} />
                     </div>
                     <h2 className="text-xl font-display font-bold text-white">{plan.name}</h2>
                   </div>
 
-                  <div className="mb-2">
+                  <div className="mb-4">
                     <span className="text-4xl font-display font-extrabold text-white">
-                      {price === 0 ? "Free" : `$${price}`}
+                      {isEnterprise ? "Custom" : price === 0 ? "Free" : `$${price}`}
                     </span>
-                    {price > 0 && (
-                      <span className="text-zinc-500 text-sm ml-1">/{yearly ? "mo (billed yearly)" : "mo"}</span>
-                    )}
+                    {!isEnterprise && price > 0 ? (
+                      <span className="ml-1 text-sm text-zinc-500">/{yearly ? "mo billed yearly" : "mo"}</span>
+                    ) : null}
                   </div>
 
-                  <div className={`inline-flex items-center gap-1.5 text-sm font-semibold mb-4 px-3 py-1 rounded-full w-fit ${
-                    plan.id === "starter" ? "bg-zinc-800 text-zinc-300"
-                    : plan.id === "pro" ? "bg-primary/15 text-primary border border-primary/25"
-                    : "bg-accent/15 text-accent border border-accent/25"
-                  }`}>
-                    <span className="text-lg font-extrabold">{plan.platformFee}%</span>
-                    <span>platform fee</span>
+                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-zinc-200">
+                    <span className="text-lg font-extrabold">{isEnterprise ? "Custom" : `${plan.platformFee}%`}</span>
+                    <span>{isEnterprise ? "terms" : "platform fee"}</span>
                   </div>
 
-                  <p className="text-zinc-400 text-sm mb-6 leading-relaxed">{plan.description}</p>
+                  <p className="mb-6 text-sm leading-relaxed text-zinc-400">{plan.description}</p>
 
-                  <ul className="space-y-3 mb-8 flex-grow">
-                    {plan.features.map((f, fi) => (
-                      <li key={fi} className={`flex items-start gap-2.5 text-sm ${f.included ? "text-zinc-300" : "text-zinc-600"}`}>
-                        {f.included
-                          ? <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                          : <X className="w-4 h-4 text-zinc-700 shrink-0 mt-0.5" />
-                        }
-                        {f.text}
+                  <ul className="mb-8 flex-grow space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature.text} className={`flex items-start gap-2.5 text-sm ${feature.included ? "text-zinc-300" : "text-zinc-600"}`}>
+                        {feature.included ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> : <X className="mt-0.5 h-4 w-4 shrink-0 text-zinc-700" />}
+                        {feature.text}
                       </li>
                     ))}
                   </ul>
 
-                  <Link href={plan.id === "starter" ? "/register" : "/register"}>
-                    <NeonButton glowColor={plan.ctaGlow} className="w-full rounded-2xl py-3 font-semibold">
-                      {plan.cta}
-                    </NeonButton>
-                  </Link>
+                  {isEnterprise ? (
+                    <a href={ENTERPRISE_CONTACT}>
+                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
+                        {plan.cta}
+                      </NeonButton>
+                    </a>
+                  ) : (
+                    <Link href="/register">
+                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
+                        {plan.cta}
+                      </NeonButton>
+                    </Link>
+                  )}
                 </motion.div>
               );
             })}
           </div>
         </section>
 
-        {/* Fee savings calculator */}
-        <section className="py-16 border-y border-white/5 bg-black/30">
-          <div className="container mx-auto px-4 max-w-3xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl font-display font-bold text-white mb-4">How much do you save?</h2>
-              <p className="text-zinc-400 mb-10">Based on $5,000 monthly sales revenue</p>
-
-              <div className="grid grid-cols-3 gap-4">
-                {PLANS.map((plan) => {
-                  const monthlyRevenue = 5000;
-                  const fee = (monthlyRevenue * plan.platformFee) / 100;
-                  const earnings = monthlyRevenue - fee;
-                  const savings = ((10 - plan.platformFee) / 100) * monthlyRevenue;
-                  return (
-                    <div
-                      key={plan.id}
-                      className={`glass-panel rounded-2xl p-6 border ${plan.highlight ? "border-primary/40" : "border-white/10"}`}
-                    >
-                      <p className="text-sm text-zinc-500 mb-1">{plan.name}</p>
-                      <p className="text-2xl font-display font-bold text-white">${earnings.toLocaleString()}</p>
-                      <p className="text-xs text-zinc-500 mb-3">you keep</p>
-                      {savings > 0 && (
-                        <p className="text-sm text-emerald-400 font-semibold">+${savings.toLocaleString()} saved</p>
-                      )}
-                      <p className="text-xs text-zinc-600 mt-1">${fee.toLocaleString()} platform fee</p>
-                    </div>
-                  );
-                })}
+        <section className="border-y border-white/5 bg-black/30 py-16">
+          <div className="container mx-auto max-w-4xl px-4">
+            <div className="rounded-3xl border border-cyan-400/15 bg-cyan-400/10 p-8 text-center">
+              <h2 className="text-3xl font-display font-bold text-white">Enterprise sellers get a human setup path.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-zinc-300">
+                Use enterprise when you need custom onboarding, pricing terms, procurement support, or a tailored launch arrangement.
+              </p>
+              <div className="mt-6">
+                <a href={ENTERPRISE_CONTACT}>
+                  <NeonButton glowColor="primary" className="rounded-full px-8 py-4 text-base">
+                    Contact Us
+                  </NeonButton>
+                </a>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* Comparison table */}
-        <section className="py-20 container mx-auto px-4 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-display font-bold text-white text-center mb-10">Full feature comparison</h2>
-            <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="text-left px-6 py-4 text-zinc-400 font-medium">Feature</th>
-                    <th className="text-center px-4 py-4 text-zinc-300 font-semibold">Starter</th>
-                    <th className="text-center px-4 py-4 text-primary font-semibold">Pro</th>
-                    <th className="text-center px-4 py-4 text-accent font-semibold">Elite</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {[
-                    ["Platform fee", "10%", "7%", "5%"],
-                    ["Catalog listings", "3 free", "20 free", "Unlimited"],
-                    ["Open job orders", "✓", "✓", "✓"],
-                    ["Order management", "Basic", "Advanced", "Advanced"],
-                    ["Buyer messaging", "✓", "✓", "✓"],
-                    ["Analytics", "—", "✓", "✓"],
-                    ["Priority support", "—", "✓", "Dedicated"],
-                    ["Featured placement", "✓", "✓", "✓"],
-                    ["Custom branding", "—", "—", "✓"],
-                    ["Additional listings", "$0.99/ea", "$0.99/ea", "Included"],
-                  ].map(([feature, starter, pro, elite], i) => (
-                    <tr key={i} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-4 text-zinc-300">{feature}</td>
-                      <td className="px-4 py-4 text-center text-zinc-400">{starter}</td>
-                      <td className="px-4 py-4 text-center text-primary font-medium">{pro}</td>
-                      <td className="px-4 py-4 text-center text-accent font-medium">{elite}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* FAQ */}
-        <section className="py-16 pb-24 container mx-auto px-4 max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-display font-bold text-white text-center mb-10">Frequently asked</h2>
-            <div className="space-y-3">
-              {FAQS.map((faq, i) => (
-                <div key={i} className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-white/5 transition-colors"
-                  >
-                    <span className="font-medium text-white pr-4">{faq.q}</span>
-                    {openFaq === i
-                      ? <ChevronUp className="w-4 h-4 text-primary shrink-0" />
-                      : <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />
-                    }
-                  </button>
-                  {openFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      className="px-6 pb-4 text-zinc-400 text-sm leading-relaxed border-t border-white/5"
-                    >
-                      <p className="pt-3">{faq.a}</p>
-                    </motion.div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </section>
-
-        {/* Bottom CTA */}
-        <section className="pb-24 container mx-auto px-4">
-          <div className="glass-panel rounded-[3rem] p-12 md:p-20 text-center border border-primary/20 relative overflow-hidden max-w-3xl mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10 animate-gradient-x" />
-            <div className="relative z-10">
-              <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">Ready to maximize your earnings?</h2>
-              <p className="text-zinc-300 mb-8 max-w-lg mx-auto">Join thousands of makers who've upgraded their SYNTHIX experience.</p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/register">
-                  <NeonButton glowColor="primary" className="px-8 py-4 rounded-full text-base">Start Pro Trial — Free 14 Days</NeonButton>
-                </Link>
-                <Link href="/explore">
-                  <NeonButton glowColor="white" className="px-8 py-4 rounded-full text-base">Explore as Buyer</NeonButton>
-                </Link>
+        <section className="container mx-auto max-w-2xl px-4 py-20">
+          <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>
+          <div className="space-y-3">
+            {FAQS.map((faq, index) => (
+              <div key={faq.q} className="glass-panel overflow-hidden rounded-2xl border border-white/10">
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-white/5"
+                >
+                  <span className="pr-4 font-medium text-white">{faq.q}</span>
+                  {openFaq === index ? <ChevronUp className="h-4 w-4 shrink-0 text-primary" /> : <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />}
+                </button>
+                {openFaq === index ? (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="border-t border-white/5 px-6 pb-4 pt-3 text-sm leading-relaxed text-zinc-400">
+                    {faq.a}
+                  </motion.div>
+                ) : null}
               </div>
-            </div>
+            ))}
           </div>
         </section>
       </main>

@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { canSellerShipToCountry, getShippingEstimate } from "@/lib/shipping-profile";
 import { Box, ShieldCheck, Upload } from "lucide-react";
 
 const orderSchema = z.object({
@@ -36,7 +37,7 @@ export default function OrderFlow() {
   const sellerId = searchParams.get("sellerId");
 
   const { user } = useAuth();
-  const { formatPrice } = useLocalePreferences();
+  const { formatPrice, countryCode, fxSource, fxUpdatedAt } = useLocalePreferences();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +85,14 @@ export default function OrderFlow() {
   const unitPrice = isCatalogOrder ? listing?.basePrice ?? 0 : Math.max(0, form.watch("proposedUnitPrice") ?? 0);
   const quantity = form.watch("quantity") || 1;
   const subtotal = unitPrice * quantity;
-  const lineShipping = isCatalogOrder ? (listing?.shippingCost ?? 0) * quantity : seller?.defaultShippingCost ?? 0;
+  const shippingEstimate = seller
+    ? getShippingEstimate(seller, countryCode, subtotal, isCatalogOrder ? listing?.shippingCost ?? 0 : undefined)
+    : { zone: "default", cost: 0 };
+  const lineShipping = isCatalogOrder
+    ? listing?.shippingCost && listing.shippingCost > 0
+      ? listing.shippingCost * quantity
+      : shippingEstimate.cost
+    : shippingEstimate.cost;
   const platformFee = subtotal * 0.1;
   const total = subtotal + platformFee + lineShipping;
 
@@ -99,6 +107,14 @@ export default function OrderFlow() {
     }
     if (!seller) {
       toast({ title: "Seller unavailable", description: "This seller could not be loaded.", variant: "destructive" });
+      return;
+    }
+    if (!canSellerShipToCountry(seller, countryCode)) {
+      toast({
+        title: "Seller does not ship to your region",
+        description: "Update your country in settings or choose a seller that ships to your location.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -402,6 +418,12 @@ export default function OrderFlow() {
                     <span>Shipping</span>
                     <span>{formatPrice(lineShipping)}</span>
                   </div>
+                  {seller ? (
+                    <div className="flex justify-between text-zinc-500">
+                      <span>Shipping zone</span>
+                      <span className="capitalize">{shippingEstimate.zone.replace("_", " ")}</span>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="flex justify-between items-center pt-6 border-t border-white/10 mb-6">
@@ -415,6 +437,9 @@ export default function OrderFlow() {
                   <ShieldCheck className="w-4 h-4 shrink-0" />
                   <p>Payment is captured in Stripe and the order is created only after checkout completes.</p>
                 </div>
+                <p className="mt-3 text-xs text-zinc-500">
+                  Prices convert using {fxSource === "live" ? "live" : "fallback"} FX data{fxUpdatedAt && fxUpdatedAt !== "static" ? ` updated ${fxUpdatedAt}` : ""}.
+                </p>
               </div>
             </div>
           </div>

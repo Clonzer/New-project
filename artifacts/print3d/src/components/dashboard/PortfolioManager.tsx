@@ -86,6 +86,14 @@ export function PortfolioManager({ userId }: { userId: number }) {
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (!file) return;
+              if (file.size > 6 * 1024 * 1024) {
+                toast({
+                  title: "Image too large",
+                  description: "Please use an image under 6MB for portfolio items.",
+                  variant: "destructive",
+                });
+                return;
+              }
               const reader = new FileReader();
               reader.onload = () => {
                 setForm((current) => ({

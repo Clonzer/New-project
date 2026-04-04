@@ -16,6 +16,7 @@ router.get("/admin/users", requireOwner, async (_req: AuthedRequest, res) => {
       email: user.email,
       role: user.role,
       accountStatus: user.accountStatus,
+      planTier: user.planTier,
       isOwner: user.accountStatus === "owner" || ["evanhuelin8@gmail.com", "evanhuelin@gmail.com"].includes(user.email.toLowerCase()),
       joinedAt: user.joinedAt,
     })),
@@ -25,10 +26,16 @@ router.get("/admin/users", requireOwner, async (_req: AuthedRequest, res) => {
 router.patch("/admin/users/:userId/status", requireOwner, async (req: AuthedRequest, res) => {
   const userId = Number(req.params.userId);
   const accountStatus = String(req.body?.accountStatus ?? "").trim().toLowerCase();
+  const planTier = String(req.body?.planTier ?? "").trim().toLowerCase();
   const allowed = new Set(["member", "influencer", "featured", "partner", "vip"]);
+  const allowedPlanTiers = new Set(["starter", "pro", "elite", "enterprise"]);
 
   if (!allowed.has(accountStatus)) {
     res.status(400).json({ error: "validation_error", message: "Choose a valid internal account status." });
+    return;
+  }
+  if (planTier && !allowedPlanTiers.has(planTier)) {
+    res.status(400).json({ error: "validation_error", message: "Choose a valid plan tier." });
     return;
   }
 
@@ -44,7 +51,7 @@ router.patch("/admin/users/:userId/status", requireOwner, async (req: AuthedRequ
 
   const [user] = await db
     .update(usersTable)
-    .set({ accountStatus })
+    .set({ accountStatus, ...(planTier ? { planTier } : {}) })
     .where(eq(usersTable.id, userId))
     .returning();
 

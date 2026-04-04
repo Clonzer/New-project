@@ -21,38 +21,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 
 type HeroSlide =
-  | {
-      kind: "listing";
-      id: string;
-      href: string;
-      eyebrow: string;
-      title: string;
-      description: string;
-      imageUrl: string | null;
-      badge: string;
-      metaA: string;
-      metaB: string;
-      cta: string;
-    }
-  | {
-      kind: "seller";
-      id: string;
-      href: string;
-      eyebrow: string;
-      title: string;
-      description: string;
-      imageUrl: string | null;
-      badge: string;
-      metaA: string;
-      metaB: string;
-      cta: string;
-    };
+  {
+    kind: "listing" | "seller";
+    id: string;
+    href: string;
+    eyebrow: string;
+    title: string;
+    description: string;
+    imageUrl: string | null;
+    badge: string;
+    metaA: string;
+    metaB: string;
+    cta: string;
+    storeName: string;
+    storeHref: string;
+    storeImageUrl: string | null;
+    storeSummary: string;
+    storeMeta: string;
+  };
 
 function formatCount(value: number | undefined) {
   return new Intl.NumberFormat("en-GB").format(value ?? 0);
 }
 
-function listingToSlide(listing: Listing, formatPrice: (amountUsd: number) => string): HeroSlide {
+function listingToSlide(listing: Listing, seller: SellerShop | undefined, formatPrice: (amountUsd: number) => string): HeroSlide {
   return {
     kind: "listing",
     id: `listing-${listing.id}`,
@@ -67,6 +59,13 @@ function listingToSlide(listing: Listing, formatPrice: (amountUsd: number) => st
     metaA: `${formatPrice(listing.basePrice)} base`,
     metaB: `${listing.estimatedDaysMin}-${listing.estimatedDaysMax} day lead time`,
     cta: "Order this print",
+    storeName: seller?.shopName || seller?.displayName || listing.sellerName,
+    storeHref: `/shop/${seller?.id ?? listing.sellerId}`,
+    storeImageUrl: seller?.avatarUrl ?? null,
+    storeSummary:
+      seller?.bio?.trim() ||
+      `${listing.sellerName} is active on SYNTHIX with products and custom work ready to browse.`,
+    storeMeta: seller ? `${formatCount(seller.printerCount)} machines • ${formatCount(seller.listingCount)} listings` : "Marketplace seller",
   };
 }
 
@@ -85,6 +84,13 @@ function sellerToSlide(seller: SellerShop): HeroSlide {
     metaA: `${formatCount(seller.printerCount)} machines`,
     metaB: `${formatCount(seller.totalPrints)} completed jobs`,
     cta: "View maker profile",
+    storeName: seller.shopName || seller.displayName,
+    storeHref: `/shop/${seller.id}`,
+    storeImageUrl: seller.avatarUrl ?? null,
+    storeSummary:
+      seller.bio?.trim() ||
+      `${seller.displayName} is active for marketplace orders and custom manufacturing requests.`,
+    storeMeta: `${formatCount(seller.printerCount)} machines • ${formatCount(seller.listingCount)} listings`,
   };
 }
 
@@ -98,9 +104,21 @@ export default function Home() {
 
   const featuredSellers = sellersData?.sellers ?? [];
   const featuredListings = listingsData?.listings ?? [];
+  const sellersById = useMemo(() => new Map(featuredSellers.map((seller) => [seller.id, seller])), [featuredSellers]);
   const slides = useMemo(
-    () => [...featuredListings.slice(0, 3).map((listing) => listingToSlide(listing, formatPrice)), ...featuredSellers.slice(0, 3).map(sellerToSlide)],
-    [featuredListings, featuredSellers, formatPrice],
+    () => [
+      ...featuredListings
+        .slice()
+        .sort((a, b) => b.orderCount - a.orderCount)
+        .slice(0, 4)
+        .map((listing) => listingToSlide(listing, sellersById.get(listing.sellerId), formatPrice)),
+      ...featuredSellers
+        .slice()
+        .sort((a, b) => (b.totalPrints + b.reviewCount) - (a.totalPrints + a.reviewCount))
+        .slice(0, 3)
+        .map(sellerToSlide),
+    ],
+    [featuredListings, featuredSellers, formatPrice, sellersById],
   );
 
   useEffect(() => {
@@ -140,18 +158,110 @@ export default function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
-            <div className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
-              <div className="max-w-2xl">
+            <div className="mb-10">
+              {loadingSellers || loadingListings ? (
+                <Skeleton className="mb-8 h-[24rem] rounded-[2rem] bg-white/10" />
+              ) : slides.length ? (
+                <div className="mb-8">
+                  <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full">
+                    <CarouselContent>
+                      {slides.map((slide) => (
+                        <CarouselItem key={slide.id}>
+                          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/35">
+                            <div className="grid min-h-[24rem] gap-0 lg:grid-cols-[0.95fr_1.05fr]">
+                              <div className="flex flex-col justify-between border-b border-white/10 bg-[linear-gradient(155deg,rgba(12,18,31,0.95),rgba(8,12,20,0.82))] p-7 lg:border-b-0 lg:border-r">
+                                <div>
+                                  <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9fe5ff]">
+                                    Marketplace showcase
+                                  </span>
+                                  <div className="mt-5 flex items-center gap-4">
+                                    <div className="h-16 w-16 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                                      {slide.storeImageUrl ? (
+                                        <img src={slide.storeImageUrl} alt={slide.storeName} className="h-full w-full object-cover" />
+                                      ) : (
+                                        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-white">
+                                          {slide.storeName.charAt(0)}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Store</p>
+                                      <p className="text-2xl font-display font-bold text-white">{slide.storeName}</p>
+                                      <p className="mt-1 text-sm text-zinc-400">{slide.storeMeta}</p>
+                                    </div>
+                                  </div>
+                                  <p className="mt-5 max-w-md text-sm leading-relaxed text-zinc-300">{slide.storeSummary}</p>
+                                </div>
+                                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                                  <Link href={slide.storeHref}>
+                                    <NeonButton glowColor="white" className="w-full rounded-full px-6 py-4 text-sm">
+                                      Visit store
+                                    </NeonButton>
+                                  </Link>
+                                  <Link href="/explore">
+                                    <NeonButton glowColor="accent" className="w-full rounded-full px-6 py-4 text-sm">
+                                      Explore marketplace
+                                    </NeonButton>
+                                  </Link>
+                                </div>
+                              </div>
+                              <Link href={slide.href}>
+                                <div className="group relative min-h-[24rem] cursor-pointer overflow-hidden">
+                                  {slide.imageUrl ? (
+                                    <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                  ) : (
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(91,204,255,0.35),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(0,255,179,0.18),transparent_35%),linear-gradient(135deg,rgba(24,24,27,1),rgba(9,9,11,0.92))]" />
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                                  <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-9">
+                                    <div className="flex items-center justify-between gap-3">
+                                      <span className="rounded-full border border-white/15 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-md">
+                                        {slide.eyebrow}
+                                      </span>
+                                      <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+                                        {slide.badge}
+                                      </span>
+                                    </div>
+                                    <div className="max-w-2xl">
+                                      <h2 className="text-3xl font-display font-bold leading-tight text-white md:text-5xl">{slide.title}</h2>
+                                      <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-200 md:text-base">{slide.description}</p>
+                                      <div className="mt-6 flex flex-wrap gap-3">
+                                        {[slide.metaA, slide.metaB].map((meta) => (
+                                          <div key={meta} className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 backdrop-blur-md">
+                                            {meta}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-5 py-3 text-sm font-semibold text-black transition group-hover:bg-[#9fe5ff]">
+                                        {slide.cta}
+                                        <ChevronRight className="h-4 w-4" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </Link>
+                            </div>
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
+                    <CarouselNext className="right-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
+                  </Carousel>
+                </div>
+              ) : null}
+
+              <div className="max-w-3xl">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm">
                   <Sparkles className="w-4 h-4" />
                   Storefront marketplace
                 </span>
                 <h1 className="mt-6 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
-                  One store for custom manufacturing, maker shops, and ready-to-order products.
+                  Find a maker. Compare shops. Order with confidence.
                 </h1>
-                <p className="mt-5 max-w-xl text-lg text-zinc-300 leading-relaxed">
-                  SYNTHIX is built as a real production marketplace: buyers can discover trusted makers, compare shops,
-                  order listed products, and request custom fabrication from the same storefront.
+                <p className="mt-5 max-w-2xl text-lg text-zinc-300 leading-relaxed">
+                  A cleaner way to discover verified makers, browse ready-to-order products, and request custom work from one storefront.
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row gap-4">
                   <Link href="/explore">
@@ -165,55 +275,6 @@ export default function Home() {
                     </NeonButton>
                   </Link>
                 </div>
-              </div>
-
-              <div className="relative min-h-[22rem]">
-                <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(159,229,255,0.18),transparent_32%),linear-gradient(145deg,rgba(13,17,23,0.92),rgba(3,7,18,0.8))] shadow-[0_30px_120px_rgba(0,0,0,0.45)]" />
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="absolute left-6 right-6 top-6 rounded-[1.5rem] border border-white/10 bg-black/35 p-5 backdrop-blur-xl"
-                >
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.22em] text-zinc-500">
-                    <span>Marketplace pulse</span>
-                    <span>Live</span>
-                  </div>
-                  <div className="mt-5 grid grid-cols-2 gap-4">
-                    {stats.slice(0, 4).map((stat, index) => {
-                      const Icon = stat.icon;
-                      return (
-                        <motion.div
-                          key={stat.label}
-                          initial={{ opacity: 0, scale: 0.96 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 + index * 0.08 }}
-                          className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                        >
-                          <div className="flex items-center justify-between">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">{stat.label}</p>
-                            <Icon className="w-4 h-4 text-[#9fe5ff]" />
-                          </div>
-                          <p className="mt-3 text-2xl font-display font-bold text-white">{stat.value}</p>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                  className="absolute bottom-8 left-10 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100"
-                >
-                  Verified sellers updated live
-                </motion.div>
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                  className="absolute bottom-20 right-10 max-w-[16rem] rounded-2xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-zinc-200 backdrop-blur-lg"
-                >
-                  Compare shops, inspect specialties, and move from inspiration to checkout in one place.
-                </motion.div>
               </div>
             </div>
 
@@ -230,7 +291,7 @@ export default function Home() {
                   </div>
                 ) : slides.length > 0 ? (
                   <>
-                    <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full">
+                    <Carousel opts={{ loop: true }} className="w-full">
                       <CarouselContent>
                         {slides.map((slide) => (
                           <CarouselItem key={slide.id}>

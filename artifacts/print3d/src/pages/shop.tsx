@@ -111,11 +111,33 @@ export default function Shop() {
                   <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {user.rating?.toFixed(1) || "New"} ({user.reviewCount})
                   </span>
+                  {user.emailVerifiedAt ? (
+                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
+                      Verified maker
+                    </span>
+                  ) : null}
+                  {user.planTier === "enterprise" ? (
+                    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+                      Enterprise
+                    </span>
+                  ) : null}
                 </div>
+
+                {user.shopAnnouncement ? (
+                  <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-white">
+                    {user.shopAnnouncement}
+                  </div>
+                ) : null}
 
                 <p className="text-zinc-300 max-w-2xl text-lg leading-relaxed">
                   {user.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
                 </p>
+
+                {user.brandStory ? (
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400">
+                    {user.brandStory}
+                  </p>
+                ) : null}
 
                 {user.sellerTags?.length ? (
                   <div className="mt-4 flex flex-wrap gap-2">

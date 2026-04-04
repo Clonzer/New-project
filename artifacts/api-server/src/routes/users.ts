@@ -78,7 +78,9 @@ router.post("/users", async (req, res) => {
         languageCode: rest.languageCode?.trim() || null,
         currencyCode: rest.currencyCode?.trim().toUpperCase() || null,
         sellerTags: rest.sellerTags?.map((tag) => tag.trim()).filter(Boolean) ?? [],
+        sellingRegions: [],
         accountStatus: isOwnerEmail(email) ? "owner" : "member",
+        planTier: "starter",
         passwordHash,
       })
       .returning();
@@ -203,14 +205,25 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     languageCode: parsed.data.languageCode?.trim() || null,
     currencyCode: parsed.data.currencyCode?.trim().toUpperCase() || null,
     sellerTags: parsed.data.sellerTags?.map((tag) => tag.trim()).filter(Boolean) ?? undefined,
+    sellingRegions: Array.isArray(parsed.data.sellingRegions)
+      ? parsed.data.sellingRegions.map((region) => region.trim().toUpperCase()).filter(Boolean)
+      : undefined,
     location: parsed.data.location?.trim() || null,
     shopName: parsed.data.shopName?.trim() || null,
     bannerUrl: parsed.data.bannerUrl?.trim() || null,
+    shopAnnouncement: parsed.data.shopAnnouncement?.trim() || null,
+    brandStory: parsed.data.brandStory?.trim() || null,
     websiteUrl: parsed.data.websiteUrl?.trim() || null,
     instagramHandle: parsed.data.instagramHandle?.trim() || null,
     supportEmail: parsed.data.supportEmail?.trim() || null,
     shippingRegions: parsed.data.shippingRegions?.trim() || null,
     shippingPolicy: parsed.data.shippingPolicy?.trim() || null,
+    domesticShippingCost: parsed.data.domesticShippingCost,
+    europeShippingCost: parsed.data.europeShippingCost,
+    northAmericaShippingCost: parsed.data.northAmericaShippingCost,
+    internationalShippingCost: parsed.data.internationalShippingCost,
+    freeShippingThreshold: parsed.data.freeShippingThreshold,
+    localPickupEnabled: parsed.data.localPickupEnabled,
     returnPolicy: parsed.data.returnPolicy?.trim() || null,
     customOrderPolicy: parsed.data.customOrderPolicy?.trim() || null,
   };
@@ -242,12 +255,28 @@ router.post("/users/:userId/portfolio", requireAuth, requireSelf("userId"), asyn
     return;
   }
 
-  const [item] = await db
-    .insert(portfolioTable)
-    .values({ userId, title, imageUrl, description, tags })
-    .returning();
+  try {
+    const [item] = await db
+      .insert(portfolioTable)
+      .values({ userId, title, imageUrl, description, tags })
+      .returning();
 
-  res.status(201).json({ item });
+    res.status(201).json({ item });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/portfolio_items/i.test(message) || /relation .*portfolio_items.* does not exist/i.test(message)) {
+      res.status(503).json({
+        error: "schema_not_ready",
+        message: "Portfolio storage is not ready yet. Redeploy so the latest database migrations can run.",
+      });
+      return;
+    }
+    console.error("createPortfolioItem", { userId, error });
+    res.status(500).json({
+      error: "server_error",
+      message: "Could not add portfolio item. Try a smaller image or try again in a moment.",
+    });
+  }
 });
 
 router.delete("/users/:userId/portfolio/:portfolioId", requireAuth, requireSelf("userId"), async (req, res) => {

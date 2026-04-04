@@ -6,6 +6,7 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { NeonButton } from "@/components/ui/neon-button";
 
 const STATUS_OPTIONS = ["member", "influencer", "featured", "partner", "vip"] as const;
+const PLAN_OPTIONS = ["starter", "pro", "elite", "enterprise"] as const;
 
 export function OwnerAdminPanel() {
   const { toast } = useToast();
@@ -29,10 +30,10 @@ export function OwnerAdminPanel() {
     void load();
   }, []);
 
-  const updateStatus = async (userId: number, accountStatus: string) => {
+  const updateStatus = async (userId: number, accountStatus: string, planTier?: string) => {
     setUpdatingId(userId);
     try {
-      await updateAdminUserStatus(userId, accountStatus);
+      await updateAdminUserStatus(userId, accountStatus, planTier);
       toast({ title: "Internal status updated", description: "The account status has been changed." });
       await load();
     } catch (error) {
@@ -69,6 +70,11 @@ export function OwnerAdminPanel() {
                           {user.accountStatus}
                         </span>
                       ) : null}
+                      {!user.isOwner && user.planTier ? (
+                        <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-200">
+                          {user.planTier}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 text-sm text-zinc-400">{user.email} · {user.role}</p>
                     <p className="text-xs text-zinc-500">Joined {format(new Date(user.joinedAt), "MMM d, yyyy")}</p>
@@ -81,9 +87,20 @@ export function OwnerAdminPanel() {
                           glowColor={user.accountStatus === status ? "primary" : "white"}
                           className="rounded-full px-4 py-2 text-xs"
                           disabled={updatingId === user.id}
-                          onClick={() => void updateStatus(user.id, status)}
+                          onClick={() => void updateStatus(user.id, status, user.planTier ?? "starter")}
                         >
                           {updatingId === user.id && user.accountStatus !== status ? "Updating..." : status}
+                        </NeonButton>
+                      ))}
+                      {PLAN_OPTIONS.map((tier) => (
+                        <NeonButton
+                          key={tier}
+                          glowColor={user.planTier === tier ? "accent" : "white"}
+                          className="rounded-full px-4 py-2 text-xs"
+                          disabled={updatingId === user.id}
+                          onClick={() => void updateStatus(user.id, user.accountStatus ?? "member", tier)}
+                        >
+                          {updatingId === user.id && user.planTier !== tier ? "Updating..." : tier}
                         </NeonButton>
                       ))}
                     </div>

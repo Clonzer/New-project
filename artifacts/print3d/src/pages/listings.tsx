@@ -15,6 +15,8 @@ export default function Listings() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showFilters, setShowFilters] = useState(false);
+  const [maxPrice, setMaxPrice] = useState("");
   const { data, isLoading } = useListListings({ limit: 50 });
 
   useEffect(() => {
@@ -24,13 +26,15 @@ export default function Listings() {
   }, [rawSearch]);
 
   const filteredListings = data?.listings.filter(l => {
+    const maxPriceNumber = maxPrice.trim() ? parseFloat(maxPrice) : null;
     const matchesSearch =
       l.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory =
       selectedCategory === "All" || l.category.toLowerCase() === selectedCategory.toLowerCase();
-    return matchesSearch && matchesCategory;
+    const matchesPrice = maxPriceNumber == null || l.basePrice <= maxPriceNumber;
+    return matchesSearch && matchesCategory && matchesPrice;
   });
   const priceInsights = filteredListings ? buildListingPriceInsights(filteredListings) : new Map();
 
@@ -60,11 +64,32 @@ export default function Listings() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <button className="h-12 px-4 rounded-xl glass-panel border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors">
+              <button
+                type="button"
+                onClick={() => setShowFilters((current) => !current)}
+                className="h-12 px-4 rounded-xl glass-panel border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors"
+              >
                 <SlidersHorizontal className="w-5 h-5" />
               </button>
             </div>
           </div>
+
+          {showFilters ? (
+            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500">Max base price</label>
+              <div className="mt-3 max-w-xs">
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={maxPrice}
+                  onChange={(event) => setMaxPrice(event.target.value)}
+                  placeholder="e.g. 40"
+                  className="h-11 rounded-xl bg-black/20 border-white/10 text-white"
+                />
+              </div>
+            </div>
+          ) : null}
 
           {/* Category filter pills — actually filter now */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">

@@ -13,10 +13,11 @@ import {
   CURRENCY_OPTIONS,
   LANGUAGE_OPTIONS,
   persistLocalePreferences,
+  useLocalePreferences,
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, Shield, Store, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, MessageSquareText, Shield, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
@@ -24,6 +25,7 @@ const SECTIONS = [
   { id: "shop", label: "Shop Settings", icon: Store },
   { id: "payment", label: "Payments", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "security", label: "Security", icon: Shield },
 ];
 
@@ -37,6 +39,8 @@ export default function Settings() {
   const [isRequestingVerification, setIsRequestingVerification] = useState(false);
   const [isConfirmingVerification, setIsConfirmingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [customTagDraft, setCustomTagDraft] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -53,13 +57,22 @@ export default function Settings() {
     sellerTags: user?.sellerTags ?? [],
     shopName: user?.shopName ?? "",
     bannerUrl: user?.bannerUrl ?? "",
+    shopAnnouncement: user?.shopAnnouncement ?? "",
+    brandStory: user?.brandStory ?? "",
     websiteUrl: user?.websiteUrl ?? "",
     instagramHandle: user?.instagramHandle ?? "",
     supportEmail: user?.supportEmail ?? "",
     shopMode: user?.shopMode ?? "open",
     defaultShippingCost: user?.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
     shippingRegions: user?.shippingRegions ?? "",
+    sellingRegions: user?.sellingRegions ?? [],
     shippingPolicy: user?.shippingPolicy ?? "",
+    domesticShippingCost: user?.domesticShippingCost != null ? String(user.domesticShippingCost) : "",
+    europeShippingCost: user?.europeShippingCost != null ? String(user.europeShippingCost) : "",
+    northAmericaShippingCost: user?.northAmericaShippingCost != null ? String(user.northAmericaShippingCost) : "",
+    internationalShippingCost: user?.internationalShippingCost != null ? String(user.internationalShippingCost) : "",
+    freeShippingThreshold: user?.freeShippingThreshold != null ? String(user.freeShippingThreshold) : "",
+    localPickupEnabled: !!user?.localPickupEnabled,
     taxRate: user?.taxRate != null ? String(user.taxRate) : "",
     processingDaysMin: user?.processingDaysMin != null ? String(user.processingDaysMin) : "1",
     processingDaysMax: user?.processingDaysMax != null ? String(user.processingDaysMax) : "7",
@@ -80,13 +93,22 @@ export default function Settings() {
       sellerTags: user.sellerTags ?? [],
       shopName: user.shopName ?? "",
       bannerUrl: user.bannerUrl ?? "",
+      shopAnnouncement: user.shopAnnouncement ?? "",
+      brandStory: user.brandStory ?? "",
       websiteUrl: user.websiteUrl ?? "",
       instagramHandle: user.instagramHandle ?? "",
       supportEmail: user.supportEmail ?? "",
       shopMode: user.shopMode ?? "open",
       defaultShippingCost: user.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
       shippingRegions: user.shippingRegions ?? "",
+      sellingRegions: user.sellingRegions ?? [],
       shippingPolicy: user.shippingPolicy ?? "",
+      domesticShippingCost: user.domesticShippingCost != null ? String(user.domesticShippingCost) : "",
+      europeShippingCost: user.europeShippingCost != null ? String(user.europeShippingCost) : "",
+      northAmericaShippingCost: user.northAmericaShippingCost != null ? String(user.northAmericaShippingCost) : "",
+      internationalShippingCost: user.internationalShippingCost != null ? String(user.internationalShippingCost) : "",
+      freeShippingThreshold: user.freeShippingThreshold != null ? String(user.freeShippingThreshold) : "",
+      localPickupEnabled: !!user.localPickupEnabled,
       taxRate: user.taxRate != null ? String(user.taxRate) : "",
       processingDaysMin: user.processingDaysMin != null ? String(user.processingDaysMin) : "1",
       processingDaysMax: user.processingDaysMax != null ? String(user.processingDaysMax) : "7",
@@ -103,6 +125,8 @@ export default function Settings() {
 
   const isSeller = useMemo(() => user?.role === "seller" || user?.role === "both", [user?.role]);
   const isVerified = !!user?.emailVerifiedAt;
+  const planTier = user?.planTier ?? "starter";
+  const { fxSource, fxUpdatedAt } = useLocalePreferences();
   const appOrigin =
     typeof window !== "undefined"
       ? window.location.origin
@@ -112,6 +136,11 @@ export default function Settings() {
     if (!user) return;
     try {
       const shipping = form.defaultShippingCost.trim() === "" ? null : parseFloat(form.defaultShippingCost);
+      const domesticShippingCost = form.domesticShippingCost.trim() === "" ? null : parseFloat(form.domesticShippingCost);
+      const europeShippingCost = form.europeShippingCost.trim() === "" ? null : parseFloat(form.europeShippingCost);
+      const northAmericaShippingCost = form.northAmericaShippingCost.trim() === "" ? null : parseFloat(form.northAmericaShippingCost);
+      const internationalShippingCost = form.internationalShippingCost.trim() === "" ? null : parseFloat(form.internationalShippingCost);
+      const freeShippingThreshold = form.freeShippingThreshold.trim() === "" ? null : parseFloat(form.freeShippingThreshold);
       const taxRate = form.taxRate.trim() === "" ? null : parseFloat(form.taxRate);
       const processingDaysMin = form.processingDaysMin.trim() === "" ? null : parseInt(form.processingDaysMin, 10);
       const processingDaysMax = form.processingDaysMax.trim() === "" ? null : parseInt(form.processingDaysMax, 10);
@@ -128,13 +157,22 @@ export default function Settings() {
           sellerTags: form.sellerTags,
           shopName: form.shopName.trim() || null,
           bannerUrl: form.bannerUrl.trim() || null,
+          shopAnnouncement: form.shopAnnouncement.trim() || null,
+          brandStory: form.brandStory.trim() || null,
           websiteUrl: form.websiteUrl.trim() || null,
           instagramHandle: form.instagramHandle.trim() || null,
           supportEmail: form.supportEmail.trim() || null,
           shopMode: form.shopMode,
           defaultShippingCost: shipping != null && Number.isFinite(shipping) ? shipping : null,
           shippingRegions: form.shippingRegions.trim() || null,
+          sellingRegions: form.sellingRegions,
           shippingPolicy: form.shippingPolicy.trim() || null,
+          domesticShippingCost: domesticShippingCost != null && Number.isFinite(domesticShippingCost) ? domesticShippingCost : null,
+          europeShippingCost: europeShippingCost != null && Number.isFinite(europeShippingCost) ? europeShippingCost : null,
+          northAmericaShippingCost: northAmericaShippingCost != null && Number.isFinite(northAmericaShippingCost) ? northAmericaShippingCost : null,
+          internationalShippingCost: internationalShippingCost != null && Number.isFinite(internationalShippingCost) ? internationalShippingCost : null,
+          freeShippingThreshold: freeShippingThreshold != null && Number.isFinite(freeShippingThreshold) ? freeShippingThreshold : null,
+          localPickupEnabled: form.localPickupEnabled,
           taxRate: taxRate != null && Number.isFinite(taxRate) ? taxRate : null,
           processingDaysMin: processingDaysMin != null && Number.isFinite(processingDaysMin) ? processingDaysMin : null,
           processingDaysMax: processingDaysMax != null && Number.isFinite(processingDaysMax) ? processingDaysMax : null,
@@ -290,6 +328,10 @@ export default function Settings() {
                           onChange={(event) => {
                             const file = event.target.files?.[0];
                             if (!file) return;
+                            if (file.size > 6 * 1024 * 1024) {
+                              toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
+                              return;
+                            }
                             const reader = new FileReader();
                             reader.onload = () => {
                               setForm((current) => ({
@@ -458,6 +500,91 @@ export default function Settings() {
                             />
                           </div>
                         </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-2">Where you sell</label>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setForm((current) => ({
+                                  ...current,
+                                  sellingRegions: current.sellingRegions.includes("WORLDWIDE") ? [] : ["WORLDWIDE"],
+                                }))
+                              }
+                              className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                                form.sellingRegions.includes("WORLDWIDE")
+                                  ? "border-emerald-400/50 bg-emerald-400/15 text-white"
+                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                              }`}
+                            >
+                              Worldwide
+                            </button>
+                            {COUNTRY_OPTIONS.map((option) => {
+                              const selected = form.sellingRegions.includes(option.code);
+                              return (
+                                <button
+                                  key={option.code}
+                                  type="button"
+                                  onClick={() =>
+                                    setForm((current) => ({
+                                      ...current,
+                                      sellingRegions: current.sellingRegions.includes("WORLDWIDE")
+                                        ? [option.code]
+                                        : selected
+                                          ? current.sellingRegions.filter((value) => value !== option.code)
+                                          : [...current.sellingRegions, option.code],
+                                    }))
+                                  }
+                                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                                    selected
+                                      ? "border-primary/50 bg-primary/15 text-white"
+                                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                                  }`}
+                                >
+                                  {option.flag} {option.code}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="mt-2 text-xs text-zinc-500">These regions are used to decide whether checkout is allowed for a buyer’s country.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Domestic shipping ($)</label>
+                            <Input value={form.domesticShippingCost} onChange={(event) => setForm((current) => ({ ...current, domesticShippingCost: event.target.value }))} placeholder="e.g. 6.00" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Europe shipping ($)</label>
+                            <Input value={form.europeShippingCost} onChange={(event) => setForm((current) => ({ ...current, europeShippingCost: event.target.value }))} placeholder="e.g. 14.00" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">North America shipping ($)</label>
+                            <Input value={form.northAmericaShippingCost} onChange={(event) => setForm((current) => ({ ...current, northAmericaShippingCost: event.target.value }))} placeholder="e.g. 18.00" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">International shipping ($)</label>
+                            <Input value={form.internationalShippingCost} onChange={(event) => setForm((current) => ({ ...current, internationalShippingCost: event.target.value }))} placeholder="e.g. 24.00" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">Free shipping threshold ($)</label>
+                            <Input value={form.freeShippingThreshold} onChange={(event) => setForm((current) => ({ ...current, freeShippingThreshold: event.target.value }))} placeholder="Optional order total for free shipping" className="bg-black/30 border-white/10 text-white" />
+                          </div>
+                          <div className="flex items-end">
+                            <button
+                              type="button"
+                              onClick={() => setForm((current) => ({ ...current, localPickupEnabled: !current.localPickupEnabled }))}
+                              className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+                                form.localPickupEnabled
+                                  ? "border-emerald-400/40 bg-emerald-400/10 text-white"
+                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                              }`}
+                            >
+                              Local pickup {form.localPickupEnabled ? "enabled" : "disabled"}
+                            </button>
+                          </div>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm text-zinc-400 mb-1.5">Processing days min</label>
@@ -479,6 +606,25 @@ export default function Settings() {
                               className="bg-black/30 border-white/10 text-white"
                             />
                           </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Shop announcement</label>
+                          <Input
+                            value={form.shopAnnouncement}
+                            onChange={(event) => setForm((current) => ({ ...current, shopAnnouncement: event.target.value }))}
+                            placeholder="Short banner text shown near the top of your shop."
+                            className="bg-black/30 border-white/10 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Brand story</label>
+                          <textarea
+                            value={form.brandStory}
+                            onChange={(event) => setForm((current) => ({ ...current, brandStory: event.target.value }))}
+                            rows={4}
+                            placeholder="Tell buyers what makes your shop different, what you specialize in, and how you work."
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                          />
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
@@ -520,6 +666,10 @@ export default function Settings() {
                               onChange={(event) => {
                                 const file = event.target.files?.[0];
                                 if (!file) return;
+                                if (file.size > 6 * 1024 * 1024) {
+                                  toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
+                                  return;
+                                }
                                 const reader = new FileReader();
                                 reader.onload = () => {
                                   setForm((current) => ({
@@ -599,6 +749,32 @@ export default function Settings() {
                               );
                             })}
                           </div>
+                          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                            <Input
+                              value={customTagDraft}
+                              onChange={(event) => setCustomTagDraft(event.target.value)}
+                              placeholder="Add a custom tag like Architectural Models"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+                              onClick={() => {
+                                const nextTag = customTagDraft.trim();
+                                if (!nextTag) return;
+                                setForm((current) => ({
+                                  ...current,
+                                  sellerTags: current.sellerTags.includes(nextTag)
+                                    ? current.sellerTags
+                                    : [...current.sellerTags, nextTag],
+                                }));
+                                setCustomTagDraft("");
+                              }}
+                            >
+                              Add tag
+                            </Button>
+                          </div>
                         </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
@@ -643,6 +819,12 @@ export default function Settings() {
                 {activeSection === "payment" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Payments</h2>
+                    <div className="rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-5 text-sm text-cyan-100">
+                      <p className="font-semibold text-white">Current plan: {planTier}</p>
+                      <p className="mt-1 text-cyan-50/80">
+                        Owner accounts can upgrade users into `pro`, `elite`, or `enterprise` from the private admin panel.
+                      </p>
+                    </div>
                     <div
                       className={`p-4 rounded-xl text-sm border ${
                         paymentEnabled
@@ -663,7 +845,16 @@ export default function Settings() {
                       <p>Provider: Stripe Checkout</p>
                       <p>Buyer payments are captured before an order enters the seller workflow.</p>
                       <p>Platform fee: 10% of each order subtotal.</p>
+                      <p>FX pricing: {fxSource === "live" ? "Live exchange rates" : "Fallback exchange rates"}{fxUpdatedAt && fxUpdatedAt !== "static" ? ` (updated ${fxUpdatedAt})` : ""}</p>
                     </div>
+                    {planTier === "enterprise" ? (
+                      <div className="rounded-2xl border border-primary/20 bg-primary/10 p-5 text-sm text-zinc-200">
+                        <p className="font-semibold text-white">Enterprise seller tooling enabled</p>
+                        <p className="mt-2">
+                          This account can be treated as a managed enterprise seller for custom onboarding, negotiated fees, and direct support.
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">Render setup checklist</h3>
                       <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-zinc-300">
@@ -698,9 +889,59 @@ export default function Settings() {
                 {activeSection === "notifications" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Notifications</h2>
-                    <p className="text-zinc-400">
-                      Notification preferences are still local UI state. The production backend work in this pass focused on account security, checkout, and deployment.
+                    <div className="grid gap-4">
+                      {[
+                        "New order alerts",
+                        "Custom request alerts",
+                        "Unread message reminders",
+                        "Review notifications",
+                        "Payout and shipping updates",
+                      ].map((label) => (
+                        <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
+                          {label}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-zinc-500 text-sm">
+                      Notification delivery is currently in-app first. Email preference granularity can be layered onto this next without changing the settings structure again.
                     </p>
+                  </div>
+                )}
+
+                {activeSection === "feedback" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Feedback</h2>
+                    <p className="text-zinc-400">
+                      Use this section to capture launch feedback, bug reports, and feature requests in one obvious place.
+                    </p>
+                    <textarea
+                      value={feedbackMessage}
+                      onChange={(event) => setFeedbackMessage(event.target.value)}
+                      rows={6}
+                      placeholder="What feels confusing, missing, or especially useful?"
+                      className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                    />
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+                        onClick={() => {
+                          const message = feedbackMessage.trim();
+                          if (!message) {
+                            toast({ title: "Add some feedback first", variant: "destructive" });
+                            return;
+                          }
+                          const mailto = `mailto:evanhuelin8@gmail.com?subject=${encodeURIComponent("SYNTHIX feedback")}&body=${encodeURIComponent(message)}`;
+                          window.location.href = mailto;
+                        }}
+                      >
+                        Send feedback
+                      </Button>
+                      <p className="text-sm text-zinc-500">
+                        This currently opens your mail app so nothing gets lost before launch.
+                      </p>
+                    </div>
                   </div>
                 )}
 

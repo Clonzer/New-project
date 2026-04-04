@@ -12,9 +12,11 @@ import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 export default function Explore() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
+  const [locationTerm, setLocationTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMode, setSelectedMode] = useState<"all" | "catalog" | "open" | "both">("all");
   const [selectedTag, setSelectedTag] = useState("all");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const { data, isLoading } = useListSellers({ limit: 50 });
 
   useEffect(() => {
@@ -25,14 +27,18 @@ export default function Explore() {
 
   const filteredSellers = data?.sellers.filter((s) => {
     const q = searchTerm.toLowerCase();
+    const locationQuery = locationTerm.toLowerCase();
+    const allTags = s.sellerTags ?? [];
     const matchesSearch =
       s.displayName.toLowerCase().includes(q) ||
       s.shopName?.toLowerCase().includes(q) ||
       s.location?.toLowerCase().includes(q) ||
-      s.sellerTags?.some((tag) => tag.toLowerCase().includes(q));
+      allTags.some((tag) => tag.toLowerCase().includes(q));
+    const matchesLocation = !locationQuery || s.location?.toLowerCase().includes(locationQuery);
     const matchesMode = selectedMode === "all" || s.shopMode === selectedMode;
-    const matchesTag = selectedTag === "all" || s.sellerTags?.includes(selectedTag);
-    return matchesSearch && matchesMode && matchesTag;
+    const matchesTag = selectedTag === "all" || allTags.includes(selectedTag);
+    const matchesVerified = !verifiedOnly || !!s.emailVerifiedAt;
+    return matchesSearch && matchesLocation && matchesMode && matchesTag && matchesVerified;
   });
 
   return (
@@ -60,6 +66,12 @@ export default function Explore() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Input
+              placeholder="Filter by location..."
+              className="h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-zinc-500 md:w-64"
+              value={locationTerm}
+              onChange={(e) => setLocationTerm(e.target.value)}
+            />
             <button
               type="button"
               onClick={() => setShowFilters((current) => !current)}
@@ -93,6 +105,22 @@ export default function Explore() {
                       {mode.label}
                     </button>
                   ))}
+                </div>
+              </div>
+              <div className="mt-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Trust</p>
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setVerifiedOnly((current) => !current)}
+                    className={`rounded-full border px-4 py-2 text-sm transition ${
+                      verifiedOnly
+                        ? "border-emerald-400/40 bg-emerald-400/10 text-white"
+                        : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {verifiedOnly ? "Verified shops only" : "Show all shops"}
+                  </button>
                 </div>
               </div>
               <div className="mt-5">

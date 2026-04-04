@@ -33,6 +33,7 @@ router.get("/sellers", async (req, res) => {
       rating: s.rating,
       reviewCount: s.reviewCount,
       location: s.location,
+      emailVerifiedAt: s.emailVerifiedAt,
       shopMode: s.shopMode,
       sellerTags: s.sellerTags,
       totalPrints: s.totalPrints,

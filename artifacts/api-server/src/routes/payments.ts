@@ -9,6 +9,7 @@ import {
   isStripeConfigured,
   verifyStripeWebhookSignature,
 } from "../lib/stripe";
+import { canSellerShipToCountry, getShippingEstimate } from "../lib/shipping";
 
 const PLATFORM_FEE_PERCENT = 0.1;
 const router: IRouter = Router();
@@ -49,7 +50,7 @@ function normalizeQuantity(value: unknown): number {
   return Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 0;
 }
 
-async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string) {
+async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string, buyerCountryCode?: string | null) {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("At least one checkout item is required.");
   }
@@ -82,8 +83,15 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string) 
       if (!seller.emailVerifiedAt) {
         throw new Error("This seller has not verified their email yet, so checkout is temporarily unavailable.");
       }
+      if (!canSellerShipToCountry(seller, buyerCountryCode)) {
+        throw new Error("This seller does not currently ship to your selected country.");
+      }
       const subtotal = listing.basePrice * quantity;
-      const shippingCost = (listing.shippingCost ?? 0) * quantity;
+      const shippingEstimate = getShippingEstimate(seller, buyerCountryCode, subtotal, listing.shippingCost ?? 0);
+      const shippingCost =
+        listing.shippingCost && listing.shippingCost > 0
+          ? Number((listing.shippingCost * quantity).toFixed(2))
+          : shippingEstimate.cost;
       const platformFee = Number((subtotal * PLATFORM_FEE_PERCENT).toFixed(2));
       drafts.push({
         sellerId: listing.sellerId,
@@ -125,9 +133,13 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string) 
     if (!seller.emailVerifiedAt) {
       throw new Error("This seller has not verified their email yet, so checkout is temporarily unavailable.");
     }
+    if (!canSellerShipToCountry(seller, buyerCountryCode)) {
+      throw new Error("This seller does not currently ship to your selected country.");
+    }
 
     const subtotal = unitPrice * quantity;
-    const shippingCost = Number((seller.defaultShippingCost ?? 0).toFixed(2));
+    const shippingEstimate = getShippingEstimate(seller, buyerCountryCode, subtotal);
+    const shippingCost = shippingEstimate.cost;
     const platformFee = Number((subtotal * PLATFORM_FEE_PERCENT).toFixed(2));
     drafts.push({
       sellerId,
@@ -170,13 +182,13 @@ router.post("/payments/checkout-session", requireAuth, async (req: AuthedRequest
   }
 
   try {
-    const drafts = await buildDrafts(req.body?.items as CheckoutItemInput[], shippingAddress);
-    const amountTotal = Number(drafts.reduce((sum, draft) => sum + draft.totalPrice, 0).toFixed(2));
     const [buyer] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
     if (!buyer) {
       res.status(404).json({ error: "not_found", message: "Buyer account not found." });
       return;
     }
+    const drafts = await buildDrafts(req.body?.items as CheckoutItemInput[], shippingAddress, buyer.countryCode);
+    const amountTotal = Number(drafts.reduce((sum, draft) => sum + draft.totalPrice, 0).toFixed(2));
 
     const appUrl = getAppUrl();
     if (!appUrl) {
