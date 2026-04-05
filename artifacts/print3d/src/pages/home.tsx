@@ -5,6 +5,7 @@ import { ChevronRight, Layers3, Package, ShieldCheck, Sparkles, Store, UserRound
 import { useListListings, useListSellers, type Listing, type SellerShop } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { AnimatedIntro } from "@/components/layout/AnimatedIntro";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
 import {
@@ -153,22 +154,24 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-grow">
+        <AnimatedIntro />
+        
         <section className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
           <AnimatedGradientBg />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
-            <div className="mb-10">
+            <div className="mb-8">
               {loadingSellers || loadingListings ? (
-                <Skeleton className="mb-6 h-[30rem] rounded-[2rem] bg-white/10" />
+                <Skeleton className="mb-6 h-[24rem] rounded-[2rem] bg-white/10" />
               ) : slides.length ? (
                 <div className="mb-6">
-                  <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full">
+                  <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full max-w-5xl mx-auto">
                     <CarouselContent>
                       {slides.map((slide) => (
                         <CarouselItem key={slide.id}>
                           <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/35">
-                            <div className="grid min-h-[31rem] gap-0 lg:min-h-[36rem] lg:grid-cols-[0.95fr_1.05fr]">
+                            <div className="grid min-h-[26rem] gap-0 lg:min-h-[30rem] lg:grid-cols-[0.95fr_1.05fr]">
                               <div className="flex flex-col justify-between border-b border-white/10 bg-[linear-gradient(155deg,rgba(12,18,31,0.95),rgba(8,12,20,0.82))] p-8 lg:border-b-0 lg:border-r lg:p-10">
                                 <div>
                                   <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9fe5ff]">
@@ -206,7 +209,7 @@ export default function Home() {
                                 </div>
                               </div>
                               <Link href={slide.href}>
-                                <div className="group relative min-h-[31rem] cursor-pointer overflow-hidden lg:min-h-[36rem]">
+                                <div className="group relative min-h-[26rem] cursor-pointer overflow-hidden lg:min-h-[30rem]">
                                   {slide.imageUrl ? (
                                     <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                   ) : (
@@ -296,7 +299,7 @@ export default function Home() {
                         {slides.map((slide) => (
                           <CarouselItem key={slide.id}>
                             <Link href={slide.href}>
-                              <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/40 min-h-[28rem] md:min-h-[32rem] cursor-pointer">
+                              <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/40 min-h-[24rem] md:min-h-[28rem] cursor-pointer">
                                 {slide.imageUrl ? (
                                   <img
                                     src={slide.imageUrl}

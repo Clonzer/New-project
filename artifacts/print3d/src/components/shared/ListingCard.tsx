@@ -2,6 +2,7 @@ import { Listing } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Box, Clock, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
 import type { ListingPriceInsight } from "@/lib/listing-pricing";
@@ -39,6 +40,14 @@ export function ListingCard({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute top-3 right-3">
+          <ReportButton 
+            itemType="listing" 
+            itemId={listing.id} 
+            itemName={listing.title}
+            className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70"
+          />
+        </div>
         <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
           <Badge variant="secondary" className="bg-black/50 backdrop-blur-md text-white border-white/10">
             {listing.category}

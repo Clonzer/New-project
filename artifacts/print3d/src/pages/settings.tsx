@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useUpdateUser } from "@workspace/api-client-react";
+import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -35,6 +36,7 @@ export default function Settings() {
   const { user, refreshUser, logout } = useAuth();
   const { toast } = useToast();
   const updateUser = useUpdateUser();
+  const [location] = useLocation();
   const [activeSection, setActiveSection] = useState("profile");
   const [paymentEnabled, setPaymentEnabled] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
@@ -124,6 +126,14 @@ export default function Settings() {
       .then((result) => setPaymentEnabled(result.checkoutEnabled))
       .catch(() => setPaymentEnabled(false));
   }, []);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.split('?')[1] || '');
+    const section = searchParams.get('section');
+    if (section && SECTIONS.some(s => s.id === section)) {
+      setActiveSection(section);
+    }
+  }, [location]);
 
   const isSeller = useMemo(() => user?.role === "seller" || user?.role === "both", [user?.role]);
   const isVerified = !!user?.emailVerifiedAt;
@@ -1043,10 +1053,8 @@ export default function Settings() {
                           <Input
                             value={verificationCode}
                             onChange={(event) => setVerificationCode(event.target.value)}
-                            inputMode="numeric"
-                            maxLength={6}
-                            placeholder="Enter 6-digit code"
-                            className="bg-black/30 border-white/10 text-white"
+                            placeholder="Enter verification code or email"
+                            className="bg-black/30 border-white/10 text-white flex-1"
                           />
                           <NeonButton
                             glowColor="primary"

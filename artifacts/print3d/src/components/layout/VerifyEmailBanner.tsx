@@ -21,7 +21,7 @@ export function VerifyEmailBanner() {
             {sellerIntent ? ", including selling, listings, equipment, and payouts." : "."}
           </p>
         </div>
-        <Link href="/settings" className="font-semibold text-white underline-offset-4 hover:text-amber-50 hover:underline">
+        <Link href="/settings?section=security" className="font-semibold text-white underline-offset-4 hover:text-amber-50 hover:underline">
           Verify now
         </Link>
       </div>

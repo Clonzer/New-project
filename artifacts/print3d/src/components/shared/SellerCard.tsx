@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Star, MapPin, Printer, Package, GitCompareArrows } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ReportButton } from "@/components/shared/ReportButton";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 
@@ -52,12 +53,18 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               </div>
             </div>
             
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md backdrop-blur-sm border border-white/5">
                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                 <span className="text-sm font-bold text-white">{seller.rating?.toFixed(1) || "New"}</span>
               </div>
               <span className="text-[10px] text-zinc-500 mt-1">{seller.reviewCount} reviews</span>
+              <ReportButton 
+                itemType="profile" 
+                itemId={seller.id} 
+                itemName={seller.shopName || seller.displayName}
+                className="opacity-60 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
           
