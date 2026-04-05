@@ -19,32 +19,33 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
   return (
     <motion.div
       initial={{ 
-        x: -50 - (index * 20), 
-        y: Math.random() * 100 - 50
+        x: 200 + (index * 30), 
+        y: (index * 15) - 20,
+        opacity: 0 
       }}
       animate={{ 
-        x: [0, 10, -5, 0],
-        y: [0, -8, 5, 0]
+        x: [-250, -950],
+        y: [(index * 15) - 20, (index * 15) - 18],
+        opacity: isHovered ? [0, 1, 1, 1, 0] : [0, 0.8, 1, 0.6, 0]
       }}
       transition={{ 
-        duration: 4 + index * 0.5,
+        duration: 12 + (index * 0.5),
         repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
-        delay: index * 0.3
+        repeatType: "loop",
+        ease: "linear",
+        delay: index * 1.2
       }}
       whileHover={{ 
         scale: 1.15,
-        x: 20,
         transition: { duration: 0.3 }
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className="absolute cursor-pointer"
       style={{
-        top: `${20 + (index * 15)}%`,
-        left: `${5 + (index * 8)}%`,
-        zIndex: isHovered ? 50 : 10 + index
+        top: `${15 + (index * 15)}%`,
+        right: `${8 + (index * 2)}%`,
+        zIndex: isHovered ? 50 : 20 + index
       }}
       onClick={() => onClick(seller)}
     >
@@ -60,8 +61,11 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
             '0 0 40px rgba(159,229,255,0.8)',
             '0 0 20px rgba(159,229,255,0.4)'
           ]
-        } : {}}
-        transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
+        } : {
+          scale: [1, 1.02, 1],
+          rotate: [0, 2, -2, 0]
+        }}
+        transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
       >
         <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-black/30">
           {seller.avatarUrl ? (
@@ -92,40 +96,45 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
 }
 
 function EmptyDot({ index }: { index: number }) {
+  // Calculate position with spacing to prevent overlap
+  const row = Math.floor(index / 3);
+  const col = index % 3;
+  const baseDelay = index * 0.8;
+  
   return (
     <motion.div
       initial={{ 
-        x: 100 + (index * 15), 
-        y: Math.random() * 60 - 30,
+        x: 150 + (col * 25), 
+        y: (row * 12) - 30,
         opacity: 0 
       }}
       animate={{ 
-        x: [-150, -800],
-        y: [0, Math.random() * 20 - 10],
-        opacity: [0, 0.6, 0.8, 0.4, 0]
+        x: [-200, -900],
+        y: [(row * 12) - 30, (row * 12) - 25],
+        opacity: [0, 0.7, 0.9, 0.5, 0]
       }}
       transition={{ 
-        duration: 8 + (index * 0.3),
+        duration: 10 + (index * 0.4),
         repeat: Infinity,
         repeatType: "loop",
         ease: "linear",
-        delay: index * 0.5
+        delay: baseDelay
       }}
       className="absolute"
       style={{
-        top: `${15 + (index % 8) * 10}%`,
-        right: `${5 + (index % 3) * 2}%`,
-        zIndex: 5 + (index % 10)
+        top: `${10 + (row * 12)}%`,
+        right: `${2 + (col * 3)}%`,
+        zIndex: 5 + index
       }}
     >
       <motion.div
         className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-white/20 bg-white/5"
         animate={{
-          scale: [1, 1.02, 1],
-          rotate: [0, 5, -5, 0]
+          scale: [1, 1.03, 1],
+          rotate: [0, 3, -3, 0]
         }}
         transition={{
-          duration: 3 + (index * 0.2),
+          duration: 4 + (index * 0.3),
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut"
