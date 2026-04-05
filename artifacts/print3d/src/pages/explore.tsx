@@ -82,8 +82,8 @@ export default function Explore() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black" />
-                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black" />
+                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
+                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
               </Carousel>
             ) : (
               <div className="text-center py-12 text-zinc-400">
@@ -116,8 +116,8 @@ export default function Explore() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black" />
-                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black" />
+                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
+                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
               </Carousel>
             ) : (
               <div className="text-center py-12 text-zinc-400">

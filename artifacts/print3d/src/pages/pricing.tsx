@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Star, X, Zap } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Crown, Star, X, Zap, Mail, Phone, Building, Users, Shield, Clock } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const ENTERPRISE_CONTACT = "mailto:evanhuelin8@gmail.com?subject=SYNTHIX%20Enterprise%20Inquiry";
 
@@ -118,6 +122,14 @@ const FAQS = [
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    company: "",
+    email: "",
+    phone: "",
+    message: ""
+  });
+  const { toast } = useToast();
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
@@ -230,18 +242,128 @@ export default function Pricing() {
 
         <section className="border-y border-white/5 bg-black/30 py-16">
           <div className="container mx-auto max-w-4xl px-4">
-            <div className="rounded-3xl border border-cyan-400/15 bg-cyan-400/10 p-8 text-center">
-              <h2 className="text-3xl font-display font-bold text-white">Enterprise sellers get a human setup path.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-zinc-300">
-                Use enterprise when you need custom onboarding, pricing terms, procurement support, or a tailored launch arrangement.
-              </p>
-              <div className="mt-6">
-                <a href={ENTERPRISE_CONTACT}>
-                  <NeonButton glowColor="primary" className="rounded-full px-8 py-4 text-base">
-                    Contact Us
-                  </NeonButton>
-                </a>
-              </div>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-display font-bold text-white">Enterprise sellers get a human setup path.</h2>
+                    <p className="text-zinc-400">Custom solutions for high-value partners</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-white">Dedicated Onboarding</h3>
+                      <p className="text-sm text-zinc-400">Personalized setup and migration support</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-white">Custom Terms</h3>
+                      <p className="text-sm text-zinc-400">Negotiated fees and commercial agreements</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-white">Priority Support</h3>
+                      <p className="text-sm text-zinc-400">24/7 dedicated account management</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="glass-panel rounded-3xl border border-white/10 p-8"
+              >
+                <h3 className="text-xl font-display font-bold text-white mb-6">Contact Enterprise Team</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-zinc-300 block mb-2">Full Name *</label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="John Smith"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-zinc-300 block mb-2">Company Name *</label>
+                    <Input
+                      value={formData.company}
+                      onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                      placeholder="Acme Corporation"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-zinc-300 block mb-2">Email Address *</label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="john@acme.com"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-zinc-300 block mb-2">Phone Number</label>
+                    <Input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="+1 (555) 123-4567"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-zinc-300 block mb-2">How can we help? *</label>
+                    <Textarea
+                      value={formData.message}
+                      onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                      placeholder="Tell us about your enterprise needs, expected volume, and timeline..."
+                      rows={4}
+                      className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 resize-none"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (!formData.name || !formData.company || !formData.email || !formData.message) {
+                        toast({
+                          title: "Missing required fields",
+                          description: "Please fill in all required fields marked with *",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+                      
+                      const subject = encodeURIComponent(`SYNTHIX Enterprise Inquiry - ${formData.company}`);
+                      const body = encodeURIComponent(
+                        `Name: ${formData.name}\nCompany: ${formData.company}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`
+                      );
+                      window.location.href = `mailto:evanhuelin8@gmail.com?subject=${subject}&body=${body}`;
+                    }}
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3"
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Send Inquiry
+                  </Button>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>

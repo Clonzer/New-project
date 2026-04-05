@@ -249,8 +249,8 @@ export default function Home() {
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
-                    <CarouselNext className="right-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
+                    <CarouselPrevious className="left-4 top-4 translate-y-0 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
+                    <CarouselNext className="right-4 top-4 translate-y-0 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
                   </Carousel>
                 </div>
               ) : null}

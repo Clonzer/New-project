@@ -24,9 +24,9 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
   }, [seller.id]);
 
   return (
-    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden">
+    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-zinc-600/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(107,114,128,0.15)] relative overflow-hidden">
         {/* Glow effect behind */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-zinc-900/0 via-zinc-800/0 to-zinc-900/0 group-hover:from-zinc-900/20 group-hover:via-zinc-800/20 group-hover:to-zinc-900/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">

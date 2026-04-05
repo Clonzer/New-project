@@ -20,13 +20,11 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
     <motion.div
       initial={{ 
         x: -50 - (index * 20), 
-        y: Math.random() * 100 - 50,
-        opacity: 0 
+        y: Math.random() * 100 - 50
       }}
       animate={{ 
         x: [0, 10, -5, 0],
-        y: [0, -8, 5, 0],
-        opacity: 1 
+        y: [0, -8, 5, 0]
       }}
       transition={{ 
         duration: 4 + index * 0.5,
@@ -105,147 +103,64 @@ export function AnimatedIntro() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#9fe5ff]/10 via-transparent to-[#00ffb3]/10" />
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 items-center">
-            {/* Left side with floating profiles and text */}
-            <div className="relative h-96 md:h-[28rem]">
-              {/* Floating profile pictures */}
-              {isLoading ? (
-                <div className="absolute inset-0">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <Skeleton 
-                      key={index} 
-                      className="absolute w-16 h-16 md:w-20 md:h-20 rounded-full"
-                      style={{
-                        top: `${20 + (index * 15)}%`,
-                        left: `${5 + (index * 8)}%`
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                sellers.map((seller, index) => (
-                  <FloatingProfile
-                    key={seller.id}
-                    seller={seller}
-                    index={index}
-                    onClick={setSelectedSeller}
+          <div className="relative h-96 md:h-[28rem]">
+            {/* Floating profile pictures */}
+            {isLoading ? (
+              <div className="absolute inset-0">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <Skeleton 
+                    key={index} 
+                    className="absolute w-16 h-16 md:w-20 md:h-20 rounded-full"
+                    style={{
+                      top: `${20 + (index * 15)}%`,
+                      left: `${5 + (index * 8)}%`
+                    }}
                   />
-                ))
-              )}
-
-              {/* Explore Now text */}
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="absolute bottom-0 left-0 right-0 text-center lg:text-left"
-              >
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-                  Explore Now
-                </h2>
-                <p className="text-zinc-300 mb-6 max-w-md">
-                  Discover talented makers and innovative products from our community of creators
-                </p>
-                <Link href="/explore">
-                  <NeonButton glowColor="primary" className="rounded-full px-8 py-4">
-                    Start exploring <ChevronRight className="w-5 h-5 ml-2" />
-                  </NeonButton>
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Right side with preview carousel */}
-            <div className="relative">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="relative"
-              >
-                <div className="glass-panel rounded-[2rem] border border-white/10 p-1">
-                  <div className="bg-black/40 rounded-[1.8rem] p-8 md:p-10">
-                    <div className="flex items-center gap-2 mb-6">
-                      <Sparkles className="w-5 h-5 text-[#9fe5ff]" />
-                      <span className="text-[#9fe5ff] text-sm font-semibold uppercase tracking-[0.2em]">
-                        Featured Creators
-                      </span>
-                    </div>
-                    
-                    {isLoading ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {Array.from({ length: 4 }).map((_, index) => (
-                          <Skeleton key={index} className="h-24 rounded-xl bg-white/10" />
-                        ))}
-                      </div>
-                    ) : sellers.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {sellers.slice(0, 4).map((seller, index) => (
-                          <motion.div
-                            key={seller.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 + index * 0.1 }}
-                            className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors cursor-pointer"
-                            onClick={() => setSelectedSeller(seller)}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden bg-black/30 border border-white/10">
-                                {seller.avatarUrl ? (
-                                  <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-white font-bold">
-                                    {seller.displayName?.charAt(0) || '?'}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-white font-medium text-sm truncate">
-                                  {seller.displayName || seller.shopName}
-                                </p>
-                                <p className="text-zinc-400 text-xs truncate">
-                                  {seller.location || 'Global'} • {seller.printerCount} machines
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-zinc-400 text-center py-8">
-                        No makers available yet
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Decorative elements */}
-                <motion.div
-                  animate={{ 
-                    rotate: [0, 5, -5, 0],
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ 
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-[#9fe5ff] to-[#00ffb3] rounded-full blur-xl opacity-60"
+                ))}
+              </div>
+            ) : (
+              sellers.map((seller, index) => (
+                <FloatingProfile
+                  key={seller.id}
+                  seller={seller}
+                  index={index}
+                  onClick={setSelectedSeller}
                 />
-                <motion.div
-                  animate={{ 
-                    rotate: [0, -5, 5, 0],
-                    scale: [1, 1.1, 1]
+              ))
+            )}
+
+            {/* Empty dots for future users */}
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`dot-${index}`}
+                  className="absolute w-4 h-4 rounded-full border-2 border-white/20 bg-white/5"
+                  style={{
+                    top: `${25 + (index * 20)}%`,
+                    right: `${10 + (index * 5)}%`,
+                    opacity: 0.3
                   }}
-                  transition={{ 
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2
-                  }}
-                  className="absolute -bottom-4 -left-4 w-12 h-12 bg-gradient-to-br from-[#00ffb3] to-[#9fe5ff] rounded-full blur-xl opacity-40"
                 />
-              </motion.div>
-            </div>
+              ))}
+
+            {/* Explore Now text */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="absolute bottom-0 left-0 right-0 text-center lg:text-left"
+            >
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+                Explore Now
+              </h2>
+              <p className="text-zinc-300 mb-6 max-w-md">
+                Discover talented makers and innovative products from our community of creators
+              </p>
+              <Link href="/explore">
+                <NeonButton glowColor="primary" className="rounded-full px-8 py-4">
+                  Start exploring <ChevronRight className="w-5 h-5 ml-2" />
+                </NeonButton>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
