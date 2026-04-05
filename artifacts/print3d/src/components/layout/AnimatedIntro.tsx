@@ -3,8 +3,16 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Shield, Users, TrendingUp, Sparkles, Package, ArrowRight } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
+import { useAuth } from "@workspace/api-client-react";
 
 export function AnimatedIntro() {
+  const { user } = useAuth();
+  
+  // Don't show hero if user is signed in
+  if (user) {
+    return null;
+  }
+
   // Create subtle floating dots
   const floatingDots = Array.from({ length: 25 }, (_, index) => ({
     id: index,
@@ -18,8 +26,8 @@ export function AnimatedIntro() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#9fe5ff]/3 via-transparent to-[#00ffb3]/3" />
+      {/* Background gradient matching site */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
       
       {/* Subtle floating dots */}
       {floatingDots.map((dot) => (
@@ -47,7 +55,7 @@ export function AnimatedIntro() {
         />
       ))}
       
-      <div className="relative flex h-screen">
+      <div className="relative flex h-[85vh]">
         
         {/* Left Side - Makers (White Background) */}
         <motion.div 
@@ -63,8 +71,8 @@ export function AnimatedIntro() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="flex items-center justify-center gap-3 mb-8"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-[#9fe5ff] to-[#00ffb3] rounded-full flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-black" />
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-white" />
               </div>
             </motion.div>
             
@@ -99,30 +107,30 @@ export function AnimatedIntro() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <Link href="/register">
-                <NeonButton className="w-full bg-gradient-to-r from-[#9fe5ff] to-[#00ffb3] text-black font-semibold py-4 px-8 rounded-full text-lg hover:scale-105 transition-all duration-300 shadow-lg">
+              <Link href="/register?role=seller">
+                <NeonButton className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-4 px-8 rounded-full text-lg hover:scale-105 transition-all duration-300 shadow-lg">
                   Start Selling Free
                 </NeonButton>
               </Link>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-[#9fe5ff]/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <Shield className="w-6 h-6 text-[#9fe5ff]" />
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                    <Shield className="w-6 h-6 text-purple-500" />
                   </div>
                   <p className="text-gray-700 text-sm font-medium">Protected</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-[#00ffb3]/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <Users className="w-6 h-6 text-[#00ffb3]" />
+                  <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                    <Users className="w-6 h-6 text-pink-500" />
                   </div>
                   <p className="text-gray-700 text-sm font-medium">Community</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-[#9fe5ff]/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <TrendingUp className="w-6 h-6 text-[#9fe5ff]" />
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                    <TrendingUp className="w-6 h-6 text-purple-500" />
                   </div>
                   <p className="text-gray-700 text-sm font-medium">Growing</p>
                 </div>
@@ -145,8 +153,8 @@ export function AnimatedIntro() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="flex items-center justify-center gap-3 mb-8"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-[#00ffb3] to-[#9fe5ff] rounded-full flex items-center justify-center">
-                <Package className="w-8 h-8 text-black" />
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                <Package className="w-8 h-8 text-white" />
               </div>
             </motion.div>
             
@@ -174,37 +182,37 @@ export function AnimatedIntro() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
             >
-              Explore one-of-a-kind 3D prints from talented makers. Find unique pieces that express your style.
+              Explore one-of-a-kind creations from talented makers. Find unique pieces that express your style.
             </motion.p>
             
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <Link href="/explore">
-                <NeonButton className="w-full bg-gradient-to-r from-[#00ffb3] to-[#9fe5ff] text-black font-semibold py-4 px-8 rounded-full text-lg hover:scale-105 transition-all duration-300 shadow-lg">
-                  Browse Unique Prints
+              <Link href="/register?role=buyer">
+                <NeonButton className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold py-4 px-8 rounded-full text-lg hover:scale-105 transition-all duration-300 shadow-lg">
+                  Create Buyer Account
                 </NeonButton>
               </Link>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <Shield className="w-6 h-6 text-[#00ffb3]" />
+                    <Shield className="w-6 h-6 text-pink-500" />
                   </div>
                   <p className="text-gray-300 text-sm font-medium">Secure</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <Users className="w-6 h-6 text-[#9fe5ff]" />
+                    <Users className="w-6 h-6 text-purple-500" />
                   </div>
                   <p className="text-gray-300 text-sm font-medium">Real Stories</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                    <TrendingUp className="w-6 h-6 text-[#00ffb3]" />
+                    <TrendingUp className="w-6 h-6 text-pink-500" />
                   </div>
                   <p className="text-gray-300 text-sm font-medium">Personal</p>
                 </div>
