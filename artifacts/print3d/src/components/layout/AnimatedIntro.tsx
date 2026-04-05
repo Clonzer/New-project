@@ -95,40 +95,40 @@ function EmptyDot({ index }: { index: number }) {
   return (
     <motion.div
       initial={{ 
-        x: 50 + (index * 25), 
-        y: Math.random() * 100 - 50,
+        x: 100 + (index * 15), 
+        y: Math.random() * 60 - 30,
         opacity: 0 
       }}
       animate={{ 
-        x: [0, -10, 5, 0],
-        y: [0, -6, 4, 0],
-        opacity: 0.3 
+        x: [-150, -800],
+        y: [0, Math.random() * 20 - 10],
+        opacity: [0, 0.6, 0.8, 0.4, 0]
       }}
       transition={{ 
-        duration: 3 + index * 0.4,
+        duration: 8 + (index * 0.3),
         repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
-        delay: index * 0.2
+        repeatType: "loop",
+        ease: "linear",
+        delay: index * 0.5
       }}
       className="absolute"
       style={{
-        top: `${25 + (index * 18)}%`,
-        right: `${15 + (index * 7)}%`,
-        zIndex: 5 + index
+        top: `${15 + (index % 8) * 10}%`,
+        right: `${5 + (index % 3) * 2}%`,
+        zIndex: 5 + (index % 10)
       }}
     >
       <motion.div
         className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-white/20 bg-white/5"
         animate={{
-          scale: [1, 1.05, 1],
+          scale: [1, 1.02, 1],
+          rotate: [0, 5, -5, 0]
         }}
         transition={{
-          duration: 4 + index * 0.5,
+          duration: 3 + (index * 0.2),
           repeat: Infinity,
           repeatType: "reverse",
-          ease: "easeInOut",
-          delay: index * 0.3
+          ease: "easeInOut"
         }}
       />
     </motion.div>
@@ -173,8 +173,8 @@ export function AnimatedIntro() {
               ))
             )}
 
-            {/* Empty dots for future users */}
-            {Array.from({ length: 3 }).map((_, index) => (
+            {/* Empty dots for future users - conveyor belt effect */}
+            {Array.from({ length: 15 }).map((_, index) => (
               <EmptyDot key={`dot-${index}`} index={index} />
             ))}
 

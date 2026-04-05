@@ -83,7 +83,7 @@ export default function Settings() {
     returnPolicy: user?.returnPolicy ?? "",
     customOrderPolicy: user?.customOrderPolicy ?? "",
   });
-
+re
   useEffect(() => {
     if (!user) return;
     setForm({
