@@ -91,6 +91,50 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
   );
 }
 
+function EmptyDot({ index }: { index: number }) {
+  return (
+    <motion.div
+      initial={{ 
+        x: 50 + (index * 25), 
+        y: Math.random() * 100 - 50,
+        opacity: 0 
+      }}
+      animate={{ 
+        x: [0, -10, 5, 0],
+        y: [0, -6, 4, 0],
+        opacity: 0.3 
+      }}
+      transition={{ 
+        duration: 3 + index * 0.4,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut",
+        delay: index * 0.2
+      }}
+      className="absolute"
+      style={{
+        top: `${25 + (index * 18)}%`,
+        right: `${15 + (index * 7)}%`,
+        zIndex: 5 + index
+      }}
+    >
+      <motion.div
+        className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-white/20 bg-white/5"
+        animate={{
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          duration: 4 + index * 0.5,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut",
+          delay: index * 0.3
+        }}
+      />
+    </motion.div>
+  );
+}
+
 export function AnimatedIntro() {
   const [selectedSeller, setSelectedSeller] = useState<SellerShop | null>(null);
   const { data: sellersData, isLoading } = useListSellers({ limit: 8 });
@@ -130,17 +174,9 @@ export function AnimatedIntro() {
             )}
 
             {/* Empty dots for future users */}
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={`dot-${index}`}
-                  className="absolute w-4 h-4 rounded-full border-2 border-white/20 bg-white/5"
-                  style={{
-                    top: `${25 + (index * 20)}%`,
-                    right: `${10 + (index * 5)}%`,
-                    opacity: 0.3
-                  }}
-                />
-              ))}
+            {Array.from({ length: 3 }).map((_, index) => (
+              <EmptyDot key={`dot-${index}`} index={index} />
+            ))}
 
             {/* Explore Now text */}
             <motion.div
