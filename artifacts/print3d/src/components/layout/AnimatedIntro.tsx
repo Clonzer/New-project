@@ -26,7 +26,7 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
       animate={{ 
         x: [-250, -950],
         y: [(index * 15) - 20, (index * 15) - 18],
-        opacity: isHovered ? [0, 1, 1, 1, 0] : [0, 0.8, 1, 0.6, 0]
+        opacity: [0, 0.8, 1, 0.6, 0]
       }}
       transition={{ 
         duration: 12 + (index * 0.5),
@@ -84,10 +84,32 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/90 border border-white/20 rounded-lg px-3 py-2 whitespace-nowrap z-50"
+            className="absolute left-full ml-4 top-1/2 transform -translate-y-1/2 bg-black/90 border border-white/20 rounded-xl p-4 whitespace-nowrap z-50 w-64"
           >
-            <p className="text-white text-xs font-medium">{seller.displayName || seller.shopName}</p>
-            <p className="text-zinc-400 text-xs">{seller.location || 'Global'}</p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-black/30 border border-white/10">
+                  {seller.avatarUrl ? (
+                    <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
+                      {seller.displayName?.charAt(0) || seller.shopName?.charAt(0) || '?'}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">{seller.displayName || seller.shopName}</h3>
+                  <p className="text-zinc-400 text-sm">{seller.location || 'Global'}</p>
+                </div>
+              </div>
+              <div className="text-zinc-300 text-sm">
+                <p>{seller.shopAnnouncement || 'Welcome to my shop!'}</p>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 text-xs">{seller.sellerTags?.[0] || 'Creator'}</span>
+                <ChevronRight className="w-4 h-4 text-zinc-400" />
+              </div>
+            </div>
           </motion.div>
         )}
       </motion.div>
@@ -96,25 +118,45 @@ function FloatingProfile({ seller, index, onClick }: FloatingProfileProps) {
 }
 
 function EmptyDot({ index }: { index: number }) {
-  // Calculate position with spacing to prevent overlap
-  const row = Math.floor(index / 3);
-  const col = index % 3;
-  const baseDelay = index * 0.8;
+  // Calculate position with more spacing to prevent overlap
+  const row = Math.floor(index / 2); // Only 2 per row for more spacing
+  const col = index % 2;
+  const baseDelay = index * 1.2;
+  
+  // Various sizes and colors for visual variety
+  const sizes = [
+    "w-12 h-12 md:w-16 md:h-16",
+    "w-14 h-14 md:w-18 md:h-18", 
+    "w-10 h-10 md:w-14 md:h-14",
+    "w-16 h-16 md:w-20 md:h-20",
+    "w-8 h-8 md:w-12 md:h-12"
+  ];
+  
+  const colors = [
+    "border-white/20 bg-white/5",
+    "border-cyan-400/30 bg-cyan-400/10",
+    "border-purple-400/30 bg-purple-400/10",
+    "border-pink-400/30 bg-pink-400/10",
+    "border-blue-400/30 bg-blue-400/10"
+  ];
+  
+  const sizeClass = sizes[index % sizes.length];
+  const colorClass = colors[index % colors.length];
   
   return (
     <motion.div
       initial={{ 
-        x: 150 + (col * 25), 
-        y: (row * 12) - 30,
+        x: 180 + (col * 40), 
+        y: (row * 18) - 35,
         opacity: 0 
       }}
       animate={{ 
-        x: [-200, -900],
-        y: [(row * 12) - 30, (row * 12) - 25],
-        opacity: [0, 0.7, 0.9, 0.5, 0]
+        x: [-250, -1000],
+        y: [(row * 18) - 35, (row * 18) - 32],
+        opacity: [0, 0.6, 0.8, 0.4, 0]
       }}
       transition={{ 
-        duration: 10 + (index * 0.4),
+        duration: 12 + (index * 0.6),
         repeat: Infinity,
         repeatType: "loop",
         ease: "linear",
@@ -122,19 +164,19 @@ function EmptyDot({ index }: { index: number }) {
       }}
       className="absolute"
       style={{
-        top: `${10 + (row * 12)}%`,
-        right: `${2 + (col * 3)}%`,
-        zIndex: 5 + index
+        top: `${8 + (row * 18)}%`,
+        right: `${1 + (col * 4)}%`,
+        zIndex: 3 + index
       }}
     >
       <motion.div
-        className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-white/20 bg-white/5"
+        className={`rounded-full border-2 ${sizeClass} ${colorClass}`}
         animate={{
-          scale: [1, 1.03, 1],
-          rotate: [0, 3, -3, 0]
+          scale: [1, 1.04, 1],
+          rotate: [0, 4, -4, 0]
         }}
         transition={{
-          duration: 4 + (index * 0.3),
+          duration: 5 + (index * 0.4),
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut"
@@ -152,8 +194,8 @@ export function AnimatedIntro() {
   return (
     <>
       <section className="relative py-16 md:py-24 overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#9fe5ff]/10 via-transparent to-[#00ffb3]/10" />
+        {/* Background gradient matching section below */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#9fe5ff]/5 via-transparent to-[#00ffb3]/5" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="relative h-96 md:h-[28rem]">
