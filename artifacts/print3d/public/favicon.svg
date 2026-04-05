@@ -1,3 +1,17 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="arrowGradient" x1="90" y1="160" x2="90" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3A32A1""")/>> <!-- Deep Purple/Blue -->
+      <stop offset="50%" stop-color="#9E46C1""")/>> <!-- Vibrant Purple -->
+      <stop offset="100%" stop-color="#F779A1""")/>> <!-- Pink/Coral -->
+    </linearGradient>
+  </defs>
+  
+  <!-- Arrow Path -->
+  <path d="M90 20L160 90H125V160H55V90H20L90 20Z" 
+        fill="url(#arrowGradient)" 
+        stroke="white" 
+        stroke-width="8" 
+        stroke-linejoin="round""")/>>
 </svg>
+
