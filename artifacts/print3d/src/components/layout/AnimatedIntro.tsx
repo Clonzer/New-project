@@ -1,17 +1,15 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "wouter";
 import { Shield, Users, TrendingUp, Sparkles, Package, ArrowRight } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
-//import { useAuth } from "@workspace/api-client-react";
+
+// Remove or comment out the useAuth import for now
+// import { useAuth } from "@workspace/api-client-react";
 
 export function AnimatedIntro() {
-  const { user } = useAuth();
-  
-  // Don't show hero if user is signed in
-  if (user) {
-    return null;
-  }
+  // Temporarily hardcode as not logged in to stop the crash
+  const isLoggedIn = false;
+  const user = null;
+
+  return (
 
   // Create subtle floating dots
   const floatingDots = Array.from({ length: 25 }, (_, index) => ({
