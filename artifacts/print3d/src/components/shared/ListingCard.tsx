@@ -1,6 +1,6 @@
 import { Listing } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { Box, Clock, ShoppingCart } from "lucide-react";
+import { Box, Clock, ShoppingCart, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
@@ -12,12 +12,14 @@ export function ListingCard({
   listing,
   priceInsight,
 }: {
-  listing: Listing;
+  listing: Listing & { stockQuantity?: number; trackStock?: boolean };
   priceInsight?: ListingPriceInsight;
 }) {
   const { toast } = useToast();
   const { formatPrice } = useLocalePreferences();
   const ship = listing.shippingCost ?? 0;
+  const isOutOfStock = listing.trackStock && listing.stockQuantity === 0;
+  const isLowStock = listing.trackStock && listing.stockQuantity && listing.stockQuantity <= 5 && listing.stockQuantity > 0;
   const priceInsightClassName =
     priceInsight?.tone === "good"
       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
@@ -32,7 +34,7 @@ export function ListingCard({
           <img 
             src={listing.imageUrl} 
             alt={listing.title} 
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+            className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ${isOutOfStock ? "opacity-50" : ""}`}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white/20 group-hover:text-primary/40 transition-colors duration-500">
@@ -40,7 +42,26 @@ export function ListingCard({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="absolute top-3 right-3">
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="text-center">
+              <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-2" />
+              <p className="text-sm font-semibold text-red-300">Out of Stock</p>
+            </div>
+          </div>
+        )}
+        <div className="absolute top-3 right-3 flex items-center gap-2">
+          {isLowStock && (
+            <Badge className="bg-amber-500/20 border-amber-500/30 text-amber-300">
+              <AlertCircle className="w-3 h-3 mr-1" />
+              Low Stock
+            </Badge>
+          )}
+          {!isOutOfStock && listing.trackStock && listing.stockQuantity !== undefined && (
+            <Badge className="bg-emerald-500/20 border-emerald-500/30 text-emerald-300">
+              {listing.stockQuantity} in stock
+            </Badge>
+          )}
           <ReportButton 
             itemType="listing" 
             itemId={listing.id} 
@@ -104,16 +125,35 @@ export function ListingCard({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (isOutOfStock) {
+                toast({ variant: "destructive", title: "Out of stock", description: "This item is no longer available." });
+                return;
+              }
               addToCart(listing.id, 1);
               toast({ title: "Added to cart", description: listing.title });
             }}
-            className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-all border border-white/10 flex items-center justify-center gap-1.5"
+            disabled={isOutOfStock}
+            className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium transition-all border flex items-center justify-center gap-1.5 ${
+              isOutOfStock
+                ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
+                : "bg-white/5 hover:bg-white/10 border-white/10"
+            }`}
           >
             <ShoppingCart className="w-4 h-4" /> Cart
           </button>
-          <Link href={`/order/new?listingId=${listing.id}`} className="flex-1">
-            <button type="button" className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-primary text-white text-sm font-medium transition-all duration-300 border border-white/10 hover:border-primary hover:shadow-[0_0_15px_rgba(139,92,246,0.4)]">
-              Order Print
+          <Link href={isOutOfStock ? "#" : `/order/new?listingId=${listing.id}`} onClick={(e) => {
+            if (isOutOfStock) e.preventDefault();
+          }} className="flex-1">
+            <button 
+              type="button" 
+              disabled={isOutOfStock}
+              className={`w-full py-2.5 rounded-xl text-white text-sm font-medium transition-all duration-300 border ${
+                isOutOfStock
+                  ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
+                  : "bg-white/5 hover:bg-primary border-white/10 hover:border-primary hover:shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+              }`}
+            >
+              {isOutOfStock ? "Out of Stock" : "Order Print"}
             </button>
           </Link>
         </div>

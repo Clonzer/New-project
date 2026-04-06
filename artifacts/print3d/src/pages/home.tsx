@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, Layers3, Package, ShieldCheck, Sparkles, Store, UserRound } from "lucide-react";
+import { ChevronRight, Layers3, Package, ShieldCheck, Sparkles, Store, UserRound, Zap, Rocket, ShoppingCart, Clock } from "lucide-react";
 import { useListListings, useListSellers, type Listing, type SellerShop } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { AnimatedIntro } from "@/components/layout/AnimatedIntro";
+import { FeaturedMakersMarquee } from "@/components/layout/AnimatedIntro";
+import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
 import {
@@ -152,9 +153,130 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
       <Navbar />
+      <OnboardingTutorial />
 
       <main className="flex-grow">
-        <AnimatedIntro />
+        {/* Hero Section */}
+        <section className="relative px-4 py-20 md:py-32 overflow-hidden">
+          {/* Background effects */}
+          <div className="absolute inset-0">
+            {/* Gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-black to-zinc-950" />
+            
+            {/* Animated gradient orbs */}
+            <motion.div
+              className="absolute -top-40 -left-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
+              animate={{
+                y: [0, 40, 0],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/10 rounded-full blur-3xl"
+              animate={{
+                y: [0, -50, 0],
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            
+            {/* Subtle grid pattern */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
+            
+            {/* Radial overlay */}
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 container mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-center mb-12"
+            >
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/50 bg-primary/10 mb-8"
+              >
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-primary">Next-gen maker platform</span>
+              </motion.div>
+
+              {/* Main Headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[1.1] tracking-tight mb-6 text-white"
+              >
+                Turn Your Ideas Into{" "}
+                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-pulse">
+                  Reality
+                </span>
+              </motion.h1>
+
+              {/* Subheadline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed mb-12"
+              >
+                Join makers worldwide. Sell custom prints, build your audience, and scale your making business on Synthix — the marketplace built for creators.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              >
+                <Link href="/register">
+                  <NeonButton
+                    glowColor="primary"
+                    className="px-8 py-4 text-lg font-semibold rounded-full flex items-center gap-2"
+                  >
+                    <Rocket className="w-5 h-5" />
+                    Start Selling Free
+                  </NeonButton>
+                </Link>
+                <Link href="/listings">
+                  <button className="px-8 py-4 text-lg font-semibold rounded-full border-2 border-primary/50 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 flex items-center gap-2 backdrop-blur-sm">
+                    <ShoppingCart className="w-5 h-5" />
+                    Browse the Shop
+                  </button>
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Featured Makers Marquee */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              className="mt-20 pt-16 border-t border-white/10"
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-8">
+                Meet the makers building the future
+              </p>
+              <FeaturedMakersMarquee />
+            </motion.div>
+          </div>
+        </section>
         
         <section className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
           <AnimatedGradientBg />

@@ -18,24 +18,6 @@ import { useSearch } from "wouter";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 
-// Sample shop images for carousel
-const shopImages = [
-  "https://images.unsplash.com/photo-1441986300917-64674bd168d45?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1560472357-b9ff576f0578?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1542601906-a5a5c8772b16?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1522771739683-5c0a1e5a5b1b?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop"
-];
-
-// Sample model catalog images
-const modelImages = [
-  "https://images.unsplash.com/photo-1581091226825-a6a3125c1f4b?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1563211553215-b3d6e2c05a9a?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1581094774189-41b8ef7d8b2c?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1549490349-6e9cb0540d95?w=800&h=600&fit=crop"
-];
-
 export default function Explore() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,70 +58,12 @@ export default function Explore() {
       
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
-          {/* Shop Images Carousel */}
+          {/* Featured Shops Carousel */}
           <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Store className="w-5 h-5 text-[#9fe5ff]" />
                 <h2 className="text-2xl font-display font-bold text-white">Featured Shops</h2>
-              </div>
-            </div>
-            
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {shopImages.map((image, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                    <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden">
-                      <img 
-                        src={image} 
-                        alt={`Shop ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-              <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-            </Carousel>
-          </section>
-
-          {/* Model Catalog Carousel */}
-          <section className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-[#9fe5ff]" />
-                <h2 className="text-2xl font-display font-bold text-white">Model Catalog</h2>
-              </div>
-            </div>
-            
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {modelImages.map((image, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                    <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden">
-                      <img 
-                        src={image} 
-                        alt={`Model ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-              <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-            </Carousel>
-          </section>
-
-          {/* Featured Makers Carousel */}
-          <section className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#9fe5ff]" />
-                <h2 className="text-2xl font-display font-bold text-white">Featured Makers</h2>
               </div>
             </div>
             
@@ -168,12 +92,12 @@ export default function Explore() {
             )}
           </section>
 
-          {/* Featured Products Carousel */}
+          {/* Model Catalog Carousel */}
           <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h2 className="text-2xl font-display font-bold text-white">Featured Products</h2>
+                <Package className="w-5 h-5 text-[#9fe5ff]" />
+                <h2 className="text-2xl font-display font-bold text-white">Model Catalog</h2>
               </div>
             </div>
             
@@ -202,6 +126,9 @@ export default function Explore() {
             )}
           </section>
 
+
+
+          {/* Search and Filter Section */}
           <div className="mb-12">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 text-glow">
               Explore All Makers
