@@ -5,7 +5,7 @@ import { ChevronRight, Layers3, Package, ShieldCheck, Sparkles, Store, UserRound
 import { useListListings, useListSellers, type Listing, type SellerShop } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { FeaturedMakersMarquee } from "@/components/layout/AnimatedIntro";
+
 import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -157,7 +157,7 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative px-4 py-20 md:py-32 overflow-hidden">
+        <section className="relative px-4 py-16 md:py-24 overflow-hidden">
           {/* Background effects */}
           <div className="absolute inset-0">
             {/* Gradient background */}
@@ -261,19 +261,6 @@ export default function Home() {
                   </button>
                 </Link>
               </motion.div>
-            </motion.div>
-
-            {/* Featured Makers Marquee */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.6 }}
-              className="mt-20 pt-16 border-t border-white/10"
-            >
-              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 text-center mb-8">
-                Meet the makers building the future
-              </p>
-              <FeaturedMakersMarquee />
             </motion.div>
           </div>
         </section>

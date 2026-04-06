@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Check, ChevronDown, ChevronUp, Crown, Star, X, Zap, Mail, Phone, Building, Users, Shield, Clock } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 const ENTERPRISE_CONTACT = "mailto:evanhuelin8@gmail.com?subject=SYNTHIX%20Enterprise%20Inquiry";
 
@@ -120,6 +121,8 @@ const FAQS = [
 ];
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
@@ -131,6 +134,25 @@ export default function Pricing() {
     message: ""
   });
   const { toast } = useToast();
+
+  const handlePlanPurchase = (planId: string) => {
+    if (!user) {
+      // Not logged in - go to register
+      setLocation("/register");
+      return;
+    }
+
+    if (planId === "starter") {
+      // Starter is free, go to dashboard
+      setLocation("/vendor-dashboard");
+      return;
+    }
+
+    // For paid plans, redirect to Stripe checkout
+    // In a real app, this would call an API endpoint to create a Stripe checkout session
+    const stripeCheckoutUrl = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}`;
+    window.location.href = stripeCheckoutUrl;
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
@@ -223,17 +245,23 @@ export default function Pricing() {
                   </ul>
 
                   {isEnterprise ? (
-                    <a href={ENTERPRISE_CONTACT}>
+                    <button
+                      onClick={() => setShowEnterpriseForm(true)}
+                      className="w-full"
+                    >
                       <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
                         {plan.cta}
                       </NeonButton>
-                    </a>
+                    </button>
                   ) : (
-                    <Link href="/register">
+                    <button
+                      onClick={() => handlePlanPurchase(plan.id)}
+                      className="w-full"
+                    >
                       <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
                         {plan.cta}
                       </NeonButton>
-                    </Link>
+                    </button>
                   )}
                 </motion.div>
               );
@@ -257,101 +285,120 @@ export default function Pricing() {
                 </button>
               </div>
             </div>
-            
-            {showEnterpriseForm && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-8"
-              >
-                <div className="glass-panel rounded-3xl border border-white/10 p-8">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-display font-bold text-white">Contact Enterprise Team</h3>
-                    <button
-                      onClick={() => setShowEnterpriseForm(false)}
-                      className="text-zinc-400 hover:text-white transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-zinc-300 block mb-2">Full Name *</label>
-                      <Input
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="John Smith"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-zinc-300 block mb-2">Company Name *</label>
-                      <Input
-                        value={formData.company}
-                        onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                        placeholder="Acme Corporation"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-zinc-300 block mb-2">Email Address *</label>
-                      <Input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="john@acme.com"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-zinc-300 block mb-2">Phone Number</label>
-                      <Input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder="+1 (555) 123-4567"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-zinc-300 block mb-2">How can we help? *</label>
-                      <Textarea
-                        value={formData.message}
-                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="Tell us about your enterprise needs, expected volume, and timeline..."
-                        rows={4}
-                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 resize-none"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => {
-                        if (!formData.name || !formData.company || !formData.email || !formData.message) {
-                          toast({
-                            title: "Missing required fields",
-                            description: "Please fill in all required fields marked with *",
-                            variant: "destructive"
-                          });
-                          return;
-                        }
-                        
-                        const subject = encodeURIComponent(`SYNTHIX Enterprise Inquiry - ${formData.company}`);
-                        const body = encodeURIComponent(
-                          `Name: ${formData.name}\nCompany: ${formData.company}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`
-                        );
-                        window.location.href = `mailto:evanhuelin8@gmail.com?subject=${subject}&body=${body}`;
-                      }}
-                      className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3"
-                    >
-                      <Mail className="w-4 h-4 mr-2" />
-                      Send Inquiry
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </div>
         </section>
+
+        {/* Enterprise Contact Form Modal */}
+        {showEnterpriseForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="glass-panel w-full max-w-2xl rounded-3xl border border-white/10 p-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-display font-bold text-white">Enterprise Contact</h3>
+                  <p className="text-sm text-zinc-400 mt-1">Tell us about your business needs</p>
+                </div>
+                <button
+                  onClick={() => setShowEnterpriseForm(false)}
+                  className="text-zinc-400 hover:text-white transition-colors p-2"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="text-sm font-medium text-zinc-300 block mb-2">Full Name *</label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="John Smith"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-zinc-300 block mb-2">Company Name *</label>
+                  <Input
+                    value={formData.company}
+                    onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                    placeholder="Acme Corporation"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="text-sm font-medium text-zinc-300 block mb-2">Email Address *</label>
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="john@acme.com"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-zinc-300 block mb-2">Phone Number</label>
+                  <Input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="+1 (555) 123-4567"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="text-sm font-medium text-zinc-300 block mb-2">How can we help? *</label>
+                <Textarea
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Tell us about your enterprise needs, expected volume, and timeline..."
+                  rows={5}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    if (!formData.name || !formData.company || !formData.email || !formData.message) {
+                      toast({
+                        title: "Missing required fields",
+                        description: "Please fill in all required fields marked with *",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    const subject = encodeURIComponent(`SYNTHIX Enterprise Inquiry - ${formData.company}`);
+                    const body = encodeURIComponent(
+                      `Name: ${formData.name}\nCompany: ${formData.company}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`
+                    );
+                    window.location.href = `mailto:evanhuelin8@gmail.com?subject=${subject}&body=${body}`;
+                  }}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Inquiry
+                </Button>
+                <Button
+                  onClick={() => setShowEnterpriseForm(false)}
+                  variant="outline"
+                  className="px-6 border-white/10 text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         <section className="container mx-auto max-w-2xl px-4 py-20">
           <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>

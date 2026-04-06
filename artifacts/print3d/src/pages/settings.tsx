@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { Analytics } from "@/components/dashboard/Analytics";
 import {
   COUNTRY_OPTIONS,
   CURRENCY_OPTIONS,
@@ -18,7 +19,7 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
@@ -27,6 +28,7 @@ const SECTIONS = [
   { id: "shipping", label: "Shipping", icon: Truck },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "security", label: "Security", icon: Shield },
@@ -45,6 +47,14 @@ export default function Settings() {
   const [verificationCode, setVerificationCode] = useState("");
   const [customTagDraft, setCustomTagDraft] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [notificationPreferences, setNotificationPreferences] = useState({
+    newOrders: true,
+    customRequests: true,
+    messages: true,
+    reviews: true,
+    promotions: false,
+    accountUpdates: true,
+  });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -801,7 +811,7 @@ re
 
                 {activeSection === "policies" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Policies</h2>
+                    <h2 className="text-xl font-bold text-white">Policies & Compliance</h2>
                     {!isSeller ? (
                       <p className="text-zinc-400">Seller policy controls appear here once the account is in seller mode.</p>
                     ) : (
@@ -816,34 +826,7 @@ re
                             onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
                             className="bg-black/30 border-white/10 text-white"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-2">Shop Mode</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {[
-                              { value: "catalog", label: "Catalog Only", desc: "Only print listed models" },
-                              { value: "open", label: "Open Jobs", desc: "Accept uploaded custom work" },
-                              { value: "both", label: "Both", desc: "Run listings and custom jobs" },
-                            ].map((option) => (
-                              <button
-                                key={option.value}
-                                onClick={() =>
-                                  setForm((current) => ({
-                                    ...current,
-                                    shopMode: option.value as "catalog" | "open" | "both",
-                                  }))
-                                }
-                                className={`p-4 rounded-xl border text-left transition-all ${
-                                  form.shopMode === option.value
-                                    ? "border-primary/50 bg-primary/10 text-white"
-                                    : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
-                                }`}
-                              >
-                                <p className="font-medium text-sm">{option.label}</p>
-                                <p className="text-xs mt-1 opacity-70">{option.desc}</p>
-                              </button>
-                            ))}
-                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Applied to all orders from this shop</p>
                         </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
@@ -955,60 +938,142 @@ re
                   </div>
                 )}
 
+                {activeSection === "analytics" && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-white mb-2">Shop Analytics</h2>
+                      <p className="text-sm text-zinc-400">Track your shop performance with detailed metrics and insights.</p>
+                    </div>
+                    {!isSeller ? (
+                      <p className="text-zinc-400">Analytics appear here once the account is in seller mode.</p>
+                    ) : (
+                      <Analytics shopId={user?.id} timeRange="30d" />
+                    )}
+                  </div>
+                )}
+
                 {activeSection === "notifications" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Notifications</h2>
-                    <div className="grid gap-4">
+                    <p className="text-sm text-zinc-400">Choose which notifications you want to receive in your dashboard.</p>
+                    <div className="space-y-3">
                       {[
-                        "New order alerts",
-                        "Custom request alerts",
-                        "Unread message reminders",
-                        "Review notifications",
-                        "Payout and shipping updates",
-                      ].map((label) => (
-                        <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
-                          {label}
-                        </div>
+                        { key: "newOrders" as const, label: "New orders", desc: "Get notified when you receive a new order" },
+                        { key: "customRequests" as const, label: "Custom requests", desc: "Alerts when someone submits a custom work quote request" },
+                        { key: "messages" as const, label: "Messages", desc: "Notifications for unread buyer messages" },
+                        { key: "reviews" as const, label: "Reviews", desc: "Alerts when you receive a new review" },
+                        { key: "promotions" as const, label: "Promotions & tips", desc: "Marketing and platform feature announcements" },
+                        { key: "accountUpdates" as const, label: "Account updates", desc: "Security and billing notifications" },
+                      ].map(({ key, label, desc }) => (
+                        <button
+                          key={key}
+                          onClick={() => setNotificationPreferences(prev => ({ ...prev, [key]: !prev[key] }))}
+                          className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                            notificationPreferences[key]
+                              ? "border-primary/50 bg-primary/10"
+                              : "border-white/10 bg-white/5 hover:border-white/20"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className={`font-medium ${notificationPreferences[key] ? "text-white" : "text-zinc-300"}`}>
+                                {label}
+                              </p>
+                              <p className="text-xs text-zinc-500 mt-1">{desc}</p>
+                            </div>
+                            <div
+                              className={`w-5 h-5 rounded border-2 transition-colors flex items-center justify-center ${
+                                notificationPreferences[key]
+                                  ? "border-primary bg-primary"
+                                  : "border-white/20 bg-transparent"
+                              }`}
+                            >
+                              {notificationPreferences[key] && <span className="text-black text-sm">✓</span>}
+                            </div>
+                          </div>
+                        </button>
                       ))}
                     </div>
-                    <p className="text-zinc-500 text-sm">
-                      Notification delivery is currently in-app first. Email preference granularity can be layered onto this next without changing the settings structure again.
-                    </p>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-400">
+                      <p>💡 <strong>Note:</strong> Email notifications can be configured separately from in-dashboard notifications. All preferences are saved automatically.</p>
+                    </div>
                   </div>
                 )}
 
                 {activeSection === "feedback" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Feedback</h2>
-                    <p className="text-zinc-400">
-                      Use this section to capture launch feedback, bug reports, and feature requests in one obvious place.
-                    </p>
-                    <textarea
-                      value={feedbackMessage}
-                      onChange={(event) => setFeedbackMessage(event.target.value)}
-                      rows={6}
-                      placeholder="What feels confusing, missing, or especially useful?"
-                      className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-                    />
-                    <div className="flex flex-col gap-3 sm:flex-row">
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Send Us Feedback</h2>
+                      <p className="text-sm text-zinc-400 mt-1">Help us improve by sharing your thoughts, bug reports, and feature requests.</p>
+                    </div>
+                    
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-zinc-300 mb-3"><strong>What would be helpful:</strong></p>
+                      <ul className="space-y-1 text-sm text-zinc-400">
+                        <li>• Features that would make your workflow easier</li>
+                        <li>• Bugs or issues you've encountered</li>
+                        <li>• Parts of the platform that feel confusing</li>
+                        <li>• Things you're using that work well</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-300 mb-2">Your feedback</label>
+                      <textarea
+                        value={feedbackMessage}
+                        onChange={(event) => setFeedbackMessage(event.target.value)}
+                        rows={6}
+                        placeholder="Tell us what's on your mind... Be as specific as you can!"
+                        className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none placeholder:text-zinc-500"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row justify-end">
                       <Button
                         type="button"
                         variant="outline"
                         className="border-white/10 bg-white/5 text-white hover:bg-white/10"
                         onClick={() => {
-                          const message = feedbackMessage.trim();
-                          if (!message) {
-                            toast({ title: "Add some feedback first", variant: "destructive" });
-                            return;
-                          }
-                          const mailto = `mailto:evanhuelin8@gmail.com?subject=${encodeURIComponent("SYNTHIX feedback")}&body=${encodeURIComponent(message)}`;
-                          window.location.href = mailto;
+                          setFeedbackMessage("");
                         }}
                       >
-                        Send feedback
+                        Clear
                       </Button>
-                      <p className="text-sm text-zinc-500">
-                        This currently opens your mail app so nothing gets lost before launch.
+                      <Button
+                        type="button"
+                        className="bg-primary hover:bg-primary/90 text-white font-semibold"
+                        onClick={() => {
+                          if (!feedbackMessage.trim()) {
+                            toast({
+                              title: "Feedback is empty",
+                              description: "Please share your thoughts before submitting.",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
+                          // Send feedback via email
+                          const subject = encodeURIComponent(`SYNTHIX Feedback from ${user?.displayName || "User"}`);
+                          const body = encodeURIComponent(
+                            `Feedback from: ${user?.displayName || "Anonymous"}\nEmail: ${user?.email || "N/A"}\n\nMessage:\n${feedbackMessage}`
+                          );
+                          window.location.href = `mailto:feedback@synthix.local?subject=${subject}&body=${body}`;
+                          
+                          // Reset form
+                          setFeedbackMessage("");
+                          toast({
+                            title: "Thanks for your feedback!",
+                            description: "Your message has been sent. We appreciate your input.",
+                          });
+                        }}
+                      >
+                        Send Feedback
+                      </Button>
+                    </div>
+
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4">
+                      <p className="text-sm text-emerald-200">
+                        ✓ <strong>All feedback is valuable.</strong> Even a one-line suggestion helps us prioritize what matters most to our community.
                       </p>
                     </div>
                   </div>

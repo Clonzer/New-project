@@ -11,12 +11,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Search, SlidersHorizontal, Sparkles, Store, Package } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, Store, Package, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { useSearch } from "wouter";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { BoostViewsModal } from "@/components/shared/BoostViewsModal";
+import { NeonButton } from "@/components/ui/neon-button";
 
 export default function Explore() {
   const rawSearch = useSearch();
@@ -26,6 +28,8 @@ export default function Explore() {
   const [selectedMode, setSelectedMode] = useState<"all" | "catalog" | "open" | "both">("all");
   const [selectedTag, setSelectedTag] = useState("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [boostModalOpen, setBoostModalOpen] = useState(false);
+  const [boostingShop, setBoostingShop] = useState<string>("");
   const { formatPrice } = useLocalePreferences();
   const { data, isLoading } = useListSellers({ limit: 50 });
   const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 12 });
@@ -126,7 +130,61 @@ export default function Explore() {
             )}
           </section>
 
-
+          {/* Sponsored Shops Section */}
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#9fe5ff]" />
+                <h2 className="text-2xl font-display font-bold text-white">Sponsored Shops</h2>
+              </div>
+            </div>
+            
+            {isLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-[300px] rounded-2xl bg-white/10" />
+                ))}
+              </div>
+            ) : data?.sellers.length ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {data.sellers.slice(0, 4).map((seller) => (
+                  <div key={seller.id} className="group glass-panel p-6 rounded-2xl border border-primary/20 bg-primary/5 hover:border-primary/40 transition-all">
+                    <div className="relative mb-4">
+                      <div className="w-full h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center overflow-hidden">
+                        {seller.avatarUrl ? (
+                          <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-4xl font-bold text-primary/40">{seller.displayName.charAt(0)}</div>
+                        )}
+                      </div>
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-white text-xs font-bold flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        Sponsored
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-white mb-1">{seller.shopName || seller.displayName}</h3>
+                    <p className="text-xs text-zinc-400 mb-3 line-clamp-2">{seller.bio || "Amazing custom work"}</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setBoostingShop(seller.shopName || seller.displayName);
+                          setBoostModalOpen(true);
+                        }}
+                        className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors flex items-center justify-center gap-1"
+                      >
+                        <Zap className="w-3 h-3" />
+                        Boost Views
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-zinc-400">
+                No sponsored shops available yet
+              </div>
+            )}
+          </section>
 
           {/* Search and Filter Section */}
           <div className="mb-12">
@@ -260,6 +318,12 @@ export default function Explore() {
           </div>
         </div>
       </main>
+
+      <BoostViewsModal
+        isOpen={boostModalOpen}
+        shopName={boostingShop}
+        onClose={() => setBoostModalOpen(false)}
+      />
 
       <Footer />
     </div>
