@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Shield, Users, TrendingUp, Sparkles, Package, ArrowRight } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
-import { useAuth } from "@workspace/api-client-react";
+//import { useAuth } from "@workspace/api-client-react";
 
 export function AnimatedIntro() {
   const { user } = useAuth();
