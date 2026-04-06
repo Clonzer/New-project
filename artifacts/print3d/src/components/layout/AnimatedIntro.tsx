@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users } from "lucide-react";
+import { Users, Sparkles } from "lucide-react";
 
 type Maker = {
   id: number;
@@ -13,29 +13,29 @@ export function FeaturedMakersMarquee() {
   const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null);
 
   const makers: Maker[] = [
-    { 
-      id: 1, 
-      username: "evanhuelin", 
-      avatar: "https://i.pravatar.cc/150?u=evan", 
-      specialty: "3D Printing & Design", 
-      isReal: true 
+    {
+      id: 1,
+      username: "evanhuelin",
+      avatar: "https://i.pravatar.cc/300?u=evan",
+      specialty: "3D Printing & Design",
+      isReal: true,
     },
-    { 
-      id: 2, 
-      username: "makerforge", 
-      avatar: "https://i.pravatar.cc/150?u=forge", 
-      specialty: "Mechanical Parts", 
-      isReal: true 
+    {
+      id: 2,
+      username: "makerforge",
+      avatar: "https://i.pravatar.cc/300?u=forge",
+      specialty: "Mechanical Parts",
+      isReal: true,
     },
-    { 
-      id: 3, 
-      username: "printbydesign", 
-      avatar: "https://i.pravatar.cc/150?u=print", 
-      specialty: "Custom Props", 
-      isReal: true 
+    {
+      id: 3,
+      username: "printbydesign",
+      avatar: "https://i.pravatar.cc/300?u=print",
+      specialty: "Custom Props & Art",
+      isReal: true,
     },
-    // Placeholder dots (same visual size as real profiles)
-    ...Array.from({ length: 15 }, (_, i) => ({
+    // Placeholder dots (same size as real cards)
+    ...Array.from({ length: 14 }, (_, i) => ({
       id: 100 + i,
       username: "",
       avatar: "",
@@ -45,82 +45,102 @@ export function FeaturedMakersMarquee() {
   ];
 
   return (
-    <>
-      <div className="py-20 bg-zinc-950 border-t border-b border-white/10 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 mb-10">
-          <div className="text-center">
-            <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-4">
-              Join the maker community
-            </h2>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              Connect with verified makers, browse custom products, and bring your ideas to life through professional fabrication.
-            </p>
-          </div>
+    <div className="py-24 bg-zinc-950 border-t border-b border-white/10 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 mb-12">
+        <div className="flex items-center gap-3 mb-4">
+          <Sparkles className="w-5 h-5 text-cyan-400" />
+          <span className="uppercase tracking-[3px] text-sm font-medium text-white/60">
+            EARLY COMMUNITY
+          </span>
         </div>
 
-        <div className="relative">
-          <div className="flex animate-marquee">
-            {makers.map((maker) => (
-              <div
-                key={maker.id}
-                className="flex-shrink-0 w-64 mx-4 cursor-pointer group"
-                onClick={() => maker.isReal && setSelectedMaker(maker)}
-              >
-                {maker.isReal ? (
-                  <>
-                    <div className="w-full aspect-square rounded-2xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors">
-                      <img 
-                        src={maker.avatar} 
-                        alt={maker.username}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="mt-4 text-center">
-                      <p className="text-white font-semibold">@{maker.username}</p>
-                      <p className="text-cyan-400 text-sm">{maker.specialty}</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full aspect-square rounded-2xl bg-zinc-900 flex items-center justify-center border border-white/10">
-                    <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center">
-                      <Users className="w-10 h-10 text-white/30" />
-                    </div>
+        <h2 className="text-5xl font-bold text-white tracking-tighter mb-3">
+          Featured Makers
+        </h2>
+        <p className="text-xl text-white/60 max-w-2xl">
+          Join the first wave of creators building on Synthix
+        </p>
+      </div>
+
+      {/* Tight Conveyor Scroll */}
+      <div className="relative">
+        <div className="flex gap-6 animate-marquee whitespace-nowrap">
+          {makers.concat(makers).map((maker, index) => (
+            <div
+              key={`${maker.id}-${index}`}
+              onClick={() => maker.isReal && setSelectedMaker(maker)}
+              className={`group relative flex-shrink-0 w-56 h-72 rounded-3xl overflow-hidden transition-all duration-300
+                ${maker.isReal 
+                  ? 'hover:scale-105 hover:-rotate-[1deg] cursor-pointer shadow-2xl ring-1 ring-white/10 hover:ring-cyan-400/50' 
+                  : 'cursor-default opacity-40 hover:opacity-60'}`}
+            >
+              {maker.isReal ? (
+                <>
+                  <img
+                    src={maker.avatar}
+                    alt={maker.username}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/80 to-transparent p-6">
+                    <p className="text-white font-semibold text-lg">@{maker.username}</p>
+                    <p className="text-cyan-400 text-sm mt-1 line-clamp-1">{maker.specialty}</p>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </>
+              ) : (
+                // Placeholder Dot
+                <div className="w-full h-full bg-zinc-900 flex items-center justify-center border border-white/10">
+                  <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center">
+                    <Users className="w-12 h-12 text-white/30" />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
+      {/* Premium Popup Banner */}
       {selectedMaker && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-3xl max-w-md w-full p-6">
-            <div className="text-center mb-6">
-              <img 
-                src={selectedMaker.avatar} 
+        <div
+          className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-6"
+          onClick={() => setSelectedMaker(null)}
+        >
+          <div
+            className="bg-zinc-900 border border-white/10 rounded-3xl max-w-lg w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative h-80">
+              <img
+                src={selectedMaker.avatar}
                 alt={selectedMaker.username}
-                className="w-24 h-24 rounded-full mx-auto mb-4"
+                className="w-full h-full object-cover"
               />
-              <h3 className="text-xl font-bold text-white">@{selectedMaker.username}</h3>
-              <p className="text-cyan-400">{selectedMaker.specialty}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
             </div>
-            <div className="space-y-3">
-              <button className="w-full bg-primary hover:bg-primary/80 text-white rounded-xl py-3 font-semibold">
-                View Full Profile
-              </button>
-              <button 
-                onClick={() => setSelectedMaker(null)}
-                className="w-full bg-white/10 hover:bg-white/20 text-white rounded-xl py-3"
-              >
-                Close
-              </button>
+
+            <div className="p-8">
+              <h3 className="text-4xl font-bold text-white">@{selectedMaker.username}</h3>
+              <p className="text-cyan-400 text-xl mt-2">{selectedMaker.specialty}</p>
+
+              <div className="mt-8 text-white/70 text-[15px] leading-relaxed">
+                One of the early pioneers on Synthix. Known for exceptional quality and creative 3D prints.
+              </div>
+
+              <div className="flex gap-4 mt-10">
+                <button
+                  onClick={() => setSelectedMaker(null)}
+                  className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-white font-medium transition"
+                >
+                  Close
+                </button>
+                <button className="flex-1 py-4 bg-cyan-500 hover:bg-cyan-600 text-black font-semibold rounded-2xl transition">
+                  View Full Profile
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
-
-export const AnimatedIntro = FeaturedMakersMarquee;
