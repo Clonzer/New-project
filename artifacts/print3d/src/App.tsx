@@ -11,6 +11,7 @@ import Listings from "@/pages/listings";
 import Shop from "@/pages/shop";
 import OrderFlow from "@/pages/order-flow";
 import Dashboard from "@/pages/dashboard";
+import { VendorDashboard } from "@/pages/vendor-dashboard";
 import Register from "@/pages/register";
 import Login from "@/pages/login";
 import Settings from "@/pages/settings";
@@ -73,6 +74,14 @@ function MessagesPage() {
   );
 }
 
+function VendorDashboardPage() {
+  return (
+    <ProtectedRoute>
+      <VendorDashboard />
+    </ProtectedRoute>
+  );
+}
+
 function Router() {
   return (
     <Switch>
@@ -85,6 +94,7 @@ function Router() {
       <Route path="/search" component={SearchPage} />
       <Route path="/compare-shops" component={CompareShops} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/vendor-dashboard" component={VendorDashboardPage} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
       <Route path="/settings" component={SettingsPage} />
