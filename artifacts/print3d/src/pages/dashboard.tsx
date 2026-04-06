@@ -34,6 +34,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { getApiErrorMessage } from "@/lib/api-error";
 import { PortfolioManager } from "@/components/dashboard/PortfolioManager";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
+import { Tutorial } from "@/components/shared/Tutorial";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -334,7 +335,7 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
   const createListing = useCreateListing();
   const [form, setForm] = useState({
     title: "", category: "Functional", imageUrl: "", basePrice: "", shippingCost: "",
-    estimatedDaysMin: "3", estimatedDaysMax: "7", material: "", description: "", tags: "",
+    estimatedDaysMin: "3", estimatedDaysMax: "7", material: "", description: "", tags: "", stock: "",
   });
 
   const handleChange = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -396,9 +397,13 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
               <Input type="number" step="0.01" value={form.basePrice} onChange={e => handleChange("basePrice", e.target.value)} placeholder="e.g. 24.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
             </div>
             <div>
-              <label className="text-sm text-zinc-300 block mb-1.5">Shipping ($)</label>
-              <Input type="number" step="0.01" value={form.shippingCost} onChange={e => handleChange("shippingCost", e.target.value)} placeholder="e.g. 5.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+              <label className="text-sm text-zinc-300 block mb-1.5">Stock Quantity</label>
+              <Input type="number" value={form.stock} onChange={e => handleChange("stock", e.target.value)} placeholder="e.g. 10" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
             </div>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Shipping ($)</label>
+            <Input type="number" step="0.01" value={form.shippingCost} onChange={e => handleChange("shippingCost", e.target.value)} placeholder="e.g. 5.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
           </div>
           <div>
             <label className="text-sm text-zinc-300 block mb-1.5">Primary Material</label>
@@ -466,6 +471,7 @@ export default function Dashboard() {
   const [deletingPrinterId, setDeletingPrinterId] = useState<number | null>(null);
   const [showAddPrinter, setShowAddPrinter] = useState(false);
   const [showAddListing, setShowAddListing] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -570,6 +576,62 @@ export default function Dashboard() {
     );
   }
 
+  // Tutorial steps
+  const buyerTutorialSteps = [
+    {
+      title: "Welcome to SYNTHIX!",
+      description: "Your gateway to custom 3D prints and maker services. Let's get you started with the basics."
+    },
+    {
+      title: "Browse Makers & Products",
+      description: "Explore our marketplace of verified makers. Use the search and filters to find exactly what you need."
+    },
+    {
+      title: "Place Orders",
+      description: "Found something you like? Add it to cart and checkout securely. Funds are held in escrow until delivery."
+    },
+    {
+      title: "Track Your Orders",
+      description: "Monitor your order status in the 'My Orders' tab. Leave reviews once your order is complete."
+    }
+  ];
+
+  const sellerTutorialSteps = [
+    {
+      title: "Welcome Seller!",
+      description: "Ready to start selling your 3D prints and services? Let's set up your shop."
+    },
+    {
+      title: "Add Your Equipment",
+      description: "Register your 3D printers, CNC machines, or other equipment in the 'My Equipment' tab."
+    },
+    {
+      title: "Create Listings",
+      description: "Add products to your catalog in the 'My Listings' tab. Include photos, descriptions, and pricing."
+    },
+    {
+      title: "Manage Orders",
+      description: "Track incoming orders in the 'Manage Sales' tab. Update statuses and communicate with buyers."
+    },
+    {
+      title: "View Analytics",
+      description: "Check your shop performance in the 'Analytics' tab to optimize your business."
+    }
+  ];
+
+  // Show tutorial on first visit
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem(`tutorial-${user.id}`);
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+    }
+  }, [user.id]);
+
+  const handleTutorialClose = () => {
+    setShowTutorial(false);
+    localStorage.setItem(`tutorial-${user.id}`, 'true');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -656,6 +718,7 @@ export default function Dashboard() {
                   <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Manage Sales</TabsTrigger>
                   <TabsTrigger value="listings" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Listings</TabsTrigger>
                   <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Equipment</TabsTrigger>
+                  <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Analytics</TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -855,6 +918,14 @@ export default function Dashboard() {
                                     Decline
                                   </Button>
                                 )}
+                                <div className="flex gap-2 mt-2">
+                                  <Button variant="outline" size="sm" className="text-xs border-white/10 text-zinc-300 hover:bg-white/5" onClick={() => window.print()}>
+                                    Print Label
+                                  </Button>
+                                  <Button variant="outline" size="sm" className="text-xs border-white/10 text-zinc-300 hover:bg-white/5" onClick={() => alert(`Customer: ${order.buyerName}\nAddress: ${order.shippingAddress || 'Not provided'}`)}>
+                                    View Info
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                             {order.shippingAddress && (
@@ -929,9 +1000,20 @@ export default function Dashboard() {
                               <p className="text-sm text-zinc-400">{printer.brand} {printer.model}</p>
                             </div>
                           </div>
-                          <Badge variant={printer.isActive ? "default" : "secondary"} className={printer.isActive ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-zinc-700"}>
-                            {printer.isActive ? "Active" : "Inactive"}
-                          </Badge>
+                          <div className="flex flex-col gap-2 items-end">
+                            <Badge variant={printer.isActive ? "default" : "secondary"} className={printer.isActive ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-zinc-700"}>
+                              {printer.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                            <select
+                              className="text-xs bg-black/30 border border-white/10 text-zinc-300 rounded px-2 py-1"
+                              defaultValue="operational"
+                            >
+                              <option value="operational">Operational</option>
+                              <option value="maintenance">Maintenance</option>
+                              <option value="out-of-service">Out of Service</option>
+                              <option value="busy">Busy</option>
+                            </select>
+                          </div>
                         </div>
                         <div className="space-y-2 text-sm text-zinc-300 mb-4">
                           <div className="flex justify-between">
@@ -1004,6 +1086,13 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </main>
+
+      <Tutorial
+        isOpen={showTutorial}
+        onClose={handleTutorialClose}
+        steps={isSellerUser ? sellerTutorialSteps : buyerTutorialSteps}
+        userType={isSellerUser ? "seller" : "buyer"}
+      />
     </div>
   );
 }

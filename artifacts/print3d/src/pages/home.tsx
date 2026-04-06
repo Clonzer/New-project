@@ -473,6 +473,53 @@ export default function Home() {
               : featuredListings.slice(0, 3).map((listing) => <ListingCard key={listing.id} listing={listing} />)}
           </div>
         </section>
+
+        <section className="py-20 border-y border-white/5 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-red-500/5">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between gap-4 mb-10">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1.5 text-sm font-semibold text-amber-200 backdrop-blur-sm">
+                  <Sparkles className="w-4 h-4" />
+                  Sponsored shops
+                </span>
+                <h2 className="mt-4 text-3xl md:text-4xl font-display font-bold text-white">Premium maker spotlight</h2>
+                <p className="mt-3 max-w-xl text-zinc-400">
+                  Featured shops that invest in premium visibility to showcase their expertise and products.
+                </p>
+              </div>
+              <Link href="/explore?sponsored=true" className="text-amber-300 hover:text-white flex items-center gap-1 font-semibold transition-colors">
+                View all sponsored <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {loadingSellers
+                ? Array.from({ length: 3 }).map((_, index) => (
+                    <div key={index} className="glass-panel p-6 rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+                      <Skeleton className="h-40 rounded-2xl bg-white/10" />
+                    </div>
+                  ))
+                : featuredSellers
+                    .filter(seller => seller.sponsorshipLevel && seller.sponsorshipLevel > 0) // Assuming sponsorshipLevel field
+                    .sort((a, b) => (b.sponsorshipLevel || 0) - (a.sponsorshipLevel || 0)) // Higher sponsorship first
+                    .slice(0, 3)
+                    .map((seller) => (
+                      <div key={seller.id} className="glass-panel p-6 rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 relative overflow-hidden">
+                        <div className="absolute top-4 right-4 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200">
+                          Sponsored
+                        </div>
+                        <SellerCard seller={seller} />
+                      </div>
+                    ))}
+            </div>
+            {featuredSellers.filter(seller => seller.sponsorshipLevel && seller.sponsorshipLevel > 0).length === 0 && (
+              <div className="text-center py-12">
+                <Sparkles className="w-12 h-12 text-amber-400/50 mx-auto mb-4" />
+                <p className="text-zinc-500">No sponsored shops yet. Be the first to boost your visibility!</p>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
 
       <Footer />

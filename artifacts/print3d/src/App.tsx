@@ -20,6 +20,7 @@ import Pricing from "@/pages/pricing";
 import Cart from "@/pages/cart";
 import SearchPage from "@/pages/search";
 import CompareShops from "@/pages/compare-shops";
+import Help from "@/pages/help";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -100,6 +101,7 @@ function Router() {
       <Route path="/settings" component={SettingsPage} />
       <Route path="/messages" component={MessagesPage} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/help" component={Help} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/privacy" component={PrivacyPage} />
       <Route component={NotFound} />
