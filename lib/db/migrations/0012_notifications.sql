@@ -1,4 +1,4 @@
-CREATE TYPE notification_type AS ENUM ('order', 'order_update', 'contest_update', 'contest_winner', 'system', 'message');
+CREATE TYPE IF NOT EXISTS notification_type AS ENUM ('order', 'order_update', 'contest_update', 'contest_winner', 'system', 'message');
 
 CREATE TABLE IF NOT EXISTS notifications (
   id SERIAL PRIMARY KEY,
