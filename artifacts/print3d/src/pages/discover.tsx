@@ -51,6 +51,20 @@ interface Post {
 }
 
 const defaultDiscoverPosts: Post[] = [];
+const DISCOVER_POSTS_STORAGE_KEY = "discover-posts-v2";
+const LEGACY_DISCOVER_POSTS_STORAGE_KEY = "discover-posts";
+
+const isDemoDiscoverPost = (post: Post) => {
+  const demoNames = new Set(["Nova Maker", "CircuitCraft"]);
+  const unsplashUrl = /images\.unsplash\.com/;
+
+  return (
+    demoNames.has(post.user.displayName) ||
+    unsplashUrl.test(post.user.avatarUrl || "") ||
+    unsplashUrl.test(post.imageUrl || "") ||
+    !post.content.trim()
+  );
+};
 
 const trackEvent = (event: string, payload: Record<string, unknown> = {}) => {
   if (typeof window === "undefined") return;
@@ -75,8 +89,31 @@ export default function Discover() {
       return defaultDiscoverPosts;
     }
 
-    const savedPosts = localStorage.getItem("discover-posts");
-    return savedPosts ? JSON.parse(savedPosts) : defaultDiscoverPosts;
+    const savedPosts = localStorage.getItem(DISCOVER_POSTS_STORAGE_KEY);
+    if (savedPosts) {
+      try {
+        const parsed: Post[] = JSON.parse(savedPosts);
+        return parsed.filter((post) => !isDemoDiscoverPost(post));
+      } catch {
+        localStorage.removeItem(DISCOVER_POSTS_STORAGE_KEY);
+        return defaultDiscoverPosts;
+      }
+    }
+
+    const legacyPosts = localStorage.getItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+    if (legacyPosts) {
+      try {
+        const parsed: Post[] = JSON.parse(legacyPosts);
+        const filtered = parsed.filter((post) => !isDemoDiscoverPost(post));
+        localStorage.setItem(DISCOVER_POSTS_STORAGE_KEY, JSON.stringify(filtered));
+        localStorage.removeItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+        return filtered;
+      } catch {
+        localStorage.removeItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+      }
+    }
+
+    return defaultDiscoverPosts;
   });
   const [newPost, setNewPost] = useState("");
   const [newPostTitle, setNewPostTitle] = useState("");
@@ -107,17 +144,41 @@ export default function Discover() {
   const savePosts = (updatedPosts: Post[]) => {
     setPosts(updatedPosts);
     if (typeof window !== "undefined") {
-      localStorage.setItem("discover-posts", JSON.stringify(updatedPosts));
+      localStorage.setItem(DISCOVER_POSTS_STORAGE_KEY, JSON.stringify(updatedPosts));
     }
   };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const savedPosts = localStorage.getItem("discover-posts");
+    const savedPosts = localStorage.getItem(DISCOVER_POSTS_STORAGE_KEY);
     if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
+      try {
+        const parsed: Post[] = JSON.parse(savedPosts);
+        const filteredPosts = parsed.filter((post) => !isDemoDiscoverPost(post));
+        setPosts(filteredPosts);
+        if (filteredPosts.length !== parsed.length) {
+          localStorage.setItem(DISCOVER_POSTS_STORAGE_KEY, JSON.stringify(filteredPosts));
+        }
+      } catch {
+        localStorage.removeItem(DISCOVER_POSTS_STORAGE_KEY);
+        setPosts(defaultDiscoverPosts);
+      }
     } else {
-      localStorage.setItem("discover-posts", JSON.stringify(defaultDiscoverPosts));
+      // Clear any legacy demo posts
+      const legacyPosts = localStorage.getItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+      if (legacyPosts) {
+        try {
+          const parsed: Post[] = JSON.parse(legacyPosts);
+          const filtered = parsed.filter((post) => !isDemoDiscoverPost(post));
+          if (filtered.length > 0) {
+            localStorage.setItem(DISCOVER_POSTS_STORAGE_KEY, JSON.stringify(filtered));
+            setPosts(filtered);
+          }
+          localStorage.removeItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+        } catch {
+          localStorage.removeItem(LEGACY_DISCOVER_POSTS_STORAGE_KEY);
+        }
+      }
     }
     trackEvent("discover_page_view", { page: "discover" });
   }, []);
@@ -183,7 +244,7 @@ export default function Discover() {
     const comment: Comment = {
       id: Date.now(),
       userId: user?.id || 0,
-      user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl },
+      user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl ?? undefined },
       content: newComment,
       createdAt: new Date().toISOString(),
     };
@@ -203,18 +264,23 @@ export default function Discover() {
   const handleShare = (post: Post) => {
     const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/discover` : "/discover";
     const shareText = `Check out this post by ${post.user.displayName}: "${post.content.substring(0, 100)}..."`;
+    const nav = typeof navigator !== "undefined" ? navigator : null;
 
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      navigator.share({
+    if (nav && "share" in nav) {
+      nav.share({
         title: "Synthix Post",
         text: shareText,
         url: shareUrl,
       }).catch(() => {
-        navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-        toast({ title: "Link copied!", description: "Post link copied to clipboard." });
+        if (nav && "clipboard" in nav) {
+          (nav as any).clipboard.writeText(`${shareText} ${shareUrl}`);
+          toast({ title: "Link copied!", description: "Post link copied to clipboard." });
+        } else {
+          toast({ title: "Share unavailable", description: "This browser does not support sharing." });
+        }
       });
-    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+    } else if (nav && "clipboard" in nav) {
+      (nav as any).clipboard.writeText(`${shareText} ${shareUrl}`);
       toast({ title: "Link copied!", description: "Post link copied to clipboard." });
     } else {
       toast({ title: "Share unavailable", description: "This browser does not support sharing." });
@@ -271,7 +337,7 @@ export default function Discover() {
       const post: Post = {
         id: Date.now(),
         userId: user?.id || 0,
-        user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl },
+        user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl ?? undefined },
         title: newPostTitle.trim() || undefined,
         content: newPost,
         imageUrl,
@@ -298,8 +364,8 @@ export default function Discover() {
 
   // const { data: usersData } = useListUsers({ limit: 50 });
   // const { data: listingsData } = useListListings({ limit: 50 });
-  const usersData = { users: [] };
-  const listingsData = { listings: [] };
+  const usersData = { users: [] as any[] };
+  const listingsData = { listings: [] as any[] };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -349,7 +415,7 @@ export default function Discover() {
                 <div className="glass-panel rounded-3xl border border-white/10 p-6">
                   <div className="flex gap-4">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={user?.avatarUrl} />
+                      <AvatarImage src={user?.avatarUrl ?? undefined} />
                       <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-grow">
@@ -416,7 +482,7 @@ export default function Discover() {
                       <div className="p-6">
                         <div className="flex items-start gap-4">
                           <Avatar className="w-12 h-12">
-                            <AvatarImage src={post.user.avatarUrl} />
+                            <AvatarImage src={post.user.avatarUrl ?? undefined} />
                             <AvatarFallback>{post.user.displayName.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex-grow">
@@ -535,7 +601,7 @@ export default function Discover() {
                                     {post.comments.map((comment) => (
                                       <div key={comment.id} className="flex gap-3">
                                         <Avatar className="w-8 h-8">
-                                          <AvatarImage src={comment.user.avatarUrl} />
+                                          <AvatarImage src={comment.user.avatarUrl ?? undefined} />
                                           <AvatarFallback className="text-xs">{comment.user.displayName.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1">
@@ -554,7 +620,7 @@ export default function Discover() {
 
                                     <div className="flex gap-3">
                                       <Avatar className="w-8 h-8">
-                                        <AvatarImage src={user?.avatarUrl} />
+                                        <AvatarImage src={user?.avatarUrl ?? undefined} />
                                         <AvatarFallback className="text-xs">{user?.displayName?.charAt(0)}</AvatarFallback>
                                       </Avatar>
                                       <div className="flex-1 flex gap-2">
@@ -708,7 +774,7 @@ export default function Discover() {
                     .filter(u => u.role === "seller" || u.role === "both")
                     .filter(u => u.displayName.toLowerCase().includes(search.toLowerCase()) ||
                                 u.bio?.toLowerCase().includes(search.toLowerCase()) ||
-                                u.sellerTags?.some(tag => tag.toLowerCase().includes(search.toLowerCase())))
+                                u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())))
                     .map((person) => (
                       <motion.div
                         key={person.id}
@@ -718,7 +784,7 @@ export default function Discover() {
                       >
                         <div className="flex items-center gap-4 mb-4">
                           <Avatar className="w-16 h-16">
-                            <AvatarImage src={person.avatarUrl} />
+                            <AvatarImage src={person.avatarUrl ?? undefined} />
                             <AvatarFallback className="bg-primary/20 text-primary text-lg">
                               {person.displayName.charAt(0)}
                             </AvatarFallback>
@@ -736,7 +802,7 @@ export default function Discover() {
                         </div>
                         {person.sellerTags && person.sellerTags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-4">
-                            {person.sellerTags.slice(0, 3).map((tag) => (
+                            {person.sellerTags.slice(0, 3).map((tag: string) => (
                               <Badge key={tag} variant="outline" className="text-xs border-white/20 text-zinc-300">
                                 {tag}
                               </Badge>

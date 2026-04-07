@@ -100,14 +100,20 @@ const getDifficulty = (category: string): "Easy" | "Medium" | "Hard" => {
 
 // Transform API contest data to UI contest data
 const transformContestData = (apiContest: any): Contest => {
+  const category = String(apiContest.category || "");
+  const status = String(apiContest.status || "completed") as Contest["status"];
+
   return {
     ...apiContest,
-    icon: getCategoryIcon(apiContest.category),
-    participants: 0, // This would need to be fetched separately or added to API
-    leaderboard: [], // This would need to be fetched separately or added to API
-    difficulty: getDifficulty(apiContest.category),
-    isActive: apiContest.status === "active",
-  };
+    category: category as Contest["category"],
+    status,
+    icon: getCategoryIcon(category),
+    participants: typeof apiContest.participants === "number" ? apiContest.participants : 0,
+    leaderboard: Array.isArray(apiContest.leaderboard) ? apiContest.leaderboard : [],
+    prizes: Array.isArray(apiContest.prizes) ? apiContest.prizes : [],
+    difficulty: getDifficulty(category),
+    isActive: status === "active",
+  } as Contest;
 };
 
 function CountdownTimer({ endDate }: { endDate: Date }) {
@@ -169,6 +175,8 @@ function ContestCard({ contest }: { contest: Contest }) {
 
   const endDate = new Date(contest.endDate);
 
+  const ContestIcon = contest.icon || Target;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -178,7 +186,7 @@ function ContestCard({ contest }: { contest: Contest }) {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-primary/20">
-            <contest.icon className="w-6 h-6 text-primary" />
+            <ContestIcon className="w-6 h-6 text-primary" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-white mb-1">{contest.title}</h3>
@@ -273,24 +281,57 @@ function ContestCard({ contest }: { contest: Contest }) {
 export default function Contests() {
   const { data: contestsData, isLoading, error } = useListContests({ status: "active" });
   const { data: pastContestsData } = useListContests({ status: "completed" });
+  const [pageError, setPageError] = useState<string | null>(null);
+  const [activeContests, setActiveContests] = useState<Contest[]>([]);
+  const [pastContests, setPastContests] = useState<PastContest[]>([]);
 
-  const activeContests = contestsData?.contests.map(transformContestData) || [];
-  const pastContests = pastContestsData?.contests.map(contest => ({
-    id: contest.id.toString(),
-    title: contest.title,
-    endDate: new Date(contest.endDate),
-    participants: 0, // Would need separate API call
-    winner: {
-      id: "winner-1", // Would need separate API call for winners
-      username: "Winner",
-      score: 0,
-      entry: {
-        title: "Winning Entry",
-        description: "Description of winning entry"
-      }
-    },
-    prize: contest.prizes?.[0]?.title || "Prize"
-  })) || [];
+  useEffect(() => {
+    if (!contestsData?.contests) {
+      setActiveContests([]);
+      return;
+    }
+
+    try {
+      const mapped = contestsData.contests.map(transformContestData);
+      setActiveContests(mapped);
+    } catch (error) {
+      console.error("Contest transform error:", error);
+      setPageError("Unable to render contest data right now.");
+      setActiveContests([]);
+    }
+  }, [contestsData]);
+
+  useEffect(() => {
+    if (!pastContestsData?.contests) {
+      setPastContests([]);
+      return;
+    }
+
+    try {
+      const mapped = pastContestsData.contests.map((contest): PastContest => ({
+        id: contest.id?.toString() ?? "unknown",
+        title: contest.title ?? "Untitled contest",
+        endDate: contest.endDate ? new Date(contest.endDate) : new Date(),
+        participants: 0,
+        winner: {
+          id: "winner-1",
+          username: "Winner",
+          score: 0,
+          entry: {
+            title: contest.prizes?.[0]?.title ?? "Winning entry",
+            image: "",
+            description: contest.prizes?.[0]?.description ?? "Winning entry description",
+          }
+        },
+        prize: String(contest.prizes?.[0]?.title ?? "Prize")
+      }));
+      setPastContests(mapped);
+    } catch (error) {
+      console.error("Past contest transform error:", error);
+      setPageError("Unable to render past contest data right now.");
+      setPastContests([]);
+    }
+  }, [pastContestsData]);
 
   if (isLoading) {
     return (
@@ -306,13 +347,16 @@ export default function Contests() {
     );
   }
 
-  if (error) {
+  if (error || pageError) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow pt-12 pb-24">
           <div className="container mx-auto px-4 text-center">
-            <div className="text-red-400">Error loading contests: {error.message}</div>
+            <div className="text-red-400 mb-4">
+              {pageError ? pageError : `Error loading contests: ${error?.message}`}
+            </div>
+            <div className="text-zinc-400">Please refresh the page or try again later.</div>
           </div>
         </main>
         <Footer />

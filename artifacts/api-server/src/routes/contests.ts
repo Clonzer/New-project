@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { contestsTable, contestParticipantsTable, contestEntriesTable } from "@workspace/db/schema";
+import { contestsTable, contestParticipantsTable, contestEntriesTable, usersTable } from "@workspace/db/schema";
 import { desc, eq, and, gte, lte, sql } from "drizzle-orm";
 import { requireAuth, type AuthedRequest } from "../lib/auth";
 
@@ -50,6 +50,8 @@ router.get("/", async (req, res) => {
       createdBy: contest.createdBy,
       createdAt: contest.createdAt,
       updatedAt: contest.updatedAt,
+      participants: 0,
+      leaderboard: [],
     })),
     total: total[0].count,
   });
