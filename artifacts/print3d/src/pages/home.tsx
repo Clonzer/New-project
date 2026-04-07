@@ -21,6 +21,7 @@ import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { useScrollFade } from "@/hooks/use-scroll-fade";
 
 type HeroSlide =
   {
@@ -101,6 +102,13 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const { formatPrice } = useLocalePreferences();
 
+  // Scroll fade hooks for different sections
+  const heroFade = useScrollFade();
+  const showcaseFade = useScrollFade();
+  const makersFade = useScrollFade();
+  const productsFade = useScrollFade();
+  const sponsoredFade = useScrollFade();
+
   const { data: sellersData, isLoading: loadingSellers } = useListSellers({ limit: 6 });
   const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 6 });
 
@@ -157,7 +165,7 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative px-4 py-16 md:py-24 overflow-hidden">
+        <section ref={heroFade.ref} style={heroFade.style} className="relative px-4 py-16 md:py-24 overflow-hidden">
           {/* Background effects */}
           <div className="absolute inset-0">
             {/* Gradient background */}
@@ -265,7 +273,7 @@ export default function Home() {
           </div>
         </section>
         
-        <section className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
+        <section ref={showcaseFade.ref} style={showcaseFade.style} className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
           <AnimatedGradientBg />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
@@ -529,7 +537,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 border-y border-white/5 bg-black/30">
+        <section ref={makersFade.ref} style={makersFade.style} className="py-20 border-y border-white/5 bg-black/30">
           <div className="container mx-auto px-4">
             <div className="flex items-end justify-between gap-4 mb-10">
               <div>
@@ -555,7 +563,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 container mx-auto px-4">
+        <section ref={productsFade.ref} style={productsFade.style} className="py-20 container mx-auto px-4">
           <div className="flex items-end justify-between gap-4 mb-10">
             <div>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-white">Featured products</h2>
@@ -583,7 +591,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 border-y border-white/5 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-red-500/5">
+        <section ref={sponsoredFade.ref} style={sponsoredFade.style} className="py-20 border-y border-white/5 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-red-500/5">
           <div className="container mx-auto px-4">
             <div className="flex items-end justify-between gap-4 mb-10">
               <div>

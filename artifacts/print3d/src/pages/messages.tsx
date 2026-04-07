@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { useListUsers } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus, Search, Send } from "lucide-react";
@@ -29,6 +30,7 @@ function formatTimestamp(value?: string | null) {
 }
 
 export default function Messages() {
+  const [location] = useLocation();
   const { user } = useAuth();
   const { data: usersData } = useListUsers({ limit: 100 });
   const [threads, setThreads] = useState<MessageThreadSummary[]>([]);
@@ -40,6 +42,21 @@ export default function Messages() {
   const [isLoadingThread, setIsLoadingThread] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Handle URL parameters for contacting Synthix
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const contact = urlParams.get('contact');
+
+    if (contact && user && usersData?.users) {
+      // Find Synthix team user (ID: 2)
+      const synthixUser = usersData.users.find(u => u.id === 2);
+      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
+        // Start conversation with Synthix team
+        startConversation(synthixUser.id);
+      }
+    }
+  }, [location, user, usersData, threads]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +129,21 @@ export default function Messages() {
       setError(getApiErrorMessage(err));
     }
   };
+
+  // Handle URL parameters for contacting Synthix
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const contact = urlParams.get('contact');
+
+    if (contact && user && usersData?.users) {
+      // Find Synthix team user (ID: 2)
+      const synthixUser = usersData.users.find(u => u.id === 2);
+      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
+        // Start conversation with Synthix team
+        startConversation(synthixUser.id);
+      }
+    }
+  }, [location, user, usersData, threads]);
 
   const handleSendMessage = async () => {
     if (!activeThreadId || !newMessage.trim()) return;

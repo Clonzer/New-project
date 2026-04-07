@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, GitCompareArrows } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, GitCompareArrows, Flag } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,7 @@ export function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [comparedCount, setComparedCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -135,6 +136,83 @@ export function Navbar() {
             </Button>
           </Link>
 
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hidden sm:flex"
+              onClick={() => setContactOpen(v => !v)}
+            >
+              <Flag className="w-5 h-5" />
+            </Button>
+
+            <AnimatePresence>
+              {contactOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-50"
+                >
+                  <div className="space-y-3">
+                    <div className="text-center">
+                      <h3 className="text-sm font-semibold text-white mb-1">Contact Synthix</h3>
+                      <p className="text-xs text-zinc-400">Get help or share feedback</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Link
+                        href="/messages?contact=synthix"
+                        onClick={() => setContactOpen(false)}
+                        className="block w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Bell className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-white group-hover:text-primary transition-colors">
+                              Message Synthix Team
+                            </div>
+                            <div className="text-xs text-zinc-400">
+                              Report issues or request features
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/messages?contact=support"
+                        onClick={() => setContactOpen(false)}
+                        className="block w-full p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+                            <UserIcon className="w-4 h-4 text-accent" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-white group-hover:text-accent transition-colors">
+                              Support Request
+                            </div>
+                            <div className="text-xs text-zinc-400">
+                              Technical support and help
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/10">
+                      <p className="text-xs text-zinc-500 text-center">
+                        Response time: Usually within 24 hours
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {comparedCount > 0 ? (
             <Link href="/compare-shops">
               <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
@@ -223,6 +301,29 @@ export function Navbar() {
                   {r.label}
                 </Link>
               ))}
+
+              <div className="border-t border-white/10 pt-4 mt-4">
+                <div className="text-sm font-semibold text-white mb-3">Contact Us</div>
+                <div className="space-y-2">
+                  <Link
+                    href="/messages?contact=synthix"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-primary/10 text-white font-medium transition-colors"
+                  >
+                    <Bell className="w-5 h-5 text-primary" />
+                    Message Synthix Team
+                  </Link>
+                  <Link
+                    href="/messages?contact=support"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-accent/10 text-white font-medium transition-colors"
+                  >
+                    <UserIcon className="w-5 h-5 text-accent" />
+                    Support Request
+                  </Link>
+                </div>
+              </div>
+
               {!isSeller && (
                 <Link href="/register" onClick={() => setMenuOpen(false)}>
                   <NeonButton glowColor="accent" className="w-full rounded-xl mt-2">Become a Seller</NeonButton>

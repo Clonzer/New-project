@@ -6,3 +6,4 @@ export * from "./reviews";
 export * from "./checkout-sessions";
 export * from "./messages";
 export * from "./portfolio";
+export * from "./contests";

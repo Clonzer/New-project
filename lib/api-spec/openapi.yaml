@@ -19,6 +19,8 @@ tags:
     description: Print job orders
   - name: reviews
     description: Ratings and reviews
+  - name: contests
+    description: Contest and competition operations
 
 paths:
   /healthz:
@@ -516,6 +518,132 @@ paths:
                   total:
                     type: integer
                 required: [sellers, total]
+
+  /contests:
+    get:
+      operationId: listContests
+      tags: [contests]
+      summary: List contests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, cancelled]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [sales, design, sustainability, growth, community]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of contests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contests:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Contest"
+                  total:
+                    type: integer
+                required: [contests, total]
+    post:
+      operationId: createContest
+      tags: [contests]
+      summary: Create a contest (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContestRequest"
+      responses:
+        "201":
+          description: Created contest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contest"
+
+  /contests/{contestId}:
+    get:
+      operationId: getContest
+      tags: [contests]
+      summary: Get contest by ID
+      parameters:
+        - name: contestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contest details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContestDetail"
+
+  /contests/{contestId}/join:
+    post:
+      operationId: joinContest
+      tags: [contests]
+      summary: Join a contest
+      parameters:
+        - name: contestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successfully joined contest
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required: [message]
+
+  /contests/{contestId}/entries:
+    post:
+      operationId: submitContestEntry
+      tags: [contests]
+      summary: Submit an entry to a contest
+      parameters:
+        - name: contestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitContestEntryRequest"
+      responses:
+        "201":
+          description: Entry submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContestEntry"
 
 components:
   schemas:
@@ -1078,3 +1206,138 @@ components:
           type: string
           format: date-time
       required: [id, username, displayName, reviewCount, totalPrints, printerCount, listingCount, joinedAt]
+
+    Contest:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [sales, design, sustainability, growth, community]
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        rules:
+          type: string
+          nullable: true
+        prizes:
+          type: array
+          items:
+            type: object
+        createdBy:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, description, category, status, startDate, endDate, prizes, createdBy, createdAt, updatedAt]
+
+    CreateContestRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [sales, design, sustainability, growth, community]
+        endDate:
+          type: string
+          format: date-time
+        rules:
+          type: string
+        prizes:
+          type: array
+          items:
+            type: object
+      required: [title, description, category, endDate, prizes]
+
+    ContestDetail:
+      allOf:
+        - $ref: '#/components/schemas/Contest'
+        - type: object
+          properties:
+            participants:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContestParticipant'
+            entries:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContestEntry'
+            leaderboard:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContestParticipant'
+
+    ContestParticipant:
+      type: object
+      properties:
+        id:
+          type: integer
+        contestId:
+          type: integer
+        userId:
+          type: integer
+        score:
+          type: number
+          format: float
+        rank:
+          type: integer
+          nullable: true
+        joinedAt:
+          type: string
+          format: date-time
+      required: [id, contestId, userId, score, joinedAt]
+
+    ContestEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        contestId:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        submissionData:
+          type: object
+          nullable: true
+        submittedAt:
+          type: string
+          format: date-time
+      required: [id, contestId, userId, title, submittedAt]
+
+    SubmitContestEntryRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        submissionData:
+          type: object
+      required: [title]
