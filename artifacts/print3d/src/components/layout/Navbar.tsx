@@ -75,6 +75,7 @@ export function Navbar() {
             {[
               { path: "/explore", label: "Explore Shops" },
               { path: "/explore-models", label: "Model Catalog" },
+              { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },
             ].map((route) => (
@@ -289,6 +290,7 @@ export function Navbar() {
               {[
                 { path: "/explore", label: "Explore Shops" },
                 { path: "/explore-models", label: "Model Catalog" },
+                { path: "/discover", label: "Discover" },
                 { path: "/contests", label: "Contests" },
                 { path: "/cart", label: "Cart" },
                 { path: "/compare-shops", label: "Compare Shops" },
