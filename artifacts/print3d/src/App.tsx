@@ -7,6 +7,8 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
+import ExploreModels from "@/pages/explore-models";
+import Contests from "@/pages/contests";
 import Listings from "@/pages/listings";
 import Shop from "@/pages/shop";
 import OrderFlow from "@/pages/order-flow";
@@ -88,6 +90,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/explore" component={Explore} />
+      <Route path="/explore-models" component={ExploreModels} />
+      <Route path="/contests" component={Contests} />
       <Route path="/listings" component={Listings} />
       <Route path="/shop/:id" component={Shop} />
       <Route path="/order/new" component={OrderFlowPage} />

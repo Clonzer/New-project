@@ -96,40 +96,6 @@ export default function Explore() {
             )}
           </section>
 
-          {/* Model Catalog Carousel */}
-          <section className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-[#9fe5ff]" />
-                <h2 className="text-2xl font-display font-bold text-white">Model Catalog</h2>
-              </div>
-            </div>
-            
-            {loadingListings ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-[340px] rounded-2xl bg-white/10" />
-                ))}
-              </div>
-            ) : listingsData?.listings.length ? (
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {listingsData.listings.slice(0, 8).map((listing) => (
-                    <CarouselItem key={listing.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                      <ListingCard listing={listing} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-              </Carousel>
-            ) : (
-              <div className="text-center py-12 text-zinc-400">
-                No products available yet
-              </div>
-            )}
-          </section>
-
           {/* Sponsored Shops Section */}
           <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
@@ -164,7 +130,7 @@ export default function Explore() {
                     </div>
                     <h3 className="font-bold text-white mb-1">{seller.shopName || seller.displayName}</h3>
                     <p className="text-xs text-zinc-400 mb-3 line-clamp-2">{seller.bio || "Amazing custom work"}</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
                       <button
                         onClick={() => {
                           setBoostingShop(seller.shopName || seller.displayName);
@@ -174,6 +140,13 @@ export default function Explore() {
                       >
                         <Zap className="w-3 h-3" />
                         Boost Views
+                      </button>
+                      <button
+                        onClick={() => window.open(`/shop/${seller.id}`, '_blank')}
+                        className="flex-1 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1"
+                      >
+                        <Store className="w-3 h-3" />
+                        View Store
                       </button>
                     </div>
                   </div>

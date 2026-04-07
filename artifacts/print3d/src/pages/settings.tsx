@@ -93,7 +93,7 @@ export default function Settings() {
     returnPolicy: user?.returnPolicy ?? "",
     customOrderPolicy: user?.customOrderPolicy ?? "",
   });
-re
+
   useEffect(() => {
     if (!user) return;
     setForm({
@@ -944,11 +944,7 @@ re
                       <h2 className="text-xl font-bold text-white mb-2">Shop Analytics</h2>
                       <p className="text-sm text-zinc-400">Track your shop performance with detailed metrics and insights.</p>
                     </div>
-                    {!isSeller ? (
-                      <p className="text-zinc-400">Analytics appear here once the account is in seller mode.</p>
-                    ) : (
-                      <Analytics shopId={user?.id} timeRange="30d" />
-                    )}
+                    <Analytics shopId={user?.id} timeRange="30d" />
                   </div>
                 )}
 
