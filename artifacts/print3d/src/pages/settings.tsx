@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { Analytics } from "@/components/dashboard/Analytics";
 import {
   COUNTRY_OPTIONS,
   CURRENCY_OPTIONS,
@@ -19,7 +18,7 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User, BarChart3 } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SECTIONS = [
@@ -28,7 +27,6 @@ const SECTIONS = [
   { id: "shipping", label: "Shipping", icon: Truck },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "security", label: "Security", icon: Shield },
@@ -935,16 +933,6 @@ export default function Settings() {
                         In Stripe, subscribe the webhook to <span className="text-zinc-200">checkout.session.completed</span> and <span className="text-zinc-200">checkout.session.expired</span>.
                       </p>
                     </div>
-                  </div>
-                )}
-
-                {activeSection === "analytics" && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-white mb-2">Shop Analytics</h2>
-                      <p className="text-sm text-zinc-400">Track your shop performance with detailed metrics and insights.</p>
-                    </div>
-                    <Analytics shopId={user?.id} timeRange="30d" />
                   </div>
                 )}
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Users, Sparkles } from "lucide-react";
+import { useListSellers } from "@workspace/api-client-react";
 
 type Maker = {
   id: number;
@@ -11,38 +12,35 @@ type Maker = {
 
 export function FeaturedMakersMarquee() {
   const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null);
+  const { data: sellersData } = useListSellers({ limit: 20 });
 
-  const makers: Maker[] = [
+  const makers: Maker[] = sellersData?.sellers.slice(0, 3).map(seller => ({
+    id: seller.id,
+    username: seller.displayName,
+    avatar: seller.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${seller.username}`,
+    specialty: seller.bio?.slice(0, 30) + "..." || "3D Printing Expert",
+    isReal: true,
+  })) || [
+    // Fallback placeholder
     {
       id: 1,
-      username: "evanhuelin",
-      avatar: "https://i.pravatar.cc/300?u=evan",
+      username: "Loading...",
+      avatar: "https://i.pravatar.cc/300?u=placeholder",
       specialty: "3D Printing & Design",
-      isReal: true,
-    },
-    {
-      id: 2,
-      username: "makerforge",
-      avatar: "https://i.pravatar.cc/300?u=forge",
-      specialty: "Mechanical Parts",
-      isReal: true,
-    },
-    {
-      id: 3,
-      username: "printbydesign",
-      avatar: "https://i.pravatar.cc/300?u=print",
-      specialty: "Custom Props & Art",
-      isReal: true,
-    },
-    // Placeholder dots (same size as real cards)
-    ...Array.from({ length: 14 }, (_, i) => ({
-      id: 100 + i,
-      username: "",
-      avatar: "",
-      specialty: "",
       isReal: false,
-    })),
+    },
   ];
+
+  // Add placeholder dots to fill the marquee
+  const placeholderDots = Array.from({ length: Math.max(0, 14 - makers.length) }, (_, i) => ({
+    id: 100 + i,
+    username: "",
+    avatar: "",
+    specialty: "",
+    isReal: false,
+  }));
+
+  const allMakers = [...makers, ...placeholderDots];
 
   return (
     <div className="py-24 bg-zinc-950 border-t border-b border-white/10 overflow-hidden">
@@ -65,7 +63,7 @@ export function FeaturedMakersMarquee() {
       {/* Tight Conveyor Scroll */}
       <div className="relative">
         <div className="flex gap-6 animate-marquee whitespace-nowrap">
-          {makers.concat(makers).map((maker, index) => (
+          {allMakers.concat(allMakers).map((maker, index) => (
             <div
               key={`${maker.id}-${index}`}
               onClick={() => maker.isReal && setSelectedMaker(maker)}

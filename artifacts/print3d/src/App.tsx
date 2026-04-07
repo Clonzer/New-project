@@ -23,6 +23,7 @@ import Cart from "@/pages/cart";
 import SearchPage from "@/pages/search";
 import CompareShops from "@/pages/compare-shops";
 import Help from "@/pages/help";
+import Discover from "@/pages/discover";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -93,6 +94,7 @@ function Router() {
       <Route path="/explore-models" component={ExploreModels} />
       <Route path="/contests" component={Contests} />
       <Route path="/listings" component={Listings} />
+      <Route path="/discover" component={Discover} />
       <Route path="/shop/:id" component={Shop} />
       <Route path="/order/new" component={OrderFlowPage} />
       <Route path="/cart" component={CartPage} />

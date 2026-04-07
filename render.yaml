@@ -22,6 +22,16 @@ services:
         value: 7d
       - key: APP_URL
         sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
       - key: CORS_ORIGINS
         value: ""
       - key: STRIPE_SECRET_KEY

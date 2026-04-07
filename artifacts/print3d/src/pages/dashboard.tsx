@@ -38,6 +38,7 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { PortfolioManager } from "@/components/dashboard/PortfolioManager";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 import { Tutorial } from "@/components/shared/Tutorial";
+import { Analytics } from "@/components/dashboard/Analytics";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1433,6 +1434,9 @@ export default function Dashboard() {
                       )}
                     </div>
                   </div>
+
+                  {/* Analytics Charts */}
+                  <Analytics shopId={user?.id} timeRange="30d" />
                 </div>
               ) : (
                 <div className="glass-panel p-16 rounded-3xl text-center">
