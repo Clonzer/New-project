@@ -108,15 +108,26 @@ export default function Messages() {
     };
   }, [activeThreadId]);
 
-  const contacts = useMemo(
-    () =>
-      (usersData?.users ?? []).filter(
-        (candidate) =>
-          candidate.id !== user?.id &&
-          !threads.some((thread) => thread.counterpart?.id === candidate.id),
-      ),
-    [threads, user?.id, usersData?.users],
-  );
+  const contacts = useMemo(() => {
+    const allUsers = usersData?.users ?? [];
+    const synthixTeam = allUsers.find(u => u.id === 2); // Synthix team user
+    const regularContacts = allUsers.filter(
+      (candidate) =>
+        candidate.id !== user?.id &&
+        candidate.id !== 2 && // Exclude Synthix team from regular contacts
+        !threads.some((thread) => thread.counterpart?.id === candidate.id),
+    );
+
+    // Always include Synthix team if not already in a thread
+    const synthixInThread = threads.some(thread => thread.counterpart?.id === 2);
+    const finalContacts = [...regularContacts];
+
+    if (synthixTeam && !synthixInThread) {
+      finalContacts.unshift(synthixTeam); // Add Synthix team at the top
+    }
+
+    return finalContacts;
+  }, [threads, user?.id, usersData?.users]);
 
   const startConversation = async (participantId: number) => {
     try {

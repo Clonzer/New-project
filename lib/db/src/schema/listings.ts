@@ -16,6 +16,14 @@ export const listingsTable = pgTable("listings", {
   estimatedDaysMax: integer("estimated_days_max").notNull(),
   material: text("material"),
   color: text("color"),
+  // New fields
+  productType: text("product_type").notNull().default("3d_printing"), // 3d_printing, woodworking, cnc, laser, digital, etc.
+  equipmentUsed: integer("equipment_used").array().default([]), // Array of equipment IDs
+  equipmentGroups: integer("equipment_groups").array().default([]), // Array of equipment group IDs
+  isPrintOnDemand: boolean("is_print_on_demand").notNull().default(false),
+  isDigitalProduct: boolean("is_digital_product").notNull().default(false),
+  digitalFiles: text("digital_files").array().default([]), // Array of file URLs/keys
+  stockType: text("stock_type").notNull().default("inventory"), // inventory, print_on_demand, digital
   orderCount: integer("order_count").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

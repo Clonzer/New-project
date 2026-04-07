@@ -21,6 +21,8 @@ tags:
     description: Ratings and reviews
   - name: contests
     description: Contest and competition operations
+  - name: equipment
+    description: Equipment management operations
 
 paths:
   /healthz:
@@ -327,6 +329,29 @@ paths:
       responses:
         "200":
           description: Listing details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+    put:
+      operationId: updateListing
+      tags: [listings]
+      summary: Update listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateListingRequest"
+      responses:
+        "200":
+          description: Updated listing
           content:
             application/json:
               schema:
@@ -645,6 +670,154 @@ paths:
               schema:
                 $ref: "#/components/schemas/ContestEntry"
 
+  /equipment/groups:
+    get:
+      operationId: listEquipmentGroups
+      tags: [equipment]
+      summary: List equipment groups
+      responses:
+        "200":
+          description: List of equipment groups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EquipmentGroup"
+                required: [groups]
+    post:
+      operationId: createEquipmentGroup
+      tags: [equipment]
+      summary: Create equipment group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEquipmentGroupRequest"
+      responses:
+        "201":
+          description: Created equipment group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentGroup"
+
+  /equipment/groups/{groupId}:
+    put:
+      operationId: updateEquipmentGroup
+      tags: [equipment]
+      summary: Update equipment group
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEquipmentGroupRequest"
+      responses:
+        "200":
+          description: Updated equipment group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentGroup"
+    delete:
+      operationId: deleteEquipmentGroup
+      tags: [equipment]
+      summary: Delete equipment group
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equipment group deleted
+
+  /equipment:
+    get:
+      operationId: listEquipment
+      tags: [equipment]
+      summary: List equipment
+      responses:
+        "200":
+          description: List of equipment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  equipment:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Equipment"
+                required: [equipment]
+    post:
+      operationId: createEquipment
+      tags: [equipment]
+      summary: Create equipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEquipmentRequest"
+      responses:
+        "201":
+          description: Created equipment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+
+  /equipment/{equipmentId}:
+    put:
+      operationId: updateEquipment
+      tags: [equipment]
+      summary: Update equipment
+      parameters:
+        - name: equipmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEquipmentRequest"
+      responses:
+        "200":
+          description: Updated equipment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+    delete:
+      operationId: deleteEquipment
+      tags: [equipment]
+      summary: Delete equipment
+      parameters:
+        - name: equipmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equipment deleted
+
 components:
   schemas:
     HealthStatus:
@@ -962,6 +1135,34 @@ components:
         color:
           type: string
           nullable: true
+        productType:
+          type: string
+          default: "3d_printing"
+        equipmentUsed:
+          type: array
+          items:
+            type: integer
+          default: []
+        equipmentGroups:
+          type: array
+          items:
+            type: integer
+          default: []
+        isPrintOnDemand:
+          type: boolean
+          default: false
+        isDigitalProduct:
+          type: boolean
+          default: false
+        digitalFiles:
+          type: array
+          items:
+            type: string
+          default: []
+        stockType:
+          type: string
+          enum: [inventory, print_on_demand, digital]
+          default: "inventory"
         orderCount:
           type: integer
         isActive:
@@ -1005,7 +1206,98 @@ components:
         color:
           type: string
           nullable: true
+        productType:
+          type: string
+          default: "3d_printing"
+        equipmentUsed:
+          type: array
+          items:
+            type: integer
+          default: []
+        equipmentGroups:
+          type: array
+          items:
+            type: integer
+          default: []
+        isPrintOnDemand:
+          type: boolean
+          default: false
+        isDigitalProduct:
+          type: boolean
+          default: false
+        digitalFiles:
+          type: array
+          items:
+            type: string
+          default: []
+        stockType:
+          type: string
+          enum: [inventory, print_on_demand, digital]
+          default: "inventory"
       required: [sellerId, title, category, tags, basePrice, estimatedDaysMin, estimatedDaysMax]
+
+    UpdateListingRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        shippingCost:
+          type: number
+          nullable: true
+        estimatedDaysMin:
+          type: integer
+        estimatedDaysMax:
+          type: integer
+        material:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        productType:
+          type: string
+          default: "3d_printing"
+        equipmentUsed:
+          type: array
+          items:
+            type: integer
+          default: []
+        equipmentGroups:
+          type: array
+          items:
+            type: integer
+          default: []
+        isPrintOnDemand:
+          type: boolean
+          default: false
+        isDigitalProduct:
+          type: boolean
+          default: false
+        digitalFiles:
+          type: array
+          items:
+            type: string
+          default: []
+        stockType:
+          type: string
+          enum: [inventory, print_on_demand, digital]
+          default: "inventory"
+        isActive:
+          type: boolean
 
     Order:
       type: object
@@ -1341,3 +1633,135 @@ components:
         submissionData:
           type: object
       required: [title]
+
+    EquipmentGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        sellerId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, sellerId, name, category, isActive, createdAt, updatedAt]
+
+    CreateEquipmentGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+      required: [name, category]
+
+    UpdateEquipmentGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+        sellerId:
+          type: integer
+        groupId:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        model:
+          type: string
+          nullable: true
+        manufacturer:
+          type: string
+          nullable: true
+        category:
+          type: string
+        specifications:
+          type: object
+          nullable: true
+        purchaseDate:
+          type: string
+          format: date-time
+          nullable: true
+        purchasePrice:
+          type: integer
+          nullable: true
+        status:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, sellerId, name, category, status, isActive, createdAt, updatedAt]
+
+    CreateEquipmentRequest:
+      type: object
+      properties:
+        groupId:
+          type: integer
+        name:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        category:
+          type: string
+        specifications:
+          type: object
+        purchaseDate:
+          type: string
+          format: date-time
+        purchasePrice:
+          type: integer
+      required: [name, category]
+
+    UpdateEquipmentRequest:
+      type: object
+      properties:
+        groupId:
+          type: integer
+        name:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        category:
+          type: string
+        specifications:
+          type: object
+        purchaseDate:
+          type: string
+          format: date-time
+        purchasePrice:
+          type: integer
+        status:
+          type: string

@@ -11,6 +11,8 @@ import paymentsRouter from "./payments";
 import messagesRouter from "./messages";
 import adminRouter from "./admin";
 import contestsRouter from "./contests";
+import equipmentRouter from "./equipment";
+import filesRouter from "./files";
 
 const router: IRouter = Router();
 
@@ -26,5 +28,7 @@ router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);
 router.use("/contests", contestsRouter);
+router.use("/equipment", equipmentRouter);
+router.use("/files", filesRouter);
 
 export default router;

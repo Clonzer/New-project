@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { listingsTable, usersTable } from "@workspace/db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { CreateListingBody } from "@workspace/api-zod";
+import { CreateListingBody, UpdateListingBody } from "@workspace/api-zod";
 import { type AuthedRequest, requireAuth, requireVerifiedSeller } from "../lib/auth";
 
 const router: IRouter = Router();
@@ -68,6 +68,13 @@ router.post("/listings", requireAuth, requireVerifiedSeller, async (req: AuthedR
       material: parsed.data.material?.trim() || null,
       color: parsed.data.color?.trim() || null,
       shippingCost: parsed.data.shippingCost != null ? parsed.data.shippingCost : 0,
+      productType: parsed.data.productType || "3d_printing",
+      equipmentUsed: parsed.data.equipmentUsed || [],
+      equipmentGroups: parsed.data.equipmentGroups || [],
+      isPrintOnDemand: parsed.data.isPrintOnDemand || false,
+      isDigitalProduct: parsed.data.isDigitalProduct || false,
+      digitalFiles: parsed.data.digitalFiles || [],
+      stockType: parsed.data.stockType || "inventory",
     }).returning();
     const [seller] = await db.select({ displayName: usersTable.displayName }).from(usersTable).where(eq(usersTable.id, listing.sellerId));
     res.status(201).json({ ...listing, sellerName: seller?.displayName ?? "Unknown" });
@@ -86,6 +93,68 @@ router.get("/listings/:listingId", async (req, res) => {
   }
   const [seller] = await db.select({ displayName: usersTable.displayName }).from(usersTable).where(eq(usersTable.id, listing.sellerId));
   res.json({ ...listing, sellerName: seller?.displayName ?? "Unknown" });
+});
+
+router.put("/listings/:listingId", requireAuth, requireVerifiedSeller, async (req: AuthedRequest, res) => {
+  const listingId = Number(req.params.listingId);
+  const parsed = UpdateListingBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "validation_error", message: parsed.error.message });
+    return;
+  }
+  const [existingListing] = await db.select().from(listingsTable).where(eq(listingsTable.id, listingId));
+  if (!existingListing) {
+    res.status(404).json({ error: "not_found", message: "Listing not found" });
+    return;
+  }
+  if (existingListing.sellerId !== req.auth!.userId) {
+    res.status(403).json({ error: "forbidden", message: "You cannot update listings for another seller." });
+    return;
+  }
+  if (!parsed.data.title.trim()) {
+    res.status(400).json({ error: "validation_error", message: "Listing title is required." });
+    return;
+  }
+  if (!Number.isFinite(parsed.data.basePrice) || parsed.data.basePrice <= 0) {
+    res.status(400).json({ error: "validation_error", message: "Base price must be greater than zero." });
+    return;
+  }
+  if (!Number.isFinite(parsed.data.estimatedDaysMin) || !Number.isFinite(parsed.data.estimatedDaysMax)) {
+    res.status(400).json({ error: "validation_error", message: "Production lead times must be valid numbers." });
+    return;
+  }
+  if (parsed.data.estimatedDaysMin > parsed.data.estimatedDaysMax) {
+    res.status(400).json({ error: "validation_error", message: "Minimum lead time cannot be greater than maximum lead time." });
+    return;
+  }
+  try {
+    const [listing] = await db.update(listingsTable).set({
+      title: parsed.data.title.trim(),
+      description: parsed.data.description?.trim() || null,
+      category: parsed.data.category.trim(),
+      tags: parsed.data.tags.map((tag) => tag.trim()).filter(Boolean),
+      imageUrl: parsed.data.imageUrl?.trim() || null,
+      basePrice: parsed.data.basePrice,
+      shippingCost: parsed.data.shippingCost != null ? parsed.data.shippingCost : 0,
+      estimatedDaysMin: parsed.data.estimatedDaysMin,
+      estimatedDaysMax: parsed.data.estimatedDaysMax,
+      material: parsed.data.material?.trim() || null,
+      color: parsed.data.color?.trim() || null,
+      productType: parsed.data.productType || "3d_printing",
+      equipmentUsed: parsed.data.equipmentUsed || [],
+      equipmentGroups: parsed.data.equipmentGroups || [],
+      isPrintOnDemand: parsed.data.isPrintOnDemand || false,
+      isDigitalProduct: parsed.data.isDigitalProduct || false,
+      digitalFiles: parsed.data.digitalFiles || [],
+      stockType: parsed.data.stockType || "inventory",
+      isActive: parsed.data.isActive ?? existingListing.isActive,
+    }).where(eq(listingsTable.id, listingId)).returning();
+    const [seller] = await db.select({ displayName: usersTable.displayName }).from(usersTable).where(eq(usersTable.id, listing.sellerId));
+    res.json({ ...listing, sellerName: seller?.displayName ?? "Unknown" });
+  } catch (error) {
+    console.error("updateListing", error);
+    res.status(500).json({ error: "server_error", message: "Could not update this listing. Please try again." });
+  }
 });
 
 export default router;

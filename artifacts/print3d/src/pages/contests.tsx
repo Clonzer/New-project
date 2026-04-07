@@ -30,6 +30,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useListContests } from "@workspace/api-client-react";
 
 interface ContestParticipant {
   id: string;
@@ -44,20 +45,22 @@ interface ContestParticipant {
 }
 
 interface Contest {
-  id: string;
+  id: number;
   title: string;
   description: string;
+  category: "sales" | "design" | "sustainability" | "growth" | "community";
+  status: "active" | "completed" | "cancelled";
+  startDate: string;
+  endDate: string;
+  rules?: string | null;
+  prizes: any[]; // Generic prizes structure
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+  // UI-specific fields
   icon: React.ComponentType<{ className?: string }>;
-  endDate: Date;
   participants: number;
   leaderboard: ContestParticipant[];
-  prizes: {
-    position: number;
-    title: string;
-    description: string;
-    value: string;
-  }[];
-  category: string;
   difficulty: "Easy" | "Medium" | "Hard";
   isActive: boolean;
 }
@@ -71,171 +74,41 @@ interface PastContest {
   prize: string;
 }
 
-// Sample contest data - replace with real API data when backend is ready
-const activeContests: Contest[] = [
-  {
-    id: "most-sales-month",
-    title: "Most Sales This Month",
-    description: "Compete with other makers to achieve the highest sales volume this month. Every order counts!",
-    icon: TrendingUp,
-    endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
-    participants: 247,
-    category: "Sales",
-    difficulty: "Medium",
-    isActive: true,
-    leaderboard: [
-      { id: "1", username: "MakerMaster", score: 1247 },
-      { id: "2", username: "PrintQueen", score: 1189 },
-      { id: "3", username: "ProtoBuilder", score: 1056 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
-  },
-  {
-    id: "best-functional-print",
-    title: "Best Functional Print",
-    description: "Show off your engineering skills! Submit your most impressive functional 3D printed creation.",
-    icon: Cog,
-    endDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000), // 22 days from now
-    participants: 89,
-    category: "Design",
-    difficulty: "Hard",
-    isActive: true,
-    leaderboard: [
-      { id: "4", username: "EngiPrint", score: 4.8 },
-      { id: "5", username: "MechMaker", score: 4.7 },
-      { id: "6", username: "FuncFab", score: 4.6 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
-  },
-  {
-    id: "recycled-materials",
-    title: "Most Creative Use of Recycled Materials",
-    description: "Turn waste into wonder! Create something amazing using recycled filaments or materials.",
-    icon: Recycle,
-    endDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000), // 18 days from now
-    participants: 156,
-    category: "Sustainability",
-    difficulty: "Medium",
-    isActive: true,
-    leaderboard: [
-      { id: "7", username: "EcoPrint", score: 4.9 },
-      { id: "8", username: "GreenMaker", score: 4.8 },
-      { id: "9", username: "RecycleArt", score: 4.7 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
-  },
-  {
-    id: "fastest-growing",
-    title: "Fastest Growing Maker",
-    description: "Show explosive growth! Compete based on your shop's growth rate over the past month.",
-    icon: Zap,
-    endDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000), // 12 days from now
-    participants: 312,
-    category: "Growth",
-    difficulty: "Easy",
-    isActive: true,
-    leaderboard: [
-      { id: "10", username: "GrowthHacker", score: 156 },
-      { id: "11", username: "ScaleMaker", score: 142 },
-      { id: "12", username: "BoomPrint", score: 138 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
-  },
-  {
-    id: "mechanical-design",
-    title: "Best Mechanical Design",
-    description: "Demonstrate your mechanical engineering prowess with complex moving parts and mechanisms.",
-    icon: Wrench,
-    endDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), // 25 days from now
-    participants: 67,
-    category: "Engineering",
-    difficulty: "Hard",
-    isActive: true,
-    leaderboard: [
-      { id: "13", username: "MechEng", score: 4.9 },
-      { id: "14", username: "GearHead", score: 4.8 },
-      { id: "15", username: "PrecisionPrint", score: 4.7 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
-  },
-  {
-    id: "community-choice",
-    title: "Community Choice Award",
-    description: "Let the community decide! Submit your best work and let fellow makers vote for the winner.",
-    icon: Heart,
-    endDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), // 20 days from now
-    participants: 203,
-    category: "Community",
-    difficulty: "Easy",
-    isActive: true,
-    leaderboard: [
-      { id: "16", username: "CommunityFav", score: 892 },
-      { id: "17", username: "PeopleChoice", score: 756 },
-      { id: "18", username: "CrowdPick", score: 643 },
-    ],
-    prizes: [
-      { position: 1, title: "1st Place", description: "1 week Pro Subscription + 3 months Homepage Sponsorship", value: "Premium" },
-      { position: 2, title: "2nd Place", description: "2 weeks Pro Subscription + 1 month Homepage Sponsorship", value: "Pro" },
-      { position: 3, title: "3rd Place", description: "1 month Pro Subscription + Featured listing for 30 days", value: "Featured" },
-    ]
+// Helper function to get icon based on category
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case "sales": return TrendingUp;
+    case "design": return Cog;
+    case "sustainability": return Recycle;
+    case "growth": return Zap;
+    case "community": return Heart;
+    default: return Target;
   }
-];
+};
 
-// Sample past contest data - replace with real API data when backend is ready
-const pastContests: PastContest[] = [
-  {
-    id: "past-1",
-    title: "Best Miniature Print",
-    endDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    participants: 145,
-    winner: {
-      id: "19",
-      username: "MiniMaster",
-      score: 4.9,
-      entry: {
-        title: "Detailed Dragon Figurine",
-        description: "A highly detailed 28mm dragon miniature with intricate scales and poseable wings."
-      }
-    },
-    prize: "1 week Pro Subscription + 3 months Homepage Sponsorship"
-  },
-  {
-    id: "past-2",
-    title: "Most Innovative Design",
-    endDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
-    participants: 98,
-    winner: {
-      id: "20",
-      username: "InnovatorX",
-      score: 4.8,
-      entry: {
-        title: "Modular Storage System",
-        description: "A customizable storage solution that can be assembled in multiple configurations."
-      }
-    },
-    prize: "2 weeks Pro Subscription + 1 month Homepage Sponsorship"
+// Helper function to get difficulty based on category
+const getDifficulty = (category: string): "Easy" | "Medium" | "Hard" => {
+  switch (category) {
+    case "sales": return "Medium";
+    case "design": return "Hard";
+    case "sustainability": return "Medium";
+    case "growth": return "Easy";
+    case "community": return "Easy";
+    default: return "Medium";
   }
-];
+};
+
+// Transform API contest data to UI contest data
+const transformContestData = (apiContest: any): Contest => {
+  return {
+    ...apiContest,
+    icon: getCategoryIcon(apiContest.category),
+    participants: 0, // This would need to be fetched separately or added to API
+    leaderboard: [], // This would need to be fetched separately or added to API
+    difficulty: getDifficulty(apiContest.category),
+    isActive: apiContest.status === "active",
+  };
+};
 
 function CountdownTimer({ endDate }: { endDate: Date }) {
   const [timeLeft, setTimeLeft] = useState({
@@ -294,6 +167,8 @@ function ContestCard({ contest }: { contest: Contest }) {
     }
   };
 
+  const endDate = new Date(contest.endDate);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -328,7 +203,7 @@ function ContestCard({ contest }: { contest: Contest }) {
             Current Leaderboard
           </h4>
           <div className="space-y-2">
-            {contest.leaderboard.map((participant, index) => (
+            {contest.leaderboard.length > 0 ? contest.leaderboard.map((participant, index) => (
               <div key={participant.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                 <div className="flex items-center gap-3">
                   {getPositionIcon(index + 1)}
@@ -343,7 +218,11 @@ function ContestCard({ contest }: { contest: Contest }) {
                 </div>
                 <span className="text-primary font-bold">{participant.score}</span>
               </div>
-            ))}
+            )) : (
+              <div className="p-3 rounded-lg bg-white/5 text-center text-zinc-400">
+                No participants yet
+              </div>
+            )}
           </div>
         </div>
 
@@ -354,15 +233,23 @@ function ContestCard({ contest }: { contest: Contest }) {
             Prizes
           </h4>
           <div className="space-y-2">
-            {contest.prizes.map((prize) => (
-              <div key={prize.position} className="p-3 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+            {contest.prizes && contest.prizes.length > 0 ? contest.prizes.slice(0, 3).map((prize, index) => (
+              <div key={index} className="p-3 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-white font-medium">{prize.title}</span>
-                  <span className="text-primary font-bold">{prize.value}</span>
+                  <span className="text-white font-medium">{index + 1}st Place</span>
+                  <span className="text-primary font-bold">Prize</span>
                 </div>
-                <p className="text-xs text-zinc-400">{prize.description}</p>
+                <p className="text-xs text-zinc-400">{typeof prize === 'string' ? prize : 'Contest prize'}</p>
               </div>
-            ))}
+            )) : (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white font-medium">1st Place</span>
+                  <span className="text-primary font-bold">TBD</span>
+                </div>
+                <p className="text-xs text-zinc-400">Prizes to be announced</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -373,10 +260,10 @@ function ContestCard({ contest }: { contest: Contest }) {
             <Users className="w-4 h-4" />
             {contest.participants} participants
           </div>
-          <CountdownTimer endDate={contest.endDate} />
+          <CountdownTimer endDate={endDate} />
         </div>
         <NeonButton glowColor="primary" className="px-6">
-          {contest.category === "Sales" || contest.category === "Growth" ? "Join Challenge" : "Submit Entry"}
+          {contest.category === "sales" || contest.category === "growth" ? "Join Challenge" : "Submit Entry"}
         </NeonButton>
       </div>
     </motion.div>
@@ -384,6 +271,54 @@ function ContestCard({ contest }: { contest: Contest }) {
 }
 
 export default function Contests() {
+  const { data: contestsData, isLoading, error } = useListContests({ status: "active" });
+  const { data: pastContestsData } = useListContests({ status: "completed" });
+
+  const activeContests = contestsData?.contests.map(transformContestData) || [];
+  const pastContests = pastContestsData?.contests.map(contest => ({
+    id: contest.id.toString(),
+    title: contest.title,
+    endDate: new Date(contest.endDate),
+    participants: 0, // Would need separate API call
+    winner: {
+      id: "winner-1", // Would need separate API call for winners
+      username: "Winner",
+      score: 0,
+      entry: {
+        title: "Winning Entry",
+        description: "Description of winning entry"
+      }
+    },
+    prize: contest.prizes?.[0]?.title || "Prize"
+  })) || [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-12 pb-24">
+          <div className="container mx-auto px-4 text-center">
+            <div className="text-white">Loading contests...</div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-12 pb-24">
+          <div className="container mx-auto px-4 text-center">
+            <div className="text-red-400">Error loading contests: {error.message}</div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

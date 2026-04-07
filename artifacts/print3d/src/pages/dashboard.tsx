@@ -5,12 +5,13 @@ import {
   useListOrders, useListListings, useListPrinters, useUpdateOrderStatus,
   useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
   useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
+  useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
 } from "@workspace/api-client-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
-  Hammer, Wrench, PenLine, Sparkles,
+  Hammer, Wrench, PenLine, Sparkles, Trophy, Info,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -23,6 +24,8 @@ import {
 } from "@/lib/equipment-catalog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -462,6 +465,106 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
   );
 }
 
+// ─── Equipment Group Dialog ──────────────────────────────────────────────────
+function EquipmentGroupDialog({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  initialData 
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: { name: string; description?: string; category: string }) => void;
+  initialData?: any;
+}) {
+  const [form, setForm] = useState({
+    name: initialData?.name || "",
+    description: initialData?.description || "",
+    category: initialData?.category || "printing_3d"
+  });
+
+  const handleSubmit = () => {
+    if (!form.name.trim() || !form.category) return;
+    onSubmit(form);
+  };
+
+  const reset = () => {
+    setForm({
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      category: initialData?.category || "printing_3d"
+    });
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && handleClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">
+            {initialData ? "Edit Equipment Group" : "Create Equipment Group"}
+          </DialogTitle>
+          <p className="text-zinc-500 text-sm">
+            {initialData ? "Update the equipment group details." : "Organize your equipment into groups for better product transparency."}
+          </p>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Group Name *</label>
+            <Input 
+              value={form.name} 
+              onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g. Professional FDM Printers"
+              className="bg-black/30 border-white/10 text-white h-11 rounded-xl" 
+            />
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Category *</label>
+            <Select value={form.category} onValueChange={value => setForm(prev => ({ ...prev, category: value }))}>
+              <SelectTrigger className="bg-black/30 border-white/10 text-white h-11 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-900 border-white/10">
+                <SelectItem value="printing_3d">3D Printing</SelectItem>
+                <SelectItem value="woodworking">Woodworking</SelectItem>
+                <SelectItem value="metalworking">Metalworking</SelectItem>
+                <SelectItem value="services">Services</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Description (Optional)</label>
+            <Textarea 
+              value={form.description} 
+              onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe what this group contains..."
+              className="bg-black/30 border-white/10 text-white rounded-xl min-h-[80px]" 
+            />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <Button variant="outline" onClick={handleClose} className="flex-1 border-white/10 text-zinc-300 hover:bg-white/5">
+              Cancel
+            </Button>
+            <NeonButton 
+              glowColor="primary" 
+              onClick={handleSubmit} 
+              disabled={!form.name.trim() || !form.category}
+              className="flex-1 rounded-xl"
+            >
+              {initialData ? "Update Group" : "Create Group"}
+            </NeonButton>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { user } = useAuth();
@@ -472,6 +575,8 @@ export default function Dashboard() {
   const [showAddPrinter, setShowAddPrinter] = useState(false);
   const [showAddListing, setShowAddListing] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
+  const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -503,6 +608,9 @@ export default function Dashboard() {
   const { data: myPrinters, refetch: refetchPrinters } = useListPrinters(printerParams, {
     query: { enabled: !!user && isSeller(user?.role), queryKey: getListPrintersQueryKey(printerParams) },
   });
+  const { data: myEquipmentGroups, refetch: refetchEquipmentGroups } = useListEquipmentGroups({
+    query: { enabled: !!user && isSeller(user?.role) },
+  });
   const { data: myReviews } = useListReviews(writtenReviewParams, {
     query: { enabled: !!user, queryKey: getListReviewsQueryKey(writtenReviewParams) },
   });
@@ -510,6 +618,9 @@ export default function Dashboard() {
   const updateStatus = useUpdateOrderStatus();
   const updatePrinter = useUpdatePrinter();
   const deletePrinter = useDeletePrinter();
+  const createEquipmentGroup = useCreateEquipmentGroup();
+  const updateEquipmentGroup = useUpdateEquipmentGroup();
+  const deleteEquipmentGroup = useDeleteEquipmentGroup();
 
   function isSeller(role?: string) { return role === "seller" || role === "both"; }
   const isSellerUser = isSeller(user?.role);
@@ -550,6 +661,39 @@ export default function Dashboard() {
       toast({ title: "Failed to update printer", variant: "destructive" });
     } finally {
       setTogglingPrinterId(null);
+    }
+  };
+
+  const handleCreateEquipmentGroup = async (data: { name: string; description?: string; category: string }) => {
+    try {
+      await createEquipmentGroup.mutateAsync({ data });
+      toast({ title: "Equipment group created!", description: "You can now assign equipment to this group." });
+      refetchEquipmentGroups();
+      setShowAddEquipmentGroup(false);
+    } catch (error) {
+      toast({ title: "Failed to create equipment group", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateEquipmentGroup = async (groupId: number, data: { name: string; description?: string; category: string }) => {
+    try {
+      await updateEquipmentGroup.mutateAsync({ groupId, data });
+      toast({ title: "Equipment group updated!", description: "Changes have been saved." });
+      refetchEquipmentGroups();
+      setEditingEquipmentGroup(null);
+    } catch (error) {
+      toast({ title: "Failed to update equipment group", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteEquipmentGroup = async (groupId: number) => {
+    if (!confirm("Are you sure you want to delete this equipment group? Equipment assigned to it will be unassigned.")) return;
+    try {
+      await deleteEquipmentGroup.mutateAsync({ groupId });
+      toast({ title: "Equipment group deleted!", description: "Equipment has been unassigned." });
+      refetchEquipmentGroups();
+    } catch (error) {
+      toast({ title: "Failed to delete equipment group", variant: "destructive" });
     }
   };
 
@@ -642,6 +786,17 @@ export default function Dashboard() {
         onClose={() => setShowAddPrinter(false)}
         userId={user.id}
         onSuccess={refetchPrinters}
+      />
+      <EquipmentGroupDialog
+        open={showAddEquipmentGroup}
+        onClose={() => setShowAddEquipmentGroup(false)}
+        onSubmit={handleCreateEquipmentGroup}
+      />
+      <EquipmentGroupDialog
+        open={!!editingEquipmentGroup}
+        onClose={() => setEditingEquipmentGroup(null)}
+        onSubmit={(data) => handleUpdateEquipmentGroup(editingEquipmentGroup.id, data)}
+        initialData={editingEquipmentGroup}
       />
       <AddListingDialog
         open={showAddListing}
@@ -970,119 +1125,322 @@ export default function Dashboard() {
             )}
 
             {/* ── Printers ── */}
-            {isSellerUser && (
-              <TabsContent value="printers" className="mt-0">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-white">Registered Equipment</h2>
-                  <NeonButton glowColor="accent" className="rounded-full px-5" onClick={() => setShowAddPrinter(true)}>
-                    <Plus className="w-4 h-4 mr-2" /> Add equipment
-                  </NeonButton>
-                </div>
-                {!myPrinters?.printers.length ? (
-                  <div className="glass-panel p-16 rounded-3xl text-center">
-                    <PrinterIcon className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-                    <p className="text-zinc-500 mb-4">No equipment listed yet.</p>
-                    <NeonButton glowColor="accent" onClick={() => setShowAddPrinter(true)}>
-                      <Plus className="w-4 h-4 mr-2" /> Add your first equipment
-                    </NeonButton>
+            <TabsContent value="printers" className="mt-0">
+              <div className="space-y-8">
+                {/* Equipment Groups Section */}
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-bold text-white">Equipment Groups</h2>
+                      <NeonButton glowColor="accent" className="rounded-full px-5" onClick={() => setShowAddEquipmentGroup(true)}>
+                        <Plus className="w-4 h-4 mr-2" /> Add Group
+                      </NeonButton>
+                    </div>
+                    {!myEquipmentGroups?.groups.length ? (
+                      <div className="glass-panel p-8 rounded-2xl text-center mb-6">
+                        <Package className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
+                        <p className="text-zinc-500 mb-3">No equipment groups yet.</p>
+                        <p className="text-zinc-600 text-sm mb-4">Groups help organize your equipment for better product transparency.</p>
+                        <NeonButton glowColor="accent" onClick={() => setShowAddEquipmentGroup(true)}>
+                          <Plus className="w-4 h-4 mr-2" /> Create First Group
+                        </NeonButton>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        {myEquipmentGroups.groups.map(group => (
+                          <div key={group.id} className="glass-panel p-4 rounded-xl border border-white/5">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h3 className="font-bold text-white text-sm">{group.name}</h3>
+                                <p className="text-xs text-zinc-400 capitalize">{group.category.replace('_', ' ')}</p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-zinc-500 hover:text-white"
+                                  onClick={() => setEditingEquipmentGroup(group)}
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-zinc-500 hover:text-red-400"
+                                  onClick={() => handleDeleteEquipmentGroup(group.id)}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                            {group.description && (
+                              <p className="text-xs text-zinc-500 line-clamp-2">{group.description}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {myPrinters.printers.map(printer => (
-                      <div key={printer.id} className="glass-panel p-6 rounded-2xl border border-white/5">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                              <PrinterIcon className="w-6 h-6 text-zinc-400" />
+
+                  {/* Equipment Section */}
+                  <div>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-bold text-white">Registered Equipment</h2>
+                      <NeonButton glowColor="accent" className="rounded-full px-5" onClick={() => setShowAddPrinter(true)}>
+                        <Plus className="w-4 h-4 mr-2" /> Add equipment
+                      </NeonButton>
+                    </div>
+                    {!myPrinters?.printers.length ? (
+                      <div className="glass-panel p-16 rounded-3xl text-center">
+                        <PrinterIcon className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <p className="text-zinc-500 mb-4">No equipment listed yet.</p>
+                        <NeonButton glowColor="accent" onClick={() => setShowAddPrinter(true)}>
+                          <Plus className="w-4 h-4 mr-2" /> Add your first equipment
+                        </NeonButton>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {myPrinters.printers.map(printer => (
+                          <div key={printer.id} className="glass-panel p-6 rounded-2xl border border-white/5">
+                            <div className="flex justify-between items-start mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                  <PrinterIcon className="w-6 h-6 text-zinc-400" />
+                                </div>
+                                <div>
+                                  <h3 className="font-bold text-white">{printer.name}</h3>
+                                  <p className="text-sm text-zinc-400">{printer.brand} {printer.model}</p>
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-2 items-end">
+                                <Badge variant={printer.isActive ? "default" : "secondary"} className={printer.isActive ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-zinc-700"}>
+                                  {printer.isActive ? "Active" : "Inactive"}
+                                </Badge>
+                                <select
+                                  className="text-xs bg-black/30 border border-white/10 text-zinc-300 rounded px-2 py-1"
+                                  defaultValue="operational"
+                                >
+                                  <option value="operational">Operational</option>
+                                  <option value="maintenance">Maintenance</option>
+                                  <option value="out-of-service">Out of Service</option>
+                                  <option value="busy">Busy</option>
+                                </select>
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="font-bold text-white">{printer.name}</h3>
-                              <p className="text-sm text-zinc-400">{printer.brand} {printer.model}</p>
+                            <div className="space-y-2 text-sm text-zinc-300 mb-4">
+                              <div className="flex justify-between">
+                                <span className="text-zinc-500">Category</span>
+                                <span className="text-zinc-200 font-medium">{categoryLabel(printer.equipmentCategory ?? "printing_3d")}</span>
+                              </div>
+                              {printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? (
+                                <div className="flex justify-between">
+                                  <span className="text-zinc-500">Process</span>
+                                  <span className="text-accent font-medium">{printer.technology}</span>
+                                </div>
+                              ) : printer.toolOrServiceType ? (
+                                <div className="flex justify-between">
+                                  <span className="text-zinc-500">Type</span>
+                                  <span className="text-accent font-medium">{printer.toolOrServiceType}</span>
+                                </div>
+                              ) : (
+                                <div className="flex justify-between">
+                                  <span className="text-zinc-500">Process</span>
+                                  <span className="text-accent font-medium">{printer.technology}</span>
+                                </div>
+                              )}
+                              {printer.buildVolume && (
+                                <div className="flex justify-between">
+                                  <span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Build volume" : "Capacity"}</span>
+                                  <span>{printer.buildVolume}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between">
+                                <span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Materials" : "Capabilities"}</span>
+                                <span className="text-right max-w-[60%] line-clamp-1">{printer.materials.join(", ")}</span>
+                              </div>
+                              {printer.pricePerHour && (
+                                <div className="flex justify-between">
+                                  <span className="text-zinc-500">Rate</span>
+                                  <span className="text-primary font-medium">${printer.pricePerHour}/hr{printer.pricePerGram ? ` · $${printer.pricePerGram}/g` : ""}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between">
+                                <span className="text-zinc-500">Jobs Completed</span>
+                                <span className="text-white font-bold">{printer.totalJobsCompleted}</span>
+                              </div>
+                            </div>
+                            <div className="pt-3 border-t border-white/5 flex justify-end gap-2 flex-wrap">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`text-xs ${printer.isActive ? "text-red-400 hover:text-red-300 hover:bg-red-400/10" : "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10"}`}
+                                disabled={togglingPrinterId === printer.id}
+                                onClick={() => togglePrinter(printer.id, printer.isActive)}
+                              >
+                                {togglingPrinterId === printer.id ? "Updating..." : printer.isActive ? "Deactivate" : "Activate"}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+                                disabled={deletingPrinterId === printer.id}
+                                onClick={() => removePrinter(printer.id)}
+                              >
+                                {deletingPrinterId === printer.id ? "Removing..." : "Remove"}
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-2 items-end">
-                            <Badge variant={printer.isActive ? "default" : "secondary"} className={printer.isActive ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-zinc-800 text-zinc-500 border-zinc-700"}>
-                              {printer.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                            <select
-                              className="text-xs bg-black/30 border border-white/10 text-zinc-300 rounded px-2 py-1"
-                              defaultValue="operational"
-                            >
-                              <option value="operational">Operational</option>
-                              <option value="maintenance">Maintenance</option>
-                              <option value="out-of-service">Out of Service</option>
-                              <option value="busy">Busy</option>
-                            </select>
-                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analytics" className="mt-0">
+                <div className="space-y-8">
+                  {/* Performance Metrics */}
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Performance Analytics</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Track your shop's performance and growth metrics.</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-primary mb-2">{mySales?.orders.length ?? 0}</div>
+                          <div className="text-sm text-zinc-500">Total Orders</div>
                         </div>
-                        <div className="space-y-2 text-sm text-zinc-300 mb-4">
-                          <div className="flex justify-between">
-                            <span className="text-zinc-500">Category</span>
-                            <span className="text-zinc-200 font-medium">{categoryLabel(printer.equipmentCategory ?? "printing_3d")}</span>
-                          </div>
-                          {printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? (
-                            <div className="flex justify-between">
-                              <span className="text-zinc-500">Process</span>
-                              <span className="text-accent font-medium">{printer.technology}</span>
-                            </div>
-                          ) : printer.toolOrServiceType ? (
-                            <div className="flex justify-between">
-                              <span className="text-zinc-500">Type</span>
-                              <span className="text-accent font-medium">{printer.toolOrServiceType}</span>
-                            </div>
-                          ) : (
-                            <div className="flex justify-between">
-                              <span className="text-zinc-500">Process</span>
-                              <span className="text-accent font-medium">{printer.technology}</span>
-                            </div>
-                          )}
-                          {printer.buildVolume && (
-                            <div className="flex justify-between">
-                              <span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Build volume" : "Capacity"}</span>
-                              <span>{printer.buildVolume}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between">
-                            <span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Materials" : "Capabilities"}</span>
-                            <span className="text-right max-w-[60%] line-clamp-1">{printer.materials.join(", ")}</span>
-                          </div>
-                          {printer.pricePerHour && (
-                            <div className="flex justify-between">
-                              <span className="text-zinc-500">Rate</span>
-                              <span className="text-primary font-medium">${printer.pricePerHour}/hr{printer.pricePerGram ? ` · $${printer.pricePerGram}/g` : ""}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between">
-                            <span className="text-zinc-500">Jobs Completed</span>
-                            <span className="text-white font-bold">{printer.totalJobsCompleted}</span>
-                          </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-emerald-400 mb-2">${totalRevenue.toFixed(2)}</div>
+                          <div className="text-sm text-zinc-500">Revenue</div>
                         </div>
-                        <div className="pt-3 border-t border-white/5 flex justify-end gap-2 flex-wrap">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={`text-xs ${printer.isActive ? "text-red-400 hover:text-red-300 hover:bg-red-400/10" : "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10"}`}
-                            disabled={togglingPrinterId === printer.id}
-                            onClick={() => togglePrinter(printer.id, printer.isActive)}
-                          >
-                            {togglingPrinterId === printer.id ? "Updating..." : printer.isActive ? "Deactivate" : "Activate"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
-                            disabled={deletingPrinterId === printer.id}
-                            onClick={() => removePrinter(printer.id)}
-                          >
-                            {deletingPrinterId === printer.id ? "Removing..." : "Remove"}
-                          </Button>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-sky-400 mb-2">{averageOrderValue > 0 ? `$${averageOrderValue.toFixed(2)}` : 'N/A'}</div>
+                          <div className="text-sm text-zinc-500">Avg Order Value</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-purple-400 mb-2">{myListings?.listings.length ?? 0}</div>
+                          <div className="text-sm text-zinc-500">Active Listings</div>
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                )}
+
+                  {/* Seller Badges */}
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Seller Achievements</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Badges earned based on your shop performance.</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="flex flex-wrap gap-4">
+                        {/* Rising Star Badge */}
+                        {(mySales?.orders.length ?? 0) >= 5 && (
+                          <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl px-4 py-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center">
+                              <TrendingUp className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-yellow-400">Rising Star</div>
+                              <div className="text-xs text-zinc-400">5+ orders completed</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Trusted Seller Badge */}
+                        {(myReviews?.length ?? 0) >= 3 && (
+                          <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-green-400 flex items-center justify-center">
+                              <CheckCircle2 className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-emerald-400">Trusted Seller</div>
+                              <div className="text-xs text-zinc-400">3+ positive reviews</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Equipment Expert Badge */}
+                        {(myPrinters?.printers.length ?? 0) >= 3 && (
+                          <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-4 py-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center">
+                              <PrinterIcon className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-blue-400">Equipment Expert</div>
+                              <div className="text-xs text-zinc-400">3+ registered machines</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Top Earner Badge */}
+                        {totalRevenue >= 500 && (
+                          <div className="flex items-center gap-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-4 py-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
+                              <DollarSign className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-purple-400">Top Earner</div>
+                              <div className="text-xs text-zinc-400">$500+ in revenue</div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No badges yet */}
+                        {((mySales?.orders.length ?? 0) < 5 && (myReviews?.length ?? 0) < 3 && (myPrinters?.printers.length ?? 0) < 3 && totalRevenue < 500) && (
+                          <div className="text-center py-8 w-full">
+                            <Trophy className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+                            <p className="text-zinc-500">Complete more orders and build your reputation to earn badges!</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Growth Insights */}
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Growth Insights</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Tips to improve your shop performance.</p>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      {myListings?.listings.length === 0 && (
+                        <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                          <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="font-medium text-blue-400">Add Your First Listing</div>
+                            <div className="text-sm text-zinc-400">Start selling by creating your first product listing in the 'My Listings' tab.</div>
+                          </div>
+                        </div>
+                      )}
+                      {(myPrinters?.printers.length ?? 0) === 0 && (
+                        <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                          <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="font-medium text-yellow-400">Register Equipment</div>
+                            <div className="text-sm text-zinc-400">Add your equipment to build buyer trust and showcase your capabilities.</div>
+                          </div>
+                        </div>
+                      )}
+                      {(mySales?.orders.length ?? 0) > 0 && (myReviews?.length ?? 0) === 0 && (
+                        <div className="flex items-start gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                          <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="font-medium text-green-400">Request Reviews</div>
+                            <div className="text-sm text-zinc-400">Ask satisfied customers to leave reviews to build your reputation.</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="glass-panel p-16 rounded-3xl text-center">
+                  <PrinterIcon className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                  <p className="text-zinc-500 mb-4">Access restricted to sellers only.</p>
+                  <p className="text-zinc-600 text-sm">Create your first listing to access equipment management features.</p>
+                </div>
               </TabsContent>
-            )}
           </Tabs>
         </div>
       </main>

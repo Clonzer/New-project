@@ -1,0 +1,845 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { NeonButton } from "@/components/ui/neon-button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Upload,
+  X,
+  Plus,
+  Minus,
+  AlertCircle,
+  Info,
+  Save
+} from "lucide-react";
+import { useGetListing, useUpdateListing } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
+
+const PRODUCT_TYPES = [
+  { value: "3d_printing", label: "3D Printing", description: "Physical 3D printed objects" },
+  { value: "woodworking", label: "Woodworking", description: "Wood-crafted items" },
+  { value: "cnc", label: "CNC Machining", description: "Computer numerical control machining" },
+  { value: "laser", label: "Laser Cutting", description: "Laser cut designs" },
+  { value: "digital", label: "Digital Files", description: "Digital designs and files" },
+];
+
+const STOCK_TYPES = [
+  { value: "inventory", label: "Inventory", description: "Pre-made items in stock" },
+  { value: "print_on_demand", label: "Print on Demand", description: "Made when ordered" },
+  { value: "digital", label: "Digital Download", description: "Instant digital delivery" },
+];
+
+const CATEGORIES = [
+  "Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture",
+  "Tools", "Home & Garden", "Toys & Games", "Wearables", "Prototypes", "Education"
+];
+
+interface UploadedFile {
+  filename: string;
+  originalName: string;
+  url: string;
+  size: number;
+  mimetype: string;
+}
+
+interface ListingFormData {
+  // Basic Info
+  title: string;
+  description: string;
+  category: string;
+  productType: string;
+  tags: string[];
+
+  // Product Details
+  material: string;
+  color: string;
+  basePrice: string;
+  shippingCost: string;
+  estimatedDaysMin: string;
+  estimatedDaysMax: string;
+
+  // Stock & Production
+  stockType: string;
+  isPrintOnDemand: boolean;
+  isDigitalProduct: boolean;
+
+  // Equipment
+  equipmentUsed: number[];
+  equipmentGroups: number[];
+
+  // Digital Files
+  digitalFiles: UploadedFile[];
+
+  // Images
+  imageUrl: string;
+}
+
+export default function EditListing() {
+  const navigate = useNavigate();
+  const params = useParams();
+  const { user } = useAuth();
+  const listingId = params?.listingId ? parseInt(params.listingId) : null;
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState<ListingFormData | null>(null);
+  const [tagInput, setTagInput] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const { data: listing, isLoading: isLoadingListing } = useGetListing(listingId?.toString() || "", {
+    enabled: !!listingId,
+  });
+  const updateListingMutation = useUpdateListing();
+
+  const totalSteps = 4;
+
+  useEffect(() => {
+    if (listing && !formData) {
+      setFormData({
+        title: listing.title,
+        description: listing.description || "",
+        category: listing.category,
+        productType: listing.productType || "3d_printing",
+        tags: listing.tags,
+        material: listing.material || "",
+        color: listing.color || "",
+        basePrice: listing.basePrice.toString(),
+        shippingCost: listing.shippingCost?.toString() || "",
+        estimatedDaysMin: listing.estimatedDaysMin.toString(),
+        estimatedDaysMax: listing.estimatedDaysMax.toString(),
+        stockType: listing.stockType || "inventory",
+        isPrintOnDemand: listing.isPrintOnDemand || false,
+        isDigitalProduct: listing.isDigitalProduct || false,
+        equipmentUsed: listing.equipmentUsed || [],
+        equipmentGroups: listing.equipmentGroups || [],
+        digitalFiles: (listing.digitalFiles || []).map((url: string) => ({
+          filename: url.split('/').pop() || 'unknown',
+          originalName: url.split('/').pop() || 'unknown',
+          url: url,
+          size: 0, // We don't have size info from the API
+          mimetype: 'application/octet-stream', // Default mimetype
+        })),
+        imageUrl: listing.imageUrl || "",
+      });
+    }
+  }, [listing, formData]);
+
+  const updateFormData = (field: keyof ListingFormData, value: any) => {
+    if (!formData) return;
+    setFormData(prev => ({ ...prev!, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const addTag = () => {
+    if (!formData || !tagInput.trim() || formData.tags.includes(tagInput.trim())) return;
+    updateFormData("tags", [...formData.tags, tagInput.trim()]);
+    setTagInput("");
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    if (!formData) return;
+    updateFormData("tags", formData.tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const validateStep = (step: number): boolean => {
+    if (!formData) return false;
+    const newErrors: Record<string, string> = {};
+
+    switch (step) {
+      case 1:
+        if (!formData.title.trim()) newErrors.title = "Title is required";
+        if (!formData.description.trim()) newErrors.description = "Description is required";
+        if (!formData.category) newErrors.category = "Category is required";
+        if (formData.tags.length === 0) newErrors.tags = "At least one tag is required";
+        break;
+      case 2:
+        if (!formData.basePrice || parseFloat(formData.basePrice) <= 0) {
+          newErrors.basePrice = "Valid price is required";
+        }
+        if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
+          newErrors.estimatedDaysMin = "Minimum days is required";
+        }
+        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin || "0")) {
+          newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
+        }
+        break;
+      case 3:
+        // Equipment validation - optional
+        break;
+      case 4:
+        if (!formData.imageUrl.trim()) newErrors.imageUrl = "At least one image is required";
+        break;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleFileUpload = async (files: FileList) => {
+    if (!files || files.length === 0 || !formData) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const uploadedFiles: UploadedFile[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+
+        const response = await fetch("/api/files/upload", {
+          method: "POST",
+          body: formDataUpload,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        uploadedFiles.push(result);
+
+        setUploadProgress(((i + 1) / files.length) * 100);
+      }
+
+      updateFormData("digitalFiles", [...formData.digitalFiles, ...uploadedFiles]);
+    } catch (error) {
+      console.error("File upload error:", error);
+      // TODO: Show error toast
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const removeDigitalFile = (index: number) => {
+    if (!formData) return;
+    const newFiles = formData.digitalFiles.filter((_, i) => i !== index);
+    updateFormData("digitalFiles", newFiles);
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(currentStep) || !formData || !listingId || !user) return;
+
+    try {
+      await updateListingMutation.mutateAsync({
+        listingId: listingId.toString(),
+        data: {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          tags: formData.tags,
+          imageUrl: formData.imageUrl,
+          basePrice: parseFloat(formData.basePrice),
+          shippingCost: formData.shippingCost ? parseFloat(formData.shippingCost) : undefined,
+          estimatedDaysMin: parseInt(formData.estimatedDaysMin),
+          estimatedDaysMax: parseInt(formData.estimatedDaysMax),
+          material: formData.material || undefined,
+          color: formData.color || undefined,
+          productType: formData.productType,
+          equipmentUsed: formData.equipmentUsed,
+          equipmentGroups: formData.equipmentGroups,
+          isPrintOnDemand: formData.isPrintOnDemand,
+          isDigitalProduct: formData.isDigitalProduct,
+          digitalFiles: formData.digitalFiles.map(file => file.url),
+          stockType: formData.stockType,
+        },
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Failed to update listing:", error);
+    }
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      {Array.from({ length: totalSteps }, (_, i) => (
+        <div key={i} className="flex items-center">
+          <div key={i} className="flex items-center">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                i + 1 <= currentStep
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-zinc-700 text-zinc-400"
+              }`}
+            >
+              {i + 1 <= currentStep ? <Check className="w-4 h-4" /> : i + 1}
+            </div>
+            {i < totalSteps - 1 && (
+              <div
+                className={`w-12 h-0.5 mx-2 transition-colors ${
+                  i + 1 < currentStep ? "bg-primary" : "bg-zinc-700"
+                }`}
+              />
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (isLoadingListing || !formData) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-12 pb-24">
+          <div className="container mx-auto px-4 text-center">
+            <div className="text-white">Loading listing...</div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!listing || listing.sellerId !== user?.id) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-12 pb-24">
+          <div className="container mx-auto px-4 text-center">
+            <div className="text-red-400">Listing not found or access denied</div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div>
+              <Label htmlFor="title" className="text-white flex items-center gap-2">
+                Title <span className="text-red-400">*</span>
+              </Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => updateFormData("title", e.target.value)}
+                placeholder="Enter a compelling title for your listing"
+                className="mt-1"
+              />
+              {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="description" className="text-white flex items-center gap-2">
+                Description <span className="text-red-400">*</span>
+              </Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => updateFormData("description", e.target.value)}
+                placeholder="Describe your product in detail..."
+                rows={4}
+                className="mt-1"
+              />
+              {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="category" className="text-white flex items-center gap-2">
+                  Category <span className="text-red-400">*</span>
+                </Label>
+                <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.category && <p className="text-red-400 text-sm mt-1">{errors.category}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="productType" className="text-white flex items-center gap-2">
+                  Product Type <span className="text-red-400">*</span>
+                </Label>
+                <Select value={formData.productType} onValueChange={(value) => updateFormData("productType", value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select product type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRODUCT_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div>
+                          <div className="font-medium">{type.label}</div>
+                          <div className="text-xs text-zinc-400">{type.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-white flex items-center gap-2">
+                Tags <span className="text-red-400">*</span>
+                <span className="text-xs text-zinc-400">(Press Enter to add)</span>
+              </Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  placeholder="Add tags..."
+                  className="flex-1"
+                />
+                <Button onClick={addTag} variant="outline" size="sm">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X
+                      className="w-3 h-3 cursor-pointer hover:text-red-400"
+                      onClick={() => removeTag(tag)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+              {errors.tags && <p className="text-red-400 text-sm mt-1">{errors.tags}</p>}
+            </div>
+          </motion.div>
+        );
+
+      case 2:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="basePrice" className="text-white flex items-center gap-2">
+                  Base Price ($) <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="basePrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.basePrice}
+                  onChange={(e) => updateFormData("basePrice", e.target.value)}
+                  placeholder="0.00"
+                  className="mt-1"
+                />
+                {errors.basePrice && <p className="text-red-400 text-sm mt-1">{errors.basePrice}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="shippingCost" className="text-white flex items-center gap-2">
+                  Shipping Cost ($) <span className="text-xs text-zinc-400">(optional)</span>
+                </Label>
+                <Input
+                  id="shippingCost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.shippingCost}
+                  onChange={(e) => updateFormData("shippingCost", e.target.value)}
+                  placeholder="0.00"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
+                  Min Production Days <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="estimatedDaysMin"
+                  type="number"
+                  min="1"
+                  value={formData.estimatedDaysMin}
+                  onChange={(e) => updateFormData("estimatedDaysMin", e.target.value)}
+                  placeholder="1"
+                  className="mt-1"
+                />
+                {errors.estimatedDaysMin && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMin}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="estimatedDaysMax" className="text-white flex items-center gap-2">
+                  Max Production Days <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="estimatedDaysMax"
+                  type="number"
+                  min="1"
+                  value={formData.estimatedDaysMax}
+                  onChange={(e) => updateFormData("estimatedDaysMax", e.target.value)}
+                  placeholder="3"
+                  className="mt-1"
+                />
+                {errors.estimatedDaysMax && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMax}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="material" className="text-white flex items-center gap-2">
+                  Material <span className="text-xs text-zinc-400">(optional)</span>
+                </Label>
+                <Input
+                  id="material"
+                  value={formData.material}
+                  onChange={(e) => updateFormData("material", e.target.value)}
+                  placeholder="PLA, ABS, Wood, etc."
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="color" className="text-white flex items-center gap-2">
+                  Color <span className="text-xs text-zinc-400">(optional)</span>
+                </Label>
+                <Input
+                  id="color"
+                  value={formData.color}
+                  onChange={(e) => updateFormData("color", e.target.value)}
+                  placeholder="Black, White, Natural, etc."
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="stockType" className="text-white flex items-center gap-2">
+                Stock Type <span className="text-red-400">*</span>
+              </Label>
+              <Select value={formData.stockType} onValueChange={(value) => updateFormData("stockType", value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select stock type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STOCK_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      <div>
+                        <div className="font-medium">{type.label}</div>
+                        <div className="text-xs text-zinc-400">{type.description}</div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPrintOnDemand"
+                  checked={formData.isPrintOnDemand}
+                  onCheckedChange={(checked) => updateFormData("isPrintOnDemand", checked)}
+                />
+                <Label htmlFor="isPrintOnDemand" className="text-white">
+                  Print on Demand
+                  <span className="text-xs text-zinc-400 ml-2">(Made when ordered)</span>
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isDigitalProduct"
+                  checked={formData.isDigitalProduct}
+                  onCheckedChange={(checked) => updateFormData("isDigitalProduct", checked)}
+                />
+                <Label htmlFor="isDigitalProduct" className="text-white">
+                  Digital Product
+                  <span className="text-xs text-zinc-400 ml-2">(Files for download)</span>
+                </Label>
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 3:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="text-center">
+              <Info className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">Equipment Information</h3>
+              <p className="text-zinc-400">
+                Optionally specify which equipment was used to create this product.
+                This helps buyers understand your capabilities and process.
+              </p>
+            </div>
+
+            <Card className="bg-zinc-800/50 border-zinc-700">
+              <CardHeader>
+                <CardTitle className="text-white">Equipment Used</CardTitle>
+                <CardDescription>
+                  Select equipment that was used in the production of this item
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-zinc-400 text-sm">
+                  Equipment management will be available in a future update.
+                  For now, this information is optional and can be added later.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+
+      case 4:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div>
+              <Label htmlFor="imageUrl" className="text-white flex items-center gap-2">
+                Product Image URL <span className="text-red-400">*</span>
+              </Label>
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) => updateFormData("imageUrl", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="mt-1"
+              />
+              {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
+              <p className="text-xs text-zinc-400 mt-1">
+                Upload your image to a service like Imgur or Cloudinary and paste the URL here
+              </p>
+            </div>
+
+            {formData.imageUrl && (
+              <div className="border border-zinc-700 rounded-lg p-4">
+                <Label className="text-white mb-2 block">Preview</Label>
+                <img
+                  src={formData.imageUrl}
+                  alt="Product preview"
+                  className="w-full max-w-md h-48 object-cover rounded-lg mx-auto"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
+            {formData.isDigitalProduct && (
+              <div>
+                <Label className="text-white flex items-center gap-2">
+                  Digital Files <span className="text-xs text-zinc-400">(upload files for download)</span>
+                </Label>
+                <p className="text-xs text-zinc-400 mt-1 mb-2">
+                  Upload STL, OBJ, 3MF, or other design files that buyers can download
+                </p>
+
+                {/* File Upload */}
+                <div className="mb-4">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".stl,.obj,.3mf,.ply,.gcode,.png,.jpg,.jpeg,.gif,.pdf,.zip,.rar,.7z,.dxf,.svg"
+                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                    disabled={isUploading}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <Label
+                    htmlFor="file-upload"
+                    className={`flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      isUploading
+                        ? "border-zinc-600 bg-zinc-800"
+                        : "border-zinc-600 hover:border-primary hover:bg-zinc-800"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-zinc-400" />
+                      <p className="text-sm text-zinc-400">
+                        {isUploading ? "Uploading..." : "Click to upload files"}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        STL, OBJ, 3MF, PLY, GCODE, images, PDFs, archives (max 100MB each)
+                      </p>
+                    </div>
+                  </Label>
+                  {isUploading && (
+                    <div className="mt-2">
+                      <Progress value={uploadProgress} className="w-full" />
+                      <p className="text-xs text-zinc-400 mt-1">
+                        Uploading... {Math.round(uploadProgress)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Uploaded Files List */}
+                {formData.digitalFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-white text-sm">Uploaded Files:</Label>
+                    {formData.digitalFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-zinc-800 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-zinc-700 rounded flex items-center justify-center">
+                            <Upload className="w-4 h-4 text-zinc-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-white font-medium">{file.originalName}</p>
+                            <p className="text-xs text-zinc-400">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB • {file.mimetype}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => removeDigitalFile(index)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-zinc-400 hover:text-red-400"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
+      <main className="flex-grow pt-12 pb-24">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="mb-8">
+            <Button
+              onClick={() => navigate("/dashboard")}
+              variant="ghost"
+              className="text-zinc-400 hover:text-white mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 text-glow">
+              Edit Listing
+            </h1>
+            <p className="text-xl text-zinc-400">
+              Update your product listing information
+            </p>
+          </div>
+
+          {renderStepIndicator()}
+
+          <Card className="bg-zinc-900/50 border-zinc-700">
+            <CardHeader>
+              <CardTitle className="text-white">
+                Step {currentStep} of {totalSteps}
+              </CardTitle>
+              <CardDescription>
+                {currentStep === 1 && "Basic product information"}
+                {currentStep === 2 && "Pricing and production details"}
+                {currentStep === 3 && "Equipment and capabilities"}
+                {currentStep === 4 && "Images and final details"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AnimatePresence mode="wait">
+                {renderStepContent()}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-between mt-8">
+            <Button
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              variant="outline"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+
+            {currentStep < totalSteps ? (
+              <NeonButton onClick={nextStep} glowColor="primary">
+                Next
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </NeonButton>
+            ) : (
+              <NeonButton
+                onClick={handleSubmit}
+                glowColor="primary"
+                disabled={updateListingMutation.isPending}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {updateListingMutation.isPending ? "Updating..." : "Update Listing"}
+              </NeonButton>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

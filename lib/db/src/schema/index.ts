@@ -7,3 +7,4 @@ export * from "./checkout-sessions";
 export * from "./messages";
 export * from "./portfolio";
 export * from "./contests";
+export * from "./equipment";
