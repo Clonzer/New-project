@@ -301,7 +301,7 @@ export default {
       client: "react-query",
       httpClient: "fetch",
       clean: true,
-      baseUrl: import.meta.env.VITE_API_URL || "http://localhost:3000",
+      baseUrl: "/api",
       override: {
         fetch: {
           includeHttpResponseReturnType: false,

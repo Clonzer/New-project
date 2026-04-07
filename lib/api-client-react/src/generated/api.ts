@@ -1673,7 +1673,8 @@ export const getListContestsUrl = (params?: ListContestsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/contests?${stringifiedParams}` : `http://localhost:3000/contests`
+// TEST MODIFICATION
+  return stringifiedParams.length > 0 ? `/contests?${stringifiedParams}` : `/contests`
 }
 
 export const listContests = async (params?: ListContestsParams, options?: RequestInit): Promise<ListContests200> => {
