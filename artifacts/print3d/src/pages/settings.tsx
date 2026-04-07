@@ -499,10 +499,7 @@ export default function Settings() {
                             try {
                               const response = await fetch("/api/users/convert-to-seller", {
                                 method: "POST",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                  Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-                                },
+                                credentials: "include",
                               });
 
                               if (response.ok) {
@@ -510,7 +507,6 @@ export default function Settings() {
                                   title: "Account upgraded!",
                                   description: "You are now a seller on Synthix. Welcome to the marketplace!",
                                 });
-                                // Refresh the page to show seller options
                                 window.location.reload();
                               } else {
                                 throw new Error("Failed to convert account");

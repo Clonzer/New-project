@@ -415,11 +415,31 @@ export default function Contests() {
               <Target className="w-8 h-8 text-primary" />
               <h2 className="text-3xl font-display font-bold text-white">Active Challenges</h2>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {visibleContests.map((contest) => (
-                <ContestCard key={contest.id} contest={contest} />
-              ))}
-            </div>
+            {visibleContests.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {visibleContests.map((contest) => (
+                  <ContestCard key={contest.id} contest={contest} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
+                <span className="inline-flex items-center justify-center rounded-full bg-red-500/10 text-red-300 text-sm font-semibold px-4 py-2 mb-4">
+                  No contests live right now
+                </span>
+                <h3 className="text-3xl font-display font-bold text-white mb-4">Check back soon for new challenges.</h3>
+                <p className="text-zinc-400 max-w-2xl mx-auto mb-6">
+                  Our contest calendar is refreshing automatically. In the meantime, explore active makers, submit your shop details, or join our community for the next round.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link href="/explore">
+                    <NeonButton glowColor="primary">Browse Makers</NeonButton>
+                  </Link>
+                  <Link href="/messages?contact=synthix">
+                    <Button variant="outline">Contact Synthix</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* Past Contests */}

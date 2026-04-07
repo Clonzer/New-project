@@ -258,7 +258,7 @@ export function Navbar() {
               <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
                 <Bell className="w-5 h-5" />
                 {notificationCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-[10px] font-bold text-white flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
                     {notificationCount > 99 ? "99+" : notificationCount}
                   </span>
                 ) : null}

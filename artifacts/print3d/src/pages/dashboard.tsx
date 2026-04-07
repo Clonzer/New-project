@@ -868,7 +868,9 @@ export default function Dashboard() {
                 <TabsTrigger value="admin" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Admin</TabsTrigger>
               ) : null}
               <TabsTrigger value="purchases" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Orders</TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Reviews</TabsTrigger>
+              {isSellerUser && (
+                <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Reviews</TabsTrigger>
+              )}
               {isSellerUser && (
                 <>
                   <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Manage Sales</TabsTrigger>
@@ -936,6 +938,24 @@ export default function Dashboard() {
             ) : null}
 
             {/* ── Buyer Orders ── */}
+            {!isSellerUser && (
+              <div className="glass-panel rounded-3xl border border-white/10 p-6 mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Buyer dashboard</h2>
+                    <p className="text-sm text-zinc-400 mt-1">Your account view is focused on orders and account settings only.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Link href="/settings">
+                      <NeonButton glowColor="primary">Open Settings</NeonButton>
+                    </Link>
+                    <Link href="/explore">
+                      <Button variant="outline" className="border-white/10 text-white hover:bg-white/5">Browse Makers</Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
             <TabsContent value="purchases" className="mt-0">
               <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                 <div className="p-6 border-b border-white/10 bg-white/5 flex justify-between items-center">
@@ -978,8 +998,9 @@ export default function Dashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value="reviews" className="mt-0">
-              <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+            {isSellerUser && (
+              <TabsContent value="reviews" className="mt-0">
+                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                 <div className="p-6 border-b border-white/10 bg-white/5">
                   <h2 className="text-xl font-bold text-white">Reviews you've left</h2>
                   <p className="text-sm text-zinc-500 mt-1">A history of the feedback you have submitted after completed orders.</p>

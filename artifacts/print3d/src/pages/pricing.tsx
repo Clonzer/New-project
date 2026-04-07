@@ -137,19 +137,15 @@ export default function Pricing() {
 
   const handlePlanPurchase = (planId: string) => {
     if (!user) {
-      // Not logged in - go to register
       setLocation("/register");
       return;
     }
 
     if (planId === "starter") {
-      // Starter is free, go to dashboard
-      setLocation("/vendor-dashboard");
+      setLocation("/settings?section=storefront");
       return;
     }
 
-    // For paid plans, redirect to Stripe checkout
-    // In a real app, this would call an API endpoint to create a Stripe checkout session
     const stripeCheckoutUrl = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}`;
     window.location.href = stripeCheckoutUrl;
   };

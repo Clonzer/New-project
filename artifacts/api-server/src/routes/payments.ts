@@ -13,6 +13,11 @@ import { createNotification } from "./notifications";
 import { canSellerShipToCountry, getShippingEstimate } from "../lib/shipping";
 
 const PLATFORM_FEE_PERCENT = 0.1;
+const PLAN_PRICING: Record<string, { monthly: number; yearly: number; name: string; description: string }> = {
+  starter: { monthly: 0, yearly: 0, name: "Starter", description: "Free seller onboarding and a basic shop listing." },
+  pro: { monthly: 1900, yearly: 1500, name: "Pro", description: "Lower fees and better seller tools for growing makers." },
+  elite: { monthly: 4900, yearly: 3900, name: "Elite", description: "Premium shop access with top-tier seller performance benefits." },
+};
 const router: IRouter = Router();
 
 type CheckoutItemInput = {
@@ -167,6 +172,60 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string, 
 
 router.get("/payments/config", (_req, res) => {
   res.json({ provider: "stripe", checkoutEnabled: isStripeConfigured() });
+});
+
+router.get("/payments/stripe/checkout", requireAuth, async (req: AuthedRequest, res) => {
+  if (!isStripeConfigured()) {
+    return res.status(503).json({ error: "payments_unavailable", message: "Stripe is not configured yet. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and APP_URL." });
+  }
+
+  const planId = String(req.query.plan ?? "starter");
+  const billing = String(req.query.billing ?? "monthly");
+  const plan = PLAN_PRICING[planId];
+  if (!plan) {
+    return res.status(400).json({ error: "invalid_plan", message: "Unknown plan selected." });
+  }
+
+  if (planId === "starter") {
+    return res.redirect(303, "/vendor-dashboard");
+  }
+
+  const priceCents = Math.round((billing === "yearly" ? plan.yearly : plan.monthly) * 100);
+  const [buyer] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+  if (!buyer) {
+    return res.status(404).json({ error: "not_found", message: "Buyer account not found." });
+  }
+
+  const appUrl = getAppUrl();
+  if (!appUrl) {
+    return res.status(503).json({ error: "payments_unavailable", message: "APP_URL or RENDER_EXTERNAL_URL must be available before checkout can start." });
+  }
+
+  try {
+    const stripeSession = await createStripeCheckoutSession({
+      customerEmail: buyer.email,
+      successUrl: `${appUrl}/settings?section=payment`,
+      cancelUrl: `${appUrl}/pricing`,
+      lineItems: [
+        {
+          name: `${plan.name} Plan`,
+          description: plan.description,
+          quantity: 1,
+          unitAmountCents: priceCents,
+        },
+      ],
+      metadata: {
+        userId: String(req.auth!.userId),
+        planId,
+        billing,
+      },
+    });
+
+    res.redirect(303, stripeSession.url);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not start plan checkout.";
+    res.status(400).json({ error: "checkout_error", message });
+  }
 });
 
 router.post("/payments/checkout-session", requireAuth, async (req: AuthedRequest, res) => {
