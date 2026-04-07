@@ -7,7 +7,7 @@ import { type AuthedRequest, requireAuth } from "../lib/auth";
 const router: IRouter = Router();
 
 // List equipment groups for a seller
-router.get("/equipment-groups", requireAuth, async (req: AuthedRequest, res) => {
+router.get("/groups", requireAuth, async (req: AuthedRequest, res) => {
   const groups = await db
     .select()
     .from(equipmentGroupsTable)
@@ -18,7 +18,7 @@ router.get("/equipment-groups", requireAuth, async (req: AuthedRequest, res) => 
 });
 
 // Create equipment group
-router.post("/equipment-groups", requireAuth, async (req: AuthedRequest, res) => {
+router.post("/groups", requireAuth, async (req: AuthedRequest, res) => {
   const { name, description, category } = req.body;
 
   if (!name || !category) {
@@ -40,7 +40,7 @@ router.post("/equipment-groups", requireAuth, async (req: AuthedRequest, res) =>
 });
 
 // Update equipment group
-router.put("/equipment-groups/:groupId", requireAuth, async (req: AuthedRequest, res) => {
+router.put("/groups/:groupId", requireAuth, async (req: AuthedRequest, res) => {
   const groupId = Number(req.params.groupId);
   const { name, description, category } = req.body;
 
@@ -69,7 +69,7 @@ router.put("/equipment-groups/:groupId", requireAuth, async (req: AuthedRequest,
 });
 
 // Delete equipment group
-router.delete("/equipment-groups/:groupId", requireAuth, async (req: AuthedRequest, res) => {
+router.delete("/groups/:groupId", requireAuth, async (req: AuthedRequest, res) => {
   const groupId = Number(req.params.groupId);
 
   const [existing] = await db

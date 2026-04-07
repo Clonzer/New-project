@@ -116,6 +116,7 @@ export default function CreateListing() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const createListingMutation = useCreateListing();
 
@@ -221,6 +222,35 @@ export default function CreateListing() {
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploadingImage(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+
+      const response = await fetch("/api/files/upload", {
+        method: "POST",
+        body: formDataUpload,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      updateFormData("imageUrl", result.url);
+    } catch (error) {
+      console.error("Image upload error:", error);
+      // TODO: Show error toast
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -599,35 +629,72 @@ export default function CreateListing() {
             className="space-y-6"
           >
             <div>
-              <Label htmlFor="imageUrl" className="text-white flex items-center gap-2">
-                Product Image URL <span className="text-red-400">*</span>
+              <Label className="text-white flex items-center gap-2">
+                Product Image <span className="text-red-400">*</span>
               </Label>
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => updateFormData("imageUrl", e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="mt-1"
-              />
-              {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
-              <p className="text-xs text-zinc-400 mt-1">
-                Upload your image to a service like Imgur or Cloudinary and paste the URL here
+              <p className="text-xs text-zinc-400 mt-1 mb-3">
+                Upload a high-quality image of your product
               </p>
-            </div>
 
-            {formData.imageUrl && (
-              <div className="border border-zinc-700 rounded-lg p-4">
-                <Label className="text-white mb-2 block">Preview</Label>
-                <img
-                  src={formData.imageUrl}
-                  alt="Product preview"
-                  className="w-full max-w-md h-48 object-cover rounded-lg mx-auto"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
+              {/* Image Upload */}
+              <div className="mb-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
+                  disabled={isUploadingImage}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="flex items-center justify-center w-full h-32 border-2 border-dashed border-zinc-600 rounded-lg cursor-pointer hover:border-primary transition-colors"
+                >
+                  {isUploadingImage ? (
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                      <p className="text-zinc-400">Uploading...</p>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Upload className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+                      <p className="text-zinc-400">Click to upload image</p>
+                      <p className="text-xs text-zinc-500">PNG, JPG, GIF up to 10MB</p>
+                    </div>
+                  )}
+                </label>
+              </div>
+
+              {/* Manual URL input as fallback */}
+              <div className="mb-4">
+                <Label htmlFor="imageUrl" className="text-white text-sm">
+                  Or enter image URL manually
+                </Label>
+                <Input
+                  id="imageUrl"
+                  value={formData.imageUrl}
+                  onChange={(e) => updateFormData("imageUrl", e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="mt-1"
                 />
               </div>
-            )}
+
+              {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
+
+              {formData.imageUrl && (
+                <div className="border border-zinc-700 rounded-lg p-4">
+                  <Label className="text-white mb-2 block">Preview</Label>
+                  <img
+                    src={formData.imageUrl}
+                    alt="Product preview"
+                    className="w-full max-w-md h-48 object-cover rounded-lg mx-auto"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
 
             {formData.isDigitalProduct && (
               <div>

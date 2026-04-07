@@ -39,8 +39,10 @@ interface Post {
     displayName: string;
     avatarUrl?: string;
   };
+  title?: string;
   content: string;
   imageUrl?: string;
+  videoUrl?: string;
   createdAt: string;
   likes: number;
   comments: Comment[];
@@ -48,49 +50,7 @@ interface Post {
   userReaction?: string;
 }
 
-const defaultDiscoverPosts: Post[] = [
-  {
-    id: 1,
-    userId: 1,
-    user: {
-      displayName: "Nova Maker",
-      avatarUrl: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=200&q=80",
-    },
-    content: "Just finished a new set of cosplay armor components with better snap-fit tolerances. Love how the purple glow came together!",
-    imageUrl: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-    likes: 12,
-    comments: [
-      {
-        id: 11,
-        userId: 2,
-        user: { displayName: "PixelSmith", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" },
-        content: "That finish is so clean! What filament did you use?",
-        createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-      },
-    ],
-    reactions: [
-      { emoji: "👍", count: 6, users: [2, 3, 4, 5, 6, 7] },
-      { emoji: "❤️", count: 3, users: [8, 9, 10] },
-    ],
-  },
-  {
-    id: 2,
-    userId: 3,
-    user: {
-      displayName: "CircuitCraft",
-      avatarUrl: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=200&q=80",
-    },
-    content: "Launching a new limited-run mini figurine collection tomorrow — every model is optimized for quick supports and easy painting.",
-    imageUrl: "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-    likes: 18,
-    comments: [],
-    reactions: [
-      { emoji: "🚀", count: 9, users: [1, 4, 7, 12, 14, 15, 16, 17, 18] },
-    ],
-  },
-];
+const defaultDiscoverPosts: Post[] = [];
 
 const trackEvent = (event: string, payload: Record<string, unknown> = {}) => {
   if (typeof window === "undefined") return;
@@ -119,6 +79,9 @@ export default function Discover() {
     return savedPosts ? JSON.parse(savedPosts) : defaultDiscoverPosts;
   });
   const [newPost, setNewPost] = useState("");
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [newVideo, setNewVideo] = useState<File | null>(null);
   const [newComment, setNewComment] = useState("");
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
@@ -260,23 +223,77 @@ export default function Discover() {
     trackEvent("discover_share", { postId: post.id });
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!newPost.trim()) return;
-    const post: Post = {
-      id: Date.now(),
-      userId: user?.id || 0,
-      user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl },
-      content: newPost,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      comments: [],
-      reactions: [],
-    };
-    const updatedPosts = [post, ...posts];
-    savePosts(updatedPosts);
-    setNewPost("");
-    toast({ title: "Post created!", description: "Your post has been shared." });
-    trackEvent("discover_post", { postId: post.id });
+
+    try {
+      let imageUrl: string | undefined;
+      let videoUrl: string | undefined;
+
+      // Upload image if selected
+      if (newImage) {
+        const formData = new FormData();
+        formData.append("file", newImage);
+
+        const response = await fetch("/api/files/upload", {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          imageUrl = result.url;
+        }
+      }
+
+      // Upload video if selected
+      if (newVideo) {
+        const formData = new FormData();
+        formData.append("file", newVideo);
+
+        const response = await fetch("/api/files/upload", {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          videoUrl = result.url;
+        }
+      }
+
+      const post: Post = {
+        id: Date.now(),
+        userId: user?.id || 0,
+        user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl },
+        title: newPostTitle.trim() || undefined,
+        content: newPost,
+        imageUrl,
+        videoUrl,
+        createdAt: new Date().toISOString(),
+        likes: 0,
+        comments: [],
+        reactions: [],
+      };
+
+      const updatedPosts = [post, ...posts];
+      savePosts(updatedPosts);
+      setNewPost("");
+      setNewPostTitle("");
+      setNewImage(null);
+      setNewVideo(null);
+      toast({ title: "Post created!", description: "Your post has been shared." });
+      trackEvent("discover_post", { postId: post.id });
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      toast({ title: "Failed to create post", variant: "destructive" });
+    }
   };
 
   // const { data: usersData } = useListUsers({ limit: 50 });
@@ -336,6 +353,12 @@ export default function Discover() {
                       <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-grow">
+                      <Input
+                        placeholder="Post title (optional)"
+                        value={newPostTitle}
+                        onChange={(e) => setNewPostTitle(e.target.value)}
+                        className="mb-3 bg-black/20 border-white/10"
+                      />
                       <Textarea
                         placeholder="Share your latest project or idea..."
                         value={newPost}
@@ -344,10 +367,34 @@ export default function Discover() {
                       />
                       <div className="flex justify-between items-center mt-4">
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Image
+                          <Button variant="outline" size="sm" asChild>
+                            <label htmlFor="image-upload" className="cursor-pointer">
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add Image
+                              <input
+                                id="image-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => setNewImage(e.target.files?.[0] || null)}
+                              />
+                            </label>
                           </Button>
+                          <Button variant="outline" size="sm" asChild>
+                            <label htmlFor="video-upload" className="cursor-pointer">
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add Video
+                              <input
+                                id="video-upload"
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={(e) => setNewVideo(e.target.files?.[0] || null)}
+                              />
+                            </label>
+                          </Button>
+                          {newImage && <span className="text-sm text-green-400">Image selected</span>}
+                          {newVideo && <span className="text-sm text-green-400">Video selected</span>}
                         </div>
                         <NeonButton onClick={handlePost} disabled={!newPost.trim()}>
                           Post
@@ -379,12 +426,22 @@ export default function Discover() {
                                 {new Date(post.createdAt).toLocaleDateString()}
                               </span>
                             </div>
+                            {post.title && (
+                              <h4 className="text-lg font-semibold text-white mb-2">{post.title}</h4>
+                            )}
                             <p className="text-zinc-300 mb-4">{post.content}</p>
                             {post.imageUrl && (
                               <img
                                 src={post.imageUrl}
                                 alt="Post image"
                                 className="rounded-xl w-full max-h-96 object-cover mb-4"
+                              />
+                            )}
+                            {post.videoUrl && (
+                              <video
+                                src={post.videoUrl}
+                                controls
+                                className="rounded-xl w-full max-h-96 mb-4"
                               />
                             )}
 
