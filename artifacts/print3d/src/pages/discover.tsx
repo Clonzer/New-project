@@ -48,10 +48,76 @@ interface Post {
   userReaction?: string;
 }
 
+const defaultDiscoverPosts: Post[] = [
+  {
+    id: 1,
+    userId: 1,
+    user: {
+      displayName: "Nova Maker",
+      avatarUrl: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=200&q=80",
+    },
+    content: "Just finished a new set of cosplay armor components with better snap-fit tolerances. Love how the purple glow came together!",
+    imageUrl: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+    likes: 12,
+    comments: [
+      {
+        id: 11,
+        userId: 2,
+        user: { displayName: "PixelSmith", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" },
+        content: "That finish is so clean! What filament did you use?",
+        createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+      },
+    ],
+    reactions: [
+      { emoji: "👍", count: 6, users: [2, 3, 4, 5, 6, 7] },
+      { emoji: "❤️", count: 3, users: [8, 9, 10] },
+    ],
+  },
+  {
+    id: 2,
+    userId: 3,
+    user: {
+      displayName: "CircuitCraft",
+      avatarUrl: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=200&q=80",
+    },
+    content: "Launching a new limited-run mini figurine collection tomorrow — every model is optimized for quick supports and easy painting.",
+    imageUrl: "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+    likes: 18,
+    comments: [],
+    reactions: [
+      { emoji: "🚀", count: 9, users: [1, 4, 7, 12, 14, 15, 16, 17, 18] },
+    ],
+  },
+];
+
+const trackEvent = (event: string, payload: Record<string, unknown> = {}) => {
+  if (typeof window === "undefined") return;
+  if ((window as any).analytics?.track) {
+    (window as any).analytics.track(event, payload);
+  }
+
+  if (Array.isArray((window as any).dataLayer)) {
+    (window as any).dataLayer.push({ event, ...payload });
+  } else {
+    (window as any).dataLayer = [{ event, ...payload }];
+  }
+
+  console.debug("[analytics]", event, payload);
+};
+
 export default function Discover() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>(() => {
+    if (typeof window === "undefined") {
+      return defaultDiscoverPosts;
+    }
+
+    const savedPosts = localStorage.getItem("discover-posts");
+    return savedPosts ? JSON.parse(savedPosts) : defaultDiscoverPosts;
+  });
   const [newPost, setNewPost] = useState("");
   const [newComment, setNewComment] = useState("");
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
@@ -63,21 +129,39 @@ export default function Discover() {
     { emoji: "👍", name: "thumbs up", icon: ThumbsUp },
     { emoji: "❤️", name: "heart", icon: Heart },
     { emoji: "😂", name: "laugh", icon: Laugh },
-    { emoji: "", name: "angry", icon: Angry },
+    { emoji: "😡", name: "angry", icon: Angry },
     { emoji: "😮", name: "surprised", icon: Smile },
   ];
 
   // Load posts from localStorage
-  useEffect(() => {
-    const savedPosts = localStorage.getItem('discover-posts');
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedPosts = localStorage.getItem('discover-posts');
+  //   if (savedPosts) {
+  //     setPosts(JSON.parse(savedPosts));
+  //   }
+  // }, []);
 
   const savePosts = (updatedPosts: Post[]) => {
     setPosts(updatedPosts);
-    localStorage.setItem('discover-posts', JSON.stringify(updatedPosts));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("discover-posts", JSON.stringify(updatedPosts));
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedPosts = localStorage.getItem("discover-posts");
+    if (savedPosts) {
+      setPosts(JSON.parse(savedPosts));
+    } else {
+      localStorage.setItem("discover-posts", JSON.stringify(defaultDiscoverPosts));
+    }
+    trackEvent("discover_page_view", { page: "discover" });
+  }, []);
+
+  const handleTabChange = (tab: "feed" | "projects" | "people" | "trending") => {
+    setActiveTab(tab);
+    trackEvent("discover_tab_change", { tab });
   };
 
   const handleLike = (postId: number) => {
@@ -87,39 +171,47 @@ export default function Discover() {
         : post
     );
     savePosts(updatedPosts);
+    trackEvent("discover_like", { postId });
   };
 
   const handleReaction = (postId: number, emoji: string) => {
     const updatedPosts = posts.map(post => {
-      if (post.id === postId) {
-        const existingReaction = post.reactions.find(r => r.emoji === emoji);
-        if (existingReaction) {
-          if (existingReaction.users.includes(user?.id || 0)) {
-            // Remove reaction
-            existingReaction.users = existingReaction.users.filter(id => id !== (user?.id || 0));
-            existingReaction.count--;
-            if (existingReaction.count === 0) {
-              post.reactions = post.reactions.filter(r => r.emoji !== emoji);
-            }
-          } else {
-            // Add reaction
-            existingReaction.users.push(user?.id || 0);
-            existingReaction.count++;
-          }
+      if (post.id !== postId) return post;
+
+      const userId = user?.id || 0;
+      const reactionIndex = post.reactions.findIndex(r => r.emoji === emoji);
+      let reactions = [...post.reactions];
+
+      if (reactionIndex >= 0) {
+        const existingReaction = reactions[reactionIndex];
+        const userHasReacted = existingReaction.users.includes(userId);
+
+        if (userHasReacted) {
+          reactions = reactions
+            .map((reaction, index) =>
+              index === reactionIndex
+                ? { ...reaction, users: reaction.users.filter(id => id !== userId), count: reaction.count - 1 }
+                : reaction
+            )
+            .filter(reaction => reaction.count > 0);
         } else {
-          // New reaction
-          post.reactions.push({
-            emoji,
-            count: 1,
-            users: [user?.id || 0]
-          });
+          reactions[reactionIndex] = {
+            ...existingReaction,
+            users: [...existingReaction.users, userId],
+            count: existingReaction.count + 1,
+          };
         }
-        post.userReaction = post.reactions.find(r => r.users.includes(user?.id || 0))?.emoji;
+      } else {
+        reactions.push({ emoji, count: 1, users: [userId] });
       }
-      return post;
+
+      const userReaction = reactions.find(reaction => reaction.users.includes(userId))?.emoji;
+      return { ...post, reactions, userReaction };
     });
+
     savePosts(updatedPosts);
     setShowEmojiPicker(null);
+    trackEvent("discover_reaction", { postId, emoji });
   };
 
   const handleComment = (postId: number) => {
@@ -142,22 +234,30 @@ export default function Discover() {
     setNewComment("");
     setCommentingPostId(null);
     toast({ title: "Comment added!", description: "Your comment has been posted." });
+    trackEvent("discover_comment", { postId });
   };
 
   const handleShare = (post: Post) => {
-    const shareUrl = `${window.location.origin}/discover`;
+    const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/discover` : "/discover";
     const shareText = `Check out this post by ${post.user.displayName}: "${post.content.substring(0, 100)}..."`;
 
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && "share" in navigator) {
       navigator.share({
-        title: 'Synthix Post',
+        title: "Synthix Post",
         text: shareText,
         url: shareUrl,
+      }).catch(() => {
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+        toast({ title: "Link copied!", description: "Post link copied to clipboard." });
       });
-    } else {
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
       toast({ title: "Link copied!", description: "Post link copied to clipboard." });
+    } else {
+      toast({ title: "Share unavailable", description: "This browser does not support sharing." });
     }
+
+    trackEvent("discover_share", { postId: post.id });
   };
 
   const handlePost = () => {
@@ -176,10 +276,13 @@ export default function Discover() {
     savePosts(updatedPosts);
     setNewPost("");
     toast({ title: "Post created!", description: "Your post has been shared." });
+    trackEvent("discover_post", { postId: post.id });
   };
 
-  const { data: usersData } = useListUsers({ limit: 50 });
-  const { data: listingsData } = useListListings({ limit: 50 });
+  // const { data: usersData } = useListUsers({ limit: 50 });
+  // const { data: listingsData } = useListListings({ limit: 50 });
+  const usersData = { users: [] };
+  const listingsData = { listings: [] };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -189,33 +292,34 @@ export default function Discover() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-display font-bold text-white mb-8">Discover</h1>
+            <p className="text-white text-lg mb-6">Browse community posts, trending picks, standout projects, and makers to follow.</p>
 
             {/* Tabs */}
             <div className="flex gap-1 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl w-fit">
               <Button
                 variant={activeTab === "feed" ? "default" : "ghost"}
-                onClick={() => setActiveTab("feed")}
+                onClick={() => handleTabChange("feed")}
                 className="rounded-lg"
               >
                 Feed
               </Button>
               <Button
                 variant={activeTab === "trending" ? "default" : "ghost"}
-                onClick={() => setActiveTab("trending")}
+                onClick={() => handleTabChange("trending")}
                 className="rounded-lg"
               >
                 Trending
               </Button>
               <Button
                 variant={activeTab === "projects" ? "default" : "ghost"}
-                onClick={() => setActiveTab("projects")}
+                onClick={() => handleTabChange("projects")}
                 className="rounded-lg"
               >
                 Projects
               </Button>
               <Button
                 variant={activeTab === "people" ? "default" : "ghost"}
-                onClick={() => setActiveTab("people")}
+                onClick={() => handleTabChange("people")}
                 className="rounded-lg"
               >
                 People
