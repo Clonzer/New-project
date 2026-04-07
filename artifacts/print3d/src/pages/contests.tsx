@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -44,6 +44,15 @@ interface ContestParticipant {
   };
 }
 
+interface ContestWinner {
+  position: number;
+  id: string;
+  username: string;
+  score: number;
+  prize: string;
+  avatar?: string;
+}
+
 interface Contest {
   id: number;
   title: string;
@@ -61,6 +70,7 @@ interface Contest {
   icon: React.ComponentType<{ className?: string }>;
   participants: number;
   leaderboard: ContestParticipant[];
+  winners: ContestWinner[];
   difficulty: "Easy" | "Medium" | "Hard";
   isActive: boolean;
 }
@@ -70,7 +80,7 @@ interface PastContest {
   title: string;
   endDate: Date;
   participants: number;
-  winner: ContestParticipant;
+  winners: ContestWinner[];
   prize: string;
 }
 
@@ -112,6 +122,7 @@ const transformContestData = (apiContest: any): Contest => {
     leaderboard: Array.isArray(apiContest.leaderboard) ? apiContest.leaderboard : [],
     prizes: Array.isArray(apiContest.prizes) ? apiContest.prizes : [],
     difficulty: getDifficulty(category),
+    winners: Array.isArray(apiContest.winners) ? apiContest.winners : [],
     isActive: status === "active",
   } as Contest;
 };
@@ -279,11 +290,15 @@ function ContestCard({ contest }: { contest: Contest }) {
 }
 
 export default function Contests() {
-  const { data: contestsData, isLoading, error } = useListContests({ status: "active" });
-  const { data: pastContestsData } = useListContests({ status: "completed" });
+  const { data: contestsData, isLoading, error } = useListContests({ status: "active", limit: 10 });
+  const { data: pastContestsData } = useListContests({ status: "completed", limit: 10 });
   const [pageError, setPageError] = useState<string | null>(null);
   const [activeContests, setActiveContests] = useState<Contest[]>([]);
   const [pastContests, setPastContests] = useState<PastContest[]>([]);
+  const visibleContests = useMemo(() => {
+    if (activeContests.length <= 2) return activeContests;
+    return [...activeContests].sort(() => Math.random() - 0.5).slice(0, 2);
+  }, [activeContests]);
 
   useEffect(() => {
     if (!contestsData?.contests) {
@@ -312,18 +327,22 @@ export default function Contests() {
         id: contest.id?.toString() ?? "unknown",
         title: contest.title ?? "Untitled contest",
         endDate: contest.endDate ? new Date(contest.endDate) : new Date(),
-        participants: 0,
-        winner: {
-          id: "winner-1",
-          username: "Winner",
-          score: 0,
-          entry: {
-            title: contest.prizes?.[0]?.title ?? "Winning entry",
-            image: "",
-            description: contest.prizes?.[0]?.description ?? "Winning entry description",
-          }
-        },
-        prize: String(contest.prizes?.[0]?.title ?? "Prize")
+        participants: typeof contest.participants === "number" ? contest.participants : 0,
+        winners: Array.isArray(contest.winners)
+          ? contest.winners.map((winner, index) => ({
+              ...winner,
+              position: index + 1,
+              prize: winner.prize || contest.prizes?.[index]?.title || `Top ${index + 1}`,
+            }))
+          : contest.leaderboard?.slice(0, 3).map((leader, index) => ({
+              position: index + 1,
+              id: leader.id,
+              username: leader.username,
+              score: leader.score,
+              prize: contest.prizes?.[index]?.title || `Top ${index + 1}`,
+              avatar: leader.avatar,
+            })) || [],
+        prize: String(contest.prizes?.[0]?.title ?? "Prize"),
       }));
       setPastContests(mapped);
     } catch (error) {
@@ -397,7 +416,7 @@ export default function Contests() {
               <h2 className="text-3xl font-display font-bold text-white">Active Challenges</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {activeContests.map((contest) => (
+              {visibleContests.map((contest) => (
                 <ContestCard key={contest.id} contest={contest} />
               ))}
             </div>
@@ -439,26 +458,40 @@ export default function Contests() {
                     <div className="border-t border-white/10 pt-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3">Winning Entry</h4>
+                          <h4 className="text-lg font-semibold text-white mb-3">Top Winners</h4>
                           <div className="space-y-3">
-                            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                              <div className="text-center">
-                                <Trophy className="w-12 h-12 text-primary mx-auto mb-2" />
-                                <p className="text-primary font-medium">Winner</p>
+                            {contest.winners.length > 0 ? (
+                              contest.winners.map((winner) => (
+                                <div key={`${contest.id}-${winner.position}`} className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
+                                  <div className="flex items-center justify-between gap-3 mb-2">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-white font-semibold">
+                                        {winner.position}
+                                      </div>
+                                      <div>
+                                        <p className="text-white font-medium">{winner.username}</p>
+                                        <p className="text-xs text-zinc-400">Score: {winner.score}</p>
+                                      </div>
+                                    </div>
+                                    <Badge variant="outline" className="border-white/20 text-zinc-300">
+                                      {winner.prize}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-4 rounded-xl bg-white/5 text-zinc-400">
+                                No winner data available for this contest.
                               </div>
-                            </div>
-                            <h5 className="text-white font-medium">{contest.winner.entry?.title}</h5>
-                            <p className="text-sm text-zinc-400">{contest.winner.entry?.description}</p>
+                            )}
                           </div>
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-white mb-3">Prize Won</h4>
+                          <h4 className="text-lg font-semibold text-white mb-3">Contest Summary</h4>
                           <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
-                            <div className="flex items-center gap-3 mb-2">
-                              <Crown className="w-5 h-5 text-yellow-400" />
-                              <span className="text-white font-medium">1st Place</span>
-                            </div>
-                            <p className="text-sm text-zinc-400">{contest.prize}</p>
+                            <p className="text-sm text-zinc-400 mb-3">Participants: {contest.participants}</p>
+                            <p className="text-sm text-zinc-400 mb-3">Ended on: {contest.endDate.toLocaleDateString()}</p>
+                            <p className="text-sm text-zinc-400">Category: {contest.category}</p>
                           </div>
                         </div>
                       </div>

@@ -31,28 +31,58 @@ router.get("/", async (req, res) => {
     .limit(limit)
     .offset(offset);
 
+  // Get participants and leaderboard for each contest
+  const contestsWithDetails = await Promise.all(
+    contests.map(async (contest) => {
+      const participants = await db
+        .select({
+          id: contestParticipantsTable.id,
+          userId: contestParticipantsTable.userId,
+          score: contestParticipantsTable.score,
+          rank: contestParticipantsTable.rank,
+          username: usersTable.username,
+          displayName: usersTable.displayName,
+          avatarUrl: usersTable.avatarUrl,
+        })
+        .from(contestParticipantsTable)
+        .innerJoin(usersTable, eq(contestParticipantsTable.userId, usersTable.id))
+        .where(eq(contestParticipantsTable.contestId, contest.id))
+        .orderBy(desc(contestParticipantsTable.score))
+        .limit(10);
+
+      // Get user details for leaderboard
+      const leaderboard = participants.map((participant) => ({
+        id: participant.userId.toString(),
+        username: participant.displayName || participant.username,
+        score: participant.score,
+        avatar: participant.avatarUrl,
+      }));
+
+      const winners = participants.slice(0, 3).map((participant, index) => ({
+        position: index + 1,
+        id: participant.userId.toString(),
+        username: participant.displayName || participant.username,
+        score: participant.score,
+        prize: contest.prizes?.[index]?.title || `Top ${index + 1}`,
+        avatar: participant.avatarUrl,
+      }));
+
+      return {
+        ...contest,
+        participants: participants.length,
+        leaderboard,
+        winners,
+      };
+    })
+  );
+
   const total = await db
     .select({ count: sql<number>`count(*)` })
     .from(contestsTable)
     .where(whereClause);
 
   res.json({
-    contests: contests.map(contest => ({
-      id: contest.id,
-      title: contest.title,
-      description: contest.description,
-      category: contest.category,
-      status: contest.status,
-      startDate: contest.startDate,
-      endDate: contest.endDate,
-      rules: contest.rules,
-      prizes: contest.prizes,
-      createdBy: contest.createdBy,
-      createdAt: contest.createdAt,
-      updatedAt: contest.updatedAt,
-      participants: 0,
-      leaderboard: [],
-    })),
+    contests: contestsWithDetails,
     total: total[0].count,
   });
 });

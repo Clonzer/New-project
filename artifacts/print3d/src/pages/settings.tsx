@@ -470,7 +470,64 @@ export default function Settings() {
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Storefront</h2>
                     {!isSeller ? (
-                      <p className="text-zinc-400">Upgrade your account to seller mode during registration to manage a shop.</p>
+                      <div className="glass-panel rounded-2xl border border-primary/20 bg-primary/5 p-6">
+                        <h3 className="text-lg font-bold text-white mb-3">Become a Seller</h3>
+                        <p className="text-zinc-400 mb-4">
+                          Join the Synthix marketplace as a seller. Create your own shop, list your 3D prints, and start earning from your designs.
+                        </p>
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Create and manage your own shop</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>List unlimited 3D print designs</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Receive orders and payments automatically</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Access to seller analytics and insights</span>
+                          </div>
+                        </div>
+                        <NeonButton
+                          glowColor="primary"
+                          onClick={async () => {
+                            try {
+                              const response = await fetch("/api/users/convert-to-seller", {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                                },
+                              });
+
+                              if (response.ok) {
+                                toast({
+                                  title: "Account upgraded!",
+                                  description: "You are now a seller on Synthix. Welcome to the marketplace!",
+                                });
+                                // Refresh the page to show seller options
+                                window.location.reload();
+                              } else {
+                                throw new Error("Failed to convert account");
+                              }
+                            } catch (error) {
+                              console.error("Account conversion error:", error);
+                              toast({
+                                title: "Conversion failed",
+                                description: "Unable to convert your account. Please try again.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Become a Seller
+                        </NeonButton>
+                      </div>
                     ) : (
                       <>
                         <div>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, GitCompareArrows, Flag } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { cartItemCount, CART_CHANGE_EVENT } from "@/lib/cart-storage";
 import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare";
 import { listMessageThreads } from "@/lib/messages-api";
+import { getUnreadNotificationsCount } from "@/lib/notifications-api";
 import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
 
 export function Navbar() {
@@ -17,6 +18,7 @@ export function Navbar() {
   const [headerSearch, setHeaderSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [comparedCount, setComparedCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
 
@@ -44,13 +46,26 @@ export function Navbar() {
 
   useEffect(() => {
     if (!user) {
-      setNotificationCount(0);
+      setMessageCount(0);
       return;
     }
 
     void listMessageThreads()
       .then((result) => {
-        setNotificationCount(result.threads.reduce((sum, thread) => sum + thread.unreadCount, 0));
+        setMessageCount(result.threads.reduce((sum, thread) => sum + thread.unreadCount, 0));
+      })
+      .catch(() => setMessageCount(0));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+
+    void getUnreadNotificationsCount()
+      .then((result) => {
+        setNotificationCount(result.unreadCount);
       })
       .catch(() => setNotificationCount(0));
   }, [user]);
@@ -228,9 +243,22 @@ export function Navbar() {
           {user ? (
             <Link href="/messages">
               <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
+                <MessageSquare className="w-5 h-5" />
+                {messageCount > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                    {messageCount > 99 ? "99+" : messageCount}
+                  </span>
+                ) : null}
+              </Button>
+            </Link>
+          ) : null}
+
+          {user ? (
+            <Link href="/notifications">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
                 <Bell className="w-5 h-5" />
                 {notificationCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-[10px] font-bold text-white flex items-center justify-center">
                     {notificationCount > 99 ? "99+" : notificationCount}
                   </span>
                 ) : null}

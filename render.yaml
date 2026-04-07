@@ -39,6 +39,42 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
 
+  - type: cron
+    name: contest-manager
+    runtime: node
+    rootDir: .
+    plan: starter
+    schedule: "0 */6 * * *"  # Every 6 hours
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile
+    startCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm run contests:manage
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: synthix-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+
+  - type: cron
+    name: contest-winner-processor
+    runtime: node
+    rootDir: .
+    plan: starter
+    schedule: "0 0 * * *"  # Daily at midnight
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile
+    startCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm run contests:process-winners
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: synthix-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+
 databases:
   - name: synthix-db
     plan: starter

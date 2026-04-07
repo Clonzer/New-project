@@ -235,6 +235,31 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
   res.json(publicUser(user));
 });
 
+router.post("/users/convert-to-seller", requireAuth, async (req: AuthedRequest, res) => {
+  const userId = req.auth!.userId;
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  if (!user) {
+    res.status(404).json({ error: "not_found", message: "User not found." });
+    return;
+  }
+
+  if (user.role === "seller" || user.role === "both") {
+    res.json(publicUser(user));
+    return;
+  }
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      role: "seller",
+      shopName: user.shopName?.trim() || `${user.displayName}'s Shop`,
+    })
+    .where(eq(usersTable.id, userId))
+    .returning();
+
+  res.json(publicUser(updatedUser));
+});
+
 router.get("/users/:userId/portfolio", async (req, res) => {
   const userId = Number(req.params.userId);
   const portfolio = await db.select().from(portfolioTable).where(eq(portfolioTable.userId, userId));
@@ -287,6 +312,44 @@ router.delete("/users/:userId/portfolio/:portfolioId", requireAuth, requireSelf(
     return;
   }
   res.json({ ok: true });
+});
+
+// Convert buyer account to seller
+router.post("/users/convert-to-seller", requireAuth, async (req: AuthedRequest, res) => {
+  const userId = req.user.id;
+
+  // Get current user
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  if (!user) {
+    res.status(404).json({ error: "not_found", message: "User not found" });
+    return;
+  }
+
+  // Check if already a seller
+  if (user.role === "seller" || user.role === "both") {
+    res.status(400).json({ error: "already_seller", message: "Account is already a seller" });
+    return;
+  }
+
+  // Update role to seller
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      role: "seller",
+      accountStatus: "member", // Ensure account is active
+    })
+    .where(eq(usersTable.id, userId))
+    .returning();
+
+  if (!updatedUser) {
+    res.status(500).json({ error: "server_error", message: "Failed to update account" });
+    return;
+  }
+
+  res.json({
+    message: "Account successfully converted to seller",
+    user: publicUser(updatedUser)
+  });
 });
 
 export default router;

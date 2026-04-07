@@ -9,6 +9,8 @@
     "seed": "tsx ./src/seed.ts",
     "create-synthix-accounts": "tsx ./src/create-synthix-accounts.ts",
     "create-monthly-contests": "tsx ./src/create-monthly-contests.ts",
+    "contests:manage": "tsx ./src/create-monthly-contests.ts",
+    "contests:process-winners": "tsx ./src/process-contest-winners.ts",
     "check-contests": "tsx ./src/check-contests.ts",
     "process-contest-winners": "tsx ./src/process-contest-winners.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -18,6 +18,7 @@ import Register from "@/pages/register";
 import Login from "@/pages/login";
 import Settings from "@/pages/settings";
 import Messages from "@/pages/messages";
+import NotificationsPage from "@/pages/notifications";
 import Pricing from "@/pages/pricing";
 import Cart from "@/pages/cart";
 import SearchPage from "@/pages/search";
@@ -106,6 +107,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/messages" component={MessagesPage} />
+      <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/help" component={Help} />
       <Route path="/terms" component={TermsPage} />

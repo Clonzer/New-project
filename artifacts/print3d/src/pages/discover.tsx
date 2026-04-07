@@ -38,6 +38,7 @@ interface Post {
   user: {
     displayName: string;
     avatarUrl?: string;
+    sellerTags?: string[];
   };
   title?: string;
   content: string;
@@ -488,6 +489,15 @@ export default function Discover() {
                           <div className="flex-grow">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-bold text-white">{post.user.displayName}</h3>
+                              {post.user.sellerTags && post.user.sellerTags.length > 0 && (
+                                <div className="flex gap-1">
+                                  {post.user.sellerTags.slice(0, 2).map((tag) => (
+                                    <Badge key={tag} variant="outline" className="text-xs border-white/20 text-zinc-300">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
                               <span className="text-sm text-zinc-500">
                                 {new Date(post.createdAt).toLocaleDateString()}
                               </span>

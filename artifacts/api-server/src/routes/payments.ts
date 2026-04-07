@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@workspace/db";
-import { checkoutSessionsTable, listingsTable, ordersTable, usersTable } from "@workspace/db/schema";
+import { checkoutSessionsTable, listingsTable, notificationsTable, ordersTable, usersTable } from "@workspace/db/schema";
 import { type AuthedRequest, requireAuth } from "../lib/auth";
 import {
   createStripeCheckoutSession,
@@ -9,6 +9,7 @@ import {
   isStripeConfigured,
   verifyStripeWebhookSignature,
 } from "../lib/stripe";
+import { createNotification } from "./notifications";
 import { canSellerShipToCountry, getShippingEstimate } from "../lib/shipping";
 
 const PLATFORM_FEE_PERCENT = 0.1;
@@ -263,24 +264,51 @@ router.post("/payments/stripe/webhook", async (req, res) => {
 
   if (event.type === "checkout.session.completed" && checkoutSession.status !== "completed") {
     const drafts = JSON.parse(checkoutSession.payloadJson) as NormalizedOrderDraft[];
+    const [buyer] = await db
+      .select({ displayName: usersTable.displayName })
+      .from(usersTable)
+      .where(eq(usersTable.id, checkoutSession.buyerId));
+
     const orderValues = drafts.map((draft) => ({
-        buyerId: checkoutSession.buyerId,
-        sellerId: draft.sellerId,
-        listingId: draft.listingId,
-        title: draft.title,
-        fileUrl: draft.fileUrl,
-        notes: draft.notes,
-        material: draft.material,
-        color: draft.color,
-        quantity: draft.quantity,
-        unitPrice: draft.unitPrice,
-        platformFee: draft.platformFee,
-        shippingCost: draft.shippingCost,
-        totalPrice: draft.totalPrice,
-        status: "pending" as const,
-        shippingAddress: checkoutSession.shippingAddress,
-      }));
-    await db.insert(ordersTable).values(orderValues);
+      buyerId: checkoutSession.buyerId,
+      sellerId: draft.sellerId,
+      listingId: draft.listingId,
+      title: draft.title,
+      fileUrl: draft.fileUrl,
+      notes: draft.notes,
+      material: draft.material,
+      color: draft.color,
+      quantity: draft.quantity,
+      unitPrice: draft.unitPrice,
+      platformFee: draft.platformFee,
+      shippingCost: draft.shippingCost,
+      totalPrice: draft.totalPrice,
+      status: "pending" as const,
+      shippingAddress: checkoutSession.shippingAddress,
+    }));
+    const insertedOrders = await db.insert(ordersTable).values(orderValues).returning();
+
+    const buyerName = buyer?.displayName ?? "Customer";
+
+    for (const order of insertedOrders) {
+      await createNotification({
+        userId: order.sellerId,
+        actorId: checkoutSession.buyerId,
+        type: "order",
+        title: "New order received",
+        body: `${buyerName} placed an order for ${order.title}.`,
+        url: `/dashboard?order=${order.id}`,
+      });
+
+      await createNotification({
+        userId: order.buyerId,
+        actorId: order.sellerId,
+        type: "order_update",
+        title: "Order confirmed",
+        body: `Your order for ${order.title} is confirmed and waiting on seller processing.`,
+        url: `/dashboard?order=${order.id}`,
+      });
+    }
 
     await db
       .update(checkoutSessionsTable)

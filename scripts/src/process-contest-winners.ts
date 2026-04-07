@@ -1,5 +1,5 @@
 import { db } from "@workspace/db";
-import { contestsTable, contestParticipantsTable, usersTable } from "@workspace/db/schema";
+import { contestsTable, contestParticipantsTable, notificationsTable, usersTable } from "@workspace/db/schema";
 import { eq, lte, desc, sql } from "drizzle-orm";
 
 async function processCompletedContests() {
@@ -52,8 +52,14 @@ async function processCompletedContests() {
       console.log(`   Prize: ${prize.title} - ${prize.description}`);
       console.log(`   Score: ${winner.score}`);
 
-      // Here you would send an actual message via the messaging system
-      // For now, we'll just log it
+      await db.insert(notificationsTable).values({
+        userId: winner.userId,
+        actorId: null,
+        type: "contest_winner",
+        title: `You placed #${i + 1} in ${contest.title}`,
+        body: `Congratulations! You won ${prize.title} in the ${contest.title} contest. Prize: ${prize.description}`,
+        url: "/contests",
+      });
     }
 
     console.log(`✅ Contest "${contest.title}" completed with ${participants.length} participants\n`);
