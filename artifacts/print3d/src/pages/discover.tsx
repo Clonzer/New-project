@@ -10,8 +10,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star } from "lucide-react";
-import { motion } from "framer-motion";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+interface Comment {
+  id: number;
+  userId: number;
+  user: {
+    displayName: string;
+    avatarUrl?: string;
+  };
+  content: string;
+  createdAt: string;
+}
+
+interface Reaction {
+  emoji: string;
+  count: number;
+  users: number[];
+}
 
 interface Post {
   id: number;
@@ -24,8 +43,9 @@ interface Post {
   imageUrl?: string;
   createdAt: string;
   likes: number;
-  comments: number;
-  isLiked: boolean;
+  comments: Comment[];
+  reactions: Reaction[];
+  userReaction?: string;
 }
 
 export default function Discover() {
@@ -33,51 +53,111 @@ export default function Discover() {
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [newPost, setNewPost] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people">("feed");
+  const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people" | "trending">("feed");
+  const [showEmojiPicker, setShowEmojiPicker] = useState<number | null>(null);
 
-  // Mock data with localStorage persistence
+  const emojis = [
+    { emoji: "👍", name: "thumbs up", icon: ThumbsUp },
+    { emoji: "❤️", name: "heart", icon: Heart },
+    { emoji: "😂", name: "laugh", icon: Laugh },
+    { emoji: "", name: "angry", icon: Angry },
+    { emoji: "😮", name: "surprised", icon: Smile },
+  ];
+
+  // Load posts from localStorage
   useEffect(() => {
     const savedPosts = localStorage.getItem('discover-posts');
     if (savedPosts) {
       setPosts(JSON.parse(savedPosts));
-    } else {
-      const initialPosts = [
-        {
-          id: 1,
-          userId: 1,
-          user: { displayName: "Alice Maker", avatarUrl: "" },
-          content: "Just finished this amazing custom miniatures set! Check it out in my shop.",
-          imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop",
-          createdAt: new Date().toISOString(),
-          likes: 12,
-          comments: 3,
-          isLiked: false,
-        },
-        {
-          id: 2,
-          userId: 2,
-          user: { displayName: "Bob Printer", avatarUrl: "" },
-          content: "New project: 3D printed chess set with LED lights. Who's interested?",
-          createdAt: new Date().toISOString(),
-          likes: 8,
-          comments: 1,
-          isLiked: true,
-        },
-      ];
-      setPosts(initialPosts);
-      localStorage.setItem('discover-posts', JSON.stringify(initialPosts));
     }
   }, []);
+
+  const savePosts = (updatedPosts: Post[]) => {
+    setPosts(updatedPosts);
+    localStorage.setItem('discover-posts', JSON.stringify(updatedPosts));
+  };
 
   const handleLike = (postId: number) => {
     const updatedPosts = posts.map(post =>
       post.id === postId
-        ? { ...post, isLiked: !post.isLiked, likes: post.likes + (post.isLiked ? -1 : 1) }
+        ? { ...post, likes: post.likes + 1 }
         : post
     );
-    setPosts(updatedPosts);
-    localStorage.setItem('discover-posts', JSON.stringify(updatedPosts));
+    savePosts(updatedPosts);
+  };
+
+  const handleReaction = (postId: number, emoji: string) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        const existingReaction = post.reactions.find(r => r.emoji === emoji);
+        if (existingReaction) {
+          if (existingReaction.users.includes(user?.id || 0)) {
+            // Remove reaction
+            existingReaction.users = existingReaction.users.filter(id => id !== (user?.id || 0));
+            existingReaction.count--;
+            if (existingReaction.count === 0) {
+              post.reactions = post.reactions.filter(r => r.emoji !== emoji);
+            }
+          } else {
+            // Add reaction
+            existingReaction.users.push(user?.id || 0);
+            existingReaction.count++;
+          }
+        } else {
+          // New reaction
+          post.reactions.push({
+            emoji,
+            count: 1,
+            users: [user?.id || 0]
+          });
+        }
+        post.userReaction = post.reactions.find(r => r.users.includes(user?.id || 0))?.emoji;
+      }
+      return post;
+    });
+    savePosts(updatedPosts);
+    setShowEmojiPicker(null);
+  };
+
+  const handleComment = (postId: number) => {
+    if (!newComment.trim()) return;
+
+    const comment: Comment = {
+      id: Date.now(),
+      userId: user?.id || 0,
+      user: { displayName: user?.displayName || "You", avatarUrl: user?.avatarUrl },
+      content: newComment,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedPosts = posts.map(post =>
+      post.id === postId
+        ? { ...post, comments: [...post.comments, comment] }
+        : post
+    );
+    savePosts(updatedPosts);
+    setNewComment("");
+    setCommentingPostId(null);
+    toast({ title: "Comment added!", description: "Your comment has been posted." });
+  };
+
+  const handleShare = (post: Post) => {
+    const shareUrl = `${window.location.origin}/discover`;
+    const shareText = `Check out this post by ${post.user.displayName}: "${post.content.substring(0, 100)}..."`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Synthix Post',
+        text: shareText,
+        url: shareUrl,
+      });
+    } else {
+      navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      toast({ title: "Link copied!", description: "Post link copied to clipboard." });
+    }
   };
 
   const handlePost = () => {
@@ -89,12 +169,11 @@ export default function Discover() {
       content: newPost,
       createdAt: new Date().toISOString(),
       likes: 0,
-      comments: 0,
-      isLiked: false,
+      comments: [],
+      reactions: [],
     };
     const updatedPosts = [post, ...posts];
-    setPosts(updatedPosts);
-    localStorage.setItem('discover-posts', JSON.stringify(updatedPosts));
+    savePosts(updatedPosts);
     setNewPost("");
     toast({ title: "Post created!", description: "Your post has been shared." });
   };
@@ -119,6 +198,13 @@ export default function Discover() {
                 className="rounded-lg"
               >
                 Feed
+              </Button>
+              <Button
+                variant={activeTab === "trending" ? "default" : "ghost"}
+                onClick={() => setActiveTab("trending")}
+                className="rounded-lg"
+              >
+                Trending
               </Button>
               <Button
                 variant={activeTab === "projects" ? "default" : "ghost"}
@@ -197,30 +283,203 @@ export default function Discover() {
                                 className="rounded-xl w-full max-h-96 object-cover mb-4"
                               />
                             )}
-                            <div className="flex items-center gap-6">
+
+                            {/* Reactions */}
+                            {post.reactions.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                {post.reactions.map((reaction) => (
+                                  <Button
+                                    key={reaction.emoji}
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleReaction(post.id, reaction.emoji)}
+                                    className={`text-xs px-2 py-1 h-auto ${
+                                      reaction.users.includes(user?.id || 0) ? "bg-primary/20 text-primary" : "text-zinc-400"
+                                    }`}
+                                  >
+                                    {reaction.emoji} {reaction.count}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Popover open={showEmojiPicker === post.id} onOpenChange={(open) => setShowEmojiPicker(open ? post.id : null)}>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-primary">
+                                      <Smile className="w-4 h-4 mr-2" />
+                                      React
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-2" align="start">
+                                    <div className="flex gap-1">
+                                      {emojis.map((emoji) => (
+                                        <Button
+                                          key={emoji.emoji}
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleReaction(post.id, emoji.emoji)}
+                                          className="p-2 hover:bg-primary/20"
+                                        >
+                                          {emoji.emoji}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setCommentingPostId(commentingPostId === post.id ? null : post.id)}
+                                  className="text-zinc-400 hover:text-primary"
+                                >
+                                  <MessageCircle className="w-4 h-4 mr-2" />
+                                  {post.comments.length}
+                                </Button>
+
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleShare(post)}
+                                  className="text-zinc-400 hover:text-primary"
+                                >
+                                  <Share className="w-4 h-4 mr-2" />
+                                  Share
+                                </Button>
+                              </div>
+
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleLike(post.id)}
-                                className={post.isLiked ? "text-red-400" : "text-zinc-400"}
+                                className="text-zinc-400 hover:text-red-400"
                               >
-                                <Heart className={`w-4 h-4 mr-2 ${post.isLiked ? "fill-current" : ""}`} />
+                                <Heart className="w-4 h-4 mr-2" />
                                 {post.likes}
                               </Button>
-                              <Button variant="ghost" size="sm" className="text-zinc-400">
-                                <MessageCircle className="w-4 h-4 mr-2" />
-                                {post.comments}
-                              </Button>
-                              <Button variant="ghost" size="sm" className="text-zinc-400">
-                                <Share className="w-4 h-4 mr-2" />
-                                Share
-                              </Button>
                             </div>
+
+                            {/* Comments Section */}
+                            <AnimatePresence>
+                              {commentingPostId === post.id && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="mt-4 pt-4 border-t border-white/10"
+                                >
+                                  <div className="space-y-3">
+                                    {post.comments.map((comment) => (
+                                      <div key={comment.id} className="flex gap-3">
+                                        <Avatar className="w-8 h-8">
+                                          <AvatarImage src={comment.user.avatarUrl} />
+                                          <AvatarFallback className="text-xs">{comment.user.displayName.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                          <div className="bg-black/20 rounded-lg px-3 py-2">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <span className="text-sm font-medium text-white">{comment.user.displayName}</span>
+                                              <span className="text-xs text-zinc-500">
+                                                {new Date(comment.createdAt).toLocaleDateString()}
+                                              </span>
+                                            </div>
+                                            <p className="text-sm text-zinc-300">{comment.content}</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+
+                                    <div className="flex gap-3">
+                                      <Avatar className="w-8 h-8">
+                                        <AvatarImage src={user?.avatarUrl} />
+                                        <AvatarFallback className="text-xs">{user?.displayName?.charAt(0)}</AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 flex gap-2">
+                                        <Input
+                                          value={newComment}
+                                          onChange={(e) => setNewComment(e.target.value)}
+                                          placeholder="Write a comment..."
+                                          className="bg-black/20 border-white/10 text-white flex-1"
+                                          onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
+                                        />
+                                        <Button
+                                          onClick={() => handleComment(post.id)}
+                                          disabled={!newComment.trim()}
+                                          size="sm"
+                                        >
+                                          Post
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       </div>
                     </motion.div>
                   ))}
+
+                  {posts.length === 0 && (
+                    <div className="text-center py-12">
+                      <MessageCircle className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">No posts yet</h3>
+                      <p className="text-zinc-400">Be the first to share something amazing!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "trending" && (
+              <div className="space-y-6">
+                <div className="glass-panel rounded-3xl border border-white/10 p-6">
+                  <h2 className="text-2xl font-bold text-white mb-4">🔥 Trending on Synthix</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 bg-primary/10 rounded-xl border border-primary/20">
+                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                        <span className="text-2xl">🏆</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">Top Sellers This Week</h3>
+                        <p className="text-sm text-zinc-400">See who's dominating the marketplace</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 bg-accent/10 rounded-xl border border-accent/20">
+                      <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center">
+                        <span className="text-2xl">🚀</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">Hot Categories</h3>
+                        <p className="text-sm text-zinc-400">Miniatures and cosplay are trending</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                      <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-2xl">💡</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">New Features</h3>
+                        <p className="text-sm text-zinc-400">Discover the latest Synthix updates</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="glass-panel rounded-3xl border border-white/10 p-6">
+                  <h3 className="text-xl font-bold text-white mb-4">📈 Popular Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art", "#Functional", "#Gaming"].map((tag) => (
+                      <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-primary/20 border-white/20 text-zinc-300">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
