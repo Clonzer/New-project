@@ -1,5 +1,5 @@
 -- Equipment management and enhanced listings
-CREATE TABLE equipment_groups (
+CREATE TABLE IF NOT EXISTS equipment_groups (
     id SERIAL PRIMARY KEY,
     seller_id INTEGER NOT NULL,
     name TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE equipment_groups (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE equipment (
+CREATE TABLE IF NOT EXISTS equipment (
     id SERIAL PRIMARY KEY,
     seller_id INTEGER NOT NULL,
     group_id INTEGER REFERENCES equipment_groups(id),
@@ -28,18 +28,18 @@ CREATE TABLE equipment (
 );
 
 -- Add new columns to listings table
-ALTER TABLE listings ADD COLUMN product_type TEXT NOT NULL DEFAULT '3d_printing';
-ALTER TABLE listings ADD COLUMN equipment_used INTEGER[] DEFAULT '{}';
-ALTER TABLE listings ADD COLUMN equipment_groups INTEGER[] DEFAULT '{}';
-ALTER TABLE listings ADD COLUMN is_print_on_demand BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE listings ADD COLUMN is_digital_product BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE listings ADD COLUMN digital_files TEXT[] DEFAULT '{}';
-ALTER TABLE listings ADD COLUMN stock_type TEXT NOT NULL DEFAULT 'inventory';
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS product_type TEXT NOT NULL DEFAULT '3d_printing';
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS equipment_used INTEGER[] DEFAULT '{}';
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS equipment_groups INTEGER[] DEFAULT '{}';
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS is_print_on_demand BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS is_digital_product BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS digital_files TEXT[] DEFAULT '{}';
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS stock_type TEXT NOT NULL DEFAULT 'inventory';
 
 -- Create indexes for better performance
-CREATE INDEX idx_equipment_groups_seller_id ON equipment_groups(seller_id);
-CREATE INDEX idx_equipment_seller_id ON equipment(seller_id);
-CREATE INDEX idx_equipment_group_id ON equipment(group_id);
-CREATE INDEX idx_listings_product_type ON listings(product_type);
-CREATE INDEX idx_listings_stock_type ON listings(stock_type);
-CREATE INDEX idx_listings_is_digital_product ON listings(is_digital_product);
+CREATE INDEX IF NOT EXISTS idx_equipment_groups_seller_id ON equipment_groups(seller_id);
+CREATE INDEX IF NOT EXISTS idx_equipment_seller_id ON equipment(seller_id);
+CREATE INDEX IF NOT EXISTS idx_equipment_group_id ON equipment(group_id);
+CREATE INDEX IF NOT EXISTS idx_listings_product_type ON listings(product_type);
+CREATE INDEX IF NOT EXISTS idx_listings_stock_type ON listings(stock_type);
+CREATE INDEX IF NOT EXISTS idx_listings_is_digital_product ON listings(is_digital_product);
