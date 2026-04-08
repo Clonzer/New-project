@@ -9,3 +9,5 @@ export * from "./portfolio";
 export * from "./contests";
 export * from "./equipment";
 export * from "./notifications";
+export * from "./sponsorship-tiers";
+export * from "./sponsorship-transactions";

@@ -62,10 +62,102 @@ const FAQ_DATA: FAQItem[] = [
     question: "What if I have a problem with my order?",
     answer: "Contact the seller directly through the messages system. If you can't resolve it, reach out to our support team.",
     category: "Support"
+  },
+  // Error Code FAQs
+  {
+    question: "Error: PAYMENT_FAILED (ERR_001) - Payment processing failed",
+    answer: "This error occurs when your payment cannot be processed. Check your card details, ensure sufficient funds, and try again. If the issue persists, contact your bank or try a different payment method.",
+    category: "Errors"
+  },
+  {
+    question: "Error: ORDER_NOT_FOUND (ERR_002) - Order could not be found",
+    answer: "This error appears when trying to access an order that doesn't exist or has been deleted. Check the order ID in your URL or contact support if you believe this is an error.",
+    category: "Errors"
+  },
+  {
+    question: "Error: UNAUTHORIZED (ERR_003) - You don't have permission to access this resource",
+    answer: "This error occurs when you try to access a page or perform an action that requires different permissions. Make sure you're logged in with the correct account, or contact support if you believe you should have access.",
+    category: "Errors"
+  },
+  {
+    question: "Error: FILE_TOO_LARGE (ERR_004) - File size exceeds limit",
+    answer: "Upload files must be under 50MB. Compress your files or split large uploads into smaller parts. Supported formats: STL, OBJ, 3MF, ZIP.",
+    category: "Errors"
+  },
+  {
+    question: "Error: INVALID_FILE_FORMAT (ERR_005) - Unsupported file type",
+    answer: "Only 3D model files are accepted. Supported formats include STL, OBJ, 3MF, and ZIP archives containing these files.",
+    category: "Errors"
+  },
+  {
+    question: "Error: LISTING_EXPIRED (ERR_006) - This listing is no longer available",
+    answer: "The seller has removed this listing or it's temporarily unavailable. Browse similar products from other sellers or contact the seller directly.",
+    category: "Errors"
+  },
+  {
+    question: "Error: SHOP_SUSPENDED (ERR_007) - This shop is currently suspended",
+    answer: "The seller's account has been temporarily suspended. This is usually due to policy violations. Try again later or contact support for more information.",
+    category: "Errors"
+  },
+  {
+    question: "Error: NETWORK_ERROR (ERR_008) - Connection failed",
+    answer: "Check your internet connection and try again. If the problem persists, try refreshing the page or clearing your browser cache.",
+    category: "Errors"
+  },
+  {
+    question: "Error: RATE_LIMIT_EXCEEDED (ERR_009) - Too many requests",
+    answer: "You've made too many requests in a short time. Please wait a few minutes before trying again. This helps prevent spam and ensures fair usage for all users.",
+    category: "Errors"
+  },
+  {
+    question: "Error: ESCROW_FAILED (ERR_010) - Escrow processing failed",
+    answer: "There was an issue processing your escrow payment. Your card was not charged. Please try again or contact support if the issue persists.",
+    category: "Errors"
+  },
+  // Troubleshooting FAQs
+  {
+    question: "My order status isn't updating. What should I do?",
+    answer: "Order status updates are handled by the seller. If it's been more than 48 hours since your order was placed, message the seller to check on progress. If you still have issues, contact our support team.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "I can't upload my 3D model files",
+    answer: "Ensure your files are in supported formats (STL, OBJ, 3MF) and under 50MB. Try compressing large files or splitting them into multiple uploads. Clear your browser cache if issues persist.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "My shop isn't showing up in search results",
+    answer: "Make sure your shop profile is complete and you've added equipment/listings. New shops may take up to 24 hours to appear in search results. Check your shop settings and ensure you're not suspended.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "I received a damaged or incorrect item",
+    answer: "Contact the seller immediately through the messages system with photos of the issue. Most sellers have return policies. If you can't resolve it with the seller, contact our support team for mediation.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "Payment was deducted but order wasn't created",
+    answer: "This is rare but can happen due to network issues. Contact support immediately with your payment confirmation. We'll investigate and either create the order or refund your payment.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "I can't log in to my account",
+    answer: "Check your email for the login link, or try resetting your password. Make sure you're using the correct email address. If issues persist, contact support with your registered email.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "My messages aren't sending",
+    answer: "Check your internet connection and try again. If the issue continues, try refreshing the page or logging out and back in. Contact support if problems persist.",
+    category: "Troubleshooting"
+  },
+  {
+    question: "How do I cancel an order?",
+    answer: "Contact the seller directly through messages to request cancellation. If the order hasn't shipped yet, most sellers will accommodate. Once shipped, cancellation depends on the seller's policy.",
+    category: "Troubleshooting"
   }
 ];
 
-const CATEGORIES = ["All", "Buying", "Selling", "Payments", "Support"];
+const CATEGORIES = ["All", "Buying", "Selling", "Payments", "Support", "Errors", "Troubleshooting"];
 
 export default function Help() {
   const [searchTerm, setSearchTerm] = useState("");

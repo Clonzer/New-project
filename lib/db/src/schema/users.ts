@@ -57,6 +57,10 @@ export const usersTable = pgTable("users", {
   emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
   passwordResetCodeHash: text("password_reset_code_hash"),
   passwordResetExpiresAt: timestamp("password_reset_expires_at"),
+  sponsorshipTier: text("sponsorship_tier").notNull().default("free"),
+  sponsorshipExpiresAt: timestamp("sponsorship_expires_at"),
+  sponsoredUntil: timestamp("sponsored_until"),
+  featured: boolean("featured").notNull().default(false),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
 });
 

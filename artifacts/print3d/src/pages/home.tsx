@@ -7,6 +7,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
+import { SellerCard } from "@/components/shared/SellerCard";
+import { ListingCard } from "@/components/shared/ListingCard";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePreferences } from "@/lib/locale-preferences";

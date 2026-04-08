@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -177,6 +177,26 @@ export function Navbar() {
                     </div>
 
                     <div className="space-y-2">
+                      <Link
+                        href="/help"
+                        onClick={() => setContactOpen(false)}
+                        className="block w-full p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                            <HelpCircle className="w-4 h-4 text-emerald-400" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">
+                              FAQ & Help Center
+                            </div>
+                            <div className="text-xs text-zinc-400">
+                              Find answers to common questions
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+
                       <Link
                         href="/messages?contact=synthix"
                         onClick={() => setContactOpen(false)}
