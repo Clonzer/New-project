@@ -353,6 +353,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Listing"
+    delete:
+      operationId: deleteListing
+      tags: [listings]
+      summary: Delete listing
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Listing deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                required: [success, message]
 
   /orders:
     get:

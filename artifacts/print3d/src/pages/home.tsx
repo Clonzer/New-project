@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ChevronRight, Layers3, Package, ShieldCheck, Sparkles, Store, UserRound, Zap, Rocket, ShoppingCart, Clock } from "lucide-react";
@@ -97,7 +97,29 @@ function sellerToSlide(seller: SellerShop): HeroSlide {
   };
 }
 
-export default function Home() {
+export default function Home() { 
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Mouse tracking for interactive effects
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        setMousePosition({
+          x: (e.clientX - rect.left) / rect.width,
+          y: (e.clientY - rect.top) / rect.height,
+        });
+      }
+    };
+
+    const heroElement = heroRef.current;
+    if (heroElement) {
+      heroElement.addEventListener('mousemove', handleMouseMove);
+      return () => heroElement.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, []);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const { formatPrice } = useLocalePreferences();
@@ -165,7 +187,16 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section ref={heroFade.ref} style={heroFade.style} className="relative px-4 py-16 md:py-24 overflow-hidden">
+        <section 
+          ref={(el) => {
+            heroRef.current = el;
+            if (heroFade.ref) heroFade.ref.current = el;
+          }} 
+          style={heroFade.style} 
+          className="relative px-4 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 overflow-hidden"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           {/* Background effects */}
           <div className="absolute inset-0">
             {/* Gradient background */}
@@ -173,10 +204,70 @@ export default function Home() {
             
             {/* Animated gradient orbs */}
             <motion.div
-              className="absolute -top-40 -left-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
+              className="absolute -top-20 -left-20 sm:-top-40 sm:-left-40 w-40 h-40 sm:w-80 sm:h-80 bg-primary/20 rounded-full blur-3xl"
               animate={{
                 y: [0, 40, 0],
+                x: isHovered ? mousePosition.x * 20 - 10 : [0, 10, 0],
                 opacity: [0.3, 0.5, 0.3],
+                scale: isHovered ? 1.1 : 1,
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                scale: { duration: 0.3 },
+              }}
+            />
+            <motion.div
+              className="absolute -bottom-20 -right-20 sm:-bottom-40 sm:-right-40 w-48 h-48 sm:w-96 sm:h-96 bg-accent/10 rounded-full blur-3xl"
+              animate={{
+                y: [0, -50, 0],
+                x: isHovered ? -(mousePosition.x * 15 - 7.5) : [0, -15, 0],
+                opacity: [0.2, 0.4, 0.2],
+                scale: isHovered ? 1.05 : 1,
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+                scale: { duration: 0.3 },
+              }}
+            />
+            
+            {/* Floating geometric shapes */}
+            <motion.div
+              className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary/30 rounded-full"
+              animate={{
+                y: [0, -20, 0],
+                x: isHovered ? mousePosition.x * 10 - 5 : 0,
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute top-3/4 right-1/3 w-1 h-8 bg-accent/20 rounded-full"
+              animate={{
+                y: [0, 15, 0],
+                x: isHovered ? -(mousePosition.x * 8 - 4) : 0,
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{
+                duration: 7,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-primary/20 rotate-45"
+              animate={{
+                rotate: [45, 135, 45],
+                y: [0, -10, 0],
+                x: isHovered ? mousePosition.x * 12 - 6 : 0,
+                opacity: [0.25, 0.45, 0.25],
               }}
               transition={{
                 duration: 8,
@@ -184,42 +275,27 @@ export default function Home() {
                 ease: "easeInOut",
               }}
             />
-            <motion.div
-              className="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/10 rounded-full blur-3xl"
-              animate={{
-                y: [0, -50, 0],
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            
-            {/* Subtle grid pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
             
             {/* Radial overlay */}
             <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)" />
           </div>
 
           {/* Content */}
-          <div className="relative z-10 container mx-auto max-w-4xl">
+          <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-center mb-12"
+              className="text-center"
             >
               {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/50 bg-primary/10 mb-8"
+                className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-primary/50 bg-primary/10 mb-6 sm:mb-8"
               >
-                <Zap className="w-4 h-4 text-primary" />
+                <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                 <span className="text-xs font-semibold uppercase tracking-widest text-primary">Next-gen maker platform</span>
               </motion.div>
 
@@ -228,7 +304,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[1.1] tracking-tight mb-6 text-white"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-black leading-[1.05] sm:leading-[1.1] tracking-tight mb-4 sm:mb-6 text-white"
               >
                 Turn Your Ideas Into{" "}
                 <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-pulse">
@@ -241,7 +317,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed mb-12"
+                className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-12 px-4 sm:px-0"
               >
                 Join makers worldwide. Sell custom prints, build your audience, and scale your making business on Synthix — the marketplace built for creators.
               </motion.p>
@@ -251,23 +327,41 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-md sm:max-w-none mx-auto"
               >
-                <Link href="/register">
-                  <NeonButton
-                    glowColor="primary"
-                    className="px-8 py-4 text-lg font-semibold rounded-full flex items-center gap-2"
-                  >
-                    <Rocket className="w-5 h-5" />
-                    Start Selling Free
-                  </NeonButton>
-                </Link>
-                <Link href="/listings">
-                  <button className="px-8 py-4 text-lg font-semibold rounded-full border-2 border-primary/50 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 flex items-center gap-2 backdrop-blur-sm">
-                    <ShoppingCart className="w-5 h-5" />
-                    Browse the Shop
-                  </button>
-                </Link>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Link href="/register">
+                    <NeonButton
+                      glowColor="primary"
+                      className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full flex items-center justify-center gap-2 group"
+                    >
+                      <Rocket className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                      Start Selling Free
+                    </NeonButton>
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Link href="/listings">
+                    <motion.button 
+                      className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full border-2 border-primary/50 text-white hover:bg-primary/10 hover:border-primary transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur-sm group"
+                      whileHover={{ 
+                        boxShadow: "0 0 20px rgba(59, 130, 246, 0.3)",
+                        borderColor: "rgb(59, 130, 246)"
+                      }}
+                    >
+                      <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                      Browse the Shop
+                    </motion.button>
+                  </Link>
+                </motion.div>
               </motion.div>
             </motion.div>
           </div>

@@ -31,6 +31,7 @@ import type {
   CreatePrinterRequest,
   CreateReviewRequest,
   CreateUserRequest,
+  DeleteListing200,
   Equipment,
   EquipmentGroup,
   ErrorResponse,
@@ -1121,6 +1122,76 @@ export const useUpdateListing = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getUpdateListingMutationOptions(options));
+    }
+    
+/**
+ * @summary Delete listing
+ */
+export const getDeleteListingUrl = (listingId: number,) => {
+
+
+  
+
+  return `/api/listings/${listingId}`
+}
+
+export const deleteListing = async (listingId: number, options?: RequestInit): Promise<DeleteListing200> => {
+  
+  return customFetch<DeleteListing200>(getDeleteListingUrl(listingId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+  
+
+
+
+export const getDeleteListingMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteListing>>, TError,{listingId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteListing>>, TError,{listingId: number}, TContext> => {
+
+const mutationKey = ['deleteListing'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteListing>>, {listingId: number}> = (props) => {
+          const {listingId} = props ?? {};
+
+          return  deleteListing(listingId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteListingMutationResult = NonNullable<Awaited<ReturnType<typeof deleteListing>>>
+    
+    export type DeleteListingMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete listing
+ */
+export const useDeleteListing = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteListing>>, TError,{listingId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteListing>>,
+        TError,
+        {listingId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteListingMutationOptions(options));
     }
     
 /**

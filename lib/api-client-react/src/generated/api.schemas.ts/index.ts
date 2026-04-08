@@ -30,6 +30,7 @@ export * from './createReviewRequest';
 export * from './createUserRequest';
 export * from './createUserRequestRole';
 export * from './createUserRequestShopMode';
+export * from './deleteListing200';
 export * from './equipment';
 export * from './equipmentGroup';
 export * from './equipmentSpecifications';

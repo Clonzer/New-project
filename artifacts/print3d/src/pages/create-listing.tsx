@@ -25,6 +25,8 @@ import {
   Info
 } from "lucide-react";
 import { useCreateListing } from "@workspace/api-client-react";
+import { useListEquipment, useListEquipmentGroups } from "@workspace/api-client-react";
+import type { Equipment, EquipmentGroup } from "@workspace/api-client-react/src/generated/api";
 import { useAuth } from "@/hooks/use-auth";
 
 const PRODUCT_TYPES = [
@@ -120,6 +122,13 @@ export default function CreateListing() {
 
   const createListingMutation = useCreateListing();
 
+  // Equipment data
+  const { data: equipmentData, isLoading: loadingEquipment } = useListEquipment();
+  const { data: equipmentGroupsData, isLoading: loadingEquipmentGroups } = useListEquipmentGroups();
+
+  const availableEquipment = equipmentData?.equipment ?? [];
+  const availableEquipmentGroups = equipmentGroupsData?.groups ?? [];
+
   const totalSteps = 4;
 
   const updateFormData = (field: keyof ListingFormData, value: any) => {
@@ -138,6 +147,28 @@ export default function CreateListing() {
 
   const removeTag = (tagToRemove: string) => {
     updateFormData("tags", formData.tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const toggleEquipment = (equipmentId: number) => {
+    const currentEquipment = formData.equipmentUsed;
+    const isSelected = currentEquipment.includes(equipmentId);
+    
+    if (isSelected) {
+      updateFormData("equipmentUsed", currentEquipment.filter(id => id !== equipmentId));
+    } else {
+      updateFormData("equipmentUsed", [...currentEquipment, equipmentId]);
+    }
+  };
+
+  const toggleEquipmentGroup = (groupId: number) => {
+    const currentGroups = formData.equipmentGroups;
+    const isSelected = currentGroups.includes(groupId);
+    
+    if (isSelected) {
+      updateFormData("equipmentGroups", currentGroups.filter(id => id !== groupId));
+    } else {
+      updateFormData("equipmentGroups", [...currentGroups, groupId]);
+    }
   };
 
   const validateStep = (step: number): boolean => {
@@ -598,23 +629,101 @@ export default function CreateListing() {
               <Info className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Equipment Information</h3>
               <p className="text-zinc-400">
-                Optionally specify which equipment was used to create this product.
+                Specify which equipment was used to create this product.
                 This helps buyers understand your capabilities and process.
               </p>
             </div>
 
+            {/* Equipment Groups */}
             <Card className="bg-zinc-800/50 border-zinc-700">
               <CardHeader>
-                <CardTitle className="text-white">Equipment Used</CardTitle>
+                <CardTitle className="text-white">Equipment Groups</CardTitle>
                 <CardDescription>
-                  Select equipment that was used in the production of this item
+                  Select equipment groups that were involved in production
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-zinc-400 text-sm">
-                  Equipment management will be available in a future update.
-                  For now, this information is optional and can be added later.
-                </p>
+                {loadingEquipmentGroups ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-10 bg-zinc-700/50 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : availableEquipmentGroups.length > 0 ? (
+                  <div className="space-y-2">
+                    {availableEquipmentGroups.map((group: EquipmentGroup) => (
+                      <div key={group.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`group-${group.id}`}
+                          checked={formData.equipmentGroups.includes(group.id)}
+                          onCheckedChange={() => toggleEquipmentGroup(group.id)}
+                          className="border-zinc-600"
+                        />
+                        <Label
+                          htmlFor={`group-${group.id}`}
+                          className="text-sm text-zinc-300 cursor-pointer flex-1"
+                        >
+                          <div className="font-medium text-white">{group.name}</div>
+                          <div className="text-xs text-zinc-400">{group.description || group.category}</div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400 text-sm">
+                    No equipment groups available. Create equipment groups first to organize your equipment.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Individual Equipment */}
+            <Card className="bg-zinc-800/50 border-zinc-700">
+              <CardHeader>
+                <CardTitle className="text-white">Specific Equipment Used</CardTitle>
+                <CardDescription>
+                  Select specific equipment that was used in the production of this item
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingEquipment ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-10 bg-zinc-700/50 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : availableEquipment.length > 0 ? (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {availableEquipment.map((equipment: Equipment) => (
+                      <div key={equipment.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`equipment-${equipment.id}`}
+                          checked={formData.equipmentUsed.includes(equipment.id)}
+                          onCheckedChange={() => toggleEquipment(equipment.id)}
+                          className="border-zinc-600"
+                        />
+                        <Label
+                          htmlFor={`equipment-${equipment.id}`}
+                          className="text-sm text-zinc-300 cursor-pointer flex-1"
+                        >
+                          <div className="font-medium text-white">
+                            {equipment.name}
+                            {equipment.model && ` (${equipment.model})`}
+                          </div>
+                          <div className="text-xs text-zinc-400">
+                            {equipment.manufacturer && `${equipment.manufacturer} • `}
+                            {equipment.category}
+                            {equipment.status !== 'active' && ` • ${equipment.status}`}
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400 text-sm">
+                    No equipment available. Add equipment to your profile first to associate it with listings.
+                  </p>
+                )}
               </CardContent>
             </Card>
           </motion.div>

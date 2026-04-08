@@ -6,7 +6,7 @@ import {
   useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
   useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
   useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
-  useDeleteListings,
+  useDeleteListing,
 } from "@workspace/api-client-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -623,6 +623,7 @@ export default function Dashboard() {
   const createEquipmentGroup = useCreateEquipmentGroup();
   const updateEquipmentGroup = useUpdateEquipmentGroup();
   const deleteEquipmentGroup = useDeleteEquipmentGroup();
+  const deleteListing = useDeleteListing();
 
   function isSeller(role?: string) { return role === "seller" || role === "both"; }
   const isSellerUser = isSeller(user?.role);
