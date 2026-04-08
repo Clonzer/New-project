@@ -1032,6 +1032,7 @@ export default function Dashboard() {
                 )}
               </div>
             </TabsContent>
+            )}
 
             {/* ── Seller Sales ── */}
             {isSellerUser && (
