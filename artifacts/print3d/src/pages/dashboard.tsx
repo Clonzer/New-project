@@ -40,6 +40,7 @@ import { PortfolioManager } from "@/components/dashboard/PortfolioManager";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 import { Tutorial } from "@/components/shared/Tutorial";
 import { Analytics } from "@/components/dashboard/Analytics";
+import { SponsorShopModal } from "@/components/dashboard/SponsorShopModal";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -579,6 +580,7 @@ export default function Dashboard() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
+  const [showSponsorModal, setShowSponsorModal] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -817,6 +819,20 @@ export default function Dashboard() {
         sellerId={user.id}
         onSuccess={refetchListings}
       />
+      <SponsorShopModal
+        open={showSponsorModal}
+        onOpenChange={setShowSponsorModal}
+        shopName={user.shopName || user.displayName}
+        onConfirm={async (tier: string) => {
+          try {
+            // TODO: Call API to update sponsorship tier
+            toast({ title: "Sponsorship activated!", description: `Your shop is now on the ${tier} tier.` });
+            setShowSponsorModal(false);
+          } catch (error: any) {
+            toast({ title: "Failed to activate sponsorship", description: error?.message || "Please try again later", variant: "destructive" });
+          }
+        }}
+      />
 
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">
@@ -835,6 +851,14 @@ export default function Dashboard() {
               <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
             </div>
             <div className="flex gap-3 flex-wrap">
+              {isSellerUser && (
+                <button 
+                  onClick={() => setShowSponsorModal(true)}
+                  className="glass-panel text-white border border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 rounded-full px-5 py-2 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" /> Sponsor Shop
+                </button>
+              )}
               {!isSellerUser && (
                 <Link href="/register">
                   <NeonButton glowColor="accent" className="rounded-full px-5">Become a Seller</NeonButton>

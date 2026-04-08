@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useRouter } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -110,7 +110,7 @@ const initialFormData: ListingFormData = {
 };
 
 export default function CreateListing() {
-  const navigate = useNavigate();
+  const [, navigate] = useRouter();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ListingFormData>(initialFormData);

@@ -7,18 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
-import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
-import { SellerCard } from "@/components/shared/SellerCard";
-import { ListingCard } from "@/components/shared/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { useScrollFade } from "@/hooks/use-scroll-fade";
@@ -120,13 +109,10 @@ export default function Home() {
       return () => heroElement.removeEventListener('mousemove', handleMouseMove);
     }
   }, []);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const { formatPrice } = useLocalePreferences();
 
   // Scroll fade hooks for different sections
   const heroFade = useScrollFade();
-  const showcaseFade = useScrollFade();
   const makersFade = useScrollFade();
   const productsFade = useScrollFade();
   const sponsoredFade = useScrollFade();
@@ -136,49 +122,14 @@ export default function Home() {
 
   const featuredSellers = sellersData?.sellers ?? [];
   const featuredListings = listingsData?.listings ?? [];
-  const sellersById = useMemo(() => new Map(featuredSellers.map((seller) => [seller.id, seller])), [featuredSellers]);
-  const slides = useMemo(
-    () => [
-      ...featuredListings
-        .slice()
-        .sort((a, b) => b.orderCount - a.orderCount)
-        .slice(0, 4)
-        .map((listing) => listingToSlide(listing, sellersById.get(listing.sellerId), formatPrice)),
-      ...featuredSellers
-        .slice()
-        .sort((a, b) => (b.totalPrints + b.reviewCount) - (a.totalPrints + a.reviewCount))
-        .slice(0, 3)
-        .map(sellerToSlide),
-    ],
-    [featuredListings, featuredSellers, formatPrice, sellersById],
+  const sponsoredSellers = useMemo(
+    () => featuredSellers
+      .filter((seller) => typeof (seller as any).sponsorshipLevel === "number" && (seller as any).sponsorshipLevel > 0)
+      .sort((a, b) => ((b as any).sponsorshipLevel || 0) - ((a as any).sponsorshipLevel || 0))
+      .slice(0, 1),
+    [featuredSellers],
   );
 
-  useEffect(() => {
-    if (!carouselApi) return;
-    const update = () => setActiveIndex(carouselApi.selectedScrollSnap());
-    update();
-    carouselApi.on("select", update);
-    carouselApi.on("reInit", update);
-    return () => {
-      carouselApi.off("select", update);
-    };
-  }, [carouselApi]);
-
-  useEffect(() => {
-    if (!carouselApi || slides.length <= 1) return;
-    const timer = window.setInterval(() => {
-      if (carouselApi.canScrollNext()) carouselApi.scrollNext();
-      else carouselApi.scrollTo(0);
-    }, 5500);
-    return () => window.clearInterval(timer);
-  }, [carouselApi, slides.length]);
-
-  const stats = [
-    { label: "Live Makers", value: formatCount(sellersData?.total), icon: UserRound },
-    { label: "Live Products", value: formatCount(listingsData?.total), icon: Package },
-    { label: "Featured Makers", value: formatCount(featuredSellers.length), icon: Store },
-    { label: "Featured Products", value: formatCount(featuredListings.length), icon: Layers3 },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
@@ -199,8 +150,8 @@ export default function Home() {
         >
           {/* Background effects */}
           <div className="absolute inset-0">
-            {/* Gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-black to-zinc-950" />
+            {/* Gradient background that fades to transparent at bottom */}
+            <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-black to-transparent" />
             
             {/* Animated gradient orbs */}
             <motion.div
@@ -276,8 +227,8 @@ export default function Home() {
               }}
             />
             
-            {/* Radial overlay */}
-            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)" />
+            {/* Radial overlay that fades at bottom */}
+            <div className="absolute inset-0 bg-radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_70%,transparent_100%)" />
           </div>
 
           {/* Content */}
@@ -366,272 +317,8 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
-        
-        <section ref={showcaseFade.ref} style={showcaseFade.style} className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
-          <AnimatedGradientBg />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="mb-8">
-              {loadingSellers || loadingListings ? (
-                <Skeleton className="mb-6 h-[24rem] rounded-[2rem] bg-white/10" />
-              ) : slides.length ? (
-                <div className="mb-6">
-                  <Carousel setApi={setCarouselApi} opts={{ loop: true }} className="w-full max-w-5xl mx-auto">
-                    <CarouselContent>
-                      {slides.map((slide) => (
-                        <CarouselItem key={slide.id}>
-                          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/35">
-                            <div className="grid min-h-[26rem] gap-0 lg:min-h-[30rem] lg:grid-cols-[0.95fr_1.05fr]">
-                              <div className="flex flex-col justify-between border-b border-white/10 bg-[linear-gradient(155deg,rgba(12,18,31,0.95),rgba(8,12,20,0.82))] p-8 lg:border-b-0 lg:border-r lg:p-10">
-                                <div>
-                                  <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9fe5ff]">
-                                    Marketplace showcase
-                                  </span>
-                                  <div className="mt-5 flex items-center gap-4">
-                                    <div className="h-16 w-16 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                                      {slide.storeImageUrl ? (
-                                        <img src={slide.storeImageUrl} alt={slide.storeName} className="h-full w-full object-cover" />
-                                      ) : (
-                                        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-white">
-                                          {slide.storeName.charAt(0)}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Store</p>
-                                      <p className="text-2xl font-display font-bold text-white">{slide.storeName}</p>
-                                      <p className="mt-1 text-sm text-zinc-400">{slide.storeMeta}</p>
-                                    </div>
-                                  </div>
-                                  <p className="mt-5 max-w-md text-sm leading-relaxed text-zinc-300">{slide.storeSummary}</p>
-                                </div>
-                                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                                  <Link href={slide.storeHref}>
-                                    <NeonButton glowColor="white" className="w-full rounded-full px-6 py-4 text-sm">
-                                      Visit store
-                                    </NeonButton>
-                                  </Link>
-                                  <Link href="/explore">
-                                    <NeonButton glowColor="accent" className="w-full rounded-full px-6 py-4 text-sm">
-                                      Explore marketplace
-                                    </NeonButton>
-                                  </Link>
-                                </div>
-                              </div>
-                              <Link href={slide.href}>
-                                <div className="group relative min-h-[26rem] cursor-pointer overflow-hidden lg:min-h-[30rem]">
-                                  {slide.imageUrl ? (
-                                    <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                  ) : (
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(91,204,255,0.35),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(0,255,179,0.18),transparent_35%),linear-gradient(135deg,rgba(24,24,27,1),rgba(9,9,11,0.92))]" />
-                                  )}
-                                  <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/15" />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                                  <div className="relative z-10 flex h-full flex-col justify-between p-8 md:p-10">
-                                    <div className="flex items-center justify-between gap-3">
-                                      <span className="rounded-full border border-white/15 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-md">
-                                        {slide.eyebrow}
-                                      </span>
-                                      <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                                        {slide.badge}
-                                      </span>
-                                    </div>
-                                    <div className="max-w-2xl">
-                                      <h2 className="text-3xl font-display font-bold leading-tight text-white md:text-5xl">{slide.title}</h2>
-                                      <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-200 md:text-base">{slide.description}</p>
-                                      <div className="mt-6 flex flex-wrap gap-3">
-                                        {[slide.metaA, slide.metaB].map((meta) => (
-                                          <div key={meta} className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 backdrop-blur-md">
-                                            {meta}
-                                          </div>
-                                        ))}
-                                      </div>
-                                      <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-5 py-3 text-sm font-semibold text-black transition group-hover:bg-[#9fe5ff]">
-                                        {slide.cta}
-                                        <ChevronRight className="h-4 w-4" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </Link>
-                            </div>
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-4 top-4 translate-y-0 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-                    <CarouselNext className="right-4 top-4 translate-y-0 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-                  </Carousel>
-                </div>
-              ) : null}
-
-              <div className="max-w-3xl">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm">
-                  <Sparkles className="w-4 h-4" />
-                  Storefront marketplace
-                </span>
-                <h1 className="mt-6 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
-                  Find a maker. Compare shops. Order with confidence.
-                </h1>
-                <p className="mt-5 max-w-2xl text-lg text-zinc-300 leading-relaxed">
-                  A cleaner way to discover verified makers, browse ready-to-order products, and request custom work from one storefront.
-                </p>
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                  <Link href="/explore">
-                    <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
-                      Browse makers <ChevronRight className="w-5 h-5 ml-1" />
-                    </NeonButton>
-                  </Link>
-                  <Link href="/listings">
-                    <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
-                      Browse catalog
-                    </NeonButton>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr] items-start">
-              <div className="glass-panel rounded-[2rem] border border-white/10 p-4 md:p-5 shadow-[0_30px_120px_rgba(0,0,0,0.35)]">
-                {loadingSellers || loadingListings ? (
-                  <div className="grid gap-4">
-                    <Skeleton className="h-[26rem] rounded-[1.5rem] bg-white/10" />
-                    <div className="grid grid-cols-4 gap-3">
-                      {Array.from({ length: 4 }).map((_, index) => (
-                        <Skeleton key={index} className="h-16 rounded-2xl bg-white/10" />
-                      ))}
-                    </div>
-                  </div>
-                ) : slides.length > 0 ? (
-                  <>
-                    <Carousel opts={{ loop: true }} className="w-full">
-                      <CarouselContent>
-                        {slides.map((slide) => (
-                          <CarouselItem key={slide.id}>
-                            <Link href={slide.href}>
-                              <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/40 min-h-[24rem] md:min-h-[28rem] cursor-pointer">
-                                {slide.imageUrl ? (
-                                  <img
-                                    src={slide.imageUrl}
-                                    alt={slide.title}
-                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                  />
-                                ) : (
-                                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(91,204,255,0.35),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(0,255,179,0.18),transparent_35%),linear-gradient(135deg,rgba(24,24,27,1),rgba(9,9,11,0.92))]" />
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/25" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-                                <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-10">
-                                  <div className="flex items-center justify-between gap-4">
-                                    <span className="rounded-full border border-white/15 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#9fe5ff] backdrop-blur-md">
-                                      {slide.eyebrow}
-                                    </span>
-                                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                                      {slide.badge}
-                                    </span>
-                                  </div>
-
-                                  <div className="max-w-2xl">
-                                    <h2 className="text-3xl md:text-5xl font-display font-bold text-white leading-tight">
-                                      {slide.title}
-                                    </h2>
-                                    <p className="mt-4 max-w-xl text-sm md:text-base text-zinc-200 leading-relaxed">
-                                      {slide.description}
-                                    </p>
-
-                                    <div className="mt-8 flex flex-wrap gap-3">
-                                      {[slide.metaA, slide.metaB].map((meta) => (
-                                        <div
-                                          key={meta}
-                                          className="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 backdrop-blur-md"
-                                        >
-                                          {meta}
-                                        </div>
-                                      ))}
-                                    </div>
-
-                                    <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-5 py-3 text-sm font-semibold text-black transition group-hover:bg-[#9fe5ff]">
-                                      {slide.cta}
-                                      <ChevronRight className="w-4 h-4" />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                      <CarouselPrevious className="left-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
-                      <CarouselNext className="right-4 top-4 translate-y-0 border-white/15 bg-black/50 text-white hover:bg-white hover:text-black disabled:opacity-40" />
-                    </Carousel>
-
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                      {slides.map((slide, index) => (
-                        <button
-                          key={slide.id}
-                          type="button"
-                          onClick={() => carouselApi?.scrollTo(index)}
-                          className={`rounded-2xl border px-4 py-3 text-left transition ${
-                            activeIndex === index
-                              ? "border-[#9fe5ff]/60 bg-[#9fe5ff]/10 text-white"
-                              : "border-white/10 bg-white/5 text-zinc-400 hover:border-white/20 hover:text-white"
-                          }`}
-                        >
-                          <p className="text-[11px] uppercase tracking-[0.24em]">{slide.eyebrow}</p>
-                          <p className="mt-1 line-clamp-1 text-sm font-semibold">{slide.title}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-10 text-center text-zinc-400">
-                    Add makers and listings to populate the live homepage carousel.
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                {stats.map((stat, index) => {
-                  const Icon = stat.icon;
-                  return (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.08 }}
-                      className="glass-panel rounded-[1.75rem] border border-white/10 p-5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">{stat.label}</p>
-                          <p className="mt-2 text-3xl font-display font-bold text-white">{stat.value}</p>
-                        </div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#9fe5ff]">
-                          <Icon className="w-5 h-5" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-
-                <div className="rounded-[1.75rem] border border-emerald-400/15 bg-emerald-400/10 p-5 text-sm text-emerald-100">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <ShieldCheck className="w-4 h-4" />
-                    Real marketplace counters
-                  </div>
-                  <p className="mt-2 leading-relaxed text-emerald-50/85">
-                    Seller and product totals are verified against live marketplace records and update as new shops and listings go live.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section ref={makersFade.ref} style={makersFade.style} className="py-20 border-y border-white/5 bg-black/30">
+        <section ref={makersFade.ref} style={makersFade.style} className="py-20 border-y border-white/5 bg-gradient-to-b from-black to-black/80">
           <div className="container mx-auto px-4">
             <div className="flex items-end justify-between gap-4 mb-10">
               <div>
@@ -685,17 +372,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section ref={sponsoredFade.ref} style={sponsoredFade.style} className="py-20 border-y border-white/5 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-red-500/5">
+        <section ref={sponsoredFade.ref} style={sponsoredFade.style} className="py-20 border-y border-white/5 bg-gradient-to-br from-black/40 via-amber-500/8 to-black/60">
           <div className="container mx-auto px-4">
             <div className="flex items-end justify-between gap-4 mb-10">
               <div>
                 <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-1.5 text-sm font-semibold text-amber-200 backdrop-blur-sm">
                   <Sparkles className="w-4 h-4" />
-                  Sponsored shops
+                  Sponsored shop
                 </span>
-                <h2 className="mt-4 text-3xl md:text-4xl font-display font-bold text-white">Premium maker spotlight</h2>
+                <h2 className="mt-4 text-3xl md:text-4xl font-display font-bold text-white">Featured sponsor spotlight</h2>
                 <p className="mt-3 max-w-xl text-zinc-400">
-                  Featured shops that invest in premium visibility to showcase their expertise and products.
+                  Only one premium shop is highlighted at a time so the spotlight stays exclusive.
                 </p>
               </div>
               <Link href="/explore?sponsored=true" className="text-amber-300 hover:text-white flex items-center gap-1 font-semibold transition-colors">
@@ -705,25 +392,21 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {loadingSellers
-                ? Array.from({ length: 3 }).map((_, index) => (
+                ? Array.from({ length: 1 }).map((_, index) => (
                     <div key={index} className="glass-panel p-6 rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
                       <Skeleton className="h-40 rounded-2xl bg-white/10" />
                     </div>
                   ))
-                : featuredSellers
-                    .filter(seller => seller.sponsorshipLevel && seller.sponsorshipLevel > 0) // Assuming sponsorshipLevel field
-                    .sort((a, b) => (b.sponsorshipLevel || 0) - (a.sponsorshipLevel || 0)) // Higher sponsorship first
-                    .slice(0, 3)
-                    .map((seller) => (
-                      <div key={seller.id} className="glass-panel p-6 rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 relative overflow-hidden">
-                        <div className="absolute top-4 right-4 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200">
-                          Sponsored
-                        </div>
-                        <SellerCard seller={seller} />
+                : sponsoredSellers.map((seller) => (
+                    <div key={seller.id} className="glass-panel p-6 rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 relative overflow-hidden">
+                      <div className="absolute top-4 right-4 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200">
+                        Sponsored
                       </div>
-                    ))}
+                      <SellerCard seller={seller} />
+                    </div>
+                  ))}
             </div>
-            {featuredSellers.filter(seller => seller.sponsorshipLevel && seller.sponsorshipLevel > 0).length === 0 && (
+            {!loadingSellers && sponsoredSellers.length === 0 && (
               <div className="text-center py-12">
                 <Sparkles className="w-12 h-12 text-amber-400/50 mx-auto mb-4" />
                 <p className="text-zinc-500">No sponsored shops yet. Be the first to boost your visibility!</p>

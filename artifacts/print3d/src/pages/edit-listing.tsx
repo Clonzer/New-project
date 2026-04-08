@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "wouter";
+import { useRouter, useParams } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -88,7 +88,7 @@ interface ListingFormData {
 }
 
 export default function EditListing() {
-  const navigate = useNavigate();
+  const [, navigate] = useRouter();
   const params = useParams();
   const { user } = useAuth();
   const listingId = params?.listingId ? parseInt(params.listingId) : null;
