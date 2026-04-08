@@ -18,8 +18,9 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
@@ -38,6 +39,7 @@ export default function Settings() {
   const updateUser = useUpdateUser();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState("profile");
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [paymentEnabled, setPaymentEnabled] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isRequestingVerification, setIsRequestingVerification] = useState(false);
@@ -458,7 +460,13 @@ export default function Settings() {
                       />
                     </div>
 
-                    <div className="flex justify-end pt-2">
+                    <div className="flex justify-end gap-3 pt-2">
+                      <Button 
+                        onClick={() => setShowProfilePreview(true)}
+                        className="px-6 py-2 rounded-xl border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" /> Preview Profile
+                      </Button>
                       <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
                         {updateUser.isPending ? "Saving..." : "Save Changes"}
                       </NeonButton>
@@ -1227,6 +1235,12 @@ export default function Settings() {
           </div>
         </div>
       </main>
+
+      <ProfilePreviewModal
+        isOpen={showProfilePreview}
+        onOpenChange={setShowProfilePreview}
+        user={user ? { ...user, ...form } : null}
+      />
     </div>
   );
 }

@@ -65,7 +65,7 @@ import type {
   UpdateUserRequest,
   User,
   UserDetail
-} from './api.schemas.ts';
+} from './.';
 
 import { customFetch } from '../custom-fetch';
 import type { ErrorType , BodyType } from '../custom-fetch';
@@ -86,7 +86,7 @@ export const getHealthCheckUrl = () => {
 
   
 
-  return `http://localhost:3000/healthz`
+  return `/api/healthz`
 }
 
 export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus> => {
@@ -106,7 +106,7 @@ export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus>
 
 export const getHealthCheckQueryKey = () => {
     return [
-    `http://localhost:3000/healthz`
+    `/api/healthz`
     ] as const;
     }
 
@@ -168,7 +168,7 @@ export const getListUsersUrl = (params?: ListUsersParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/users?${stringifiedParams}` : `http://localhost:3000/users`
+  return stringifiedParams.length > 0 ? `/api/users?${stringifiedParams}` : `/api/users`
 }
 
 export const listUsers = async (params?: ListUsersParams, options?: RequestInit): Promise<ListUsers200> => {
@@ -188,7 +188,7 @@ export const listUsers = async (params?: ListUsersParams, options?: RequestInit)
 
 export const getListUsersQueryKey = (params?: ListUsersParams,) => {
     return [
-    `http://localhost:3000/users`, ...(params ? [params] : [])
+    `/api/users`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -243,7 +243,7 @@ export const getCreateUserUrl = () => {
 
   
 
-  return `http://localhost:3000/users`
+  return `/api/users`
 }
 
 export const createUser = async (createUserRequest: CreateUserRequest, options?: RequestInit): Promise<User> => {
@@ -314,7 +314,7 @@ export const getGetUserUrl = (userId: number,) => {
 
   
 
-  return `http://localhost:3000/users/${userId}`
+  return `/api/users/${userId}`
 }
 
 export const getUser = async (userId: number, options?: RequestInit): Promise<UserDetail> => {
@@ -334,7 +334,7 @@ export const getUser = async (userId: number, options?: RequestInit): Promise<Us
 
 export const getGetUserQueryKey = (userId: number,) => {
     return [
-    `http://localhost:3000/users/${userId}`
+    `/api/users/${userId}`
     ] as const;
     }
 
@@ -389,7 +389,7 @@ export const getUpdateUserUrl = (userId: number,) => {
 
   
 
-  return `http://localhost:3000/users/${userId}`
+  return `/api/users/${userId}`
 }
 
 export const updateUser = async (userId: number,
@@ -468,7 +468,7 @@ export const getListPrintersUrl = (params?: ListPrintersParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/printers?${stringifiedParams}` : `http://localhost:3000/printers`
+  return stringifiedParams.length > 0 ? `/api/printers?${stringifiedParams}` : `/api/printers`
 }
 
 export const listPrinters = async (params?: ListPrintersParams, options?: RequestInit): Promise<ListPrinters200> => {
@@ -488,7 +488,7 @@ export const listPrinters = async (params?: ListPrintersParams, options?: Reques
 
 export const getListPrintersQueryKey = (params?: ListPrintersParams,) => {
     return [
-    `http://localhost:3000/printers`, ...(params ? [params] : [])
+    `/api/printers`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -543,7 +543,7 @@ export const getCreatePrinterUrl = () => {
 
   
 
-  return `http://localhost:3000/printers`
+  return `/api/printers`
 }
 
 export const createPrinter = async (createPrinterRequest: CreatePrinterRequest, options?: RequestInit): Promise<Printer> => {
@@ -614,7 +614,7 @@ export const getGetPrinterUrl = (printerId: number,) => {
 
   
 
-  return `http://localhost:3000/printers/${printerId}`
+  return `/api/printers/${printerId}`
 }
 
 export const getPrinter = async (printerId: number, options?: RequestInit): Promise<Printer> => {
@@ -634,7 +634,7 @@ export const getPrinter = async (printerId: number, options?: RequestInit): Prom
 
 export const getGetPrinterQueryKey = (printerId: number,) => {
     return [
-    `http://localhost:3000/printers/${printerId}`
+    `/api/printers/${printerId}`
     ] as const;
     }
 
@@ -689,7 +689,7 @@ export const getUpdatePrinterUrl = (printerId: number,) => {
 
   
 
-  return `http://localhost:3000/printers/${printerId}`
+  return `/api/printers/${printerId}`
 }
 
 export const updatePrinter = async (printerId: number,
@@ -761,7 +761,7 @@ export const getDeletePrinterUrl = (printerId: number,) => {
 
   
 
-  return `http://localhost:3000/printers/${printerId}`
+  return `/api/printers/${printerId}`
 }
 
 export const deletePrinter = async (printerId: number, options?: RequestInit): Promise<void> => {
@@ -838,7 +838,7 @@ export const getListListingsUrl = (params?: ListListingsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/listings?${stringifiedParams}` : `http://localhost:3000/listings`
+  return stringifiedParams.length > 0 ? `/api/listings?${stringifiedParams}` : `/api/listings`
 }
 
 export const listListings = async (params?: ListListingsParams, options?: RequestInit): Promise<ListListings200> => {
@@ -858,7 +858,7 @@ export const listListings = async (params?: ListListingsParams, options?: Reques
 
 export const getListListingsQueryKey = (params?: ListListingsParams,) => {
     return [
-    `http://localhost:3000/listings`, ...(params ? [params] : [])
+    `/api/listings`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -913,7 +913,7 @@ export const getCreateListingUrl = () => {
 
   
 
-  return `http://localhost:3000/listings`
+  return `/api/listings`
 }
 
 export const createListing = async (createListingRequest: CreateListingRequest, options?: RequestInit): Promise<Listing> => {
@@ -984,7 +984,7 @@ export const getGetListingUrl = (listingId: number,) => {
 
   
 
-  return `http://localhost:3000/listings/${listingId}`
+  return `/api/listings/${listingId}`
 }
 
 export const getListing = async (listingId: number, options?: RequestInit): Promise<Listing> => {
@@ -1004,7 +1004,7 @@ export const getListing = async (listingId: number, options?: RequestInit): Prom
 
 export const getGetListingQueryKey = (listingId: number,) => {
     return [
-    `http://localhost:3000/listings/${listingId}`
+    `/api/listings/${listingId}`
     ] as const;
     }
 
@@ -1059,7 +1059,7 @@ export const getUpdateListingUrl = (listingId: number,) => {
 
   
 
-  return `http://localhost:3000/listings/${listingId}`
+  return `/api/listings/${listingId}`
 }
 
 export const updateListing = async (listingId: number,
@@ -1138,7 +1138,7 @@ export const getListOrdersUrl = (params?: ListOrdersParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/orders?${stringifiedParams}` : `http://localhost:3000/orders`
+  return stringifiedParams.length > 0 ? `/api/orders?${stringifiedParams}` : `/api/orders`
 }
 
 export const listOrders = async (params?: ListOrdersParams, options?: RequestInit): Promise<ListOrders200> => {
@@ -1158,7 +1158,7 @@ export const listOrders = async (params?: ListOrdersParams, options?: RequestIni
 
 export const getListOrdersQueryKey = (params?: ListOrdersParams,) => {
     return [
-    `http://localhost:3000/orders`, ...(params ? [params] : [])
+    `/api/orders`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1213,7 +1213,7 @@ export const getCreateOrderUrl = () => {
 
   
 
-  return `http://localhost:3000/orders`
+  return `/api/orders`
 }
 
 export const createOrder = async (createOrderRequest: CreateOrderRequest, options?: RequestInit): Promise<Order> => {
@@ -1284,7 +1284,7 @@ export const getGetOrderUrl = (orderId: number,) => {
 
   
 
-  return `http://localhost:3000/orders/${orderId}`
+  return `/api/orders/${orderId}`
 }
 
 export const getOrder = async (orderId: number, options?: RequestInit): Promise<Order> => {
@@ -1304,7 +1304,7 @@ export const getOrder = async (orderId: number, options?: RequestInit): Promise<
 
 export const getGetOrderQueryKey = (orderId: number,) => {
     return [
-    `http://localhost:3000/orders/${orderId}`
+    `/api/orders/${orderId}`
     ] as const;
     }
 
@@ -1359,7 +1359,7 @@ export const getUpdateOrderStatusUrl = (orderId: number,) => {
 
   
 
-  return `http://localhost:3000/orders/${orderId}`
+  return `/api/orders/${orderId}`
 }
 
 export const updateOrderStatus = async (orderId: number,
@@ -1438,7 +1438,7 @@ export const getListReviewsUrl = (params?: ListReviewsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/reviews?${stringifiedParams}` : `http://localhost:3000/reviews`
+  return stringifiedParams.length > 0 ? `/api/reviews?${stringifiedParams}` : `/api/reviews`
 }
 
 export const listReviews = async (params?: ListReviewsParams, options?: RequestInit): Promise<ListReviews200> => {
@@ -1458,7 +1458,7 @@ export const listReviews = async (params?: ListReviewsParams, options?: RequestI
 
 export const getListReviewsQueryKey = (params?: ListReviewsParams,) => {
     return [
-    `http://localhost:3000/reviews`, ...(params ? [params] : [])
+    `/api/reviews`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1513,7 +1513,7 @@ export const getCreateReviewUrl = () => {
 
   
 
-  return `http://localhost:3000/reviews`
+  return `/api/reviews`
 }
 
 export const createReview = async (createReviewRequest: CreateReviewRequest, options?: RequestInit): Promise<Review> => {
@@ -1591,7 +1591,7 @@ export const getListSellersUrl = (params?: ListSellersParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:3000/sellers?${stringifiedParams}` : `http://localhost:3000/sellers`
+  return stringifiedParams.length > 0 ? `/api/sellers?${stringifiedParams}` : `/api/sellers`
 }
 
 export const listSellers = async (params?: ListSellersParams, options?: RequestInit): Promise<ListSellers200> => {
@@ -1611,7 +1611,7 @@ export const listSellers = async (params?: ListSellersParams, options?: RequestI
 
 export const getListSellersQueryKey = (params?: ListSellersParams,) => {
     return [
-    `http://localhost:3000/sellers`, ...(params ? [params] : [])
+    `/api/sellers`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1673,8 +1673,7 @@ export const getListContestsUrl = (params?: ListContestsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-// TEST MODIFICATION
-  return stringifiedParams.length > 0 ? `/contests?${stringifiedParams}` : `/contests`
+  return stringifiedParams.length > 0 ? `/api/contests?${stringifiedParams}` : `/api/contests`
 }
 
 export const listContests = async (params?: ListContestsParams, options?: RequestInit): Promise<ListContests200> => {
@@ -1694,7 +1693,7 @@ export const listContests = async (params?: ListContestsParams, options?: Reques
 
 export const getListContestsQueryKey = (params?: ListContestsParams,) => {
     return [
-    `http://localhost:3000/contests`, ...(params ? [params] : [])
+    `/api/contests`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1749,7 +1748,7 @@ export const getCreateContestUrl = () => {
 
   
 
-  return `http://localhost:3000/contests`
+  return `/api/contests`
 }
 
 export const createContest = async (createContestRequest: CreateContestRequest, options?: RequestInit): Promise<Contest> => {
@@ -1820,7 +1819,7 @@ export const getGetContestUrl = (contestId: number,) => {
 
   
 
-  return `http://localhost:3000/contests/${contestId}`
+  return `/api/contests/${contestId}`
 }
 
 export const getContest = async (contestId: number, options?: RequestInit): Promise<ContestDetail> => {
@@ -1840,7 +1839,7 @@ export const getContest = async (contestId: number, options?: RequestInit): Prom
 
 export const getGetContestQueryKey = (contestId: number,) => {
     return [
-    `http://localhost:3000/contests/${contestId}`
+    `/api/contests/${contestId}`
     ] as const;
     }
 
@@ -1895,7 +1894,7 @@ export const getJoinContestUrl = (contestId: number,) => {
 
   
 
-  return `http://localhost:3000/contests/${contestId}/join`
+  return `/api/contests/${contestId}/join`
 }
 
 export const joinContest = async (contestId: number, options?: RequestInit): Promise<JoinContest200> => {
@@ -1965,7 +1964,7 @@ export const getSubmitContestEntryUrl = (contestId: number,) => {
 
   
 
-  return `http://localhost:3000/contests/${contestId}/entries`
+  return `/api/contests/${contestId}/entries`
 }
 
 export const submitContestEntry = async (contestId: number,
@@ -2037,7 +2036,7 @@ export const getListEquipmentGroupsUrl = () => {
 
   
 
-  return `http://localhost:3000/equipment/groups`
+  return `/api/equipment/groups`
 }
 
 export const listEquipmentGroups = async ( options?: RequestInit): Promise<ListEquipmentGroups200> => {
@@ -2057,7 +2056,7 @@ export const listEquipmentGroups = async ( options?: RequestInit): Promise<ListE
 
 export const getListEquipmentGroupsQueryKey = () => {
     return [
-    `http://localhost:3000/equipment/groups`
+    `/api/equipment/groups`
     ] as const;
     }
 
@@ -2112,7 +2111,7 @@ export const getCreateEquipmentGroupUrl = () => {
 
   
 
-  return `http://localhost:3000/equipment/groups`
+  return `/api/equipment/groups`
 }
 
 export const createEquipmentGroup = async (createEquipmentGroupRequest: CreateEquipmentGroupRequest, options?: RequestInit): Promise<EquipmentGroup> => {
@@ -2183,7 +2182,7 @@ export const getUpdateEquipmentGroupUrl = (groupId: number,) => {
 
   
 
-  return `http://localhost:3000/equipment/groups/${groupId}`
+  return `/api/equipment/groups/${groupId}`
 }
 
 export const updateEquipmentGroup = async (groupId: number,
@@ -2255,7 +2254,7 @@ export const getDeleteEquipmentGroupUrl = (groupId: number,) => {
 
   
 
-  return `http://localhost:3000/equipment/groups/${groupId}`
+  return `/api/equipment/groups/${groupId}`
 }
 
 export const deleteEquipmentGroup = async (groupId: number, options?: RequestInit): Promise<void> => {
@@ -2325,7 +2324,7 @@ export const getListEquipmentUrl = () => {
 
   
 
-  return `http://localhost:3000/equipment`
+  return `/api/equipment`
 }
 
 export const listEquipment = async ( options?: RequestInit): Promise<ListEquipment200> => {
@@ -2345,7 +2344,7 @@ export const listEquipment = async ( options?: RequestInit): Promise<ListEquipme
 
 export const getListEquipmentQueryKey = () => {
     return [
-    `http://localhost:3000/equipment`
+    `/api/equipment`
     ] as const;
     }
 
@@ -2400,7 +2399,7 @@ export const getCreateEquipmentUrl = () => {
 
   
 
-  return `http://localhost:3000/equipment`
+  return `/api/equipment`
 }
 
 export const createEquipment = async (createEquipmentRequest: CreateEquipmentRequest, options?: RequestInit): Promise<Equipment> => {
@@ -2471,7 +2470,7 @@ export const getUpdateEquipmentUrl = (equipmentId: number,) => {
 
   
 
-  return `http://localhost:3000/equipment/${equipmentId}`
+  return `/api/equipment/${equipmentId}`
 }
 
 export const updateEquipment = async (equipmentId: number,
@@ -2543,7 +2542,7 @@ export const getDeleteEquipmentUrl = (equipmentId: number,) => {
 
   
 
-  return `http://localhost:3000/equipment/${equipmentId}`
+  return `/api/equipment/${equipmentId}`
 }
 
 export const deleteEquipment = async (equipmentId: number, options?: RequestInit): Promise<void> => {

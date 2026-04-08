@@ -157,4 +157,24 @@ router.put("/listings/:listingId", requireAuth, requireVerifiedSeller, async (re
   }
 });
 
+router.delete("/listings/:listingId", requireAuth, async (req: AuthedRequest, res) => {
+  const listingId = Number(req.params.listingId);
+  const [existingListing] = await db.select().from(listingsTable).where(eq(listingsTable.id, listingId));
+  if (!existingListing) {
+    res.status(404).json({ error: "not_found", message: "Listing not found" });
+    return;
+  }
+  if (existingListing.sellerId !== req.auth!.userId) {
+    res.status(403).json({ error: "forbidden", message: "You cannot delete listings for another seller." });
+    return;
+  }
+  try {
+    await db.delete(listingsTable).where(eq(listingsTable.id, listingId));
+    res.json({ success: true, message: "Listing deleted successfully" });
+  } catch (error) {
+    console.error("deleteListing", error);
+    res.status(500).json({ error: "server_error", message: "Could not delete this listing. Please try again." });
+  }
+});
+
 export default router;

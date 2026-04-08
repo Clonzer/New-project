@@ -6,6 +6,7 @@ import {
   useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
   useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
   useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
+  useDeleteListings,
 } from "@workspace/api-client-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -698,6 +699,16 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteListing = async (listingId: number) => {
+    try {
+      await deleteListing.mutateAsync({ listingId });
+      toast({ title: "Listing deleted!", description: "Your listing has been removed from the catalog." });
+      refetchListings();
+    } catch (error) {
+      toast({ title: "Failed to delete listing", variant: "destructive" });
+    }
+  };
+
   const totalRevenue = mySales?.orders.filter(o => o.status === "delivered" || o.status === "shipped").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const pendingRevenue = mySales?.orders.filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const totalFeesPaid = mySales?.orders.reduce((sum, o) => sum + o.platformFee, 0) ?? 0;
@@ -1140,7 +1151,12 @@ export default function Dashboard() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {myListings.listings.map(listing => (
-                      <ListingCard key={listing.id} listing={listing} />
+                      <ListingCard 
+                        key={listing.id} 
+                        listing={listing} 
+                        isOwner={true}
+                        onDelete={() => handleDeleteListing(listing.id)}
+                      />
                     ))}
                   </div>
                 )}

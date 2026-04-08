@@ -1,19 +1,26 @@
 import { Listing } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { Box, Clock, ShoppingCart, AlertCircle } from "lucide-react";
+import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
 import type { ListingPriceInsight } from "@/lib/listing-pricing";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { Button } from "@/components/ui/button";
 
 export function ListingCard({
   listing,
   priceInsight,
+  isOwner,
+  onDelete,
+  onEdit,
 }: {
   listing: Listing & { stockQuantity?: number; trackStock?: boolean };
   priceInsight?: ListingPriceInsight;
+  isOwner?: boolean;
+  onDelete?: (listingId: number) => void;
+  onEdit?: (listing: Listing) => void;
 }) {
   const { toast } = useToast();
   const { formatPrice } = useLocalePreferences();
@@ -62,12 +69,32 @@ export function ListingCard({
               {listing.stockQuantity} in stock
             </Badge>
           )}
-          <ReportButton 
-            itemType="listing" 
-            itemId={listing.id} 
-            itemName={listing.title}
-            className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70"
-          />
+          {isOwner ? (
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {onDelete && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0 bg-black/50 hover:bg-red-500/50 text-white"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (confirm("Delete this listing? This action cannot be undone.")) {
+                      onDelete(listing.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          ) : (
+            <ReportButton 
+              itemType="listing" 
+              itemId={listing.id} 
+              itemName={listing.title}
+              className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70"
+            />
+          )}
         </div>
         <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
           <Badge variant="secondary" className="bg-black/50 backdrop-blur-md text-white border-white/10">
