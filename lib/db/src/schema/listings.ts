@@ -16,6 +16,7 @@ export const listingsTable = pgTable("listings", {
   estimatedDaysMax: integer("estimated_days_max").notNull(),
   material: text("material"),
   color: text("color"),
+  sponsoredUntil: timestamp("sponsored_until"),
   orderCount: integer("order_count").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

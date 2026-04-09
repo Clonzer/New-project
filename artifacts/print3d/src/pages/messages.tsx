@@ -16,6 +16,13 @@ import {
   type MessageThreadSummary,
 } from "@/lib/messages-api";
 
+function readRequestedThreadId() {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("threadId");
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 function formatTimestamp(value?: string | null) {
   if (!value) return "";
   const date = new Date(value);
@@ -32,7 +39,7 @@ export default function Messages() {
   const { user } = useAuth();
   const { data: usersData } = useListUsers({ limit: 100 });
   const [threads, setThreads] = useState<MessageThreadSummary[]>([]);
-  const [activeThreadId, setActiveThreadId] = useState<number | null>(null);
+  const [activeThreadId, setActiveThreadId] = useState<number | null>(() => readRequestedThreadId());
   const [activeThread, setActiveThread] = useState<MessageThreadDetail | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [search, setSearch] = useState("");
@@ -48,7 +55,7 @@ export default function Messages() {
       .then((data) => {
         if (cancelled) return;
         setThreads(data.threads);
-        setActiveThreadId((current) => current ?? data.threads[0]?.id ?? null);
+        setActiveThreadId((current) => current ?? readRequestedThreadId() ?? data.threads[0]?.id ?? null);
       })
       .catch((err) => {
         if (!cancelled) setError(getApiErrorMessage(err));
@@ -60,6 +67,17 @@ export default function Messages() {
       cancelled = true;
     };
   }, [search]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (activeThreadId) {
+      url.searchParams.set("threadId", String(activeThreadId));
+    } else {
+      url.searchParams.delete("threadId");
+    }
+    window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+  }, [activeThreadId]);
 
   useEffect(() => {
     if (!activeThreadId) {

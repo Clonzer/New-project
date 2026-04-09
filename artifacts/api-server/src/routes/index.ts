@@ -10,6 +10,7 @@ import sellersRouter from "./sellers";
 import paymentsRouter from "./payments";
 import messagesRouter from "./messages";
 import adminRouter from "./admin";
+import supportRouter from "./support";
 
 const router: IRouter = Router();
 
@@ -21,6 +22,7 @@ router.use(listingsRouter);
 router.use(ordersRouter);
 router.use(paymentsRouter);
 router.use(messagesRouter);
+router.use(supportRouter);
 router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);

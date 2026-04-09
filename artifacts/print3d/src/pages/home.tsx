@@ -159,6 +159,15 @@ export default function Home() {
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="mb-10">
+              <div className="pointer-events-none absolute left-[6%] top-24 hidden h-28 w-28 rounded-full bg-cyan-400/10 blur-3xl md:block" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="pointer-events-none absolute right-[10%] top-32 hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-cyan-200 backdrop-blur-md lg:block"
+              >
+                Daily featured marketplace mix
+              </motion.div>
               {loadingSellers || loadingListings ? (
                 <Skeleton className="mb-6 h-[30rem] rounded-[2rem] bg-white/10" />
               ) : slides.length ? (
@@ -252,8 +261,13 @@ export default function Home() {
                 </div>
               ) : null}
 
-              <div className="max-w-3xl">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="max-w-3xl"
+              >
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm shadow-[0_0_30px_rgba(159,229,255,0.12)]">
                   <Sparkles className="w-4 h-4" />
                   Storefront marketplace
                 </span>
@@ -275,7 +289,7 @@ export default function Home() {
                     </NeonButton>
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr] items-start">

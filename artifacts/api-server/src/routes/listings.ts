@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { listingsTable, usersTable } from "@workspace/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { CreateListingBody } from "@workspace/api-zod";
 import { type AuthedRequest, requireAuth, requireVerifiedSeller } from "../lib/auth";
 
@@ -18,7 +18,11 @@ router.get("/listings", async (req, res) => {
   const whereClause = and(...conditions);
 
   let query = db.select().from(listingsTable).$dynamic();
-  query = query.where(whereClause).orderBy(desc(listingsTable.orderCount), desc(listingsTable.createdAt));
+  query = query.where(whereClause).orderBy(
+    desc(sql`case when ${listingsTable.sponsoredUntil} is not null and ${listingsTable.sponsoredUntil} > now() then 1 else 0 end`),
+    desc(listingsTable.orderCount),
+    desc(listingsTable.createdAt),
+  );
 
   const rows = await query.limit(limit).offset(offset);
   const total = await db.$count(listingsTable, whereClause);

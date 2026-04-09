@@ -18,6 +18,20 @@ export async function getPaymentConfig() {
   });
 }
 
+export type SponsorshipOption = {
+  code: "profile" | "listing";
+  name: string;
+  description: string;
+  unitAmountUsd: number;
+  durationDays: number;
+};
+
+export async function getSponsorshipOptions() {
+  return customFetch<{ options: SponsorshipOption[] }>("/api/payments/sponsorship-options", {
+    credentials: "include",
+  });
+}
+
 export async function createCheckoutSession(input: {
   shippingAddress: string;
   items: CheckoutItemPayload[];
@@ -25,6 +39,20 @@ export async function createCheckoutSession(input: {
   cancelPath?: string;
 }) {
   return customFetch<{ url: string; sessionId: string }>("/api/payments/checkout-session", {
+    method: "POST",
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+}
+
+export async function createSponsorshipCheckoutSession(input: {
+  sponsorshipType: "profile" | "listing";
+  listingId?: number;
+  quantity?: number;
+  successPath?: string;
+  cancelPath?: string;
+}) {
+  return customFetch<{ url: string; sessionId: string }>("/api/payments/sponsorship/checkout-session", {
     method: "POST",
     body: JSON.stringify(input),
     credentials: "include",

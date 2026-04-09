@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Star, X, Zap } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Crown, Mail, Megaphone, MessageSquare, Rocket, Star, X, Zap } from "lucide-react";
+import { useListListings } from "@workspace/api-client-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
+import { ensureSupportThread, submitSupportContactForm } from "@/lib/support-api";
 
 const ENTERPRISE_CONTACT = "mailto:evanhuelin8@gmail.com?subject=SYNTHIX%20Enterprise%20Inquiry";
 
@@ -19,17 +25,18 @@ const PLANS = [
     platformFee: 10,
     badge: null,
     highlight: false,
-    description: "A solid launch plan for new makers and smaller shops.",
+    description: "A strong free base for new shops getting their first products and quotes live.",
     features: [
-      { text: "10% platform fee", included: true },
       { text: "3 catalog listings included", included: true },
-      { text: "Custom requests", included: true },
+      { text: "Custom request inbox", included: true },
       { text: "Shop messaging", included: true },
       { text: "Portfolio and reviews", included: true },
-      { text: "Advanced analytics", included: false },
-      { text: "Enterprise onboarding", included: false },
+      { text: "Basic storefront customization", included: true },
+      { text: "Sponsored placement discounts", included: false },
+      { text: "Analytics and conversion insights", included: false },
+      { text: "Priority support", included: false },
     ],
-    cta: "Get Started",
+    cta: "Start Free",
     glow: "white" as const,
   },
   {
@@ -41,17 +48,18 @@ const PLANS = [
     platformFee: 7,
     badge: "Most Popular",
     highlight: true,
-    description: "For active sellers ready to grow with lower fees and better tooling.",
+    description: "For sellers who want lower fees, stronger visibility, and better shop operations.",
     features: [
-      { text: "7% platform fee", included: true },
       { text: "20 catalog listings included", included: true },
-      { text: "Custom requests", included: true },
-      { text: "Shop messaging", included: true },
-      { text: "Portfolio and reviews", included: true },
-      { text: "Advanced analytics", included: true },
-      { text: "Enterprise onboarding", included: false },
+      { text: "Priority quote requests", included: true },
+      { text: "Advanced storefront customization", included: true },
+      { text: "Performance analytics", included: true },
+      { text: "Launch support for promotions", included: true },
+      { text: "10% off sponsorships", included: true },
+      { text: "Priority support", included: true },
+      { text: "Managed enterprise onboarding", included: false },
     ],
-    cta: "Start Pro",
+    cta: "Upgrade with Support",
     glow: "primary" as const,
   },
   {
@@ -61,39 +69,41 @@ const PLANS = [
     iconColor: "text-yellow-400",
     price: { monthly: 49, yearly: 39 },
     platformFee: 5,
-    badge: "Best Value",
+    badge: "Seller Growth",
     highlight: false,
-    description: "For established shops running serious order volume and stronger branding.",
+    description: "For shops running real volume and needing more merchandising and launch tooling.",
     features: [
-      { text: "5% platform fee", included: true },
       { text: "Unlimited listings", included: true },
-      { text: "Custom requests", included: true },
-      { text: "Priority support", included: true },
-      { text: "Advanced analytics", included: true },
-      { text: "Branding controls", included: true },
-      { text: "Enterprise onboarding", included: false },
+      { text: "Homepage merchandising consideration", included: true },
+      { text: "Deeper analytics and trend tracking", included: true },
+      { text: "Priority quote routing", included: true },
+      { text: "Custom shop branding controls", included: true },
+      { text: "20% off sponsorships", included: true },
+      { text: "Fast-track support", included: true },
+      { text: "Managed enterprise onboarding", included: false },
     ],
-    cta: "Go Elite",
+    cta: "Talk to Synthix",
     glow: "accent" as const,
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    icon: Crown,
+    icon: Rocket,
     iconColor: "text-cyan-300",
     price: { monthly: 0, yearly: 0 },
     platformFee: 0,
     badge: "Contact Us",
     highlight: false,
-    description: "Managed terms for high-value partners who need custom rollout, support, and commercial setup.",
+    description: "Custom commercial setup for studios, teams, and partners that need more than a normal seller plan.",
     features: [
       { text: "Custom commercial terms", included: true },
       { text: "Negotiated fees", included: true },
       { text: "Dedicated onboarding", included: true },
-      { text: "Managed enterprise status", included: true },
-      { text: "Priority support", included: true },
-      { text: "Branding consultation", included: true },
-      { text: "Procurement workflows", included: true },
+      { text: "Merchandising and launch planning", included: true },
+      { text: "Procurement or managed workflows", included: true },
+      { text: "Priority support and escalation", included: true },
+      { text: "Account assignment by owner", included: true },
+      { text: "White-glove rollout", included: true },
     ],
     cta: "Contact Us",
     glow: "primary" as const,
@@ -102,40 +112,193 @@ const PLANS = [
 
 const FAQS = [
   {
-    q: "How do account tiers work?",
-    a: "Starter, Pro, and Elite can be self-serve. Enterprise is assigned manually for accounts that need custom commercial terms or rollout support.",
+    q: "How do profile and product sponsorships work?",
+    a: "Profile sponsorship boosts your shop across seller-focused placements for 14 days. Product sponsorship boosts one listing across product-focused placements for 14 days. Both are paid through Stripe and activate automatically after successful payment.",
   },
   {
-    q: "Can owners give someone enterprise features?",
-    a: "Yes. Owner accounts can assign plan tiers, including enterprise, from the private admin panel.",
+    q: "Can I message Synthix directly from the site?",
+    a: "Yes. The pricing page now has a direct in-app message action that opens a real support thread in the site messenger, so you can ask about plans, sponsorships, or setup without leaving the platform.",
+  },
+  {
+    q: "How do paid plans help beyond lower fees?",
+    a: "Paid tiers also unlock stronger shop customization, better analytics, faster support, and discounted promotional placements so sellers can grow both their storefront and their catalog visibility.",
+  },
+  {
+    q: "Can owners give someone enterprise features manually?",
+    a: "Yes. Owner accounts can assign plan tiers, including enterprise, from the private admin panel. Enterprise can also be paired with custom onboarding and negotiated support.",
+  },
+  {
+    q: "What do I need configured before payments and support emails work live?",
+    a: "Stripe requires STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET, while email forms require SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM on Render.",
   },
   {
     q: "Do buyers need a paid plan?",
-    a: "No. Pricing is aimed at sellers. Buyer accounts can browse and order without a subscription.",
+    a: "No. Buyers can browse, message, compare shops, and place orders without subscribing. Pricing is seller-focused.",
   },
 ];
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [location, setLocation] = useLocation();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [contactForm, setContactForm] = useState({
+    name: user?.displayName ?? "",
+    email: user?.email ?? "",
+    subject: "Enterprise plan and sponsorships",
+    message: "",
+  });
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [isOpeningSupport, setIsOpeningSupport] = useState(false);
+  const [isStartingProfileSponsor, setIsStartingProfileSponsor] = useState(false);
+  const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
+  const isSeller = user?.role === "seller" || user?.role === "both";
+  const { data: ownListingsData } = useListListings({ sellerId: user?.id, limit: 100 });
+
+  useEffect(() => {
+    if (user) {
+      setContactForm((current) => ({
+        ...current,
+        name: current.name || user.displayName,
+        email: current.email || user.email,
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!selectedListingId && ownListingsData?.listings?.length) {
+      setSelectedListingId(ownListingsData.listings[0].id);
+    }
+  }, [ownListingsData?.listings, selectedListingId]);
+
+  const plans = useMemo(
+    () =>
+      PLANS.map((plan) => ({
+        ...plan,
+        activePrice: yearly ? plan.price.yearly : plan.price.monthly,
+      })),
+    [yearly],
+  );
+
+  const openSupportMessenger = async () => {
+    if (!user) {
+      setLocation("/login");
+      return;
+    }
+
+    try {
+      setIsOpeningSupport(true);
+      const result = await ensureSupportThread();
+      setLocation(`/messages?threadId=${result.threadId}`);
+    } catch (error) {
+      toast({
+        title: "Could not open support chat",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsOpeningSupport(false);
+    }
+  };
+
+  const submitContact = async () => {
+    try {
+      setIsSubmittingContact(true);
+      await submitSupportContactForm(contactForm);
+      setContactForm((current) => ({ ...current, message: "" }));
+      toast({
+        title: "Contact form sent",
+        description: "Your message was sent to the SYNTHIX inbox email addresses.",
+      });
+    } catch (error) {
+      toast({
+        title: "Contact form failed",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingContact(false);
+    }
+  };
+
+  const startProfileSponsorship = async () => {
+    if (!user) {
+      setLocation("/login");
+      return;
+    }
+    try {
+      setIsStartingProfileSponsor(true);
+      const result = await createSponsorshipCheckoutSession({
+        sponsorshipType: "profile",
+        successPath: "/pricing?sponsorship=profile-success",
+        cancelPath: location,
+      });
+      window.location.href = result.url;
+    } catch (error) {
+      toast({
+        title: "Profile sponsorship failed",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsStartingProfileSponsor(false);
+    }
+  };
+
+  const startListingSponsorship = async () => {
+    if (!user) {
+      setLocation("/login");
+      return;
+    }
+    if (!selectedListingId) {
+      toast({
+        title: "Choose a listing first",
+        description: "Pick one of your catalog listings to sponsor.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      setIsStartingListingSponsor(true);
+      const result = await createSponsorshipCheckoutSession({
+        sponsorshipType: "listing",
+        listingId: selectedListingId,
+        successPath: "/pricing?sponsorship=listing-success",
+        cancelPath: location,
+      });
+      window.location.href = result.url;
+    } catch (error) {
+      toast({
+        title: "Listing sponsorship failed",
+        description: getApiErrorMessage(error),
+        variant: "destructive",
+      });
+    } finally {
+      setIsStartingListingSponsor(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <Navbar />
 
       <main className="flex-grow">
-        <section className="relative overflow-hidden pb-16 pt-28 text-center">
+        <section className="relative overflow-hidden pb-16 pt-24 text-center">
           <AnimatedGradientBg />
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_40%)]" />
           <div className="container relative z-10 mx-auto px-4">
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm font-semibold text-primary backdrop-blur-sm">
-                Seller pricing
+                Pricing, promotion, and support
               </span>
               <h1 className="mt-6 text-5xl font-display font-extrabold tracking-tight text-white md:text-6xl">
-                Pick the seller tier that fits your shop.
+                Grow a shop, promote a listing, and talk to Synthix without leaving the site.
               </h1>
-              <p className="mx-auto mt-5 max-w-2xl text-lg text-zinc-400">
-                Lower fees, better tooling, and a clear enterprise path when you need more than a standard seller account.
+              <p className="mx-auto mt-5 max-w-3xl text-lg text-zinc-400">
+                Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
+                Both now have real support actions behind them instead of dead-end buttons.
               </p>
               <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5">
                 <button
@@ -155,12 +318,11 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 pb-24">
+        <section className="container mx-auto px-4 pb-16">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {PLANS.map((plan, index) => {
+            {plans.map((plan, index) => {
               const Icon = plan.icon;
               const isEnterprise = plan.id === "enterprise";
-              const price = yearly ? plan.price.yearly : plan.price.monthly;
 
               return (
                 <motion.div
@@ -186,9 +348,9 @@ export default function Pricing() {
 
                   <div className="mb-4">
                     <span className="text-4xl font-display font-extrabold text-white">
-                      {isEnterprise ? "Custom" : price === 0 ? "Free" : `$${price}`}
+                      {isEnterprise ? "Custom" : plan.activePrice === 0 ? "Free" : `$${plan.activePrice}`}
                     </span>
-                    {!isEnterprise && price > 0 ? (
+                    {!isEnterprise && plan.activePrice > 0 ? (
                       <span className="ml-1 text-sm text-zinc-500">/{yearly ? "mo billed yearly" : "mo"}</span>
                     ) : null}
                   </div>
@@ -216,11 +378,11 @@ export default function Pricing() {
                       </NeonButton>
                     </a>
                   ) : (
-                    <Link href="/register">
+                    <button type="button" onClick={() => void openSupportMessenger()} className="w-full">
                       <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
                         {plan.cta}
                       </NeonButton>
-                    </Link>
+                    </button>
                   )}
                 </motion.div>
               );
@@ -228,25 +390,156 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-black/30 py-16">
-          <div className="container mx-auto max-w-4xl px-4">
-            <div className="rounded-3xl border border-cyan-400/15 bg-cyan-400/10 p-8 text-center">
-              <h2 className="text-3xl font-display font-bold text-white">Enterprise sellers get a human setup path.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-zinc-300">
-                Use enterprise when you need custom onboarding, pricing terms, procurement support, or a tailored launch arrangement.
+        <section className="container mx-auto px-4 pb-20">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-7">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-primary/10 text-primary">
+                  <Megaphone className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-display font-bold text-white">Sponsorships</h2>
+                  <p className="text-sm text-zinc-400">Pay through Stripe and activate marketplace boosts automatically.</p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-5 md:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Profile sponsorship</p>
+                  <h3 className="mt-2 text-2xl font-display font-bold text-white">$39 / 14 days</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                    Boost your shop on seller-focused surfaces, featured maker carousels, and support-led recommendations.
+                  </p>
+                  <ul className="mt-5 space-y-2 text-sm text-zinc-300">
+                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Prioritized shop placements</li>
+                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Better discovery during campaign windows</li>
+                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Renewable without losing existing time</li>
+                  </ul>
+                  <button type="button" onClick={() => void startProfileSponsorship()} className="mt-6 w-full">
+                    <NeonButton glowColor="primary" className="w-full rounded-2xl py-3">
+                      {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
+                    </NeonButton>
+                  </button>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Product sponsorship</p>
+                  <h3 className="mt-2 text-2xl font-display font-bold text-white">$24 / 14 days</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                    Push one listing harder across product-focused placements and featured catalog surfaces.
+                  </p>
+                  <div className="mt-5">
+                    <label className="mb-2 block text-sm text-zinc-400">Choose a listing</label>
+                    <select
+                      value={selectedListingId ?? ""}
+                      onChange={(event) => setSelectedListingId(Number(event.target.value))}
+                      className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    >
+                      {!ownListingsData?.listings?.length ? (
+                        <option value="">No listings available</option>
+                      ) : (
+                        ownListingsData.listings.map((listing) => (
+                          <option key={listing.id} value={listing.id}>{listing.title}</option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+                  <button type="button" onClick={() => void startListingSponsorship()} className="mt-6 w-full">
+                    <NeonButton glowColor="accent" className="w-full rounded-2xl py-3">
+                      {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
+                    </NeonButton>
+                  </button>
+                </div>
+              </div>
+
+              {!isSeller ? (
+                <p className="mt-5 text-sm text-zinc-500">
+                  Sponsorships are seller tools. Buyer accounts can still message support from this page.
+                </p>
+              ) : null}
+            </div>
+
+            <div className="rounded-[2rem] border border-cyan-400/15 bg-cyan-400/10 p-7">
+              <h2 className="text-2xl font-display font-bold text-white">Talk to Synthix</h2>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                One path stays on-platform in the site messenger. The other sends a proper contact form to your inbox email addresses.
               </p>
-              <div className="mt-6">
-                <a href={ENTERPRISE_CONTACT}>
-                  <NeonButton glowColor="primary" className="rounded-full px-8 py-4 text-base">
-                    Contact Us
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <button type="button" onClick={() => void openSupportMessenger()}>
+                  <NeonButton glowColor="primary" className="w-full rounded-2xl py-3">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    {isOpeningSupport ? "Opening..." : "Message Synthix"}
                   </NeonButton>
+                </button>
+                <a href="#contact-form">
+                  <NeonButton glowColor="white" className="w-full rounded-2xl py-3">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Email form
+                  </NeonButton>
+                </a>
+              </div>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-zinc-200">
+                <p className="font-semibold text-white">Enterprise sellers get:</p>
+                <ul className="mt-3 space-y-2">
+                  <li>Dedicated onboarding and rollout support.</li>
+                  <li>Negotiated commercial terms and fees.</li>
+                  <li>Priority promotional planning and merchandising help.</li>
+                  <li>Owner-assigned enterprise features inside the product.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact-form" className="border-y border-white/5 bg-black/30 py-16">
+          <div className="container mx-auto max-w-4xl px-4">
+            <div className="rounded-3xl border border-white/10 bg-black/20 p-8">
+              <h2 className="text-3xl font-display font-bold text-white">Contact form</h2>
+              <p className="mt-3 text-zinc-400">
+                This sends a real email to `evanhuelin8@gmail.com` and `evanhuelin@gmail.com` using your configured SMTP settings.
+              </p>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <input
+                  value={contactForm.name}
+                  onChange={(event) => setContactForm((current) => ({ ...current, name: event.target.value }))}
+                  placeholder="Your name"
+                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                <input
+                  value={contactForm.email}
+                  onChange={(event) => setContactForm((current) => ({ ...current, email: event.target.value }))}
+                  placeholder="you@example.com"
+                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <input
+                value={contactForm.subject}
+                onChange={(event) => setContactForm((current) => ({ ...current, subject: event.target.value }))}
+                placeholder="Subject"
+                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <textarea
+                value={contactForm.message}
+                onChange={(event) => setContactForm((current) => ({ ...current, message: event.target.value }))}
+                rows={6}
+                placeholder="Tell us what you need help with."
+                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              />
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button type="button" onClick={() => void submitContact()}>
+                  <NeonButton glowColor="primary" className="rounded-2xl px-7 py-3">
+                    {isSubmittingContact ? "Sending..." : "Send contact form"}
+                  </NeonButton>
+                </button>
+                <a href={ENTERPRISE_CONTACT} className="text-sm text-zinc-400 hover:text-white">
+                  Or open your mail app directly
                 </a>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="container mx-auto max-w-2xl px-4 py-20">
+        <section className="container mx-auto max-w-3xl px-4 py-20">
           <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>
           <div className="space-y-3">
             {FAQS.map((faq, index) => (

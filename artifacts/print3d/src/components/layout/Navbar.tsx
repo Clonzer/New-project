@@ -74,6 +74,7 @@ export function Navbar() {
             {[
               { path: "/explore", label: "Explore Shops" },
               { path: "/listings", label: "Model Catalog" },
+              { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },
             ].map((route) => (
               <Link
@@ -208,9 +209,10 @@ export function Navbar() {
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {[
-                { path: "/explore", label: "Explore Shops" },
-                { path: "/listings", label: "Model Catalog" },
-                { path: "/cart", label: "Cart" },
+              { path: "/explore", label: "Explore Shops" },
+              { path: "/listings", label: "Model Catalog" },
+              { path: "/contests", label: "Contests" },
+              { path: "/cart", label: "Cart" },
                 { path: "/compare-shops", label: "Compare Shops" },
                 { path: "/messages", label: "Messages" },
                 { path: "/dashboard", label: "Dashboard" },

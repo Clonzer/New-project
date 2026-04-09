@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
 
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
@@ -19,6 +20,7 @@ import Pricing from "@/pages/pricing";
 import Cart from "@/pages/cart";
 import SearchPage from "@/pages/search";
 import CompareShops from "@/pages/compare-shops";
+import Contests from "@/pages/contests";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -84,6 +86,7 @@ function Router() {
       <Route path="/cart" component={CartPage} />
       <Route path="/search" component={SearchPage} />
       <Route path="/compare-shops" component={CompareShops} />
+      <Route path="/contests" component={Contests} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
@@ -102,9 +105,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
+          <AppErrorBoundary>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+          </AppErrorBoundary>
           <Toaster />
         </TooltipProvider>
       </AuthProvider>

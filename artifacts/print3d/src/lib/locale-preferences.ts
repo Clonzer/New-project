@@ -19,16 +19,16 @@ type FxState = {
 };
 
 export const COUNTRY_OPTIONS = [
-  { code: "US", label: "United States", flag: "🇺🇸", defaultCurrency: "USD", defaultLanguage: "en-US" },
-  { code: "GB", label: "United Kingdom", flag: "🇬🇧", defaultCurrency: "GBP", defaultLanguage: "en-GB" },
-  { code: "CA", label: "Canada", flag: "🇨🇦", defaultCurrency: "CAD", defaultLanguage: "en-CA" },
-  { code: "AU", label: "Australia", flag: "🇦🇺", defaultCurrency: "AUD", defaultLanguage: "en-AU" },
-  { code: "NZ", label: "New Zealand", flag: "🇳🇿", defaultCurrency: "NZD", defaultLanguage: "en-NZ" },
-  { code: "DE", label: "Germany", flag: "🇩🇪", defaultCurrency: "EUR", defaultLanguage: "de-DE" },
-  { code: "FR", label: "France", flag: "🇫🇷", defaultCurrency: "EUR", defaultLanguage: "fr-FR" },
-  { code: "ES", label: "Spain", flag: "🇪🇸", defaultCurrency: "EUR", defaultLanguage: "es-ES" },
-  { code: "IT", label: "Italy", flag: "🇮🇹", defaultCurrency: "EUR", defaultLanguage: "it-IT" },
-  { code: "JP", label: "Japan", flag: "🇯🇵", defaultCurrency: "JPY", defaultLanguage: "ja-JP" },
+  { code: "US", label: "United States", defaultCurrency: "USD", defaultLanguage: "en-US" },
+  { code: "GB", label: "United Kingdom", defaultCurrency: "GBP", defaultLanguage: "en-GB" },
+  { code: "CA", label: "Canada", defaultCurrency: "CAD", defaultLanguage: "en-CA" },
+  { code: "AU", label: "Australia", defaultCurrency: "AUD", defaultLanguage: "en-AU" },
+  { code: "NZ", label: "New Zealand", defaultCurrency: "NZD", defaultLanguage: "en-NZ" },
+  { code: "DE", label: "Germany", defaultCurrency: "EUR", defaultLanguage: "de-DE" },
+  { code: "FR", label: "France", defaultCurrency: "EUR", defaultLanguage: "fr-FR" },
+  { code: "ES", label: "Spain", defaultCurrency: "EUR", defaultLanguage: "es-ES" },
+  { code: "IT", label: "Italy", defaultCurrency: "EUR", defaultLanguage: "it-IT" },
+  { code: "JP", label: "Japan", defaultCurrency: "JPY", defaultLanguage: "ja-JP" },
 ] as const;
 
 export const LANGUAGE_OPTIONS = [
@@ -61,6 +61,12 @@ const USD_EXCHANGE_RATES: Record<string, number> = {
   NZD: 1.66,
   JPY: 151,
 };
+
+export function countryCodeToFlag(countryCode: string) {
+  const normalized = countryCode.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalized)) return countryCode;
+  return String.fromCodePoint(...normalized.split("").map((char) => 127397 + char.charCodeAt(0)));
+}
 
 function getStoredPreferences(): Partial<LocalePreferenceState> {
   if (typeof window === "undefined") return {};

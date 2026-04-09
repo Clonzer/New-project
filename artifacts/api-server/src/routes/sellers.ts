@@ -12,7 +12,12 @@ router.get("/sellers", async (req, res) => {
 
   const sellers = await db.select().from(usersTable)
     .where(sellerFilter)
-    .orderBy(desc(sql`coalesce(${usersTable.rating}, 0)`), desc(usersTable.reviewCount), desc(usersTable.totalPrints))
+    .orderBy(
+      desc(sql`case when ${usersTable.profileSponsoredUntil} is not null and ${usersTable.profileSponsoredUntil} > now() then 1 else 0 end`),
+      desc(sql`coalesce(${usersTable.rating}, 0)`),
+      desc(usersTable.reviewCount),
+      desc(usersTable.totalPrints),
+    )
     .limit(limit).offset(offset);
 
   const total = await db.$count(usersTable, sellerFilter);
@@ -36,6 +41,7 @@ router.get("/sellers", async (req, res) => {
       emailVerifiedAt: s.emailVerifiedAt,
       shopMode: s.shopMode,
       sellerTags: s.sellerTags,
+      profileSponsoredUntil: s.profileSponsoredUntil,
       totalPrints: s.totalPrints,
       printerCount: printers.length,
       listingCount: listings.length,

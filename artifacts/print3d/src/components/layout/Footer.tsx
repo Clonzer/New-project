@@ -12,7 +12,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm">
-              A marketplace for custom fabrication and maker services — additive manufacturing, shop tools, metalwork, design, and more. Connect with sellers and turn ideas into finished work.
+              A marketplace for custom fabrication and maker services - additive manufacturing, shop tools,
+              metalwork, design, and more. Connect with sellers and turn ideas into finished work.
             </p>
           </div>
 
@@ -21,6 +22,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link href="/explore" className="text-muted-foreground hover:text-primary transition-colors">Explore Shops</Link></li>
               <li><Link href="/listings" className="text-muted-foreground hover:text-primary transition-colors">Browse Models</Link></li>
+              <li><Link href="/contests" className="text-muted-foreground hover:text-primary transition-colors">Contests</Link></li>
               <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">Become a Seller</Link></li>
               <li><Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
               <li><Link href="/settings" className="text-muted-foreground hover:text-primary transition-colors">Settings</Link></li>
@@ -38,9 +40,9 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/10 text-center text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center">
-          <p>© {new Date().getFullYear()} SYNTHIX. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SYNTHIX. All rights reserved.</p>
           <div className="mt-4 md:mt-0 space-x-4">
-            <span>Platform fee: 10% · Released on shipment</span>
+            <span>Platform fee: 10% - Released on shipment</span>
           </div>
         </div>
       </div>

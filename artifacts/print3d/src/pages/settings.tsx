@@ -12,6 +12,7 @@ import {
   COUNTRY_OPTIONS,
   CURRENCY_OPTIONS,
   LANGUAGE_OPTIONS,
+  countryCodeToFlag,
   persistLocalePreferences,
   useLocalePreferences,
 } from "@/lib/locale-preferences";
@@ -374,7 +375,7 @@ export default function Settings() {
                         >
                           {COUNTRY_OPTIONS.map((option) => (
                             <option key={option.code} value={option.code}>
-                              {option.flag} {option.label}
+                              {countryCodeToFlag(option.code)} {option.label}
                             </option>
                           ))}
                         </select>
@@ -723,10 +724,10 @@ export default function Settings() {
                                       : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
                                   }`}
                                 >
-                                  {option.flag} {option.code}
-                                </button>
-                              );
-                            })}
+                                  {countryCodeToFlag(option.code)} {option.code}
+                                  </button>
+                                );
+                              })}
                           </div>
                           <p className="mt-2 text-xs text-zinc-500">Checkout uses these regions to decide whether a buyer can place an order with you.</p>
                         </div>

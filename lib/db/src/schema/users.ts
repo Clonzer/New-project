@@ -18,6 +18,7 @@ export const usersTable = pgTable("users", {
   sellerTags: text("seller_tags").array().notNull().default([]),
   accountStatus: text("account_status").notNull().default("member"),
   planTier: text("plan_tier").notNull().default("starter"),
+  profileSponsoredUntil: timestamp("profile_sponsored_until"),
   role: userRoleEnum("role").notNull().default("buyer"),
   rating: real("rating"),
   reviewCount: integer("review_count").notNull().default(0),
