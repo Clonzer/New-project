@@ -922,46 +922,50 @@ export default function Dashboard() {
               </TabsContent>
             )}
 
-            <TabsContent value="printers" className="mt-0">
-              <Equipment 
-                myEquipmentGroups={myEquipmentGroups}
-                myPrinters={myPrinters}
-                setShowAddEquipmentGroup={setShowAddEquipmentGroup}
-                setEditingEquipmentGroup={setEditingEquipmentGroup}
-                handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
-                setShowAddPrinter={setShowAddPrinter}
-                togglingPrinterId={togglingPrinterId}
-                togglePrinter={togglePrinter}
-                deletingPrinterId={deletingPrinterId}
-                removePrinter={removePrinter}
-              />
-            </TabsContent>
-
-            <TabsContent value="analytics" className="mt-0">
-              <div className="space-y-8">
-                {/* Performance Metrics */}
-                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                  <div className="p-6 border-b border-white/10 bg-white/5">
-                    <h2 className="text-xl font-bold text-white">Performance Analytics</h2>
-                    <p className="text-sm text-zinc-500 mt-1">Track your shop's performance and growth metrics.</p>
-                  </div>
-                  <div className="p-6">
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-primary mb-2">{mySales?.orders.length ?? 0}</div>
-                        <div className="text-sm text-zinc-500">Total Orders</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-emerald-400 mb-2">${totalRevenue.toFixed(2)}</div>
-                        <div className="text-sm text-zinc-500">Revenue</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-sky-400 mb-2">{averageOrderValue > 0 ? `$${averageOrderValue.toFixed(2)}` : 'N/A'}</div>
-                        <div className="text-sm text-zinc-500">Avg Order Value</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-purple-400 mb-2">{myListings?.listings.length ?? 0}</div>
-                        <div className="text-sm text-zinc-500">Active Listings</div>
+            {isSellerUser && (
+              <TabsContent value="printers" className="mt-0">
+                <Equipment 
+                  myEquipmentGroups={myEquipmentGroups}
+                  myPrinters={myPrinters}
+                  setShowAddEquipmentGroup={setShowAddEquipmentGroup}
+                  setEditingEquipmentGroup={setEditingEquipmentGroup}
+                  handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
+                  setShowAddPrinter={setShowAddPrinter}
+                  togglingPrinterId={togglingPrinterId}
+                  togglePrinter={togglePrinter}
+                  deletingPrinterId={deletingPrinterId}
+                  removePrinter={removePrinter}
+                />
+              </TabsContent>
+            )}
+            
+            {isSellerUser && (
+              <TabsContent value="analytics" className="mt-0">
+                <div className="space-y-8">
+                  {/* Performance Metrics */}
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Performance Analytics</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Track your shop's performance and growth metrics.</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-primary mb-2">{mySales?.orders.length ?? 0}</div>
+                          <div className="text-sm text-zinc-500">Total Orders</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-emerald-400 mb-2">${totalRevenue.toFixed(2)}</div>
+                          <div className="text-sm text-zinc-500">Revenue</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-sky-400 mb-2">{averageOrderValue > 0 ? `$${averageOrderValue.toFixed(2)}` : 'N/A'}</div>
+                          <div className="text-sm text-zinc-500">Avg Order Value</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-purple-400 mb-2">{myListings?.listings.length ?? 0}</div>
+                          <div className="text-sm text-zinc-500">Active Listings</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1078,6 +1082,7 @@ export default function Dashboard() {
                   <Analytics shopId={user?.id} timeRange="30d" />
                 </div>
               </TabsContent>
+            )}
           </Tabs>
         </div>
       </main>
