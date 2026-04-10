@@ -28,6 +28,7 @@ import Help from "@/pages/help";
 import Discover from "@/pages/discover";
 import CreateListing from "@/pages/create-listing";
 import EditListing from "@/pages/edit-listing";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/create-listing" component={CreateListingPage} />
       <Route path="/listings/:id/edit" component={EditListingPage} />
+      <Route path="/admin" component={Admin} />
       <Route path="/help" component={Help} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/privacy" component={PrivacyPage} />

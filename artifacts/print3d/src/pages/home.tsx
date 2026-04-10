@@ -23,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SiteStats } from "@/components/shared/SiteStats";
 
 export default function Home() {
   return (
@@ -67,6 +68,9 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
+
+        {/* Hero Analytics Overlay */}
+        <SiteStats />
 
         {/* Stats Section */}
         <section className="py-20 bg-zinc-900/50">
@@ -176,99 +180,6 @@ export default function Home() {
                   </Card>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Products */}
-        <section className="py-20 bg-zinc-900/50">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Products</span>
-              </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
-                Discover amazing creations from our top makers
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  title: "Mechanical Keyboard",
-                  price: "$89",
-                  rating: 4.9,
-                  reviews: 127,
-                  image: "https://images.unsplash.com/photo-1598628469345-be0a2a2e5463?w=400&h=300&fit=crop",
-                  maker: "TechMaker"
-                },
-                {
-                  title: "Dragon Figurine",
-                  price: "$45",
-                  rating: 4.8,
-                  reviews: 89,
-                  image: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop",
-                  maker: "CreativePrints"
-                },
-                {
-                  title: "Phone Stand",
-                  price: "$25",
-                  rating: 4.7,
-                  reviews: 203,
-                  image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
-                  maker: "UtilityDesigns"
-                },
-                {
-                  title: "Artistic Vase",
-                  price: "$67",
-                  rating: 5.0,
-                  reviews: 45,
-                  image: "https://images.unsplash.com/photo-1586953208448-2151fb12c9a2?w=400&h=300&fit=crop",
-                  maker: "Artisan3D"
-                }
-              ].map((product, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className="bg-zinc-800/50 border-zinc-700 overflow-hidden hover:border-zinc-600 transition-colors">
-                    <div className="aspect-square bg-zinc-700 overflow-hidden">
-                      <img 
-                        src={product.image} 
-                        alt={product.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-2">{product.title}</h3>
-                      <p className="text-zinc-400 text-sm mb-3">by {product.maker}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="text-2xl font-bold text-white">{product.price}</div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-white text-sm">{product.rating}</span>
-                          <span className="text-zinc-500 text-sm">({product.reviews})</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link href="/listings">
-                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600">
-                  View All Products <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
             </div>
           </div>
         </section>

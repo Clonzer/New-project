@@ -876,6 +876,22 @@ export default function Dashboard() {
               )}
             </TabsList>
 
+            {/* Prominent Buy Sponsorship Button for Sellers */}
+            {isSellerUser && (
+              <div className="mb-6">
+                <Link href="/pricing">
+                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-4 text-lg rounded-full flex items-center justify-center gap-2">
+                    <Trophy className="w-5 h-5" />
+                    Buy Sponsorship
+                    <ArrowRight className="w-5 h-5" />
+                  </NeonButton>
+                </Link>
+                <p className="text-center text-zinc-400 text-sm mt-2">
+                  Boost your visibility and reach more customers
+                </p>
+              </div>
+            )}
+
             {isSellerUser && (
               <TabsContent value="overview" className="mt-0">
                 <Overview 
