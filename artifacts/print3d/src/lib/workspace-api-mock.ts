@@ -15,6 +15,19 @@ export type SellerShop = {
   reviewCount: number;
 };
 
+export type Equipment = {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+};
+
+export type EquipmentGroup = {
+  id: string;
+  name: string;
+  equipment: Equipment[];
+};
+
 export type Listing = {
   id: number;
   title: string;
@@ -89,5 +102,186 @@ export function useAuth() {
     user: null,
     isLoading: false,
     error: null,
+  };
+}
+
+export function useGetUser(userId: string) {
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useListPrinters(userId: string) {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useListReviews(listingId: number) {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useUpdateUser() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useGetListing(listingId: number) {
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useCreatePrinter() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useListUsers() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function getGetListingQueryKey(listingId: number) {
+  return ['listing', listingId];
+}
+
+export function getGetUserQueryKey(userId: string) {
+  return ['user', userId];
+}
+
+export function useUpdateListing() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useCreateListing() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useCreateQuoteRequest() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useListEquipment() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useListEquipmentGroups() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export async function createUser(data: any) {
+  console.warn('[MOCK] createUser called - returning empty response');
+  return {} as User;
+}
+
+export function setStoredAccessToken(token: string | null) {
+  console.warn('[MOCK] setStoredAccessToken called - no-op');
+}
+
+export function useListOrders() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useUpdateOrderStatus() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useUpdatePrinter() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useDeletePrinter() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function getListOrdersQueryKey() {
+  return ['orders'];
+}
+
+export function getListListingsQueryKey() {
+  return ['listings'];
+}
+
+export function getListPrintersQueryKey() {
+  return ['printers'];
+}
+
+export function getListReviewsQueryKey() {
+  return ['reviews'];
+}
+
+export function useCreateEquipmentGroup() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useUpdateEquipmentGroup() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useDeleteEquipmentGroup() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
+
+export function useDeleteListing() {
+  return {
+    mutateAsync: async () => ({}),
+    isPending: false,
   };
 }
