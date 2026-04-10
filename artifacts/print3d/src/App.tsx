@@ -35,51 +35,27 @@ const queryClient = new QueryClient({
 });
 
 function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute roles={[]} children={<Dashboard />} />;
 }
 
 function CartPage() {
-  return (
-    <ProtectedRoute>
-      <Cart />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Cart />} />;
 }
 
 function OrderFlowPage() {
-  return (
-    <ProtectedRoute>
-      <OrderFlow />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<OrderFlow />} />;
 }
 
 function SettingsPage() {
-  return (
-    <ProtectedRoute>
-      <Settings />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Settings />} />;
 }
 
 function MessagesPage() {
-  return (
-    <ProtectedRoute>
-      <Messages />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Messages />} />;
 }
 
 function VendorDashboardPage() {
-  return (
-    <ProtectedRoute>
-      <VendorDashboard />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<VendorDashboard />} />;
 }
 
 function Router() {
