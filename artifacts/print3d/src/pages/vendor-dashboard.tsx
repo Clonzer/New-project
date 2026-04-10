@@ -33,7 +33,8 @@ import {
   FileText,
   CreditCard,
   Calendar,
-  DollarSign
+  DollarSign,
+  Sparkles
 } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
 
@@ -254,7 +255,7 @@ const mockAnalytics: Analytics = {
   ]
 };
 
-type TabType = "orders" | "inventory" | "equipment" | "analytics" | "customers";
+type TabType = "orders" | "inventory" | "equipment" | "analytics" | "customers" | "sponsorship";
 
 export function VendorDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("orders");
@@ -384,7 +385,8 @@ export function VendorDashboard() {
               { id: "inventory", label: "Inventory", icon: Box, count: inventory.filter(i => i.stock <= i.minStock).length },
               { id: "equipment", label: "Equipment", icon: PrinterIcon, count: equipment.filter(e => e.status !== "operational").length },
               { id: "analytics", label: "Analytics", icon: BarChart3 },
-              { id: "customers", label: "Customers", icon: Users }
+              { id: "customers", label: "Customers", icon: Users },
+              { id: "sponsorship", label: "Sponsorship", icon: Sparkles }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -972,6 +974,53 @@ export function VendorDashboard() {
               </div>
             </motion.div>
           )}
+          
+          {/* Sponsorship Tab */}
+          {activeTab === "sponsorship" && (
+            <motion.div
+              key="sponsorship"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Sponsorship Program</h2>
+                <p className="text-zinc-400 mb-6">Boost your visibility and reach more customers by sponsoring your shop.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="border border-zinc-800 rounded-xl p-6 flex flex-col items-center text-center">
+                    <h3 className="text-xl font-semibold text-white mb-2">Bronze</h3>
+                    <p className="text-3xl font-bold text-cyan-400 mb-4">$50<span className="text-base text-zinc-400">/month</span></p>
+                    <ul className="text-zinc-400 space-y-2 mb-6">
+                      <li>Featured on category pages</li>
+                      <li>Basic analytics</li>
+                    </ul>
+                    <NeonButton glowColor="cyan" className="w-full mt-auto">Select Bronze</NeonButton>
+                  </div>
+                  <div className="border-2 border-purple-500 rounded-xl p-6 flex flex-col items-center text-center shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+                    <h3 className="text-xl font-semibold text-white mb-2">Gold</h3>
+                    <p className="text-3xl font-bold text-purple-400 mb-4">$150<span className="text-base text-zinc-400">/month</span></p>
+                    <ul className="text-zinc-400 space-y-2 mb-6">
+                      <li>Homepage placement</li>
+                      <li>Priority support</li>
+                      <li>Advanced analytics</li>
+                    </ul>
+                    <NeonButton glowColor="purple" className="w-full mt-auto">Select Gold</NeonButton>
+                  </div>
+                  <div className="border border-zinc-800 rounded-xl p-6 flex flex-col items-center text-center">
+                    <h3 className="text-xl font-semibold text-white mb-2">Silver</h3>
+                    <p className="text-3xl font-bold text-yellow-400 mb-4">$100<span className="text-base text-zinc-400">/month</span></p>
+                    <ul className="text-zinc-400 space-y-2 mb-6">
+                      <li>Featured on homepage</li>
+                      <li>Enhanced analytics</li>
+                    </ul>
+                    <NeonButton glowColor="yellow" className="w-full mt-auto">Select Silver</NeonButton>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
         </AnimatePresence>
       </div>
     </div>

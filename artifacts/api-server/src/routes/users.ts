@@ -7,6 +7,7 @@ import { hash } from "bcryptjs";
 import { type AuthedRequest, isOwnerEmail, requireAuth, requireSelf } from "../lib/auth";
 import { sendEmailVerificationCode } from "../lib/email-verification";
 import { isEmailDeliveryConfigured } from "../lib/mailer";
+import { sendWelcomeMessage } from "../lib/messages";
 
 const router: IRouter = Router();
 
@@ -91,6 +92,9 @@ router.post("/users", async (req, res) => {
         console.error("sendVerificationAfterSignup", { userId: user.id, error });
       }
     }
+    // Send welcome message
+    await sendWelcomeMessage(user.id, user.displayName);
+
     res.status(201).json(publicUser(user));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);

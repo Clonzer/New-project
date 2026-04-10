@@ -4,7 +4,6 @@ import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
-import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 
 const CONTESTS = [
   {
@@ -32,42 +31,6 @@ export default function Contests() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <section className="relative overflow-hidden pt-20 pb-16">
-          <AnimatedGradientBg />
-          <div className="container mx-auto px-4 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="rounded-[2rem] border border-white/10 bg-black/35 p-8 md:p-12"
-            >
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-cyan-200">
-                <Sparkles className="h-4 w-4" />
-                Contests and community drops
-              </span>
-              <h1 className="mt-6 max-w-3xl text-4xl md:text-6xl font-display font-extrabold text-white leading-[0.95]">
-                Marketplace contests are landing without breaking the rest of the app.
-              </h1>
-              <p className="mt-5 max-w-2xl text-zinc-300 text-lg leading-relaxed">
-                This page exists as a safe route again, so clicking contests no longer drops users onto a broken screen.
-                It can now host featured builds, seller spotlights, and launch campaigns as the marketplace grows.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Link href="/pricing">
-                  <NeonButton glowColor="primary" className="rounded-full px-7 py-4">
-                    View sponsorships
-                  </NeonButton>
-                </Link>
-                <Link href="/explore">
-                  <NeonButton glowColor="white" className="rounded-full px-7 py-4">
-                    Browse makers <ArrowRight className="ml-2 h-4 w-4" />
-                  </NeonButton>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         <section className="container mx-auto px-4 pb-24">
           <div className="grid gap-6 md:grid-cols-3">
             {CONTESTS.map((contest, index) => (
