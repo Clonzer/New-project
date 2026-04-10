@@ -17,6 +17,8 @@ import filesRouter from "./files";
 import notificationsRouter from "./notifications";
 import badgesRouter from "./badges";
 import sponsorshipsRouter from "./sponsorships";
+import statsRouter from "./stats";
+import cronRouter from "./cron";
 
 const router: IRouter = Router();
 
@@ -38,5 +40,7 @@ router.use("/equipment", equipmentRouter);
 router.use("/files", filesRouter);
 router.use("/badges", badgesRouter);
 router.use("/sponsorships", sponsorshipsRouter);
+router.use("/stats", statsRouter);
+router.use("/cron", cronRouter);
 
 export default router;

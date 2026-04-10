@@ -321,9 +321,10 @@ export default function Settings() {
             <div className="min-w-0">
               <motion.div
                 key={activeSection}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                 className="glass-panel min-h-[42rem] rounded-2xl border border-white/10 p-8 lg:p-10"
               >
                 {activeSection === "profile" && (

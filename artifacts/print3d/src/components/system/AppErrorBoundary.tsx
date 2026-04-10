@@ -1,6 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Link } from "wouter";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -42,11 +41,17 @@ export class AppErrorBoundary extends Component<Props, State> {
               <RefreshCcw className="mr-2 h-4 w-4" />
               Reload page
             </Button>
-            <Link href="/">
-              <Button type="button" variant="outline" className="rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10">
-                Go to homepage
-              </Button>
-            </Link>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10"
+              onClick={() => {
+                window.location.href = '/';
+              }}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Go to homepage
+            </Button>
           </div>
         </div>
       </div>

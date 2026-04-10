@@ -29,6 +29,7 @@ import Discover from "@/pages/discover";
 import CreateListing from "@/pages/create-listing";
 import EditListing from "@/pages/edit-listing";
 import Admin from "@/pages/admin";
+import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 
@@ -128,6 +129,7 @@ function Router() {
       <Route path="/messages" component={MessagesPage} />
       <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/sponsorship/purchase" component={SponsorshipPurchase} />
       <Route path="/create-listing" component={CreateListingPage} />
       <Route path="/listings/:id/edit" component={EditListingPage} />
       <Route path="/admin" component={Admin} />

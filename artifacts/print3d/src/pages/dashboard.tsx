@@ -879,7 +879,7 @@ export default function Dashboard() {
             {/* Prominent Buy Sponsorship Button for Sellers */}
             {isSellerUser && (
               <div className="mb-6">
-                <Link href="/pricing">
+                <Link href="/sponsorship/purchase">
                   <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-4 text-lg rounded-full flex items-center justify-center gap-2">
                     <Trophy className="w-5 h-5" />
                     Buy Sponsorship

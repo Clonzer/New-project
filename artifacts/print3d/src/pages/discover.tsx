@@ -365,8 +365,8 @@ export default function Discover() {
     }
   };
 
-  const { data: usersData } = useListUsers({ limit: 50 });
-  const { data: listingsData } = useListListings({ limit: 50 });
+  const { data: usersData, isLoading: isLoadingUsers, error: usersError } = useListUsers({ limit: 50 });
+  const { data: listingsData, isLoading: isLoadingListings, error: listingsError } = useListListings({ limit: 50 });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -735,7 +735,7 @@ export default function Discover() {
                   </div>
                 </div>
 
-                {!listingsData ? (
+                {isLoadingListings ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {[...Array(6)].map((_, i) => (
                       <Card key={i} className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
@@ -753,7 +753,15 @@ export default function Discover() {
                       </Card>
                     ))}
                   </div>
-                ) : listingsData.listings.length === 0 ? (
+                ) : listingsError ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Failed to load projects</h3>
+                    <p className="text-zinc-400">Please try refreshing the page.</p>
+                  </div>
+                ) : !listingsData?.listings?.length ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Search className="w-8 h-8 text-primary" />
@@ -822,7 +830,7 @@ export default function Discover() {
                   </div>
                 </div>
 
-                {!usersData ? (
+                {isLoadingUsers ? (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {[...Array(6)].map((_, i) => (
                       <Card key={i} className="glass-panel rounded-3xl border border-white/10 p-6">
@@ -845,7 +853,15 @@ export default function Discover() {
                       </Card>
                     ))}
                   </div>
-                ) : usersData.users.filter(u => u.role === "seller" || u.role === "both").length === 0 ? (
+                ) : usersError ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <User className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Failed to load makers</h3>
+                    <p className="text-zinc-400">Please try refreshing the page.</p>
+                  </div>
+                ) : !usersData?.users?.filter((u: { role: string; }) => u.role === "seller" || u.role === "both")?.length ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       <User className="w-8 h-8 text-primary" />
@@ -855,9 +871,9 @@ export default function Discover() {
                   </div>
                 ) : (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {usersData.users
-                      .filter(u => u.role === "seller" || u.role === "both")
-                      .filter(u => u.displayName.toLowerCase().includes(search.toLowerCase()) ||
+                    {usersData?.users
+                      ?.filter((u: { role: string; }) => u.role === "seller" || u.role === "both")
+                      ?.filter((u: { displayName: string; bio?: string; sellerTags?: string[]; }) => u.displayName?.toLowerCase().includes(search.toLowerCase()) ||
                                   u.bio?.toLowerCase().includes(search.toLowerCase()) ||
                                   u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())))
                       .map((person) => (

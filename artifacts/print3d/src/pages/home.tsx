@@ -12,7 +12,19 @@ import {
   Award,
   Zap,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Printer,
+  Search,
+  CreditCard,
+  Truck,
+  MessageCircle,
+  Heart,
+  Gem,
+  Wrench,
+  Lightbulb,
+  Palette,
+  Boxes,
+  Quote
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -72,45 +84,8 @@ export default function Home() {
         {/* Hero Analytics Overlay */}
         <SiteStats />
 
-        {/* Stats Section */}
-        <section className="py-20 bg-zinc-900/50">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8"
-            >
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">10K+</span>
-                </div>
-                <p className="text-zinc-400">Active Makers</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">50K+</span>
-                </div>
-                <p className="text-zinc-400">Products Sold</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">4.9</span>
-                </div>
-                <p className="text-zinc-400">Average Rating</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">24/7</span>
-                </div>
-                <p className="text-zinc-400">Support</p>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-20 bg-zinc-800/30">
+        {/* Section 2: Features - White Background */}
+        <section className="py-24 bg-white">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -118,45 +93,60 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Synthix</span>
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                <Sparkles className="w-3 h-3 mr-1" /> Platform Features
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
+                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Synthix</span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
                 The most trusted platform for 3D printing services and products
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 {
                   icon: Shield,
                   title: "Verified Makers",
-                  description: "All makers are thoroughly vetted for quality and reliability"
+                  description: "All makers are thoroughly vetted for quality and reliability",
+                  color: "from-emerald-400 to-cyan-400",
+                  bgColor: "bg-emerald-50"
                 },
                 {
                   icon: Clock,
                   title: "Fast Delivery",
-                  description: "Quick turnaround times with real-time tracking"
+                  description: "Quick turnaround times with real-time tracking",
+                  color: "from-blue-400 to-indigo-400",
+                  bgColor: "bg-blue-50"
                 },
                 {
                   icon: Award,
                   title: "Quality Guarantee",
-                  description: "100% satisfaction guarantee on all products and services"
+                  description: "100% satisfaction guarantee on all products and services",
+                  color: "from-amber-400 to-orange-400",
+                  bgColor: "bg-amber-50"
                 },
                 {
                   icon: Users,
                   title: "Community Driven",
-                  description: "Join thousands of satisfied customers and talented makers"
+                  description: "Join thousands of satisfied customers and talented makers",
+                  color: "from-purple-400 to-pink-400",
+                  bgColor: "bg-purple-50"
                 },
                 {
                   icon: Zap,
                   title: "Instant Quotes",
-                  description: "Get pricing instantly for custom projects"
+                  description: "Get pricing instantly for custom projects",
+                  color: "from-yellow-400 to-red-400",
+                  bgColor: "bg-yellow-50"
                 },
                 {
-                  icon: Star,
-                  title: "Top Rated",
-                  description: "Highest rated 3D printing marketplace"
+                  icon: Gem,
+                  title: "Premium Materials",
+                  description: "Access to high-quality filaments and resins",
+                  color: "from-rose-400 to-pink-400",
+                  bgColor: "bg-rose-50"
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -164,16 +154,17 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
                 >
-                  <Card className="bg-zinc-800/50 border-zinc-700 h-full">
+                  <Card className={`${feature.bgColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full group overflow-hidden`}>
                     <CardHeader>
-                      <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4">
-                        <feature.icon className="w-6 h-6 text-white" />
+                      <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                        <feature.icon className="w-7 h-7 text-white" />
                       </div>
-                      <CardTitle className="text-white">{feature.title}</CardTitle>
+                      <CardTitle className="text-zinc-900 text-xl">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-zinc-400">
+                      <CardDescription className="text-zinc-600 text-base">
                         {feature.description}
                       </CardDescription>
                     </CardContent>
@@ -184,8 +175,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="py-20 bg-zinc-800/30">
+        {/* Section 3: How It Works - Grey Background */}
+        <section className="py-24 bg-zinc-100">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -193,10 +184,149 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
+              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+                <Boxes className="w-3 h-3 mr-1" /> Simple Process
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
+                How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Works</span>
+              </h2>
+              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
+                Get your 3D prints in three simple steps
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {[
+                {
+                  step: "01",
+                  icon: Search,
+                  title: "Browse & Discover",
+                  description: "Explore thousands of designs or find a maker for your custom project",
+                  color: "from-cyan-400 to-blue-500"
+                },
+                {
+                  step: "02",
+                  icon: CreditCard,
+                  title: "Order & Pay",
+                  description: "Secure checkout with buyer protection and multiple payment options",
+                  color: "from-purple-400 to-pink-500"
+                },
+                {
+                  step: "03",
+                  icon: Truck,
+                  title: "Receive & Enjoy",
+                  description: "Fast shipping with tracking. Get your prints delivered to your door",
+                  color: "from-emerald-400 to-green-500"
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: index === 0 ? -20 : index === 2 ? 20 : 0 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.15 }}
+                  className="relative"
+                >
+                  <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full relative overflow-hidden">
+                    <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
+                    <CardHeader className="pt-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                          <item.icon className="w-8 h-8 text-white" />
+                        </div>
+                        <span className={`text-5xl font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent opacity-20`}>
+                          {item.step}
+                        </span>
+                      </div>
+                      <CardTitle className="text-zinc-900 text-2xl">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-zinc-600 text-lg leading-relaxed">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                  {index < 2 && (
+                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                      <ArrowRight className="w-8 h-8 text-zinc-300" />
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 4: Categories - Dark Background */}
+        <section className="py-24 bg-zinc-900">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+                <Palette className="w-3 h-3 mr-1" /> Browse by Category
+              </Badge>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Customers Say</span>
+                Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Categories</span>
               </h2>
               <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                Find exactly what you need across our diverse range of 3D printing categories
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-cyan-400 to-blue-500" },
+                { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-emerald-400 to-green-500" },
+                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-pink-400 to-rose-500" },
+                { icon: Lightbulb, title: "Cosplay Props", items: "950+ items", color: "from-amber-400 to-orange-500" },
+                { icon: Package, title: "Home Decor", items: "1,500+ items", color: "from-purple-400 to-violet-500" },
+                { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 to-amber-500" },
+                { icon: Zap, title: "Tech Accessories", items: "1,200+ items", color: "from-indigo-400 to-blue-500" },
+                { icon: MessageCircle, title: "Custom Orders", items: "Custom quotes", color: "from-teal-400 to-emerald-500" }
+              ].map((category, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.03 }}
+                >
+                  <Link href="/listings">
+                    <Card className="bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className={`w-12 h-12 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                          <category.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors">{category.title}</h3>
+                          <p className="text-zinc-400 text-sm">{category.items}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Testimonials - White Background */}
+        <section className="py-24 bg-white">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
+                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Customers Say</span>
+              </h2>
+              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
                 Real reviews from real customers
               </p>
             </motion.div>
@@ -208,21 +338,24 @@ export default function Home() {
                   role: "Product Designer",
                   content: "Synthix has completely transformed how I prototype my designs. The quality is exceptional and the turnaround time is incredible.",
                   rating: 5,
-                  avatar: "https://api.pravatar.cc/150?u=sarah"
+                  avatar: "https://api.pravatar.cc/150?u=sarah",
+                  color: "from-cyan-400 to-blue-500"
                 },
                 {
                   name: "Mike Chen",
                   role: "Engineer",
                   content: "As an engineer, I need precision and reliability. Synthix delivers both. The custom parts I ordered were perfect.",
                   rating: 5,
-                  avatar: "https://api.pravatar.cc/150?u=mike"
+                  avatar: "https://api.pravatar.cc/150?u=mike",
+                  color: "from-purple-400 to-pink-500"
                 },
                 {
                   name: "Emily Davis",
                   role: "Artist",
                   content: "The artistic possibilities are endless! I've created stunning pieces that wouldn't be possible with traditional methods.",
                   rating: 5,
-                  avatar: "https://api.pravatar.cc/150?u=emily"
+                  avatar: "https://api.pravatar.cc/150?u=emily",
+                  color: "from-emerald-400 to-green-500"
                 }
               ].map((testimonial, index) => (
                 <motion.div
@@ -230,23 +363,29 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
                 >
-                  <Card className="bg-zinc-800/50 border-zinc-700 h-full">
+                  <Card className="bg-zinc-50 border-zinc-200 hover:border-zinc-300 hover:shadow-xl transition-all duration-300 h-full">
                     <CardContent className="p-6">
+                      <div className={`w-12 h-12 bg-gradient-to-r ${testimonial.color} rounded-xl flex items-center justify-center mb-4`}>
+                        <Quote className="w-6 h-6 text-white" />
+                      </div>
                       <div className="flex mb-4">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                          <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
                         ))}
                       </div>
-                      <p className="text-zinc-300 mb-6">"{testimonial.content}"</p>
-                      <div className="flex items-center gap-3">
-                        <Avatar>
+                      <p className="text-zinc-700 mb-6 leading-relaxed">"{testimonial.content}"</p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-zinc-200">
+                        <Avatar className="w-12 h-12">
                           <AvatarImage src={testimonial.avatar} />
-                          <AvatarFallback>{testimonial.name[0]}</AvatarFallback>
+                          <AvatarFallback className="bg-gradient-to-r from-zinc-200 to-zinc-300 text-zinc-700 font-semibold">
+                            {testimonial.name[0]}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-white font-semibold">{testimonial.name}</p>
-                          <p className="text-zinc-400 text-sm">{testimonial.role}</p>
+                          <p className="text-zinc-900 font-semibold">{testimonial.name}</p>
+                          <p className="text-zinc-500 text-sm">{testimonial.role}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -257,31 +396,36 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-cyan-900/20 to-emerald-900/20">
-          <div className="container mx-auto px-4">
+        {/* Section 6: CTA - Gradient Background */}
+        <section className="py-24 bg-gradient-to-br from-cyan-600 via-blue-700 to-emerald-600 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+          <div className="container mx-auto px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Ready to Start <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Creating?</span>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white mb-6">
+                <Sparkles className="w-4 h-4" />
+                Join 10,000+ creators today
+              </div>
+              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                Ready to Start <span className="text-yellow-300">Creating?</span>
               </h2>
-              <p className="text-xl text-zinc-300 mb-8">
+              <p className="text-xl text-white/80 mb-10">
                 Join thousands of makers and customers who trust Synthix for their 3D printing needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/create-listing">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                  <Button size="lg" className="bg-white text-cyan-700 hover:bg-zinc-100 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all">
                     Start Selling <ArrowRight className="w-5 h-5 ml-2" />
-                  </NeonButton>
+                  </Button>
                 </Link>
                 <Link href="/explore">
-                  <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-semibold px-8 py-6 text-lg rounded-full backdrop-blur-sm">
                     Browse Products
-                  </NeonButton>
+                  </Button>
                 </Link>
               </div>
             </motion.div>
