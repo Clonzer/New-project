@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { setStoredAccessToken, type User } from "@workspace/api-client-react";
 import { authLogin, authLogout, authMe } from "@/lib/auth-api";
 
@@ -23,7 +22,6 @@ export type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,10 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { token, user: u } = await authLogin(identifier, password);
       setStoredAccessToken(token);
       setUser(u);
-      await queryClient.invalidateQueries();
       return u;
     },
-    [queryClient],
+    [],
   );
 
   const logout = useCallback(async () => {
@@ -74,9 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setStoredAccessToken(null);
       setUser(null);
-      await queryClient.invalidateQueries();
     }
-  }, [queryClient]);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
