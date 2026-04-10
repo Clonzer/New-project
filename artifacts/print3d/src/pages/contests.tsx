@@ -92,58 +92,154 @@ export default function Contests() {
         const entriesData = await entriesResponse.json();
 
         // Transform data or use fallback
+        // Generate sales-based contests with random active contest
+        const generateSalesContests = (): Contest[] => {
+          const now = new Date();
+          const salesContests = [
+            {
+              id: "sales-champion",
+              title: "Sales Champion of the Month",
+              description: "Top seller by revenue this month wins premium sponsorship and featured placement",
+              category: "Sales Performance",
+              reward: "$500 sponsorship + 30-day homepage feature",
+              status: "active" as const,
+              startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+              endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
+              maxParticipants: 999,
+              currentParticipants: Math.floor(Math.random() * 50) + 20,
+              prizePool: 1000,
+              judgingCriteria: ["Total Revenue", "Order Volume", "Customer Satisfaction", "Growth Rate"],
+              requirements: ["Minimum 10 orders", "4.5+ star rating", "Active listings"],
+              badgeAwarded: "Sales Champion"
+            },
+            {
+              id: "review-master",
+              title: "5-Star Review Master",
+              description: "Earn the most 5-star reviews this quarter and win marketing credits",
+              category: "Customer Service",
+              reward: "$300 marketing credits + Verified Seller badge",
+              status: "active" as const,
+              startDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1).toISOString(),
+              endDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3 + 3, 0).toISOString(),
+              maxParticipants: 500,
+              currentParticipants: Math.floor(Math.random() * 30) + 15,
+              prizePool: 600,
+              judgingCriteria: ["Review Count", "Average Rating", "Response Time", "Customer Retention"],
+              requirements: ["Minimum 5 reviews", "4.8+ average rating", "24h response time"],
+              badgeAwarded: "Customer Service Expert"
+            },
+            {
+              id: "fast-delivery",
+              title: "Lightning Fast Delivery",
+              description: "Fastest average delivery time wins processing fee discounts",
+              category: "Fulfillment",
+              reward: "50% processing fee discount for 3 months",
+              status: "active" as const,
+              startDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 200,
+              currentParticipants: Math.floor(Math.random() * 25) + 10,
+              prizePool: 400,
+              judgingCriteria: ["Average Delivery Time", "On-Time Rate", "Packaging Quality", "Tracking Updates"],
+              requirements: ["Minimum 15 completed orders", "95% on-time delivery", "Tracking on all orders"],
+              badgeAwarded: "Speed Demon"
+            },
+            {
+              id: "quality-maker",
+              title: "Quality Maker Award",
+              description: "Highest quality products based on customer feedback and returns",
+              category: "Product Quality",
+              reward: "Quality certification + priority placement",
+              status: "judging" as const,
+              startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 150,
+              currentParticipants: Math.floor(Math.random() * 40) + 20,
+              prizePool: 750,
+              judgingCriteria: ["Return Rate", "Customer Feedback", "Product Photos Accuracy", "Material Quality"],
+              requirements: ["Minimum 20 orders", "<2% return rate", "Detailed product descriptions"],
+              badgeAwarded: "Quality Certified"
+            },
+            {
+              id: "growth-star",
+              title: "Rising Star Award",
+              description: "Fastest growing shop by orders and revenue wins startup package",
+              category: "Growth",
+              reward: "Startup package worth $1000 + mentorship",
+              status: "upcoming" as const,
+              startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() + 35 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 100,
+              currentParticipants: 0,
+              prizePool: 1200,
+              judgingCriteria: ["Growth Percentage", "New Customer Acquisition", "Revenue Growth", "Listing Quality"],
+              requirements: ["Shop < 6 months old", "Minimum 5 orders", "Complete shop setup"],
+              badgeAwarded: "Rising Star"
+            },
+            {
+              id: "community-leader",
+              title: "Community Leader",
+              description: "Most helpful in forums and community discussions",
+              category: "Community",
+              reward: "Moderator privileges + exclusive badge",
+              status: "active" as const,
+              startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+              endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
+              maxParticipants: 300,
+              currentParticipants: Math.floor(Math.random() * 20) + 8,
+              prizePool: 300,
+              judgingCriteria: ["Forum Posts", "Helpful Answers", "Community Engagement", "Peer Recognition"],
+              requirements: ["Minimum 10 helpful posts", "Positive community standing", "Active participation"],
+              badgeAwarded: "Community Leader"
+            },
+            {
+              id: "innovation-award",
+              title: "Innovation Award",
+              description: "Most innovative product designs and manufacturing techniques",
+              category: "Innovation",
+              reward: "R&D grant + patent assistance",
+              status: "upcoming" as const,
+              startDate: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 80,
+              currentParticipants: 0,
+              prizePool: 2000,
+              judgingCriteria: ["Design Innovation", "Technical Complexity", "Market Potential", "Originality"],
+              requirements: ["Original designs", "Technical documentation", "Market analysis"],
+              badgeAwarded: "Innovation Pioneer"
+            },
+            {
+              id: "sustainability-champ",
+              title: "Sustainability Champion",
+              description: "Best eco-friendly practices and sustainable materials",
+              category: "Sustainability",
+              reward: "Green certification + marketing boost",
+              status: "active" as const,
+              startDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 120,
+              currentParticipants: Math.floor(Math.random() * 15) + 5,
+              prizePool: 500,
+              judgingCriteria: ["Sustainable Materials", "Waste Reduction", "Eco-Friendly Packaging", "Carbon Footprint"],
+              requirements: ["Sustainable materials used", "Eco-friendly packaging", "Waste reduction plan"],
+              badgeAwarded: "Eco Warrior"
+            }
+          ];
+
+          // Ensure at least one contest is always active (random selection)
+          const activeContests = salesContests.filter(c => c.status === "active");
+          if (activeContests.length === 0 && salesContests.length > 0) {
+            const randomIndex = Math.floor(Math.random() * salesContests.length);
+            salesContests[randomIndex].status = "active";
+            salesContests[randomIndex].currentParticipants = Math.floor(Math.random() * 30) + 10;
+          }
+
+          return salesContests;
+        };
+
         const transformedContests: Contest[] = contestsData.contests?.length > 0 
           ? contestsData.contests 
-          : [
-              {
-                id: "1",
-                title: "Featured Build of the Week",
-                description: "Show off a finished project, get featured on the homepage, and earn a sponsored storefront boost.",
-                category: "Featured Builds",
-                reward: "Homepage feature + 14-day profile sponsorship",
-                status: "active",
-                startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                maxParticipants: 100,
-                currentParticipants: 47,
-                prizePool: 500,
-                judgingCriteria: ["Creativity", "Technical Skill", "Presentation", "Marketability"],
-                requirements: ["Original design", "High-quality photos", "Detailed description"],
-                badgeAwarded: "Featured Builder"
-              },
-              {
-                id: "2", 
-                title: "Best Functional Print",
-                description: "A marketplace-style challenge focused on products people can actually buy and use.",
-                category: "Functional Products",
-                reward: "Catalog placement + seller spotlight",
-                status: "judging",
-                startDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-                endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                maxParticipants: 50,
-                currentParticipants: 32,
-                prizePool: 300,
-                judgingCriteria: ["Functionality", "Design", "Print Quality", "User Experience"],
-                requirements: ["Functional prototype", "Usage demonstration", "Customer feedback"],
-                badgeAwarded: "Functional Master"
-              },
-              {
-                id: "3",
-                title: "Custom Fabrication Showcase",
-                description: "Highlight service-led work like metal, wood, finishing, or design-to-manufacture projects.",
-                category: "Custom Work",
-                reward: "Custom request boost + featured reel slot",
-                status: "upcoming",
-                startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                endDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-                maxParticipants: 75,
-                currentParticipants: 0,
-                prizePool: 400,
-                judgingCriteria: ["Craftsmanship", "Complexity", "Client Satisfaction", "Innovation"],
-                requirements: ["Before/after photos", "Client testimonials", "Process documentation"],
-                badgeAwarded: "Fabrication Expert"
-              }
-            ];
+          : generateSalesContests();
 
         const transformedEntries: ContestEntry[] = entriesData.entries?.length > 0
           ? entriesData.entries

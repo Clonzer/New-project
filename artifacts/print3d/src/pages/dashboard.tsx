@@ -42,6 +42,7 @@ import { Reviews } from "@/components/dashboard/Reviews";
 import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
+import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1080,6 +1081,28 @@ export default function Dashboard() {
 
                   {/* Analytics Charts */}
                   <Analytics shopId={user?.id} timeRange="30d" />
+
+                  {/* Sponsored Shops Section */}
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white">Sponsor Your Shop</h2>
+                      <p className="text-sm text-zinc-500 mt-1">Boost your visibility and reach more customers with sponsored placements.</p>
+                    </div>
+                    <div className="p-6">
+                      <SponsoredShopsInjection 
+                        maxShops={3} 
+                        showHeader={false}
+                        className="mb-4"
+                      />
+                      <div className="text-center">
+                        <Link href="/pricing">
+                          <NeonButton glowColor="primary" className="rounded-full px-6">
+                            View Sponsorship Plans
+                          </NeonButton>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
             )}

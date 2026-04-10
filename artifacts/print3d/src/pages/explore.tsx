@@ -110,15 +110,7 @@ export default function Explore() {
             )}
           </section>
 
-          {/* Sponsored Shops Section - Real Data from API */}
-          <section className="mb-16">
-            <SponsoredShopsInjection 
-              maxShops={4} 
-              showHeader={true}
-              className="mb-8"
-            />
-          </section>
-
+          
           {/* Search and Filter Section */}
           <div className="mb-12">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 text-glow">

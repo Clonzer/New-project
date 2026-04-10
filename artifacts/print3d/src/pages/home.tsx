@@ -1,11 +1,28 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { 
+  ChevronRight, 
+  Sparkles, 
+  Users, 
+  Package, 
+  Star, 
+  TrendingUp,
+  Shield,
+  Clock,
+  Award,
+  Zap,
+  ArrowRight,
+  CheckCircle
+} from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
 import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Home() {
   return (
@@ -44,6 +61,315 @@ export default function Home() {
                 <Link href="/listings">
                   <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
                     Browse catalog
+                  </NeonButton>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-20 bg-zinc-900/50">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-8"
+            >
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">10K+</span>
+                </div>
+                <p className="text-zinc-400">Active Makers</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">50K+</span>
+                </div>
+                <p className="text-zinc-400">Products Sold</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">4.9</span>
+                </div>
+                <p className="text-zinc-400">Average Rating</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">24/7</span>
+                </div>
+                <p className="text-zinc-400">Support</p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-20 bg-zinc-800/30">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Synthix</span>
+              </h2>
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                The most trusted platform for 3D printing services and products
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Shield,
+                  title: "Verified Makers",
+                  description: "All makers are thoroughly vetted for quality and reliability"
+                },
+                {
+                  icon: Clock,
+                  title: "Fast Delivery",
+                  description: "Quick turnaround times with real-time tracking"
+                },
+                {
+                  icon: Award,
+                  title: "Quality Guarantee",
+                  description: "100% satisfaction guarantee on all products and services"
+                },
+                {
+                  icon: Users,
+                  title: "Community Driven",
+                  description: "Join thousands of satisfied customers and talented makers"
+                },
+                {
+                  icon: Zap,
+                  title: "Instant Quotes",
+                  description: "Get pricing instantly for custom projects"
+                },
+                {
+                  icon: Star,
+                  title: "Top Rated",
+                  description: "Highest rated 3D printing marketplace"
+                }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-zinc-800/50 border-zinc-700 h-full">
+                    <CardHeader>
+                      <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4">
+                        <feature.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <CardTitle className="text-white">{feature.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-zinc-400">
+                        {feature.description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Products */}
+        <section className="py-20 bg-zinc-900/50">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Products</span>
+              </h2>
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                Discover amazing creations from our top makers
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: "Mechanical Keyboard",
+                  price: "$89",
+                  rating: 4.9,
+                  reviews: 127,
+                  image: "https://images.unsplash.com/photo-1598628469345-be0a2a2e5463?w=400&h=300&fit=crop",
+                  maker: "TechMaker"
+                },
+                {
+                  title: "Dragon Figurine",
+                  price: "$45",
+                  rating: 4.8,
+                  reviews: 89,
+                  image: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop",
+                  maker: "CreativePrints"
+                },
+                {
+                  title: "Phone Stand",
+                  price: "$25",
+                  rating: 4.7,
+                  reviews: 203,
+                  image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
+                  maker: "UtilityDesigns"
+                },
+                {
+                  title: "Artistic Vase",
+                  price: "$67",
+                  rating: 5.0,
+                  reviews: 45,
+                  image: "https://images.unsplash.com/photo-1586953208448-2151fb12c9a2?w=400&h=300&fit=crop",
+                  maker: "Artisan3D"
+                }
+              ].map((product, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-zinc-800/50 border-zinc-700 overflow-hidden hover:border-zinc-600 transition-colors">
+                    <div className="aspect-square bg-zinc-700 overflow-hidden">
+                      <img 
+                        src={product.image} 
+                        alt={product.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-2">{product.title}</h3>
+                      <p className="text-zinc-400 text-sm mb-3">by {product.maker}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="text-2xl font-bold text-white">{product.price}</div>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="text-white text-sm">{product.rating}</span>
+                          <span className="text-zinc-500 text-sm">({product.reviews})</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Link href="/listings">
+                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600">
+                  View All Products <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-20 bg-zinc-800/30">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Customers Say</span>
+              </h2>
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                Real reviews from real customers
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  name: "Sarah Johnson",
+                  role: "Product Designer",
+                  content: "Synthix has completely transformed how I prototype my designs. The quality is exceptional and the turnaround time is incredible.",
+                  rating: 5,
+                  avatar: "https://api.pravatar.cc/150?u=sarah"
+                },
+                {
+                  name: "Mike Chen",
+                  role: "Engineer",
+                  content: "As an engineer, I need precision and reliability. Synthix delivers both. The custom parts I ordered were perfect.",
+                  rating: 5,
+                  avatar: "https://api.pravatar.cc/150?u=mike"
+                },
+                {
+                  name: "Emily Davis",
+                  role: "Artist",
+                  content: "The artistic possibilities are endless! I've created stunning pieces that wouldn't be possible with traditional methods.",
+                  rating: 5,
+                  avatar: "https://api.pravatar.cc/150?u=emily"
+                }
+              ].map((testimonial, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-zinc-800/50 border-zinc-700 h-full">
+                    <CardContent className="p-6">
+                      <div className="flex mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                      <p className="text-zinc-300 mb-6">"{testimonial.content}"</p>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={testimonial.avatar} />
+                          <AvatarFallback>{testimonial.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-white font-semibold">{testimonial.name}</p>
+                          <p className="text-zinc-400 text-sm">{testimonial.role}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-cyan-900/20 to-emerald-900/20">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center max-w-3xl mx-auto"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Ready to Start <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Creating?</span>
+              </h2>
+              <p className="text-xl text-zinc-300 mb-8">
+                Join thousands of makers and customers who trust Synthix for their 3D printing needs.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/create-listing">
+                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                    Start Selling <ArrowRight className="w-5 h-5 ml-2" />
+                  </NeonButton>
+                </Link>
+                <Link href="/explore">
+                  <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                    Browse Products
                   </NeonButton>
                 </Link>
               </div>

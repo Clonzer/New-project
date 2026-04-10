@@ -10,10 +10,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Comment {
   id: number;
@@ -363,10 +365,8 @@ export default function Discover() {
     }
   };
 
-  // const { data: usersData } = useListUsers({ limit: 50 });
-  // const { data: listingsData } = useListListings({ limit: 50 });
-  const usersData = { users: [] as any[] };
-  const listingsData = { listings: [] as any[] };
+  const { data: usersData } = useListUsers({ limit: 50 });
+  const { data: listingsData } = useListListings({ limit: 50 });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -734,35 +734,77 @@ export default function Discover() {
                     />
                   </div>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {listingsData?.listings
-                    .filter(listing => listing.title.toLowerCase().includes(search.toLowerCase()) ||
-                                       listing.description?.toLowerCase().includes(search.toLowerCase()))
-                    .map((listing) => (
-                      <motion.div
-                        key={listing.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors"
-                      >
-                        <img
-                          src={listing.imageUrls?.[0] || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop"}
-                          alt={listing.title}
-                          className="w-full h-48 object-cover rounded-xl mb-4"
-                        />
-                        <h3 className="font-bold text-white mb-2 line-clamp-2">{listing.title}</h3>
-                        <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description}</p>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                            ${listing.price}
-                          </Badge>
-                          <Button variant="outline" size="sm" className="hover:bg-primary/20">
-                            View Details
-                          </Button>
-                        </div>
-                      </motion.div>
+
+                {!listingsData ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                        <Skeleton className="w-full h-48" />
+                        <CardHeader>
+                          <Skeleton className="h-6 w-3/4" />
+                          <Skeleton className="h-4 w-full" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between">
+                            <Skeleton className="h-8 w-16" />
+                            <Skeleton className="h-8 w-24" />
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
-                </div>
+                  </div>
+                ) : listingsData.listings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">No projects found</h3>
+                    <p className="text-zinc-400">Try adjusting your search terms or check back later for new projects.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {listingsData.listings
+                      .filter(listing => listing.title.toLowerCase().includes(search.toLowerCase()) ||
+                                         listing.description?.toLowerCase().includes(search.toLowerCase()))
+                      .map((listing) => (
+                        <motion.div
+                          key={listing.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors group"
+                        >
+                          <div className="relative mb-4">
+                            <img
+                              src={listing.imageUrls?.[0] || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop"}
+                              alt={listing.title}
+                              className="w-full h-48 object-cover rounded-xl"
+                            />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button size="sm" className="bg-black/50 hover:bg-black/70">
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <h3 className="font-bold text-white mb-2 line-clamp-2">{listing.title}</h3>
+                          <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description}</p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-primary/20 text-primary border-primary/30">
+                              ${listing.price}
+                            </Badge>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" className="hover:bg-primary/20">
+                                <MessageSquare className="w-4 h-4 mr-1" />
+                                Contact
+                              </Button>
+                              <Button size="sm" className="bg-primary hover:bg-primary/90">
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -779,57 +821,103 @@ export default function Discover() {
                     />
                   </div>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {usersData?.users
-                    .filter(u => u.role === "seller" || u.role === "both")
-                    .filter(u => u.displayName.toLowerCase().includes(search.toLowerCase()) ||
-                                u.bio?.toLowerCase().includes(search.toLowerCase()) ||
-                                u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())))
-                    .map((person) => (
-                      <motion.div
-                        key={person.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors"
-                      >
+
+                {!usersData ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="glass-panel rounded-3xl border border-white/10 p-6">
                         <div className="flex items-center gap-4 mb-4">
-                          <Avatar className="w-16 h-16">
-                            <AvatarImage src={person.avatarUrl ?? undefined} />
-                            <AvatarFallback className="bg-primary/20 text-primary text-lg">
-                              {person.displayName.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-white truncate">{person.displayName}</h3>
-                            <p className="text-zinc-400 text-sm truncate">{person.bio?.slice(0, 50) || "3D printing enthusiast"}</p>
-                            {person.rating && (
-                              <div className="flex items-center gap-1 mt-1">
-                                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                <span className="text-xs text-zinc-500">{person.rating.toFixed(1)}</span>
-                              </div>
-                            )}
+                          <Skeleton className="w-16 h-16 rounded-full" />
+                          <div className="flex-1">
+                            <Skeleton className="h-5 w-32 mb-2" />
+                            <Skeleton className="h-4 w-48" />
                           </div>
                         </div>
-                        {person.sellerTags && person.sellerTags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-4">
-                            {person.sellerTags.slice(0, 3).map((tag: string) => (
-                              <Badge key={tag} variant="outline" className="text-xs border-white/20 text-zinc-300">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
+                        <div className="flex gap-1 mb-4">
+                          {[...Array(3)].map((_, j) => (
+                            <Skeleton key={j} className="h-6 w-16" />
+                          ))}
+                        </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/20" asChild>
-                            <a href={`/shop/${person.id}`}>View Shop</a>
-                          </Button>
-                          <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/20" asChild>
-                            <a href={`/messages?contact=${person.id}`}>Message</a>
-                          </Button>
+                          <Skeleton className="h-9 flex-1" />
+                          <Skeleton className="h-9 flex-1" />
                         </div>
-                      </motion.div>
+                      </Card>
                     ))}
-                </div>
+                  </div>
+                ) : usersData.users.filter(u => u.role === "seller" || u.role === "both").length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <User className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">No makers found</h3>
+                    <p className="text-zinc-400">Check back later to discover talented makers in the community.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {usersData.users
+                      .filter(u => u.role === "seller" || u.role === "both")
+                      .filter(u => u.displayName.toLowerCase().includes(search.toLowerCase()) ||
+                                  u.bio?.toLowerCase().includes(search.toLowerCase()) ||
+                                  u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())))
+                      .map((person) => (
+                        <motion.div
+                          key={person.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors group"
+                        >
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="relative">
+                              <Avatar className="w-16 h-16">
+                                <AvatarImage src={person.avatarUrl ?? undefined} />
+                                <AvatarFallback className="bg-primary/20 text-primary text-lg">
+                                  {person.displayName.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {person.isVerified && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                                  <Star className="w-3 h-3 text-white fill-white" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-white truncate">{person.displayName}</h3>
+                              <p className="text-zinc-400 text-sm truncate">{person.bio?.slice(0, 50) || "3D printing enthusiast"}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                {person.rating && (
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                    <span className="text-xs text-zinc-500">{person.rating.toFixed(1)}</span>
+                                  </div>
+                                )}
+                                {person.totalOrders && (
+                                  <span className="text-xs text-zinc-500">{person.totalOrders} orders</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {person.sellerTags && person.sellerTags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-4">
+                              {person.sellerTags.slice(0, 3).map((tag: string) => (
+                                <Badge key={tag} variant="outline" className="text-xs border-white/20 text-zinc-300">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/20" asChild>
+                              <a href={`/shop/${person.id}`}>View Shop</a>
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/20" asChild>
+                              <a href={`/messages?contact=${person.id}`}>Message</a>
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
