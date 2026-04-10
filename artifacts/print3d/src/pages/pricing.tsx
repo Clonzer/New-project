@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
+import { customFetch } from "@workspace/api-client-react";
 import { ensureSupportThread, submitSupportContactForm } from "@/lib/support-api";
 
 const PLANS = [
@@ -239,23 +240,42 @@ export default function Pricing() {
 
   const startProfileSponsorship = async () => {
     if (!user) {
-      setLocation("/login");
+      toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
       return;
     }
+
+    setIsStartingProfileSponsor(true);
     try {
-      setIsStartingProfileSponsor(true);
-      const result = await createSponsorshipCheckoutSession({
-        sponsorshipType: "profile",
-        successPath: "/pricing?sponsorship=profile-success",
-        cancelPath: location,
+      // Get sponsorship tiers from API
+      const tiersResponse = await customFetch('/api/sponsorships/tiers');
+      const { tiers } = await tiersResponse.json();
+      const profileTier = tiers.find((t: any) => t.slug === 'profile-sponsorship') || tiers[0];
+      
+      if (!profileTier) {
+        throw new Error('Profile sponsorship tier not found');
+      }
+
+      // Create sponsorship purchase
+      const purchaseResponse = await customFetch('/api/sponsorships/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId: profileTier.id,
+          paymentMethodId: 'temp' // Will be replaced with Stripe integration
+        })
       });
-      window.location.href = result.url;
-    } catch (error) {
-      toast({
-        title: "Profile sponsorship failed",
-        description: getApiErrorMessage(error),
-        variant: "destructive",
-      });
+
+      if (purchaseResponse.ok) {
+        const result = await purchaseResponse.json();
+        toast({ 
+          title: "Sponsorship Activated!", 
+          description: `Your profile sponsorship is active until ${new Date(result.expiresAt).toLocaleDateString()}` 
+        });
+      } else {
+        throw new Error('Failed to purchase sponsorship');
+      }
+    } catch (err) {
+      toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
     } finally {
       setIsStartingProfileSponsor(false);
     }
@@ -263,32 +283,48 @@ export default function Pricing() {
 
   const startListingSponsorship = async () => {
     if (!user) {
-      setLocation("/login");
+      toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
       return;
     }
+
     if (!selectedListingId) {
-      toast({
-        title: "Choose a listing first",
-        description: "Pick one of your catalog listings to sponsor.",
-        variant: "destructive",
-      });
+      toast({ title: "No listing selected", description: "Please select a listing to sponsor." });
       return;
     }
+
+    setIsStartingListingSponsor(true);
     try {
-      setIsStartingListingSponsor(true);
-      const result = await createSponsorshipCheckoutSession({
-        sponsorshipType: "listing",
-        listingId: selectedListingId,
-        successPath: "/pricing?sponsorship=listing-success",
-        cancelPath: location,
+      // Get sponsorship tiers from API
+      const tiersResponse = await customFetch('/api/sponsorships/tiers');
+      const { tiers } = await tiersResponse.json();
+      const productTier = tiers.find((t: any) => t.slug === 'product-sponsorship') || tiers[0];
+      
+      if (!productTier) {
+        throw new Error('Product sponsorship tier not found');
+      }
+
+      // Create sponsorship purchase
+      const purchaseResponse = await customFetch('/api/sponsorships/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId: productTier.id,
+          paymentMethodId: 'temp', // Will be replaced with Stripe integration
+          listingId: selectedListingId
+        })
       });
-      window.location.href = result.url;
-    } catch (error) {
-      toast({
-        title: "Listing sponsorship failed",
-        description: getApiErrorMessage(error),
-        variant: "destructive",
-      });
+
+      if (purchaseResponse.ok) {
+        const result = await purchaseResponse.json();
+        toast({ 
+          title: "Product Sponsorship Activated!", 
+          description: `Your product sponsorship is active until ${new Date(result.expiresAt).toLocaleDateString()}` 
+        });
+      } else {
+        throw new Error('Failed to purchase sponsorship');
+      }
+    } catch (err) {
+      toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
     } finally {
       setIsStartingListingSponsor(false);
     }

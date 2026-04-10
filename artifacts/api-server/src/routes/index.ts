@@ -15,6 +15,8 @@ import contestsRouter from "./contests";
 import equipmentRouter from "./equipment";
 import filesRouter from "./files";
 import notificationsRouter from "./notifications";
+import badgesRouter from "./badges";
+import sponsorshipsRouter from "./sponsorships";
 
 const router: IRouter = Router();
 
@@ -34,5 +36,7 @@ router.use(sellersRouter);
 router.use("/contests", contestsRouter);
 router.use("/equipment", equipmentRouter);
 router.use("/files", filesRouter);
+router.use("/badges", badgesRouter);
+router.use("/sponsorships", sponsorshipsRouter);
 
 export default router;

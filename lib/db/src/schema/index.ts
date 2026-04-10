@@ -11,3 +11,6 @@ export * from "./equipment";
 export * from "./notifications";
 export * from "./sponsorship-tiers";
 export * from "./sponsorship-transactions";
+export * from "./badges";
+export * from "./quote-requests";
+export * from "./analytics-snapshots";

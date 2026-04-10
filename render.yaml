@@ -4,14 +4,25 @@ services:
     runtime: node
     rootDir: .
     plan: starter
-    buildCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile && pnpm run build:render
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm install --no-frozen-lockfile --prefer-offline && pnpm run build:render
     startCommand: corepack enable && corepack prepare pnpm@9.15.9 --activate && pnpm run start:render
     healthCheckPath: /api/healthz
+    healthCheckGracePeriod: 30
+    healthCheckTimeout: 10
+    autoDeploy: true
+    numInstances: 1
+    scalingPolicy:
+      minInstances: 1
+      maxInstances: 3
+      targetCPUPercent: 70
+      targetMemoryPercent: 80
     envVars:
       - key: NODE_VERSION
         value: "22"
       - key: PORT
         value: "10000"
+      - key: NODE_ENV
+        value: "production"
       - key: DATABASE_URL
         fromDatabase:
           name: synthix-db
@@ -37,6 +48,18 @@ services:
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: ENABLE_ANALYTICS
+        value: "true"
+      - key: CACHE_TTL
+        value: "3600"
+      - key: RATE_LIMIT_WINDOW
+        value: "900000"
+      - key: RATE_LIMIT_MAX
+        value: "100"
+      - key: SESSION_SECRET
+        sync: false
+      - key: REDIS_URL
         sync: false
 
   - type: cron
