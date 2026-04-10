@@ -36,18 +36,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Load user from localStorage on mount
+    const storedUser = localStorage.getItem('auth_user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem('auth_user');
+      }
+    }
+    setIsLoading(false);
+
+    // Also try to fetch from API
     let cancelled = false;
     (async () => {
       try {
         const { user: u } = await authMe();
-        if (!cancelled) setUser(u);
+        if (!cancelled && u) {
+          setUser(u);
+          localStorage.setItem('auth_user', JSON.stringify(u));
+        }
       } catch {
         if (!cancelled) {
           setUser(null);
           setStoredAccessToken(null);
+          localStorage.removeItem('auth_user');
         }
-      } finally {
-        if (!cancelled) setIsLoading(false);
       }
     })();
     return () => {
@@ -60,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { token, user: u } = await authLogin(identifier, password);
       setStoredAccessToken(token);
       setUser(u);
+      localStorage.setItem('auth_user', JSON.stringify(u));
       return u;
     },
     [],
@@ -71,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setStoredAccessToken(null);
       setUser(null);
+      localStorage.removeItem('auth_user');
     }
   }, []);
 
