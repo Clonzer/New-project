@@ -65,19 +65,11 @@ function MessagesPage() {
 }
 
 function CreateListingPage() {
-  return (
-    <ProtectedRoute>
-      <CreateListing />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<CreateListing />} />;
 }
 
 function EditListingPage() {
-  return (
-    <ProtectedRoute>
-      <EditListing />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<EditListing />} />;
 }
 
 function VendorDashboardPage() {
