@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^sudo apt update && sudo apt install -y postgresql postgresql-contrib$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

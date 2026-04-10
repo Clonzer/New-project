@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Star, TrendingUp, Zap, Crown, ExternalLink, Check } from "lucide-react";
+import { Star, TrendingUp, Zap, Crown, ExternalLink, Check, Loader2 } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
+import { customFetch } from "@workspace/api-client-react";
 
 interface SponsoredShop {
   id: string;
@@ -15,59 +16,16 @@ interface SponsoredShop {
   promotionLevel: number; // 1-10 scale
 }
 
-// Sample sponsored shops data
-const sponsoredShops: SponsoredShop[] = [
-  {
-    id: "1",
-    name: "Elite Makers Studio",
-    avatar: "https://api.pravatar.cc/150?u=elite",
-    banner: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=400&fit=crop",
-    specialty: "Premium Prototyping",
-    views: 12500,
-    tier: "premium",
-    promotionLevel: 10
-  },
-  {
-    id: "2",
-    name: "ProForge Labs",
-    avatar: "https://api.pravatar.cc/150?u=proforge",
-    banner: "https://images.unsplash.com/photo-1581091226825-a6a3125c1f4b?w=800&h=400&fit=crop",
-    specialty: "Custom Engineering",
-    views: 8900,
-    tier: "gold",
-    promotionLevel: 8
-  },
-  {
-    id: "3",
-    name: "TechCraft Designs",
-    avatar: "https://api.pravatar.cc/150?u=techcraft",
-    banner: "https://images.unsplash.com/photo-1563211553215-b3d6e2c05a9a?w=800&h=400&fit=crop",
-    specialty: "Artistic Models",
-    views: 6200,
-    tier: "gold",
-    promotionLevel: 7
-  },
-  {
-    id: "4",
-    name: "RapidWorks",
-    avatar: "https://api.pravatar.cc/150?u=rapid",
-    banner: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=400&fit=crop",
-    specialty: "Fast Prototyping",
-    views: 4100,
-    tier: "silver",
-    promotionLevel: 5
-  },
-  {
-    id: "5",
-    name: "PrintMasters",
-    avatar: "https://api.pravatar.cc/150?u=printmaster",
-    banner: "https://images.unsplash.com/photo-1558350057-e2395e537a02?w=800&h=400&fit=crop",
-    specialty: "Industrial Parts",
-    views: 3400,
-    tier: "silver",
-    promotionLevel: 4
+const fetchSponsoredShops = async (): Promise<SponsoredShop[]> => {
+  try {
+    const response = await customFetch('/api/sponsorships/featured?limit=10');
+    const data = await response.json();
+    return data.sponsoredShops || [];
+  } catch (error) {
+    console.error('Failed to fetch sponsored shops:', error);
+    return [];
   }
-];
+};
 
 const tierConfig = {
   premium: {
@@ -101,6 +59,18 @@ const tierConfig = {
 
 export function SponsoredShopsSection() {
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [sponsoredShops, setSponsoredShops] = useState<SponsoredShop[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSponsoredShops = async () => {
+      setIsLoading(true);
+      const shops = await fetchSponsoredShops();
+      setSponsoredShops(shops);
+      setIsLoading(false);
+    };
+    loadSponsoredShops();
+  }, []);
 
   const pricingTiers = [
     {
@@ -181,7 +151,20 @@ export function SponsoredShopsSection() {
 
         {/* Sponsored Shops Grid */}
         <div className="grid grid-cols-4 gap-4 auto-rows-[200px]">
-          {sponsoredShops.map((shop, index) => {
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={`skeleton-${index}`}
+                className="col-span-1 row-span-1 bg-zinc-800/50 rounded-2xl border border-zinc-700 animate-pulse"
+              >
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-zinc-600 animate-spin" />
+                </div>
+              </div>
+            ))
+          ) : (
+            sponsoredShops.map((shop, index) => {
             const config = tierConfig[shop.tier];
             const Icon = config.icon;
             
@@ -246,7 +229,8 @@ export function SponsoredShopsSection() {
                 </Link>
               </motion.div>
             );
-          })}
+          })
+          )}
         </div>
 
         {/* Pricing Modal */}

@@ -43,6 +43,8 @@ export async function sendTransactionalEmail(options: MailOptions) {
     auth: config.auth,
   });
 
+  await transporter.verify();
+
   await transporter.sendMail({
     from: config.from,
     to: options.to,

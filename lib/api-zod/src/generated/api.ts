@@ -562,6 +562,35 @@ export const CreateListingBody = zod.object({
   estimatedDaysMax: zod.number(),
   material: zod.string().nullish(),
   color: zod.string().nullish(),
+  productType: zod.string().default("3d_printing"),
+  equipmentUsed: zod.array(zod.number()).default([]),
+  equipmentGroups: zod.array(zod.number()).default([]),
+  isPrintOnDemand: zod.boolean().default(false),
+  isDigitalProduct: zod.boolean().default(false),
+  digitalFiles: zod.array(zod.string()).default([]),
+  stockType: zod.enum(["inventory", "print_on_demand", "digital"]).default("inventory"),
+});
+
+export const UpdateListingBody = zod.object({
+  title: zod.string(),
+  description: zod.string().nullish(),
+  category: zod.string(),
+  tags: zod.array(zod.string()),
+  imageUrl: zod.string().nullish(),
+  basePrice: zod.number(),
+  shippingCost: zod.number().nullish(),
+  estimatedDaysMin: zod.number(),
+  estimatedDaysMax: zod.number(),
+  material: zod.string().nullish(),
+  color: zod.string().nullish(),
+  productType: zod.string().default("3d_printing"),
+  equipmentUsed: zod.array(zod.number()).default([]),
+  equipmentGroups: zod.array(zod.number()).default([]),
+  isPrintOnDemand: zod.boolean().default(false),
+  isDigitalProduct: zod.boolean().default(false),
+  digitalFiles: zod.array(zod.string()).default([]),
+  stockType: zod.enum(["inventory", "print_on_demand", "digital"]).default("inventory"),
+  isActive: zod.boolean(),
 });
 
 /**

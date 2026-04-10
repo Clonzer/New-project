@@ -1,0 +1,7 @@
+ id |                  title                  | status |         start_date         |      end_date       
+----+-----------------------------------------+--------+----------------------------+---------------------
+  1 | Most Sales This Month                   | active | 2026-04-07 00:47:28.423325 | 2026-05-01 00:00:00
+  2 | Best Functional Print                   | active | 2026-04-07 00:47:28.589055 | 2026-05-15 00:00:00
+  3 | Most Creative Use of Recycled Materials | active | 2026-04-07 00:47:28.59584  | 2026-05-20 00:00:00
+(3 rows)
+

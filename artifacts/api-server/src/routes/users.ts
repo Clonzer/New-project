@@ -7,6 +7,7 @@ import { hash } from "bcryptjs";
 import { type AuthedRequest, isOwnerEmail, requireAuth, requireSelf } from "../lib/auth";
 import { sendEmailVerificationCode } from "../lib/email-verification";
 import { isEmailDeliveryConfigured } from "../lib/mailer";
+import { sendWelcomeMessage } from "../lib/messages";
 
 const router: IRouter = Router();
 
@@ -91,6 +92,9 @@ router.post("/users", async (req, res) => {
         console.error("sendVerificationAfterSignup", { userId: user.id, error });
       }
     }
+    // Send welcome message
+    await sendWelcomeMessage(user.id, user.displayName);
+
     res.status(201).json(publicUser(user));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -143,13 +147,6 @@ router.post("/users", async (req, res) => {
         return;
       }
       res.status(409).json({ error: "conflict", message: "A user with these details already exists." });
-      return;
-    }
-    if (code === "23505") {
-      res.status(409).json({
-        error: "conflict",
-        message: detail?.includes("email") ? "An account with this email already exists." : "Username is already taken.",
-      });
       return;
     }
     if (code === "23505") {
@@ -233,6 +230,31 @@ router.patch("/users/:userId", requireAuth, requireSelf("userId"), async (req: A
     return;
   }
   res.json(publicUser(user));
+});
+
+router.post("/users/convert-to-seller", requireAuth, async (req: AuthedRequest, res) => {
+  const userId = req.auth!.userId;
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  if (!user) {
+    res.status(404).json({ error: "not_found", message: "User not found." });
+    return;
+  }
+
+  if (user.role === "seller" || user.role === "both") {
+    res.json(publicUser(user));
+    return;
+  }
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      role: "seller",
+      shopName: user.shopName?.trim() || `${user.displayName}'s Shop`,
+    })
+    .where(eq(usersTable.id, userId))
+    .returning();
+
+  res.json(publicUser(updatedUser));
 });
 
 router.get("/users/:userId/portfolio", async (req, res) => {

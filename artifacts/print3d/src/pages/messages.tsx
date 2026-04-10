@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { useListUsers } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus, Search, Send } from "lucide-react";
@@ -16,6 +17,13 @@ import {
   type MessageThreadSummary,
 } from "@/lib/messages-api";
 
+function readRequestedThreadId() {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("threadId");
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 function formatTimestamp(value?: string | null) {
   if (!value) return "";
   const date = new Date(value);
@@ -29,10 +37,11 @@ function formatTimestamp(value?: string | null) {
 }
 
 export default function Messages() {
+  const [location] = useLocation();
   const { user } = useAuth();
   const { data: usersData } = useListUsers({ limit: 100 });
   const [threads, setThreads] = useState<MessageThreadSummary[]>([]);
-  const [activeThreadId, setActiveThreadId] = useState<number | null>(null);
+  const [activeThreadId, setActiveThreadId] = useState<number | null>(() => readRequestedThreadId());
   const [activeThread, setActiveThread] = useState<MessageThreadDetail | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [search, setSearch] = useState("");
@@ -41,6 +50,21 @@ export default function Messages() {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Handle URL parameters for contacting Synthix
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const contact = urlParams.get('contact');
+
+    if (contact && user && usersData?.users) {
+      // Find Synthix team user (ID: 2)
+      const synthixUser = usersData.users.find(u => u.id === 2);
+      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
+        // Start conversation with Synthix team
+        startConversation(synthixUser.id);
+      }
+    }
+  }, [location, user, usersData, threads]);
+
   useEffect(() => {
     let cancelled = false;
     setIsLoadingThreads(true);
@@ -48,7 +72,7 @@ export default function Messages() {
       .then((data) => {
         if (cancelled) return;
         setThreads(data.threads);
-        setActiveThreadId((current) => current ?? data.threads[0]?.id ?? null);
+        setActiveThreadId((current) => current ?? readRequestedThreadId() ?? data.threads[0]?.id ?? null);
       })
       .catch((err) => {
         if (!cancelled) setError(getApiErrorMessage(err));
@@ -60,6 +84,17 @@ export default function Messages() {
       cancelled = true;
     };
   }, [search]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (activeThreadId) {
+      url.searchParams.set("threadId", String(activeThreadId));
+    } else {
+      url.searchParams.delete("threadId");
+    }
+    window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+  }, [activeThreadId]);
 
   useEffect(() => {
     if (!activeThreadId) {
@@ -91,15 +126,26 @@ export default function Messages() {
     };
   }, [activeThreadId]);
 
-  const contacts = useMemo(
-    () =>
-      (usersData?.users ?? []).filter(
-        (candidate) =>
-          candidate.id !== user?.id &&
-          !threads.some((thread) => thread.counterpart?.id === candidate.id),
-      ),
-    [threads, user?.id, usersData?.users],
-  );
+  const contacts = useMemo(() => {
+    const allUsers = usersData?.users ?? [];
+    const synthixTeam = allUsers.find(u => u.id === 2); // Synthix team user
+    const regularContacts = allUsers.filter(
+      (candidate) =>
+        candidate.id !== user?.id &&
+        candidate.id !== 2 && // Exclude Synthix team from regular contacts
+        !threads.some((thread) => thread.counterpart?.id === candidate.id),
+    );
+
+    // Always include Synthix team if not already in a thread
+    const synthixInThread = threads.some(thread => thread.counterpart?.id === 2);
+    const finalContacts = [...regularContacts];
+
+    if (synthixTeam && !synthixInThread) {
+      finalContacts.unshift(synthixTeam); // Add Synthix team at the top
+    }
+
+    return finalContacts;
+  }, [threads, user?.id, usersData?.users]);
 
   const startConversation = async (participantId: number) => {
     try {
@@ -112,6 +158,21 @@ export default function Messages() {
       setError(getApiErrorMessage(err));
     }
   };
+
+  // Handle URL parameters for contacting Synthix
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const contact = urlParams.get('contact');
+
+    if (contact && user && usersData?.users) {
+      // Find Synthix team user (ID: 2)
+      const synthixUser = usersData.users.find(u => u.id === 2);
+      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
+        // Start conversation with Synthix team
+        startConversation(synthixUser.id);
+      }
+    }
+  }, [location, user, usersData, threads]);
 
   const handleSendMessage = async () => {
     if (!activeThreadId || !newMessage.trim()) return;

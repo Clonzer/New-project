@@ -10,6 +10,8 @@ import {
   MessageSquare,
   Printer as PrinterIcon,
   Star,
+  CheckCircle2,
+  Package,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -148,6 +150,28 @@ export default function Shop() {
                     ))}
                   </div>
                 ) : null}
+
+                {/* Seller Badges */}
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {user.reviewCount >= 3 && (
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span className="text-sm font-medium text-emerald-400">Trusted Seller</span>
+                    </div>
+                  )}
+                  {printersData?.printers && printersData.printers.length >= 3 && (
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-3 py-2">
+                      <PrinterIcon className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
+                    </div>
+                  )}
+                  {listingsData?.listings && listingsData.listings.length >= 10 && (
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-3 py-2">
+                      <Package className="w-4 h-4 text-purple-400" />
+                      <span className="text-sm font-medium text-purple-400">Pro Catalog</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="shrink-0 w-full md:w-auto">

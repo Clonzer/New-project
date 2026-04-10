@@ -18,6 +18,7 @@ export const usersTable = pgTable("users", {
   sellerTags: text("seller_tags").array().notNull().default([]),
   accountStatus: text("account_status").notNull().default("member"),
   planTier: text("plan_tier").notNull().default("starter"),
+  profileSponsoredUntil: timestamp("profile_sponsored_until"),
   role: userRoleEnum("role").notNull().default("buyer"),
   rating: real("rating"),
   reviewCount: integer("review_count").notNull().default(0),
@@ -57,6 +58,10 @@ export const usersTable = pgTable("users", {
   emailVerificationExpiresAt: timestamp("email_verification_expires_at"),
   passwordResetCodeHash: text("password_reset_code_hash"),
   passwordResetExpiresAt: timestamp("password_reset_expires_at"),
+  sponsorshipTier: text("sponsorship_tier").notNull().default("free"),
+  sponsorshipExpiresAt: timestamp("sponsorship_expires_at"),
+  sponsoredUntil: timestamp("sponsored_until"),
+  featured: boolean("featured").notNull().default(false),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
 });
 

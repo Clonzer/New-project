@@ -1,0 +1,55 @@
+import { Link } from "wouter";
+import { NeonButton } from "@/components/ui/neon-button";
+import { PortfolioManager } from "./PortfolioManager";
+
+export function Overview({ user, mySales, averageOrderValue, activeEquipmentCount, totalCatalogItems, setShowAddListing, setShowAddPrinter }) {
+  return (
+    <div>
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+          <div className="p-6 border-b border-white/10 bg-white/5">
+            <h2 className="text-xl font-bold text-white">Seller overview</h2>
+            <p className="text-sm text-zinc-500 mt-1">A quick view of sales momentum, catalog health, and shop readiness.</p>
+          </div>
+          <div className="grid gap-4 p-6 md:grid-cols-2">
+            {[
+              { label: "Average order value", value: `$${averageOrderValue.toFixed(2)}` },
+              { label: "Active equipment", value: activeEquipmentCount },
+              { label: "Catalog listings", value: totalCatalogItems },
+              { label: "Open sales pipeline", value: mySales?.orders.filter((order) => order.status !== "delivered" && order.status !== "cancelled").length ?? 0 },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p className="text-xs uppercase tracking-wider text-zinc-500">{item.label}</p>
+                <p className="mt-2 text-2xl font-display font-bold text-white">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+          <div className="p-6 border-b border-white/10 bg-white/5">
+            <h2 className="text-xl font-bold text-white">Quick actions</h2>
+            <p className="text-sm text-zinc-500 mt-1">Shortcuts for the most common seller tasks.</p>
+          </div>
+          <div className="p-6 space-y-3">
+            <button type="button" onClick={() => setShowAddListing(true)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-primary/40 hover:bg-primary/10">
+              <p className="font-semibold text-white">Add a new catalog listing</p>
+              <p className="mt-1 text-sm text-zinc-400">Publish a model or made-to-order product from your dashboard.</p>
+            </button>
+            <button type="button" onClick={() => setShowAddPrinter(true)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-accent/40 hover:bg-accent/10">
+              <p className="font-semibold text-white">Register more equipment</p>
+              <p className="mt-1 text-sm text-zinc-400">Add another machine, service, or workshop capability.</p>
+            </button>
+            <Link href="/settings" className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-4 transition hover:border-white/20 hover:bg-white/10">
+              <p className="font-semibold text-white">Update shop settings</p>
+              <p className="mt-1 text-sm text-zinc-400">Edit branding, shipping defaults, verification, and payments.</p>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-6">
+        <PortfolioManager userId={user.id} />
+      </div>
+    </div>
+  )
+}

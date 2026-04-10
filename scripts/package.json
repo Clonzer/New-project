@@ -7,13 +7,23 @@
     "hello": "tsx ./src/hello.ts",
     "migrate": "tsx ./src/migrate.ts",
     "seed": "tsx ./src/seed.ts",
+    "create-synthix-accounts": "tsx ./src/create-synthix-accounts.ts",
+    "create-monthly-contests": "tsx ./src/create-monthly-contests.ts",
+    "contests:manage": "tsx ./src/create-monthly-contests.ts",
+    "contests:process-winners": "tsx ./src/process-contest-winners.ts",
+    "check-contests": "tsx ./src/check-contests.ts",
+    "process-contest-winners": "tsx ./src/process-contest-winners.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@workspace/db": "workspace:*",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.4.1",
+    "drizzle-orm": "catalog:",
     "pg": "^8.20.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "catalog:",
     "@types/pg": "^8.15.5",
     "tsx": "catalog:"

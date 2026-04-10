@@ -4,6 +4,7 @@ import { ordersTable, usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { CreateOrderBody, UpdateOrderStatusBody } from "@workspace/api-zod";
 import { type AuthedRequest, requireAuth } from "../lib/auth";
+import { createNotification } from "./notifications";
 
 const PLATFORM_FEE_PERCENT = 0.10;
 
@@ -73,6 +74,24 @@ router.post("/orders", requireAuth, async (req: AuthedRequest, res) => {
     totalPrice,
   }).returning();
 
+  await createNotification({
+    userId: order.sellerId,
+    actorId: order.buyerId,
+    type: "order",
+    title: "New order received",
+    body: `A new order for ${order.title} was placed.`,
+    url: `/dashboard?order=${order.id}`,
+  });
+
+  await createNotification({
+    userId: order.buyerId,
+    actorId: order.sellerId,
+    type: "order_update",
+    title: "Order placed successfully",
+    body: `Your order for ${order.title} is now waiting on the seller.`,
+    url: `/dashboard?order=${order.id}`,
+  });
+
   const enriched = await enrichOrder(order);
   res.status(201).json(enriched);
 });
@@ -141,6 +160,20 @@ router.patch("/orders/:orderId", requireAuth, async (req: AuthedRequest, res) =>
     res.status(404).json({ error: "not_found", message: "Order not found" });
     return;
   }
+
+  const notificationTarget = isSeller ? order.buyerId : order.sellerId;
+  const notificationType = isSeller ? "order_update" : "order_update";
+  const statusLabel = order.status === "delivered" ? "delivered" : order.status === "cancelled" ? "cancelled" : order.status;
+
+  await createNotification({
+    userId: notificationTarget,
+    actorId: req.auth!.userId,
+    type: notificationType,
+    title: `Order ${statusLabel}`,
+    body: `Order ${order.title} is now ${statusLabel}.`,
+    url: `/dashboard?order=${order.id}`,
+  });
+
   const enriched = await enrichOrder(order);
   res.json(enriched);
 });
