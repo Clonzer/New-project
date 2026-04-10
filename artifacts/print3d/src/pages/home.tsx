@@ -84,8 +84,8 @@ export default function Home() {
         {/* Hero Analytics Overlay */}
         <SiteStats />
 
-        {/* Section 2: Features - White Background */}
-        <section className="py-24 bg-white">
+        {/* Section 2: Features - Dark Grey Background */}
+        <section className="py-24 bg-zinc-900">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -93,13 +93,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
                 <Sparkles className="w-3 h-3 mr-1" /> Platform Features
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
-                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Synthix</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Synthix</span>
               </h2>
-              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
                 The most trusted platform for 3D printing services and products
               </p>
             </motion.div>
@@ -110,43 +110,37 @@ export default function Home() {
                   icon: Shield,
                   title: "Verified Makers",
                   description: "All makers are thoroughly vetted for quality and reliability",
-                  color: "from-emerald-400 to-cyan-400",
-                  bgColor: "bg-emerald-50"
+                  color: "from-emerald-400 to-cyan-400"
                 },
                 {
                   icon: Clock,
                   title: "Fast Delivery",
                   description: "Quick turnaround times with real-time tracking",
-                  color: "from-blue-400 to-indigo-400",
-                  bgColor: "bg-blue-50"
+                  color: "from-blue-400 to-indigo-400"
                 },
                 {
                   icon: Award,
                   title: "Quality Guarantee",
                   description: "100% satisfaction guarantee on all products and services",
-                  color: "from-amber-400 to-orange-400",
-                  bgColor: "bg-amber-50"
+                  color: "from-amber-400 to-orange-400"
                 },
                 {
                   icon: Users,
                   title: "Community Driven",
                   description: "Join thousands of satisfied customers and talented makers",
-                  color: "from-purple-400 to-pink-400",
-                  bgColor: "bg-purple-50"
+                  color: "from-purple-400 to-pink-400"
                 },
                 {
                   icon: Zap,
                   title: "Instant Quotes",
                   description: "Get pricing instantly for custom projects",
-                  color: "from-yellow-400 to-red-400",
-                  bgColor: "bg-yellow-50"
+                  color: "from-yellow-400 to-red-400"
                 },
                 {
                   icon: Gem,
                   title: "Premium Materials",
                   description: "Access to high-quality filaments and resins",
-                  color: "from-rose-400 to-pink-400",
-                  bgColor: "bg-rose-50"
+                  color: "from-rose-400 to-pink-400"
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -156,17 +150,17 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -4 }}
                 >
-                  <Card className={`${feature.bgColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full group overflow-hidden`}>
+                  <Card className="bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 h-full group overflow-hidden">
                     <CardHeader>
                       <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform duration-300`}>
                         <feature.icon className="w-7 h-7 text-white" />
                       </div>
-                      <CardTitle className="text-zinc-900 text-xl">{feature.title}</CardTitle>
+                      <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-zinc-600 text-base">
+                      <p className="text-zinc-400 text-base">
                         {feature.description}
-                      </CardDescription>
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -175,8 +169,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 3: How It Works - Grey Background */}
-        <section className="py-24 bg-zinc-100">
+        {/* Section 3: How It Works - Black Background */}
+        <section className="py-24 bg-black">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -187,10 +181,10 @@ export default function Home() {
               <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
                 <Boxes className="w-3 h-3 mr-1" /> Simple Process
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
-                How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Works</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Works</span>
               </h2>
-              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
                 Get your 3D prints in three simple steps
               </p>
             </motion.div>
@@ -226,7 +220,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   className="relative"
                 >
-                  <Card className="bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full relative overflow-hidden">
+                  <Card className="bg-zinc-900/80 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 h-full relative overflow-hidden">
                     <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
                     <CardHeader className="pt-8">
                       <div className="flex items-center gap-4 mb-4">
@@ -237,15 +231,15 @@ export default function Home() {
                           {item.step}
                         </span>
                       </div>
-                      <CardTitle className="text-zinc-900 text-2xl">{item.title}</CardTitle>
+                      <CardTitle className="text-white text-2xl">{item.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-zinc-600 text-lg leading-relaxed">{item.description}</p>
+                      <p className="text-zinc-400 text-lg leading-relaxed">{item.description}</p>
                     </CardContent>
                   </Card>
                   {index < 2 && (
                     <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                      <ArrowRight className="w-8 h-8 text-zinc-300" />
+                      <ArrowRight className="w-8 h-8 text-zinc-600" />
                     </div>
                   )}
                 </motion.div>
@@ -311,8 +305,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 5: Testimonials - White Background */}
-        <section className="py-24 bg-white">
+        {/* Section 5: Testimonials - Dark Grey Background */}
+        <section className="py-24 bg-zinc-800">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -320,13 +314,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+              <Badge className="mb-4 bg-zinc-700 text-white border-zinc-600">
                 <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 mb-4">
-                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-500">Customers Say</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Customers Say</span>
               </h2>
-              <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
                 Real reviews from real customers
               </p>
             </motion.div>
@@ -365,7 +359,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -4 }}
                 >
-                  <Card className="bg-zinc-50 border-zinc-200 hover:border-zinc-300 hover:shadow-xl transition-all duration-300 h-full">
+                  <Card className="bg-zinc-900/60 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-900/80 transition-all duration-300 h-full">
                     <CardContent className="p-6">
                       <div className={`w-12 h-12 bg-gradient-to-r ${testimonial.color} rounded-xl flex items-center justify-center mb-4`}>
                         <Quote className="w-6 h-6 text-white" />
@@ -375,17 +369,17 @@ export default function Home() {
                           <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
                         ))}
                       </div>
-                      <p className="text-zinc-700 mb-6 leading-relaxed">"{testimonial.content}"</p>
-                      <div className="flex items-center gap-3 pt-4 border-t border-zinc-200">
+                      <p className="text-zinc-300 mb-6 leading-relaxed">"{testimonial.content}"</p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-zinc-700">
                         <Avatar className="w-12 h-12">
                           <AvatarImage src={testimonial.avatar} />
-                          <AvatarFallback className="bg-gradient-to-r from-zinc-200 to-zinc-300 text-zinc-700 font-semibold">
+                          <AvatarFallback className="bg-gradient-to-r from-zinc-700 to-zinc-600 text-zinc-200 font-semibold">
                             {testimonial.name[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-zinc-900 font-semibold">{testimonial.name}</p>
-                          <p className="text-zinc-500 text-sm">{testimonial.role}</p>
+                          <p className="text-white font-semibold">{testimonial.name}</p>
+                          <p className="text-zinc-400 text-sm">{testimonial.role}</p>
                         </div>
                       </div>
                     </CardContent>
