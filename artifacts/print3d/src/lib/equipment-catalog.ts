@@ -60,35 +60,106 @@ export const EQUIPMENT_CATEGORY_CHOICES: {
 ];
 
 const PRINTING_3D: CatalogEquipmentItem[] = [
+  // Bambu Lab FDM
   { id: "bambu-x1c", category: "printing_3d", brand: "Bambu Lab", model: "X1 Carbon", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "TPU", "PA", "PC"], gradient: "from-blue-600 to-cyan-500", buildVolume: "256x256x256 mm" },
   { id: "bambu-p1s", category: "printing_3d", brand: "Bambu Lab", model: "P1S", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "TPU", "PA"], gradient: "from-indigo-600 to-blue-400", buildVolume: "256x256x256 mm" },
+  { id: "bambu-p1", category: "printing_3d", brand: "Bambu Lab", model: "P1", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-blue-700 to-indigo-600", buildVolume: "256x256x256 mm" },
   { id: "bambu-a1-mini", category: "printing_3d", brand: "Bambu Lab", model: "A1 Mini", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-emerald-500 to-teal-400", buildVolume: "180x180x180 mm" },
+  { id: "bambu-a1", category: "printing_3d", brand: "Bambu Lab", model: "A1", technology: "FDM", materials: ["PLA", "PETG", "TPU", "PA"], gradient: "from-teal-500 to-emerald-500", buildVolume: "256x256x256 mm" },
   { id: "bambu-h2d", category: "printing_3d", brand: "Bambu Lab", model: "H2D", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "TPU", "PA", "PC", "High-temp composites"], gradient: "from-cyan-500 to-sky-500", buildVolume: "350x320x325 mm" },
+  
+  // Prusa FDM
   { id: "prusa-mk4", category: "printing_3d", brand: "Prusa", model: "MK4", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "Flex"], gradient: "from-orange-500 to-red-500", buildVolume: "250x210x220 mm" },
+  { id: "prusa-mk3s-plus", category: "printing_3d", brand: "Prusa", model: "MK3S+", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "Flex"], gradient: "from-orange-600 to-red-600", buildVolume: "250x210x210 mm" },
+  { id: "prusa-mini-plus", category: "printing_3d", brand: "Prusa", model: "MINI+", technology: "FDM", materials: ["PLA", "PETG", "FLEX"], gradient: "from-amber-600 to-orange-600", buildVolume: "180x180x180 mm" },
   { id: "prusa-core-one", category: "printing_3d", brand: "Prusa", model: "CORE One", technology: "FDM", materials: ["PLA", "PETG", "Flex", "PVA", "PC", "PP", "CPE", "PVB", "ABS", "ASA", "PA"], gradient: "from-orange-600 to-amber-600", buildVolume: "250x220x270 mm" },
   { id: "prusa-xl", category: "printing_3d", brand: "Prusa", model: "XL", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "Flex", "PVA", "PC"], gradient: "from-amber-500 to-orange-500", buildVolume: "360x360x360 mm" },
-  { id: "qidi-plus4", category: "printing_3d", brand: "QIDI", model: "Plus4", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "PA", "PC"], gradient: "from-blue-500 to-indigo-500", buildVolume: "305x305x280 mm" },
-  { id: "flashforge-ad5x", category: "printing_3d", brand: "Flashforge", model: "Adventurer 5X", technology: "FDM", materials: ["PLA", "PETG", "TPU", "ABS"], gradient: "from-sky-500 to-cyan-500", buildVolume: "220x220x220 mm" },
-  { id: "ender-3-v3", category: "printing_3d", brand: "Creality", model: "Ender 3 V3 SE", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-zinc-500 to-zinc-400", buildVolume: "220x220x250 mm" },
+  { id: "prusa-core-xy", category: "printing_3d", brand: "Prusa", model: "CORE XY", technology: "FDM", materials: ["PLA", "PETG", "ASA", "PA"], gradient: "from-yellow-600 to-amber-700", buildVolume: "384x355x350 mm" },
+  
+  // Creality FDM
+  { id: "creality-ender-3", category: "printing_3d", brand: "Creality", model: "Ender 3", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-gray-500 to-zinc-500", buildVolume: "220x220x250 mm" },
+  { id: "creality-ender-3-v2", category: "printing_3d", brand: "Creality", model: "Ender 3 V2", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-zinc-500 to-slate-500", buildVolume: "220x220x250 mm" },
+  { id: "creality-ender-3-v3", category: "printing_3d", brand: "Creality", model: "Ender 3 V3", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-slate-500 to-gray-600", buildVolume: "220x220x250 mm" },
+  { id: "creality-ender-3-v3-se", category: "printing_3d", brand: "Creality", model: "Ender 3 V3 SE", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-zinc-500 to-zinc-400", buildVolume: "220x220x250 mm" },
+  { id: "creality-ender-5", category: "printing_3d", brand: "Creality", model: "Ender 5", technology: "FDM", materials: ["PLA", "PETG", "ABS", "TPU"], gradient: "from-emerald-600 to-teal-600", buildVolume: "220x220x300 mm" },
+  { id: "creality-k1", category: "printing_3d", brand: "Creality", model: "K1", technology: "FDM", materials: ["PLA", "PETG", "ABS", "PA"], gradient: "from-sky-600 to-blue-600", buildVolume: "300x300x400 mm" },
   { id: "creality-k1-max", category: "printing_3d", brand: "Creality", model: "K1 Max", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "TPU", "PA"], gradient: "from-slate-600 to-zinc-500", buildVolume: "300x300x300 mm" },
   { id: "creality-k2-plus", category: "printing_3d", brand: "Creality", model: "K2 Plus Combo", technology: "FDM", materials: ["PLA", "ABS", "PETG", "PA-CF", "PLA-CF", "PET", "ASA", "PPA-CF"], gradient: "from-neutral-700 to-slate-500", buildVolume: "350x350x350 mm" },
+  { id: "creality-cr10", category: "printing_3d", brand: "Creality", model: "CR-10", technology: "FDM", materials: ["PLA", "ABS", "PETG"], gradient: "from-red-700 to-orange-700", buildVolume: "300x300x400 mm" },
+  
+  // Qidi
+  { id: "qidi-plus4", category: "printing_3d", brand: "QIDI", model: "Plus4", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "PA", "PC"], gradient: "from-blue-500 to-indigo-500", buildVolume: "305x305x280 mm" },
+  { id: "qidi-i-fast", category: "printing_3d", brand: "QIDI", model: "i-Fast", technology: "FDM", materials: ["PLA", "PETG", "ABS"], gradient: "from-indigo-500 to-purple-500", buildVolume: "250x250x250 mm" },
+  
+  // Flashforge
+  { id: "flashforge-ad5x", category: "printing_3d", brand: "Flashforge", model: "Adventurer 5X", technology: "FDM", materials: ["PLA", "PETG", "TPU", "ABS"], gradient: "from-sky-500 to-cyan-500", buildVolume: "220x220x220 mm" },
+  { id: "flashforge-ad5", category: "printing_3d", brand: "Flashforge", model: "Adventurer 5", technology: "FDM", materials: ["PLA", "TPU"], gradient: "from-cyan-500 to-blue-500", buildVolume: "220x220x220 mm" },
+  
+  // Voron
   { id: "voron-24", category: "printing_3d", brand: "Voron", model: "2.4", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "PA"], gradient: "from-pink-500 to-rose-500", buildVolume: "350x350x350 mm" },
+  { id: "voron-trident", category: "printing_3d", brand: "Voron", model: "Trident", technology: "FDM", materials: ["PLA", "PETG", "ABS"], gradient: "from-rose-500 to-pink-600", buildVolume: "250x250x250 mm" },
+  
+  // Ultimaker
+  { id: "ultimaker-s5", category: "printing_3d", brand: "Ultimaker", model: "S5", technology: "FDM", materials: ["Ultimaker materials", "Thermoplastics"], gradient: "from-blue-700 to-indigo-600", buildVolume: "330x240x300 mm" },
   { id: "ultimaker-s7", category: "printing_3d", brand: "Ultimaker", model: "S7", technology: "FDM", materials: ["PLA", "ABS", "Nylon", "PC", "TPU", "PVA", "CPE"], gradient: "from-sky-500 to-blue-600", buildVolume: "330x240x300 mm" },
+  { id: "ultimaker-3", category: "printing_3d", brand: "Ultimaker", model: "Ultimaker 3", technology: "FDM", materials: ["PLA", "ABS", "Nylon"], gradient: "from-indigo-600 to-blue-500", buildVolume: "215x215x200 mm" },
+  
+  // Raise3D
   { id: "raise3d-pro3", category: "printing_3d", brand: "Raise3D", model: "Pro3", technology: "FDM", materials: ["PLA", "PETG", "ABS", "ASA", "PA", "PC", "TPU", "PVA"], gradient: "from-zinc-700 to-zinc-600", buildVolume: "300x300x300 mm" },
   { id: "raise3d-pro3-hs", category: "printing_3d", brand: "Raise3D", model: "Pro3 HS", technology: "FDM", materials: ["PLA", "ABS", "ASA", "PETG", "PA", "PC", "TPU", "Composite filaments"], gradient: "from-slate-800 to-zinc-700", buildVolume: "300x300x300 mm" },
+  
+  // Formlabs - Resin/Powder
   { id: "formlabs-form3", category: "printing_3d", brand: "Formlabs", model: "Form 3+", technology: "SLA", materials: ["Standard Resin", "Engineering Resin", "Flexible Resin", "Dental Resin"], gradient: "from-orange-400 to-amber-400", buildVolume: "145x145x185 mm" },
+  { id: "formlabs-form3-l", category: "printing_3d", brand: "Formlabs", model: "Form 3L", technology: "SLA", materials: ["Standard Resin", "Engineering Resin", "Flexible Resin"], gradient: "from-amber-400 to-yellow-400", buildVolume: "337.5x212.5x200 mm" },
   { id: "formlabs-form4", category: "printing_3d", brand: "Formlabs", model: "Form 4", technology: "MSLA", materials: ["Standard Resin", "Engineering Resin", "Flexible Resin", "Biocompatible Resin", "Third-party OMM resins"], gradient: "from-amber-500 to-yellow-400", buildVolume: "200x125x210 mm" },
   { id: "formlabs-form4l", category: "printing_3d", brand: "Formlabs", model: "Form 4L", technology: "MSLA", materials: ["Standard Resin", "Engineering Resin", "Flexible Resin", "Large-format production resin"], gradient: "from-yellow-500 to-orange-500", buildVolume: "353x196x350 mm" },
   { id: "formlabs-fuse1", category: "printing_3d", brand: "Formlabs", model: "Fuse 1+ 30W", technology: "SLS", materials: ["Nylon 12", "Nylon 11", "TPU", "Composite powder"], gradient: "from-neutral-600 to-stone-600", buildVolume: "165x165x300 mm" },
-  { id: "anycubic-photon", category: "printing_3d", brand: "Anycubic", model: "Photon Mono X6Ks", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Water Washable Resin"], gradient: "from-red-500 to-orange-500", buildVolume: "195x120x200 mm" },
+  
+  // Formlabs Stereo lithography
+  { id: "formlabs-form2", category: "printing_3d", brand: "Formlabs", model: "Form 2", technology: "SLA", materials: ["Resin", "Surgical Guide resin"], gradient: "from-orange-300 to-amber-300", buildVolume: "145x145x175 mm" },
+  
+  // Anycubic - Resin
+  { id: "anycubic-photon-mono-x6ks", category: "printing_3d", brand: "Anycubic", model: "Photon Mono X6Ks", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Water Washable Resin"], gradient: "from-red-500 to-orange-500", buildVolume: "195x120x200 mm" },
+  { id: "anycubic-photon-m3-plus", category: "printing_3d", brand: "Anycubic", model: "Photon M3 Plus", technology: "MSLA", materials: ["Standard Resin", "Engineering Resin"], gradient: "from-orange-600 to-red-500", buildVolume: "192x120x200 mm" },
+  { id: "anycubic-photon-m4", category: "printing_3d", brand: "Anycubic", model: "Photon M4", technology: "MSLA", materials: ["Standard Resin", "ABS-Like"], gradient: "from-red-600 to-orange-600", buildVolume: "218x123x220 mm" },
+  
+  // Anycubic - FDM
   { id: "anycubic-kobra-3", category: "printing_3d", brand: "Anycubic", model: "Kobra 3 Combo", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-rose-500 to-red-500", buildVolume: "250x250x260 mm" },
+  { id: "anycubic-kobra-3-max", category: "printing_3d", brand: "Anycubic", model: "Kobra 3 Max", technology: "FDM", materials: ["PLA", "PETG", "ABS"], gradient: "from-red-500 to-pink-500", buildVolume: "430x430x450 mm" },
+  
+  // Anycubic - Other Resin
   { id: "anycubic-m7-pro", category: "printing_3d", brand: "Anycubic", model: "Photon Mono M7 Pro", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Tough Resin", "Water Washable Resin"], gradient: "from-red-600 to-pink-600", buildVolume: "223x126x230 mm" },
-  { id: "elegoo-saturn", category: "printing_3d", brand: "Elegoo", model: "Saturn 3 Ultra", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Plant-Based Resin"], gradient: "from-purple-600 to-violet-500", buildVolume: "218x123x260 mm" },
+  
+  // Elegoo - Resin
+  { id: "elegoo-saturn-3-ultra", category: "printing_3d", brand: "Elegoo", model: "Saturn 3 Ultra", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Plant-Based Resin"], gradient: "from-purple-600 to-violet-500", buildVolume: "218x123x260 mm" },
   { id: "elegoo-saturn-4-ultra", category: "printing_3d", brand: "Elegoo", model: "Saturn 4 Ultra", technology: "MSLA", materials: ["Standard Resin", "ABS-Like Resin", "Plant-Based Resin", "Tough Resin"], gradient: "from-fuchsia-600 to-violet-600", buildVolume: "218.88x122.88x220 mm" },
+  { id: "elegoo-saturn", category: "printing_3d", brand: "Elegoo", model: "Saturn", technology: "MSLA", materials: ["Standard Resin"], gradient: "from-purple-700 to-indigo-700", buildVolume: "218x123x185 mm" },
+  { id: "elegoo-neptune-4", category: "printing_3d", brand: "Elegoo", model: "Neptune 4", technology: "FDM", materials: ["PLA", "PETG", "TPU"], gradient: "from-blue-600 to-cyan-600", buildVolume: "220x220x250 mm" },
+  
+  // Markforged
   { id: "markforged-x7", category: "printing_3d", brand: "Markforged", model: "X7", technology: "FDM", materials: ["Onyx", "Carbon fiber", "Fiberglass", "HSHT"], gradient: "from-stone-600 to-stone-500", buildVolume: "330x270x200 mm" },
+  { id: "markforged-fx20", category: "printing_3d", brand: "Markforged", model: "FX20", technology: "FDM", materials: ["Onyx", "Carbon fiber", "Fiberglass"], gradient: "from-neutral-700 to-stone-600", buildVolume: "300x167x200 mm" },
+  
+  // Stratasys
   { id: "stratasys-f370", category: "printing_3d", brand: "Stratasys", model: "F370", technology: "FDM", materials: ["ABS", "ASA", "PLA", "TPU", "PC"], gradient: "from-blue-800 to-indigo-700", buildVolume: "355x254x355 mm" },
+  { id: "stratasys-f170-f270", category: "printing_3d", brand: "Stratasys", model: "F170 / F270", technology: "FDM", materials: ["ABS", "ASA"], gradient: "from-indigo-800 to-blue-800", buildVolume: "254x254x254 mm / 254x254x305 mm" },
+  { id: "stratasys-j7", category: "printing_3d", brand: "Stratasys", model: "J7", technology: "MJF", materials: ["Full color sandstone"], gradient: "from-amber-800 to-orange-800", buildVolume: "127x80x72 mm" },
+  
+  // HP Jet Fusion
   { id: "hp-mjf-4200", category: "printing_3d", brand: "HP", model: "Jet Fusion 4200", technology: "MJF", materials: ["PA 12", "PA 11", "TPA"], gradient: "from-blue-700 to-cyan-700", buildVolume: "380x284x380 mm" },
+  { id: "hp-mjf-580-color", category: "printing_3d", brand: "HP", model: "Jet Fusion 580 Color", technology: "MJF", materials: ["PA 12", "PA 11 GF", "TPU"], gradient: "from-cyan-600 to-sky-700", buildVolume: "302.4x191.04x381 mm" },
+  
+  // EOS - Industrial Powder/Laser
   { id: "eos-m290", category: "printing_3d", brand: "EOS", model: "M 290", technology: "DMLS", materials: ["Stainless steel", "Tool steel", "Aluminum", "Nickel alloys", "Titanium"], gradient: "from-slate-700 to-gray-700", buildVolume: "250x250x325 mm" },
+  { id: "eos-m300", category: "printing_3d", brand: "EOS", model: "M 300", technology: "DMLS", materials: ["Steel", "Titanium", "Aluminum"], gradient: "from-gray-700 to-slate-800", buildVolume: "300x300x400 mm" },
+  { id: "eos-p500", category: "printing_3d", brand: "EOS", model: "P 500", technology: "SLS", materials: ["Nylon 12", "Nylon 11"], gradient: "from-stone-600 to-zinc-700", buildVolume: "300x300x400 mm" },
+  
+  // 3D Systems / Sinterit (SLS)
+  { id: "sinterit-lisa-x", category: "printing_3d", brand: "Sinterit", model: "LISA X", technology: "SLS", materials: ["PA 12", "TPU"], gradient: "from-fuchsia-700 to-rose-700", buildVolume: "300x300x150 mm" },
+  
+  // Other popular brands
+  { id: "anycubic-mega-x", category: "printing_3d", brand: "Anycubic", model: "MEGA X", technology: "FDM", materials: ["PLA", "ABS", "PETG"], gradient: "from-orange-700 to-rose-700", buildVolume: "300x300x305 mm" },
+  { id: "peopoly-phenom-rsv", category: "printing_3d", brand: "Peopoly", model: "Phenom RSV", technology: "SLA", materials: ["Resin"], gradient: "from-indigo-600 to-purple-600", buildVolume: "192x120x200 mm" },
   { id: "3d-other", category: "printing_3d", brand: "Other", model: "", technology: "FDM", materials: [], gradient: "from-zinc-700 to-zinc-600", buildVolume: "", isOther: true },
 ];
 

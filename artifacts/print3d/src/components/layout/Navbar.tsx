@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, GitCompareArrows } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,6 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { cartItemCount, CART_CHANGE_EVENT } from "@/lib/cart-storage";
 import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare";
 import { listMessageThreads } from "@/lib/messages-api";
+import { getUnreadNotificationsCount } from "@/lib/notifications-api";
 import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
 
 export function Navbar() {
@@ -17,7 +18,9 @@ export function Navbar() {
   const [headerSearch, setHeaderSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [comparedCount, setComparedCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -43,14 +46,25 @@ export function Navbar() {
 
   useEffect(() => {
     if (!user) {
-      setNotificationCount(0);
+      setMessageCount(0);
       return;
     }
 
     void listMessageThreads()
       .then((result) => {
-        setNotificationCount(result.threads.reduce((sum, thread) => sum + thread.unreadCount, 0));
+        setMessageCount(result.threads.reduce((sum, thread) => sum + thread.unreadCount, 0));
       })
+      .catch(() => setMessageCount(0));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+
+    void getUnreadNotificationsCount()
+      .then((result) => setNotificationCount(result.unreadCount))
       .catch(() => setNotificationCount(0));
   }, [user]);
 
@@ -74,6 +88,7 @@ export function Navbar() {
             {[
               { path: "/explore", label: "Explore Shops" },
               { path: "/listings", label: "Model Catalog" },
+              { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },
             ].map((route) => (
@@ -106,9 +121,9 @@ export function Navbar() {
               value={headerSearch}
               onChange={(e) => setHeaderSearch(e.target.value)}
               onKeyDown={(e) => {
-                const t = headerSearch.trim();
-                if (e.key === "Enter" && t) {
-                  setLocation(`/search?q=${encodeURIComponent(t)}`);
+                const term = headerSearch.trim();
+                if (e.key === "Enter" && term) {
+                  setLocation(`/search?q=${encodeURIComponent(term)}`);
                   setHeaderSearch("");
                 }
               }}
@@ -127,13 +142,97 @@ export function Navbar() {
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
               <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 && (
+              {cartCount > 0 ? (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
-              )}
+              ) : null}
             </Button>
           </Link>
+
+          <div className="relative hidden sm:block">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={() => setContactOpen((value) => !value)}
+            >
+              <Flag className="w-5 h-5" />
+            </Button>
+
+            <AnimatePresence>
+              {contactOpen ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-50"
+                >
+                  <div className="space-y-2">
+                    <Link
+                      href="/help"
+                      onClick={() => setContactOpen(false)}
+                      className="block w-full p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                          <HelpCircle className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">
+                            FAQ & Help Center
+                          </div>
+                          <div className="text-xs text-zinc-400">
+                            Find answers to common questions
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/pricing"
+                      onClick={() => setContactOpen(false)}
+                      className="block w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <MessageSquare className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white group-hover:text-primary transition-colors">
+                            Message Synthix
+                          </div>
+                          <div className="text-xs text-zinc-400">
+                            Open support and pricing options
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/pricing#contact-form"
+                      onClick={() => setContactOpen(false)}
+                      className="block w-full p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-accent" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white group-hover:text-accent transition-colors">
+                            Contact form
+                          </div>
+                          <div className="text-xs text-zinc-400">
+                            Send details to the support inbox
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
 
           {comparedCount > 0 ? (
             <Link href="/compare-shops">
@@ -149,9 +248,22 @@ export function Navbar() {
           {user ? (
             <Link href="/messages">
               <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
+                <MessageSquare className="w-5 h-5" />
+                {messageCount > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                    {messageCount > 99 ? "99+" : messageCount}
+                  </span>
+                ) : null}
+              </Button>
+            </Link>
+          ) : null}
+
+          {user ? (
+            <Link href="/notifications">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
                 <Bell className="w-5 h-5" />
                 {notificationCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
                     {notificationCount > 99 ? "99+" : notificationCount}
                   </span>
                 ) : null}
@@ -191,7 +303,7 @@ export function Navbar() {
             </Link>
           )}
 
-          <Button variant="ghost" size="icon" className="md:hidden rounded-full" onClick={() => setMenuOpen(v => !v)}>
+          <Button variant="ghost" size="icon" className="md:hidden rounded-full" onClick={() => setMenuOpen((value) => !value)}>
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
@@ -200,7 +312,7 @@ export function Navbar() {
       <VerifyEmailBanner />
 
       <AnimatePresence>
-        {menuOpen && (
+        {menuOpen ? (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -209,34 +321,46 @@ export function Navbar() {
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {[
-              { path: "/explore", label: "Explore Shops" },
-              { path: "/listings", label: "Model Catalog" },
-              { path: "/contests", label: "Contests" },
-              { path: "/cart", label: "Cart" },
+                { path: "/explore", label: "Explore Shops" },
+                { path: "/listings", label: "Model Catalog" },
+                { path: "/discover", label: "Discover" },
+                { path: "/contests", label: "Contests" },
+                { path: "/cart", label: "Cart" },
                 { path: "/compare-shops", label: "Compare Shops" },
                 { path: "/messages", label: "Messages" },
                 { path: "/dashboard", label: "Dashboard" },
                 { path: "/settings", label: "Settings" },
-              ].map(r => (
-                <Link key={r.path} href={r.path} onClick={() => setMenuOpen(false)}
-                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors">
-                  {r.label}
+                { path: "/help", label: "Help" },
+                { path: "/pricing", label: "Pricing & Support" },
+              ].map((route) => (
+                <Link
+                  key={route.path}
+                  href={route.path}
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+                >
+                  {route.label}
                 </Link>
               ))}
-              {!isSeller && (
+
+              {!isSeller ? (
                 <Link href="/register" onClick={() => setMenuOpen(false)}>
                   <NeonButton glowColor="accent" className="w-full rounded-xl mt-2">Become a Seller</NeonButton>
                 </Link>
-              )}
-              {!user && (
-                <Link href="/login" onClick={() => setMenuOpen(false)}
-                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors">
+              ) : null}
+
+              {!user ? (
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+                >
                   Sign In
                 </Link>
-              )}
+              ) : null}
             </nav>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </header>
   );

@@ -21,6 +21,9 @@ app.use("/api/payments/stripe/webhook", express.raw({ type: "application/json" }
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Serve uploaded files
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 app.use("/api", router);
 app.use("/api", (_req, res) => {
   res.status(404).json({ error: "not_found", message: "That API route does not exist." });

@@ -7,13 +7,14 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
 import { ensureSupportThread, submitSupportContactForm } from "@/lib/support-api";
-
-const ENTERPRISE_CONTACT = "mailto:evanhuelin8@gmail.com?subject=SYNTHIX%20Enterprise%20Inquiry";
 
 const PLANS = [
   {
@@ -59,7 +60,7 @@ const PLANS = [
       { text: "Priority support", included: true },
       { text: "Managed enterprise onboarding", included: false },
     ],
-    cta: "Upgrade with Support",
+    cta: "Upgrade to Pro",
     glow: "primary" as const,
   },
   {
@@ -82,7 +83,7 @@ const PLANS = [
       { text: "Fast-track support", included: true },
       { text: "Managed enterprise onboarding", included: false },
     ],
-    cta: "Talk to Synthix",
+    cta: "Upgrade to Elite",
     glow: "accent" as const,
   },
   {
@@ -108,7 +109,7 @@ const PLANS = [
     cta: "Contact Us",
     glow: "primary" as const,
   },
-];
+] as const;
 
 const FAQS = [
   {
@@ -117,11 +118,11 @@ const FAQS = [
   },
   {
     q: "Can I message Synthix directly from the site?",
-    a: "Yes. The pricing page now has a direct in-app message action that opens a real support thread in the site messenger, so you can ask about plans, sponsorships, or setup without leaving the platform.",
+    a: "Yes. The pricing page has an in-app message action that opens a real support thread in the site messenger, so you can ask about plans, sponsorships, or setup without leaving the platform.",
   },
   {
     q: "How do paid plans help beyond lower fees?",
-    a: "Paid tiers also unlock stronger shop customization, better analytics, faster support, and discounted promotional placements so sellers can grow both their storefront and their catalog visibility.",
+    a: "Paid tiers unlock stronger shop customization, better analytics, faster support, and discounted promotional placements so sellers can grow both their storefront and catalog visibility.",
   },
   {
     q: "Can owners give someone enterprise features manually?",
@@ -138,11 +139,12 @@ const FAQS = [
 ];
 
 export default function Pricing() {
+  const { user } = useAuth();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [location, setLocation] = useLocation();
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: user?.displayName ?? "",
     email: user?.email ?? "",
@@ -158,13 +160,12 @@ export default function Pricing() {
   const { data: ownListingsData } = useListListings({ sellerId: user?.id, limit: 100 });
 
   useEffect(() => {
-    if (user) {
-      setContactForm((current) => ({
-        ...current,
-        name: current.name || user.displayName,
-        email: current.email || user.email,
-      }));
-    }
+    if (!user) return;
+    setContactForm((current) => ({
+      ...current,
+      name: current.name || user.displayName,
+      email: current.email || user.email,
+    }));
   }, [user]);
 
   useEffect(() => {
@@ -208,6 +209,7 @@ export default function Pricing() {
       setIsSubmittingContact(true);
       await submitSupportContactForm(contactForm);
       setContactForm((current) => ({ ...current, message: "" }));
+      setShowEnterpriseForm(false);
       toast({
         title: "Contact form sent",
         description: "Your message was sent to the SYNTHIX inbox email addresses.",
@@ -221,6 +223,18 @@ export default function Pricing() {
     } finally {
       setIsSubmittingContact(false);
     }
+  };
+
+  const startPlanCheckout = (planId: string) => {
+    if (!user) {
+      setLocation("/register");
+      return;
+    }
+    if (planId === "starter") {
+      setLocation("/settings?section=payment");
+      return;
+    }
+    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}`;
   };
 
   const startProfileSponsorship = async () => {
@@ -372,13 +386,13 @@ export default function Pricing() {
                   </ul>
 
                   {isEnterprise ? (
-                    <a href={ENTERPRISE_CONTACT}>
+                    <button type="button" onClick={() => setShowEnterpriseForm(true)} className="w-full">
                       <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
                         {plan.cta}
                       </NeonButton>
-                    </a>
+                    </button>
                   ) : (
-                    <button type="button" onClick={() => void openSupportMessenger()} className="w-full">
+                    <button type="button" onClick={() => startPlanCheckout(plan.id)} className="w-full">
                       <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
                         {plan.cta}
                       </NeonButton>
@@ -471,12 +485,12 @@ export default function Pricing() {
                     {isOpeningSupport ? "Opening..." : "Message Synthix"}
                   </NeonButton>
                 </button>
-                <a href="#contact-form">
+                <button type="button" onClick={() => setShowEnterpriseForm(true)}>
                   <NeonButton glowColor="white" className="w-full rounded-2xl py-3">
                     <Mail className="mr-2 h-4 w-4" />
-                    Email form
+                    Contact form
                   </NeonButton>
-                </a>
+                </button>
               </div>
               <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-zinc-200">
                 <p className="font-semibold text-white">Enterprise sellers get:</p>
@@ -491,53 +505,79 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section id="contact-form" className="border-y border-white/5 bg-black/30 py-16">
-          <div className="container mx-auto max-w-4xl px-4">
-            <div className="rounded-3xl border border-white/10 bg-black/20 p-8">
-              <h2 className="text-3xl font-display font-bold text-white">Contact form</h2>
-              <p className="mt-3 text-zinc-400">
-                This sends a real email to `evanhuelin8@gmail.com` and `evanhuelin@gmail.com` using your configured SMTP settings.
-              </p>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <input
-                  value={contactForm.name}
-                  onChange={(event) => setContactForm((current) => ({ ...current, name: event.target.value }))}
-                  placeholder="Your name"
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <input
-                  value={contactForm.email}
-                  onChange={(event) => setContactForm((current) => ({ ...current, email: event.target.value }))}
-                  placeholder="you@example.com"
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-              <input
-                value={contactForm.subject}
-                onChange={(event) => setContactForm((current) => ({ ...current, subject: event.target.value }))}
-                placeholder="Subject"
-                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <textarea
-                value={contactForm.message}
-                onChange={(event) => setContactForm((current) => ({ ...current, message: event.target.value }))}
-                rows={6}
-                placeholder="Tell us what you need help with."
-                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-              />
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button type="button" onClick={() => void submitContact()}>
-                  <NeonButton glowColor="primary" className="rounded-2xl px-7 py-3">
-                    {isSubmittingContact ? "Sending..." : "Send contact form"}
-                  </NeonButton>
+        {showEnterpriseForm ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="glass-panel w-full max-w-2xl rounded-3xl border border-white/10 p-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-2xl font-display font-bold text-white">Enterprise Contact</h3>
+                  <p className="text-sm text-zinc-400 mt-1">Tell us about your business needs</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowEnterpriseForm(false)}
+                  className="text-zinc-400 hover:text-white transition-colors p-2"
+                >
+                  <X className="w-6 h-6" />
                 </button>
-                <a href={ENTERPRISE_CONTACT} className="text-sm text-zinc-400 hover:text-white">
-                  Or open your mail app directly
-                </a>
               </div>
-            </div>
+
+              <div id="contact-form" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    value={contactForm.name}
+                    onChange={(event) => setContactForm((current) => ({ ...current, name: event.target.value }))}
+                    placeholder="Your name"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                  <Input
+                    value={contactForm.email}
+                    onChange={(event) => setContactForm((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="you@example.com"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                  />
+                </div>
+                <Input
+                  value={contactForm.subject}
+                  onChange={(event) => setContactForm((current) => ({ ...current, subject: event.target.value }))}
+                  placeholder="Subject"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
+                />
+                <Textarea
+                  value={contactForm.message}
+                  onChange={(event) => setContactForm((current) => ({ ...current, message: event.target.value }))}
+                  placeholder="Tell us about your enterprise needs, expected volume, and timeline..."
+                  rows={6}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 resize-none"
+                />
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <Button
+                  type="button"
+                  onClick={() => void submitContact()}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  {isSubmittingContact ? "Sending..." : "Send inquiry"}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setShowEnterpriseForm(false)}
+                  variant="outline"
+                  className="px-6 border-white/10 text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </motion.div>
           </div>
-        </section>
+        ) : null}
 
         <section className="container mx-auto max-w-3xl px-4 py-20">
           <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>

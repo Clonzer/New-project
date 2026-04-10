@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Star, MapPin, Printer, Package, GitCompareArrows } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ReportButton } from "@/components/shared/ReportButton";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,9 +24,9 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
   }, [seller.id]);
 
   return (
-    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden">
+    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-zinc-600/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(107,114,128,0.15)] relative overflow-hidden">
         {/* Glow effect behind */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-zinc-900/0 via-zinc-800/0 to-zinc-900/0 group-hover:from-zinc-900/20 group-hover:via-zinc-800/20 group-hover:to-zinc-900/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
@@ -52,12 +53,18 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               </div>
             </div>
             
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md backdrop-blur-sm border border-white/5">
                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                 <span className="text-sm font-bold text-white">{seller.rating?.toFixed(1) || "New"}</span>
               </div>
               <span className="text-[10px] text-zinc-500 mt-1">{seller.reviewCount} reviews</span>
+              <ReportButton 
+                itemType="profile" 
+                itemId={seller.id} 
+                itemName={seller.shopName || seller.displayName}
+                className="opacity-60 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
           

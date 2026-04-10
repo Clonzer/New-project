@@ -96,13 +96,8 @@ export async function requireVerifiedSeller(req: AuthedRequest, res: Response, n
     return;
   }
 
-  if (!user.emailVerifiedAt) {
-    res.status(403).json({
-      error: "email_verification_required",
-      message: "Verify your email before creating listings, equipment, or other seller content.",
-    });
-    return;
-  }
+  // Email verification is no longer required for seller operations
+  // Users can create listings and equipment without verifying their email
 
   next();
 }

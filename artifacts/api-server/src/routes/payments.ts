@@ -9,11 +9,18 @@ import {
   isStripeConfigured,
   verifyStripeWebhookSignature,
 } from "../lib/stripe";
+import { createNotification } from "./notifications";
 import { canSellerShipToCountry, getShippingEstimate } from "../lib/shipping";
 
 const PLATFORM_FEE_PERCENT = 0.1;
-const router: IRouter = Router();
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const router: IRouter = Router();
+
+const PLAN_PRICING: Record<string, { monthly: number; yearly: number; name: string; description: string }> = {
+  starter: { monthly: 0, yearly: 0, name: "Starter", description: "Free seller onboarding and a basic shop listing." },
+  pro: { monthly: 19, yearly: 15, name: "Pro", description: "Lower fees and better seller tools for growing makers." },
+  elite: { monthly: 49, yearly: 39, name: "Elite", description: "Premium shop access with top-tier seller performance benefits." },
+};
 
 const SPONSORSHIP_OPTIONS = {
   profile: {
@@ -68,6 +75,13 @@ type SponsorshipPayload = {
   targetListingId?: number;
   quantity: number;
   durationDays: number;
+};
+
+type PlanPayload = {
+  kind: "plan";
+  planId: "pro" | "elite";
+  billing: "monthly" | "yearly";
+  userId: number;
 };
 
 function badRequest(res: any, message: string) {
@@ -198,9 +212,83 @@ router.get("/payments/config", (_req, res) => {
 });
 
 router.get("/payments/sponsorship-options", (_req, res) => {
-  res.json({
-    options: Object.values(SPONSORSHIP_OPTIONS),
-  });
+  res.json({ options: Object.values(SPONSORSHIP_OPTIONS) });
+});
+
+router.get("/payments/stripe/checkout", requireAuth, async (req: AuthedRequest, res) => {
+  if (!isStripeConfigured()) {
+    res.status(503).json({ error: "payments_unavailable", message: "Stripe is not configured yet. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and APP_URL." });
+    return;
+  }
+
+  const planId = String(req.query.plan ?? "starter");
+  const billing = String(req.query.billing ?? "monthly") === "yearly" ? "yearly" : "monthly";
+  const plan = PLAN_PRICING[planId];
+  if (!plan) {
+    res.status(400).json({ error: "invalid_plan", message: "Unknown plan selected." });
+    return;
+  }
+  if (planId === "starter") {
+    res.redirect(303, "/settings?section=payment");
+    return;
+  }
+
+  const [buyer] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+  if (!buyer) {
+    res.status(404).json({ error: "not_found", message: "Buyer account not found." });
+    return;
+  }
+
+  const appUrl = getAppUrl();
+  if (!appUrl) {
+    res.status(503).json({ error: "payments_unavailable", message: "APP_URL or RENDER_EXTERNAL_URL must be available before checkout can start." });
+    return;
+  }
+
+  try {
+    const priceUsd = billing === "yearly" ? plan.yearly : plan.monthly;
+    const stripeSession = await createStripeCheckoutSession({
+      customerEmail: buyer.email,
+      successUrl: `${appUrl}/settings?section=payment&upgrade=success`,
+      cancelUrl: `${appUrl}/pricing`,
+      lineItems: [
+        {
+          name: `${plan.name} Plan`,
+          description: plan.description,
+          quantity: 1,
+          unitAmountCents: Math.round(priceUsd * 100),
+        },
+      ],
+      metadata: {
+        userId: String(req.auth!.userId),
+        planId,
+        billing,
+      },
+    });
+
+    const payload: PlanPayload = {
+      kind: "plan",
+      planId: planId as "pro" | "elite",
+      billing,
+      userId: req.auth!.userId,
+    };
+
+    await db.insert(checkoutSessionsTable).values({
+      buyerId: req.auth!.userId,
+      provider: "stripe",
+      providerSessionId: stripeSession.id,
+      status: "created",
+      currency: "usd",
+      amountTotal: priceUsd,
+      shippingAddress: "plan upgrade",
+      payloadJson: JSON.stringify(payload),
+    });
+
+    res.redirect(303, stripeSession.url);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not start plan checkout.";
+    res.status(400).json({ error: "checkout_error", message });
+  }
 });
 
 router.post("/payments/checkout-session", requireAuth, async (req: AuthedRequest, res) => {
@@ -402,27 +490,53 @@ router.post("/payments/stripe/webhook", async (req, res) => {
   }
 
   if (event.type === "checkout.session.completed" && checkoutSession.status !== "completed") {
-    const payload = JSON.parse(checkoutSession.payloadJson) as NormalizedOrderDraft[] | SponsorshipPayload;
+    const payload = JSON.parse(checkoutSession.payloadJson) as NormalizedOrderDraft[] | SponsorshipPayload | PlanPayload;
 
     if (Array.isArray(payload)) {
+      const [buyer] = await db
+        .select({ displayName: usersTable.displayName })
+        .from(usersTable)
+        .where(eq(usersTable.id, checkoutSession.buyerId));
+
       const orderValues = payload.map((draft) => ({
-          buyerId: checkoutSession.buyerId,
-          sellerId: draft.sellerId,
-          listingId: draft.listingId,
-          title: draft.title,
-          fileUrl: draft.fileUrl,
-          notes: draft.notes,
-          material: draft.material,
-          color: draft.color,
-          quantity: draft.quantity,
-          unitPrice: draft.unitPrice,
-          platformFee: draft.platformFee,
-          shippingCost: draft.shippingCost,
-          totalPrice: draft.totalPrice,
-          status: "pending" as const,
-          shippingAddress: checkoutSession.shippingAddress,
-        }));
-      await db.insert(ordersTable).values(orderValues);
+        buyerId: checkoutSession.buyerId,
+        sellerId: draft.sellerId,
+        listingId: draft.listingId,
+        title: draft.title,
+        fileUrl: draft.fileUrl,
+        notes: draft.notes,
+        material: draft.material,
+        color: draft.color,
+        quantity: draft.quantity,
+        unitPrice: draft.unitPrice,
+        platformFee: draft.platformFee,
+        shippingCost: draft.shippingCost,
+        totalPrice: draft.totalPrice,
+        status: "pending" as const,
+        shippingAddress: checkoutSession.shippingAddress,
+      }));
+      const insertedOrders = await db.insert(ordersTable).values(orderValues).returning();
+
+      const buyerName = buyer?.displayName ?? "Customer";
+      for (const order of insertedOrders) {
+        await createNotification({
+          userId: order.sellerId,
+          actorId: checkoutSession.buyerId,
+          type: "order",
+          title: "New order received",
+          body: `${buyerName} placed an order for ${order.title}.`,
+          url: `/dashboard?order=${order.id}`,
+        });
+
+        await createNotification({
+          userId: order.buyerId,
+          actorId: order.sellerId,
+          type: "order_update",
+          title: "Order confirmed",
+          body: `Your order for ${order.title} is confirmed and waiting on seller processing.`,
+          url: `/dashboard?order=${order.id}`,
+        });
+      }
     } else if (payload.kind === "sponsorship") {
       const extensionMs = payload.durationDays * payload.quantity * DAY_IN_MS;
       if (payload.sponsorshipType === "profile" && payload.targetUserId) {
@@ -445,6 +559,19 @@ router.post("/payments/stripe/webhook", async (req, res) => {
           .set({ sponsoredUntil: new Date(base + extensionMs) })
           .where(eq(listingsTable.id, payload.targetListingId));
       }
+    } else if (payload.kind === "plan") {
+      await db
+        .update(usersTable)
+        .set({ planTier: payload.planId })
+        .where(eq(usersTable.id, payload.userId));
+
+      await createNotification({
+        userId: payload.userId,
+        type: "system",
+        title: "Plan upgraded",
+        body: `Your account is now on the ${payload.planId} plan.`,
+        url: "/settings?section=payment",
+      });
     }
 
     await db

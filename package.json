@@ -9,6 +9,8 @@
     "build:render": "pnpm run typecheck && pnpm run build:frontend && pnpm run build:backend",
     "build:frontend": "pnpm --filter @workspace/print3d build",
     "build:backend": "pnpm --filter @workspace/api-server build",
+    "contests:manage": "pnpm --filter @workspace/scripts run contests:manage",
+    "contests:process-winners": "pnpm --filter @workspace/scripts run contests:process-winners",
     "db:migrate": "pnpm --filter @workspace/scripts run migrate",
     "start": "pnpm run start:render",
     "start:backend": "node artifacts/api-server/dist/index.cjs",

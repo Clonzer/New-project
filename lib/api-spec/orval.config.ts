@@ -291,3 +291,34 @@ export async function customFetch<T = unknown>(
 
   return (await parseSuccessBody(response, responseType, requestInfo)) as T;
 }
+
+export default {
+  api: {
+    input: "./openapi.yaml",
+    output: {
+      target: "../api-client-react/src/generated/api.ts",
+      schemas: "../api-client-react/src/generated/api.schemas.ts",
+      client: "react-query",
+      httpClient: "fetch",
+      clean: true,
+      baseUrl: "/api",
+      override: {
+        fetch: {
+          includeHttpResponseReturnType: false,
+        },
+        query: {
+          useQuery: true,
+          useInfinite: false,
+          useInfiniteQueryParam: "limit",
+          options: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+          },
+        },
+        mutator: {
+          path: "../api-client-react/src/custom-fetch.ts",
+          name: "customFetch",
+        },
+      },
+    },
+  },
+};

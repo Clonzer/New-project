@@ -49,8 +49,8 @@ export default function Contests() {
                 Marketplace contests are landing without breaking the rest of the app.
               </h1>
               <p className="mt-5 max-w-2xl text-zinc-300 text-lg leading-relaxed">
-                This page now exists as a real route, so clicking contests no longer dumps users onto a broken screen.
-                We can use it to run featured builds, seller spotlights, and launch campaigns as the marketplace grows.
+                This page exists as a safe route again, so clicking contests no longer drops users onto a broken screen.
+                It can now host featured builds, seller spotlights, and launch campaigns as the marketplace grows.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <Link href="/pricing">

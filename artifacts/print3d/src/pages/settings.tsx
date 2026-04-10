@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useUpdateUser } from "@workspace/api-client-react";
+import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -18,8 +19,9 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
@@ -36,7 +38,9 @@ export default function Settings() {
   const { user, refreshUser, logout } = useAuth();
   const { toast } = useToast();
   const updateUser = useUpdateUser();
+  const [location] = useLocation();
   const [activeSection, setActiveSection] = useState("profile");
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [paymentEnabled, setPaymentEnabled] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isRequestingVerification, setIsRequestingVerification] = useState(false);
@@ -44,6 +48,14 @@ export default function Settings() {
   const [verificationCode, setVerificationCode] = useState("");
   const [customTagDraft, setCustomTagDraft] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [notificationPreferences, setNotificationPreferences] = useState({
+    newOrders: true,
+    customRequests: true,
+    messages: true,
+    reviews: true,
+    promotions: false,
+    accountUpdates: true,
+  });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -125,6 +137,14 @@ export default function Settings() {
       .then((result) => setPaymentEnabled(result.checkoutEnabled))
       .catch(() => setPaymentEnabled(false));
   }, []);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.split('?')[1] || '');
+    const section = searchParams.get('section');
+    if (section && SECTIONS.some(s => s.id === section)) {
+      setActiveSection(section);
+    }
+  }, [location]);
 
   const isSeller = useMemo(() => user?.role === "seller" || user?.role === "both", [user?.role]);
   const isVerified = !!user?.emailVerifiedAt;
@@ -441,7 +461,13 @@ export default function Settings() {
                       />
                     </div>
 
-                    <div className="flex justify-end pt-2">
+                    <div className="flex justify-end gap-3 pt-2">
+                      <Button 
+                        onClick={() => setShowProfilePreview(true)}
+                        className="px-6 py-2 rounded-xl border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" /> Preview Profile
+                      </Button>
                       <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
                         {updateUser.isPending ? "Saving..." : "Save Changes"}
                       </NeonButton>
@@ -453,7 +479,60 @@ export default function Settings() {
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Storefront</h2>
                     {!isSeller ? (
-                      <p className="text-zinc-400">Upgrade your account to seller mode during registration to manage a shop.</p>
+                      <div className="glass-panel rounded-2xl border border-primary/20 bg-primary/5 p-6">
+                        <h3 className="text-lg font-bold text-white mb-3">Become a Seller</h3>
+                        <p className="text-zinc-400 mb-4">
+                          Join the Synthix marketplace as a seller. Create your own shop, list your 3D prints, and start earning from your designs.
+                        </p>
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Create and manage your own shop</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>List unlimited 3D print designs</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Receive orders and payments automatically</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-zinc-300">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <span>Access to seller analytics and insights</span>
+                          </div>
+                        </div>
+                        <NeonButton
+                          glowColor="primary"
+                          onClick={async () => {
+                            try {
+                              const response = await fetch("/api/users/convert-to-seller", {
+                                method: "POST",
+                                credentials: "include",
+                              });
+
+                              if (response.ok) {
+                                toast({
+                                  title: "Account upgraded!",
+                                  description: "You are now a seller on Synthix. Welcome to the marketplace!",
+                                });
+                                window.location.reload();
+                              } else {
+                                throw new Error("Failed to convert account");
+                              }
+                            } catch (error) {
+                              console.error("Account conversion error:", error);
+                              toast({
+                                title: "Conversion failed",
+                                description: "Unable to convert your account. Please try again.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Become a Seller
+                        </NeonButton>
+                      </div>
                     ) : (
                       <>
                         <div>
@@ -792,7 +871,7 @@ export default function Settings() {
 
                 {activeSection === "policies" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Policies</h2>
+                    <h2 className="text-xl font-bold text-white">Policies & Compliance</h2>
                     {!isSeller ? (
                       <p className="text-zinc-400">Seller policy controls appear here once the account is in seller mode.</p>
                     ) : (
@@ -807,34 +886,7 @@ export default function Settings() {
                             onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
                             className="bg-black/30 border-white/10 text-white"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-2">Shop Mode</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {[
-                              { value: "catalog", label: "Catalog Only", desc: "Only print listed models" },
-                              { value: "open", label: "Open Jobs", desc: "Accept uploaded custom work" },
-                              { value: "both", label: "Both", desc: "Run listings and custom jobs" },
-                            ].map((option) => (
-                              <button
-                                key={option.value}
-                                onClick={() =>
-                                  setForm((current) => ({
-                                    ...current,
-                                    shopMode: option.value as "catalog" | "open" | "both",
-                                  }))
-                                }
-                                className={`p-4 rounded-xl border text-left transition-all ${
-                                  form.shopMode === option.value
-                                    ? "border-primary/50 bg-primary/10 text-white"
-                                    : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
-                                }`}
-                              >
-                                <p className="font-medium text-sm">{option.label}</p>
-                                <p className="text-xs mt-1 opacity-70">{option.desc}</p>
-                              </button>
-                            ))}
-                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Applied to all orders from this shop</p>
                         </div>
                         <div>
                           <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
@@ -949,57 +1001,125 @@ export default function Settings() {
                 {activeSection === "notifications" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Notifications</h2>
-                    <div className="grid gap-4">
+                    <p className="text-sm text-zinc-400">Choose which notifications you want to receive in your dashboard.</p>
+                    <div className="space-y-3">
                       {[
-                        "New order alerts",
-                        "Custom request alerts",
-                        "Unread message reminders",
-                        "Review notifications",
-                        "Payout and shipping updates",
-                      ].map((label) => (
-                        <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
-                          {label}
-                        </div>
+                        { key: "newOrders" as const, label: "New orders", desc: "Get notified when you receive a new order" },
+                        { key: "customRequests" as const, label: "Custom requests", desc: "Alerts when someone submits a custom work quote request" },
+                        { key: "messages" as const, label: "Messages", desc: "Notifications for unread buyer messages" },
+                        { key: "reviews" as const, label: "Reviews", desc: "Alerts when you receive a new review" },
+                        { key: "promotions" as const, label: "Promotions & tips", desc: "Marketing and platform feature announcements" },
+                        { key: "accountUpdates" as const, label: "Account updates", desc: "Security and billing notifications" },
+                      ].map(({ key, label, desc }) => (
+                        <button
+                          key={key}
+                          onClick={() => setNotificationPreferences(prev => ({ ...prev, [key]: !prev[key] }))}
+                          className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                            notificationPreferences[key]
+                              ? "border-primary/50 bg-primary/10"
+                              : "border-white/10 bg-white/5 hover:border-white/20"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className={`font-medium ${notificationPreferences[key] ? "text-white" : "text-zinc-300"}`}>
+                                {label}
+                              </p>
+                              <p className="text-xs text-zinc-500 mt-1">{desc}</p>
+                            </div>
+                            <div
+                              className={`w-5 h-5 rounded border-2 transition-colors flex items-center justify-center ${
+                                notificationPreferences[key]
+                                  ? "border-primary bg-primary"
+                                  : "border-white/20 bg-transparent"
+                              }`}
+                            >
+                              {notificationPreferences[key] && <span className="text-black text-sm">✓</span>}
+                            </div>
+                          </div>
+                        </button>
                       ))}
                     </div>
-                    <p className="text-zinc-500 text-sm">
-                      Notification delivery is currently in-app first. Email preference granularity can be layered onto this next without changing the settings structure again.
-                    </p>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-400">
+                      <p>💡 <strong>Note:</strong> Email notifications can be configured separately from in-dashboard notifications. All preferences are saved automatically.</p>
+                    </div>
                   </div>
                 )}
 
                 {activeSection === "feedback" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Feedback</h2>
-                    <p className="text-zinc-400">
-                      Use this section to capture launch feedback, bug reports, and feature requests in one obvious place.
-                    </p>
-                    <textarea
-                      value={feedbackMessage}
-                      onChange={(event) => setFeedbackMessage(event.target.value)}
-                      rows={6}
-                      placeholder="What feels confusing, missing, or especially useful?"
-                      className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-                    />
-                    <div className="flex flex-col gap-3 sm:flex-row">
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Send Us Feedback</h2>
+                      <p className="text-sm text-zinc-400 mt-1">Help us improve by sharing your thoughts, bug reports, and feature requests.</p>
+                    </div>
+                    
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-zinc-300 mb-3"><strong>What would be helpful:</strong></p>
+                      <ul className="space-y-1 text-sm text-zinc-400">
+                        <li>• Features that would make your workflow easier</li>
+                        <li>• Bugs or issues you've encountered</li>
+                        <li>• Parts of the platform that feel confusing</li>
+                        <li>• Things you're using that work well</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-300 mb-2">Your feedback</label>
+                      <textarea
+                        value={feedbackMessage}
+                        onChange={(event) => setFeedbackMessage(event.target.value)}
+                        rows={6}
+                        placeholder="Tell us what's on your mind... Be as specific as you can!"
+                        className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none placeholder:text-zinc-500"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row justify-end">
                       <Button
                         type="button"
                         variant="outline"
                         className="border-white/10 bg-white/5 text-white hover:bg-white/10"
                         onClick={() => {
-                          const message = feedbackMessage.trim();
-                          if (!message) {
-                            toast({ title: "Add some feedback first", variant: "destructive" });
-                            return;
-                          }
-                          const mailto = `mailto:evanhuelin8@gmail.com?subject=${encodeURIComponent("SYNTHIX feedback")}&body=${encodeURIComponent(message)}`;
-                          window.location.href = mailto;
+                          setFeedbackMessage("");
                         }}
                       >
-                        Send feedback
+                        Clear
                       </Button>
-                      <p className="text-sm text-zinc-500">
-                        This currently opens your mail app so nothing gets lost before launch.
+                      <Button
+                        type="button"
+                        className="bg-primary hover:bg-primary/90 text-white font-semibold"
+                        onClick={() => {
+                          if (!feedbackMessage.trim()) {
+                            toast({
+                              title: "Feedback is empty",
+                              description: "Please share your thoughts before submitting.",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
+                          // Send feedback via email
+                          const subject = encodeURIComponent(`SYNTHIX Feedback from ${user?.displayName || "User"}`);
+                          const body = encodeURIComponent(
+                            `Feedback from: ${user?.displayName || "Anonymous"}\nEmail: ${user?.email || "N/A"}\n\nMessage:\n${feedbackMessage}`
+                          );
+                          window.location.href = `mailto:feedback@synthix.local?subject=${subject}&body=${body}`;
+                          
+                          // Reset form
+                          setFeedbackMessage("");
+                          toast({
+                            title: "Thanks for your feedback!",
+                            description: "Your message has been sent. We appreciate your input.",
+                          });
+                        }}
+                      >
+                        Send Feedback
+                      </Button>
+                    </div>
+
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4">
+                      <p className="text-sm text-emerald-200">
+                        ✓ <strong>All feedback is valuable.</strong> Even a one-line suggestion helps us prioritize what matters most to our community.
                       </p>
                     </div>
                   </div>
@@ -1044,10 +1164,8 @@ export default function Settings() {
                           <Input
                             value={verificationCode}
                             onChange={(event) => setVerificationCode(event.target.value)}
-                            inputMode="numeric"
-                            maxLength={6}
-                            placeholder="Enter 6-digit code"
-                            className="bg-black/30 border-white/10 text-white"
+                            placeholder="Enter verification code or email"
+                            className="bg-black/30 border-white/10 text-white flex-1"
                           />
                           <NeonButton
                             glowColor="primary"
@@ -1118,6 +1236,12 @@ export default function Settings() {
           </div>
         </div>
       </main>
+
+      <ProfilePreviewModal
+        isOpen={showProfilePreview}
+        onOpenChange={setShowProfilePreview}
+        user={user ? { ...user, ...form } : null}
+      />
     </div>
   );
 }

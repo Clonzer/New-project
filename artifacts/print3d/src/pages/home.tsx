@@ -19,26 +19,26 @@ import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
 
-type HeroSlide =
-  {
-    kind: "listing" | "seller";
-    id: string;
-    href: string;
-    eyebrow: string;
-    title: string;
-    description: string;
-    imageUrl: string | null;
-    badge: string;
-    metaA: string;
-    metaB: string;
-    cta: string;
-    storeName: string;
-    storeHref: string;
-    storeImageUrl: string | null;
-    storeSummary: string;
-    storeMeta: string;
-  };
+type HeroSlide = {
+  kind: "listing" | "seller";
+  id: string;
+  href: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  badge: string;
+  metaA: string;
+  metaB: string;
+  cta: string;
+  storeName: string;
+  storeHref: string;
+  storeImageUrl: string | null;
+  storeSummary: string;
+  storeMeta: string;
+};
 
 function formatCount(value: number | undefined) {
   return new Intl.NumberFormat("en-GB").format(value ?? 0);
@@ -151,6 +151,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
       <Navbar />
+      <OnboardingTutorial />
 
       <main className="flex-grow">
         <section className="relative pt-4 pb-16 md:pt-6 md:pb-24 overflow-hidden">
@@ -168,6 +169,7 @@ export default function Home() {
               >
                 Daily featured marketplace mix
               </motion.div>
+
               {loadingSellers || loadingListings ? (
                 <Skeleton className="mb-6 h-[30rem] rounded-[2rem] bg-white/10" />
               ) : slides.length ? (

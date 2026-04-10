@@ -11,6 +11,10 @@ import paymentsRouter from "./payments";
 import messagesRouter from "./messages";
 import adminRouter from "./admin";
 import supportRouter from "./support";
+import contestsRouter from "./contests";
+import equipmentRouter from "./equipment";
+import filesRouter from "./files";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -22,9 +26,13 @@ router.use(listingsRouter);
 router.use(ordersRouter);
 router.use(paymentsRouter);
 router.use(messagesRouter);
+router.use(notificationsRouter);
 router.use(supportRouter);
 router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);
+router.use("/contests", contestsRouter);
+router.use("/equipment", equipmentRouter);
+router.use("/files", filesRouter);
 
 export default router;
