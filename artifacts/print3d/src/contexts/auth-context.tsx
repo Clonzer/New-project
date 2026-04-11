@@ -7,8 +7,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { setStoredAccessToken, type User } from "@workspace/api-client-react";
+import type { User } from "@/lib/auth-api";
 import { authLogin, authLogout, authMe } from "@/lib/auth-api";
+import { supabase } from "@/lib/supabase";
+
+// Simple token storage
+const setStoredAccessToken = (token: string | null) => {
+  if (token) {
+    localStorage.setItem('auth_token', token);
+  } else {
+    localStorage.removeItem('auth_token');
+  }
+};
 
 export type AuthContextValue = {
   user: User | null;
@@ -36,36 +46,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Load user from localStorage on mount
-    const storedUser = localStorage.getItem('auth_user');
-    if (storedUser) {
+    // Initialize Supabase session
+    const initAuth = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setStoredAccessToken(session.access_token);
+          try {
+            const { user } = await authMe();
+            setUser(user);
+          } catch {
+            setUser(null);
+          }
+        }
       } catch {
-        localStorage.removeItem('auth_user');
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
 
-    // Also try to fetch from API
-    let cancelled = false;
-    (async () => {
-      try {
-        const { user: u } = await authMe();
-        if (!cancelled && u) {
-          setUser(u);
-          localStorage.setItem('auth_user', JSON.stringify(u));
-        }
-      } catch {
-        if (!cancelled) {
+    initAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session) {
+        setStoredAccessToken(session.access_token);
+        try {
+          const { user } = await authMe();
+          setUser(user);
+        } catch {
           setUser(null);
-          setStoredAccessToken(null);
-          localStorage.removeItem('auth_user');
         }
+      } else {
+        setUser(null);
+        setStoredAccessToken(null);
       }
-    })();
+    });
+
     return () => {
-      cancelled = true;
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -74,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { token, user: u } = await authLogin(identifier, password);
       setStoredAccessToken(token);
       setUser(u);
-      localStorage.setItem('auth_user', JSON.stringify(u));
       return u;
     },
     [],
@@ -86,7 +105,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setStoredAccessToken(null);
       setUser(null);
-      localStorage.removeItem('auth_user');
     }
   }, []);
 

@@ -19,7 +19,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
-      "@workspace/api-client-react": path.resolve(__dirname, "src/lib/workspace-api-mock.ts"),
     },
     dedupe: ["react", "react-dom"],
   },

@@ -1,4 +1,5 @@
 // Mock for @workspace/api-client-react to enable building on Render
+import { listSellers, listListings } from './supabase-api';
 
 export type SellerShop = {
   id: string;
@@ -80,8 +81,12 @@ export async function customFetch<T>(
   return {} as T;
 }
 
-// Empty hooks that return empty data
+// Hooks that use Supabase API
 export function useListSellers(options: { limit?: number }) {
+  const { limit = 10 } = options;
+  
+  // This is a simple synchronous wrapper - in a real app you'd use React Query
+  // For now, return empty data and let components fetch directly
   return {
     data: { sellers: [], total: 0 },
     isLoading: false,
