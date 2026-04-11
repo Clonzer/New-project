@@ -1,4 +1,5 @@
 // Mock for @workspace/api-client-react to enable building on Render
+import { useState, useEffect } from 'react';
 import { listSellers, listListings } from './supabase-api';
 
 export type SellerShop = {
@@ -185,31 +186,63 @@ const mockListings: Listing[] = [
   },
 ];
 
-// Hooks that use mock data (will switch to Supabase when configured)
+// Hooks that use real Supabase data
 export function useListSellers(options: { limit?: number }) {
   const { limit = 10 } = options;
+  const [data, setData] = useState<{ sellers: SellerShop[]; total: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchSellers() {
+      try {
+        setIsLoading(true);
+        const result = await listSellers({ limit });
+        setData(result);
+      } catch (err) {
+        setError(err as Error);
+        // Fallback to mock data on error
+        setData({ 
+          sellers: mockSellers.slice(0, limit), 
+          total: mockSellers.length 
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchSellers();
+  }, [limit]);
   
-  return {
-    data: { 
-      sellers: mockSellers.slice(0, limit), 
-      total: mockSellers.length 
-    },
-    isLoading: false,
-    error: null,
-  };
+  return { data, isLoading, error };
 }
 
 export function useListListings(options: { limit?: number }) {
   const { limit = 10 } = options;
+  const [data, setData] = useState<{ listings: Listing[]; total: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchListings() {
+      try {
+        setIsLoading(true);
+        const result = await listListings({ limit });
+        setData(result);
+      } catch (err) {
+        setError(err as Error);
+        // Fallback to mock data on error
+        setData({ 
+          listings: mockListings.slice(0, limit), 
+          total: mockListings.length 
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchListings();
+  }, [limit]);
   
-  return {
-    data: { 
-      listings: mockListings.slice(0, limit), 
-      total: mockListings.length 
-    },
-    isLoading: false,
-    error: null,
-  };
+  return { data, isLoading, error };
 }
 
 export function useAuth() {
