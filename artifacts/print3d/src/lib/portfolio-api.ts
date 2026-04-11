@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { supabase } from "./supabase";
-=======
-import { customFetch } from "@/lib/workspace-api-mock";
->>>>>>> f23ccc891fc883c7ee5fd37ec108a9b403670264
 
 export type PortfolioItem = {
   id: number;
