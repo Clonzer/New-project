@@ -4,7 +4,7 @@ services:
     name: synthix
     runtime: node
     rootDir: artifacts/print3d
-    buildCommand: npm install && npm run build
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
     publishDir: dist
     envVars:
       - key: NODE_VERSION
