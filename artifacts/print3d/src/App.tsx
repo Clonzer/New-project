@@ -110,12 +110,6 @@ function Router() {
 }
 
 function App() {
-<<<<<<< HEAD
-=======
-  // Auto-sync contest statuses on app mount
-  // useSyncContestsOnMount(); // Temporarily disabled for Render debugging
-
->>>>>>> f23ccc891fc883c7ee5fd37ec108a9b403670264
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
