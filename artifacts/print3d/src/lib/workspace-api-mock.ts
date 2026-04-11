@@ -81,22 +81,132 @@ export async function customFetch<T>(
   return {} as T;
 }
 
-// Hooks that use Supabase API
+// Mock sellers data
+const mockSellers: SellerShop[] = [
+  {
+    id: '1',
+    displayName: 'John Doe',
+    username: 'johndoe',
+    shopName: 'John\'s 3D Prints',
+    avatarUrl: null,
+    bio: 'Professional 3D printing service',
+    location: 'New York, USA',
+    shopMode: 'catalog',
+    printerCount: 5,
+    listingCount: 25,
+    totalPrints: 1500,
+    reviewCount: 45,
+  },
+  {
+    id: '2',
+    displayName: 'Jane Smith',
+    username: 'janesmith',
+    shopName: 'Jane\'s Creations',
+    avatarUrl: null,
+    bio: 'Custom 3D models and prints',
+    location: 'London, UK',
+    shopMode: 'custom',
+    printerCount: 3,
+    listingCount: 15,
+    totalPrints: 800,
+    reviewCount: 32,
+  },
+  {
+    id: '3',
+    displayName: 'Bob Wilson',
+    username: 'bobwilson',
+    shopName: 'Bob\'s Workshop',
+    avatarUrl: null,
+    bio: 'Industrial 3D printing',
+    location: 'Berlin, Germany',
+    shopMode: 'both',
+    printerCount: 8,
+    listingCount: 40,
+    totalPrints: 2500,
+    reviewCount: 78,
+  },
+];
+
+// Mock listings data
+const mockListings: Listing[] = [
+  {
+    id: 1,
+    title: 'Custom Phone Case',
+    description: 'Personalized phone case with your design',
+    imageUrl: null,
+    basePrice: 25,
+    shippingCost: 5,
+    material: 'PLA',
+    estimatedDaysMin: 2,
+    estimatedDaysMax: 5,
+    category: 'accessories',
+    tags: ['phone', 'case', 'custom'],
+    sellerId: '1',
+    sellerName: 'John\'s 3D Prints',
+    orderCount: 45,
+    stockQuantity: 100,
+    trackStock: true,
+  },
+  {
+    id: 2,
+    title: 'Miniature Figure',
+    description: 'Detailed miniature for tabletop gaming',
+    imageUrl: null,
+    basePrice: 15,
+    shippingCost: 3,
+    material: 'Resin',
+    estimatedDaysMin: 3,
+    estimatedDaysMax: 7,
+    category: 'figures',
+    tags: ['miniature', 'gaming', 'resin'],
+    sellerId: '2',
+    sellerName: 'Jane\'s Creations',
+    orderCount: 32,
+    stockQuantity: 50,
+    trackStock: true,
+  },
+  {
+    id: 3,
+    title: 'Mechanical Part',
+    description: 'Custom mechanical component for your project',
+    imageUrl: null,
+    basePrice: 50,
+    shippingCost: 10,
+    material: 'ABS',
+    estimatedDaysMin: 5,
+    estimatedDaysMax: 10,
+    category: 'parts',
+    tags: ['mechanical', 'industrial', 'custom'],
+    sellerId: '3',
+    sellerName: 'Bob\'s Workshop',
+    orderCount: 78,
+    stockQuantity: 25,
+    trackStock: true,
+  },
+];
+
+// Hooks that use mock data (will switch to Supabase when configured)
 export function useListSellers(options: { limit?: number }) {
   const { limit = 10 } = options;
   
-  // This is a simple synchronous wrapper - in a real app you'd use React Query
-  // For now, return empty data and let components fetch directly
   return {
-    data: { sellers: [], total: 0 },
+    data: { 
+      sellers: mockSellers.slice(0, limit), 
+      total: mockSellers.length 
+    },
     isLoading: false,
     error: null,
   };
 }
 
 export function useListListings(options: { limit?: number }) {
+  const { limit = 10 } = options;
+  
   return {
-    data: { listings: [], total: 0 },
+    data: { 
+      listings: mockListings.slice(0, limit), 
+      total: mockListings.length 
+    },
     isLoading: false,
     error: null,
   };
