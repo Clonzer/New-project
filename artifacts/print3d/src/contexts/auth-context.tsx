@@ -59,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
           }
         }
-      } catch {
+      } catch (error) {
+        console.warn('Auth initialization failed:', error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -69,24 +70,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        setStoredAccessToken(session.access_token);
-        try {
-          const { user } = await authMe();
-          setUser(user);
-        } catch {
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session) {
+          setStoredAccessToken(session.access_token);
+          try {
+            const { user } = await authMe();
+            setUser(user);
+          } catch {
+            setUser(null);
+          }
+        } else {
           setUser(null);
+          setStoredAccessToken(null);
         }
-      } else {
-        setUser(null);
-        setStoredAccessToken(null);
-      }
-    });
+      });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+      return () => {
+        subscription.unsubscribe();
+      };
+    } catch (error) {
+      console.warn('Auth state change listener failed:', error);
+      setIsLoading(false);
+    }
   }, []);
 
   const login = useCallback(
