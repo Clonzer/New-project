@@ -5,7 +5,7 @@ services:
     runtime: node
     rootDir: artifacts/print3d
     buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
-    publishDir: dist
+    publishDir: artifacts/print3d/dist
     envVars:
       - key: NODE_VERSION
         value: "20"
