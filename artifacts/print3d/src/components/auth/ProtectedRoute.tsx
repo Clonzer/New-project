@@ -1,9 +1,8 @@
 import { useEffect, type ReactNode } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import type { CreateUserRequestRole } from "@/lib/workspace-api-mock";
+import { useAuth } from "@/contexts/supabase-auth-context";
 
-type Role = CreateUserRequestRole;
+type Role = 'buyer' | 'seller' | 'both' | 'admin';
 
 export function ProtectedRoute({
   children,

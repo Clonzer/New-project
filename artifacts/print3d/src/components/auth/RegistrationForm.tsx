@@ -15,8 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createUser, type User, type CreateUserRequestRole } from "@/lib/workspace-api-mock";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/supabase-auth-context";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@/lib/supabase";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
@@ -70,14 +71,14 @@ export function RegistrationForm({
   defaultRole = "buyer",
 }: {
   onRegistered: (user: User) => void | Promise<void>;
-  defaultRole?: CreateUserRequestRole;
+  defaultRole?: "buyer" | "seller" | "both";
 }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const { login } = useAuth();
+  const { login, register: supabaseRegister } = useAuth();
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),
@@ -109,29 +110,57 @@ export function RegistrationForm({
     try {
       const isSellerish = data.role === "seller" || data.role === "both";
       const emailNorm = data.email.trim().toLowerCase();
-      const payload = {
-        username: data.username.trim(),
-        displayName: data.displayName.trim(),
-        email: emailNorm,
-        password: data.password,
-        role: data.role,
-        location: data.location?.trim() || null,
-        shopName: isSellerish ? "" : null,
-        shopMode: isSellerish ? ("both" as const) : null,
-      };
-      await createUser(payload);
-      let sessionUser: User;
-      try {
-        sessionUser = await login(emailNorm, data.password);
-      } catch {
+      
+      // Register with Supabase Auth
+      const { error: signUpError } = await supabaseRegister(
+        emailNorm,
+        data.password,
+        {
+          username: data.username.trim(),
+          display_name: data.displayName.trim(),
+          role: data.role,
+          location: data.location?.trim() || null,
+          shop_name: isSellerish ? "" : null,
+          shop_mode: isSellerish ? "both" : null,
+        }
+      );
+      
+      if (signUpError) {
+        throw signUpError;
+      }
+      
+      // Auto login after registration
+      const { error: loginError } = await login(emailNorm, data.password);
+      
+      if (loginError) {
         setError(
           "Account was created, but automatic sign-in failed. Please sign in with your email and password.",
         );
         return;
       }
+      
+      // Get the user from the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setError("Could not retrieve user session.");
+        return;
+      }
+      
+      // Build user object
+      const user: User = {
+        id: session.user.id,
+        email: session.user.email || emailNorm,
+        role: data.role,
+        username: data.username.trim(),
+        displayName: data.displayName.trim(),
+        location: data.location?.trim() || null,
+        isVerified: false,
+        stripeConnectEnabled: false,
+      };
+      
       setSuccess("Account created. You're signed in.");
-      await onRegistered(sessionUser);
-    } catch (e) {
+      await onRegistered(user);
+    } catch (e: any) {
       setError(getApiErrorMessage(e));
     } finally {
       setSubmitting(false);

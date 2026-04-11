@@ -8,7 +8,8 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
-import { useCreatePrinter, useUpdateUser, type User } from "@/lib/workspace-api-mock";
+import { useAuth } from "@/contexts/supabase-auth-context";
+import type { User } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,8 +26,9 @@ import {
   type EquipmentCategoryId,
   type CatalogEquipmentItem,
 } from "@/lib/equipment-catalog";
-import { RegistrationForm } from "@/components/auth/RegistrationForm";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { useCreatePrinter, useUpdateUser } from "@/lib/workspace-stub";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
 
 function RegCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";

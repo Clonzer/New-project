@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useUpdateUser } from "@/lib/workspace-api-mock";
+import { useUpdateUser } from "@/lib/workspace-stub";
 import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";
@@ -481,7 +481,7 @@ export default function Settings() {
                     <h2 className="text-xl font-bold text-white">Storefront</h2>
                     {!isSeller ? (
                       <div className="glass-panel rounded-2xl border border-primary/20 bg-primary/5 p-6">
-                        <h3 className="text-lg font-bold text-white mb-3">Become a Seller</h3>
+                        <h3 className="text-lg font-bold text-white mb-3">Join Now</h3>
                         <p className="text-zinc-400 mb-4">
                           Join the Synthix marketplace as a seller. Create your own shop, list your 3D prints, and start earning from your designs.
                         </p>
@@ -531,7 +531,7 @@ export default function Settings() {
                             }
                           }}
                         >
-                          Become a Seller
+                          Join Now
                         </NeonButton>
                       </div>
                     ) : (
