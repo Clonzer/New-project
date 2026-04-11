@@ -1,78 +1,108 @@
-import { customFetch, type User } from "@workspace/api-client-react";
+import { supabase } from './supabase';
+
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+};
 
 export async function authLogin(identifier: string, password: string) {
-  return customFetch<{ token: string; user: User }>("/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ identifier, password }),
-    skipAuth: true,
-    credentials: "include",
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: identifier,
+    password,
   });
+
+  if (error) throw error;
+
+  // Get user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
+    .single();
+
+  return {
+    token: data.session.access_token,
+    user: {
+      id: data.user.id,
+      username: profile?.username || data.user.email?.split('@')[0],
+      email: data.user.email || '',
+      role: profile?.role || 'user',
+    },
+  };
 }
 
 export async function authLogout() {
-  return customFetch<{ ok: boolean }>("/api/auth/logout", {
-    method: "POST",
-    skipAuth: true,
-    credentials: "include",
-  });
+  await supabase.auth.signOut();
+  return { ok: true };
 }
 
 export async function authMe() {
-  return customFetch<{ user: User }>("/api/auth/me", {
-    credentials: "include",
-  });
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  return {
+    user: {
+      id: user.id,
+      username: profile?.username || user.email?.split('@')[0],
+      email: user.email || '',
+      role: profile?.role || 'user',
+    },
+  };
 }
 
 export async function authChangePassword(currentPassword: string, newPassword: string) {
-  return customFetch<{ ok: boolean }>("/api/auth/password", {
-    method: "POST",
-    body: JSON.stringify({ currentPassword, newPassword }),
-    credentials: "include",
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
   });
+  if (error) throw error;
+  return { ok: true };
 }
 
 export async function authRequestPasswordReset(email: string) {
-  return customFetch<{ ok: boolean }>("/api/auth/password/request-reset", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-    skipAuth: true,
-    credentials: "include",
-  });
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) throw error;
+  return { ok: true };
 }
 
 export async function authResetPassword(email: string, code: string, newPassword: string) {
-  return customFetch<{ ok: boolean }>("/api/auth/password/reset", {
-    method: "POST",
-    body: JSON.stringify({ email, code, newPassword }),
-    skipAuth: true,
-    credentials: "include",
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
   });
+  if (error) throw error;
+  return { ok: true };
 }
 
 export async function authRequestEmailVerification() {
-  return customFetch<{ ok: boolean; alreadyVerified?: boolean; email?: string; expiresAt?: string }>(
-    "/api/auth/verify-email/request",
-    {
-      method: "POST",
-      body: JSON.stringify({}),
-      credentials: "include",
-    },
-  );
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+  });
+  if (error) throw error;
+  return { ok: true };
 }
 
 export async function authConfirmEmailVerification(code: string) {
-  return customFetch<{ ok: boolean; user: User }>("/api/auth/verify-email/confirm", {
-    method: "POST",
-    body: JSON.stringify({ code }),
-    credentials: "include",
+  const { error } = await supabase.auth.verifyOtp({
+    token: code,
+    type: 'signup',
   });
+  if (error) throw error;
+  return { ok: true };
 }
 
 export async function authGoogle(credential: string, role: "buyer" | "seller" | "both", location?: string) {
-  return customFetch<{ token: string; user: User }>("/api/auth/google", {
-    method: "POST",
-    body: JSON.stringify({ credential, role, location }),
-    skipAuth: true,
-    credentials: "include",
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: credential,
   });
+  if (error) throw error;
+  return { token: data.session?.access_token, user: data.user };
 }

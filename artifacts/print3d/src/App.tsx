@@ -44,67 +44,35 @@ const queryClient = new QueryClient({
 });
 
 function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute roles={[]} children={<Dashboard />} />;
 }
 
 function CartPage() {
-  return (
-    <ProtectedRoute>
-      <Cart />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Cart />} />;
 }
 
 function OrderFlowPage() {
-  return (
-    <ProtectedRoute>
-      <OrderFlow />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<OrderFlow />} />;
 }
 
 function SettingsPage() {
-  return (
-    <ProtectedRoute>
-      <Settings />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Settings />} />;
 }
 
 function MessagesPage() {
-  return (
-    <ProtectedRoute>
-      <Messages />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<Messages />} />;
 }
 
 function CreateListingPage() {
-  return (
-    <ProtectedRoute>
-      <CreateListing />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<CreateListing />} />;
 }
 
 function EditListingPage() {
-  return (
-    <ProtectedRoute>
-      <EditListing />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<EditListing />} />;
 }
 
 function VendorDashboardPage() {
-  return (
-    <ProtectedRoute>
-      <VendorDashboard />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute children={<VendorDashboard />} />;
 }
 
 function Router() {
@@ -142,6 +110,12 @@ function Router() {
 }
 
 function App() {
+<<<<<<< HEAD
+=======
+  // Auto-sync contest statuses on app mount
+  // useSyncContestsOnMount(); // Temporarily disabled for Render debugging
+
+>>>>>>> f23ccc891fc883c7ee5fd37ec108a9b403670264
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

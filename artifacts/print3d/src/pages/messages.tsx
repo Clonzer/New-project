@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import { useListUsers } from "@workspace/api-client-react";
+import { useListUsers } from "@/lib/workspace-api-mock";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus, Search, Send } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";

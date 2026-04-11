@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Star, TrendingUp, Zap, Crown, ExternalLink, Check, Loader2 } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
-import { customFetch } from "@workspace/api-client-react";
+import { customFetch } from "@/lib/workspace-api-mock";
 
 interface SponsoredShop {
   id: string;

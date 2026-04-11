@@ -1,6 +1,11 @@
 import { useEffect, type ReactNode } from "react";
 import { useLocation } from "wouter";
+<<<<<<< HEAD
 import { useAuth } from "@/contexts/supabase-auth-context";
+=======
+import { useAuth } from "@/hooks/use-auth";
+import type { CreateUserRequestRole } from "@/lib/workspace-api-mock";
+>>>>>>> f23ccc891fc883c7ee5fd37ec108a9b403670264
 
 type Role = 'buyer' | 'seller' | 'both' | 'admin';
 

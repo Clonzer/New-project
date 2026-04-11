@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SellerShop } from "@workspace/api-client-react";
+import { SellerShop } from "@/lib/workspace-api-mock";
 import { Link } from "wouter";
 import { Star, MapPin, Printer, Package, GitCompareArrows } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

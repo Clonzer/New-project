@@ -25,7 +25,7 @@ import {
   Info,
   Save
 } from "lucide-react";
-import { useGetListing, useUpdateListing } from "@workspace/api-client-react";
+import { useGetListing, useUpdateListing } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 
 const PRODUCT_TYPES = [

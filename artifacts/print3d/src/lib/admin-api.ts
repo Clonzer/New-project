@@ -1,4 +1,4 @@
-import { customFetch, type User } from "@workspace/api-client-react";
+import { customFetch, type User } from "@/lib/workspace-api-mock";
 
 export type AdminUser = Pick<User, "id" | "username" | "displayName" | "email" | "role" | "joinedAt"> & {
   accountStatus?: string | null;

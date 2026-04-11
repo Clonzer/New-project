@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { useGetUser, useListListings, useListPrinters, useListReviews } from "@workspace/api-client-react";
+import { useGetUser, useListListings, useListPrinters, useListReviews } from "@/lib/workspace-api-mock";
 import {
   Calendar,
   GitCompareArrows,

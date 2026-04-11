@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Star, TrendingUp, Award, Zap, Users, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { customFetch } from "@workspace/api-client-react";
+import { customFetch } from "@/lib/workspace-api-mock";
 
 interface ShopStats {
   totalOrders: number;

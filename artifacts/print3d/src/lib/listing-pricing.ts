@@ -1,4 +1,4 @@
-import type { Listing } from "@workspace/api-client-react";
+import type { Listing } from "@/lib/workspace-api-mock";
 
 export type ListingPriceInsight = {
   label: "Good deal" | "Fair price" | "Premium price";

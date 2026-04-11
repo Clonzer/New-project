@@ -1,4 +1,4 @@
-import { Listing } from "@workspace/api-client-react";
+import { Listing } from "@/lib/workspace-api-mock";
 import { Link } from "wouter";
 import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { setStoredAccessToken } from "@workspace/api-client-react";
+import { setStoredAccessToken } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 import { authGoogle } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";

@@ -1,4 +1,4 @@
-import { ApiError } from "@workspace/api-client-react";
+import { ApiError } from "@/lib/workspace-api-mock";
 
 function stripHtml(text: string): string {
   return text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
