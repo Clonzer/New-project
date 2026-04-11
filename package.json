@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "node -e \"const fs=require('fs'); for (const file of ['package-lock.json','yarn.lock']) { try { fs.rmSync(file, { force: true }); } catch {} } const ua=process.env.npm_config_user_agent || ''; if (!ua.startsWith('pnpm/')) { console.error('Use pnpm instead'); process.exit(1); }\"",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "build:render": "pnpm run typecheck && pnpm run build:frontend && pnpm run build:backend",
+    "build:render": "pnpm run typecheck && pnpm run build:frontend",
     "build:frontend": "pnpm --filter @workspace/print3d build",
     "build:backend": "pnpm --filter @workspace/api-server build",
     "contests:manage": "pnpm --filter @workspace/scripts run contests:manage",
@@ -14,7 +14,7 @@
     "db:migrate": "pnpm --filter @workspace/scripts run migrate",
     "start": "pnpm run start:render",
     "start:backend": "node artifacts/api-server/dist/index.cjs",
-    "start:render": "pnpm run db:migrate && pnpm run start:backend",
+    "start:render": "echo 'Skipping migration - using Supabase'",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
