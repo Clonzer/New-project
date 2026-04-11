@@ -1,4 +1,4 @@
-import { customFetch } from "@workspace/api-client-react";
+import { customFetch } from "@/lib/workspace-api-mock";
 
 export async function ensureSupportThread() {
   return customFetch<{ threadId: number }>("/api/support/message-thread", {

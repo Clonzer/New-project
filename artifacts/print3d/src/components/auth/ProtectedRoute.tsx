@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import type { CreateUserRequestRole } from "@workspace/api-client-react";
+import type { CreateUserRequestRole } from "@/lib/workspace-api-mock";
 
 type Role = CreateUserRequestRole;
 

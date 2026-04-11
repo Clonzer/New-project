@@ -7,7 +7,7 @@ import {
   useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
   useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
   useDeleteListing,
-} from "@workspace/api-client-react";
+} from "@/lib/workspace-api-mock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { customFetch } from "@workspace/api-client-react";
+import { customFetch } from "@/lib/workspace-api-mock";
 import { SponsoredShopsSection } from "./SponsoredShopsSection";
 
 interface SponsoredShop {

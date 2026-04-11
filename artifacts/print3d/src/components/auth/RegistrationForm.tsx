@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createUser, type User, type CreateUserRequestRole } from "@workspace/api-client-react";
+import { createUser, type User, type CreateUserRequestRole } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";

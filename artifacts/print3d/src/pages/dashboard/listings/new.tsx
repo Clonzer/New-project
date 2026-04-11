@@ -32,9 +32,9 @@ import {
   Settings,
   Eye
 } from "lucide-react";
-import { useCreateListing, useCreateQuoteRequest } from "@workspace/api-client-react";
-import { useListEquipment, useListEquipmentGroups } from "@workspace/api-client-react";
-import type { Equipment, EquipmentGroup } from "@workspace/api-client-react";
+import { useCreateListing, useCreateQuoteRequest } from "@/lib/workspace-api-mock";
+import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-api-mock";
+import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 

@@ -8,7 +8,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
-import { useCreatePrinter, useUpdateUser, type User } from "@workspace/api-client-react";
+import { useCreatePrinter, useUpdateUser, type User } from "@/lib/workspace-api-mock";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import {

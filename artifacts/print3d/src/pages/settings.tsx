@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useUpdateUser } from "@workspace/api-client-react";
+import { useUpdateUser } from "@/lib/workspace-api-mock";
 import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";

@@ -24,9 +24,9 @@ import {
   AlertCircle,
   Info
 } from "lucide-react";
-import { useCreateListing } from "@workspace/api-client-react";
-import { useListEquipment, useListEquipmentGroups } from "@workspace/api-client-react";
-import type { Equipment, EquipmentGroup } from "@workspace/api-client-react";
+import { useCreateListing } from "@/lib/workspace-api-mock";
+import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-api-mock";
+import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 
 const PRODUCT_TYPES = [

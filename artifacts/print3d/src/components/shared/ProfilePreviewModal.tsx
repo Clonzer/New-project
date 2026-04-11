@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { User } from "@workspace/api-client-react";
+import { User } from "@/lib/workspace-api-mock";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Star, CheckCircle2, Package, Printer as PrinterIcon } from "lucide-react";
 import { format } from "date-fns";
