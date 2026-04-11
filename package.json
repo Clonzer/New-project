@@ -14,7 +14,7 @@
     "db:migrate": "pnpm --filter @workspace/scripts run migrate",
     "start": "pnpm run start:render",
     "start:backend": "node artifacts/api-server/dist/index.cjs",
-    "start:render": "echo 'Skipping migration - using Supabase'",
+    "start:render": "pnpm --filter @workspace/print3d serve",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
