@@ -4,8 +4,8 @@ services:
     name: synthix
     runtime: node
     rootDir: artifacts/print3d
-    preBuildCommand: rm -f pnpm-lock.yaml && rm -rf node_modules
-    buildCommand: pnpm install && pnpm run build
+    preBuildCommand: rm -f pnpm-lock.yaml
+    buildCommand: npm install && npm run build
     publishDir: dist
     envVars:
       - key: NODE_VERSION
