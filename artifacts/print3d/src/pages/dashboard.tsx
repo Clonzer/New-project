@@ -7,7 +7,7 @@ import {
   useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
   useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
   useDeleteListing,
-} from "@workspace/api-client-react";
+} from "@/lib/workspace-stub";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
@@ -820,7 +820,7 @@ export default function Dashboard() {
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
                 <Link href="/register">
-                  <NeonButton glowColor="accent" className="rounded-full px-5">Become a Seller</NeonButton>
+                  <NeonButton glowColor="accent" className="rounded-full px-5">Join Now</NeonButton>
                 </Link>
               )}
               <Link href="/settings">
