@@ -985,8 +985,7 @@ export function useCreateContestEntry(): MutationReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const { entry } = await import('./contest-api').then(m => m.createContestEntry(vars));
-      return { success: true, data: entry };
+      await import('./contest-api').then(m => m.createContestEntry(vars));
     } catch (e) {
       const err = e as Error;
       setError(err);
@@ -1013,8 +1012,7 @@ export function useVoteForEntry(): MutationReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const { success } = await import('./contest-api').then(m => m.voteForEntry(vars.entryId, vars.userId));
-      return { success };
+      await import('./contest-api').then(m => m.voteForEntry(vars.entryId, vars.userId));
     } catch (e) {
       const err = e as Error;
       setError(err);
@@ -1041,8 +1039,7 @@ export function useCreateContest(): MutationReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const { contest } = await import('./contest-api').then(m => m.createContest(vars));
-      return { success: true, data: contest };
+      await import('./contest-api').then(m => m.createContest(vars));
     } catch (e) {
       const err = e as Error;
       setError(err);
