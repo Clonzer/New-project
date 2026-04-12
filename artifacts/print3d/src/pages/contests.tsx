@@ -27,9 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { listContests, listContestEntries, voteForEntry } from "@/lib/contest-api";
+import { listContests, listContestEntries, voteForEntry, getVotingContests, getEndedContests, getActiveContests } from "@/lib/contest-api";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { useListContests, useListContestEntries, useVoteForEntry } from "@/lib/workspace-stub";
 
 interface Contest {
   id: string;

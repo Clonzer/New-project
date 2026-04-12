@@ -894,3 +894,170 @@ export function getGetMessagesQueryKey() {
 export function getGetNotificationsQueryKey() {
   return ['notifications'];
 }
+
+export function getListContestsQueryKey() {
+  return ['contests'];
+}
+
+export function getGetContestQueryKey(contestId: string) {
+  return ['contests', contestId];
+}
+
+export function getListContestEntriesQueryKey(contestId: string) {
+  return ['contests', contestId, 'entries'];
+}
+
+// Contest hooks
+export function useListContests() {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchContests() {
+      try {
+        setIsLoading(true);
+        const { contests } = await import('./contest-api').then(m => m.listContests());
+        setData(contests);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchContests();
+  }, []);
+
+  return { data, isLoading, error };
+}
+
+export function useGetContest(contestId: string) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchContest() {
+      try {
+        setIsLoading(true);
+        const { contest } = await import('./contest-api').then(m => m.getContest(contestId));
+        setData(contest);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (contestId) fetchContest();
+  }, [contestId]);
+
+  return { data, isLoading, error };
+}
+
+export function useListContestEntries(contestId: string) {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchEntries() {
+      try {
+        setIsLoading(true);
+        const { entries } = await import('./contest-api').then(m => m.listContestEntries(contestId));
+        setData(entries);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (contestId) fetchEntries();
+  }, [contestId]);
+
+  return { data, isLoading, error };
+}
+
+export function useCreateContestEntry(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { entry } = await import('./contest-api').then(m => m.createContestEntry(vars));
+      return { success: true, data: entry };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+
+export function useVoteForEntry(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { success } = await import('./contest-api').then(m => m.voteForEntry(vars.entryId, vars.userId));
+      return { success };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+
+export function useCreateContest(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { contest } = await import('./contest-api').then(m => m.createContest(vars));
+      return { success: true, data: contest };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+

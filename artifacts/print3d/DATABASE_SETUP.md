@@ -217,6 +217,143 @@ CREATE POLICY "Users can delete own portfolio items" ON portfolio FOR DELETE USI
 CREATE POLICY "Public can view portfolio" ON portfolio FOR SELECT USING (true);
 ```
 
+### 9. contests
+Contests for makers to compete and showcase their work.
+
+```sql
+CREATE TABLE contests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT,
+  theme TEXT NOT NULL,
+  category TEXT NOT NULL,
+  prize_pool DECIMAL(10,2) NOT NULL DEFAULT 0,
+  entry_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+  max_entries INTEGER DEFAULT 100,
+  voting_starts_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  voting_ends_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  winner_announced_at TIMESTAMP WITH TIME ZONE,
+  is_active BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE contests ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Public can view contests" ON contests FOR SELECT USING (true);
+CREATE POLICY "Admins can create contests" ON contests FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can update contests" ON contests FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can delete contests" ON contests FOR DELETE USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+```
+
+### 10. contest_entries
+Entries for contests submitted by makers.
+
+```sql
+CREATE TABLE contest_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contest_id UUID NOT NULL REFERENCES contests(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  project_url TEXT,
+  votes_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(contest_id, user_id)
+);
+
+-- Enable RLS
+ALTER TABLE contest_entries ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Public can view contest entries" ON contest_entries FOR SELECT USING (true);
+CREATE POLICY "Users can create own contest entries" ON contest_entries FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own contest entries" ON contest_entries FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own contest entries" ON contest_entries FOR DELETE USING (auth.uid() = user_id);
+```
+
+### 11. contest_votes
+Votes for contest entries.
+
+```sql
+CREATE TABLE contest_votes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contest_entry_id UUID NOT NULL REFERENCES contest_entries(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(contest_entry_id, user_id)
+);
+
+-- Enable RLS
+ALTER TABLE contest_votes ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Users can vote" ON contest_votes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own votes" ON contest_votes FOR DELETE USING (auth.uid() = user_id);
+```
+
+### 12. contest_winners
+Records of contest winners.
+
+```sql
+CREATE TABLE contest_winners (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contest_id UUID NOT NULL REFERENCES contests(id) ON DELETE CASCADE,
+  contest_entry_id UUID NOT NULL REFERENCES contest_entries(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  rank INTEGER NOT NULL,
+  prize_amount DECIMAL(10,2),
+  announced_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(contest_id, contest_entry_id)
+);
+
+-- Enable RLS
+ALTER TABLE contest_winners ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Public can view contest winners" ON contest_winners FOR SELECT USING (true);
+CREATE POLICY "Admins can create contest winners" ON contest_winners FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+```
+
+### SQL Functions for Contest Voting
+
+```sql
+-- Function to increment vote count
+CREATE OR REPLACE FUNCTION increment_votes_count(entry_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE contest_entries
+  SET votes_count = votes_count + 1,
+      updated_at = NOW()
+  WHERE id = entry_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to decrement vote count
+CREATE OR REPLACE FUNCTION decrement_votes_count(entry_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE contest_entries
+  SET votes_count = GREATEST(votes_count - 1, 0),
+      updated_at = NOW()
+  WHERE id = entry_id;
+END;
+$$ LANGUAGE plpgsql;
+```
+
 ## SQL to Add Columns to Existing Tables
 
 Run these ALTER TABLE statements in your Supabase SQL editor to add the required columns:
