@@ -422,17 +422,13 @@ export default function Pricing() {
                   </ul>
 
                   {isEnterprise ? (
-                    <button type="button" onClick={() => setShowEnterpriseForm(true)} className="w-full">
-                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
-                        {plan.cta}
-                      </NeonButton>
-                    </button>
+                    <NeonButton glowColor={plan.glow} onClick={() => setShowEnterpriseForm(true)} className="w-full rounded-2xl py-3 font-semibold">
+                      {plan.cta}
+                    </NeonButton>
                   ) : (
-                    <button type="button" onClick={() => startPlanCheckout(plan.id)} className="w-full">
-                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
-                        {plan.cta}
-                      </NeonButton>
-                    </button>
+                    <NeonButton glowColor={plan.glow} onClick={() => startPlanCheckout(plan.id)} className="w-full rounded-2xl py-3 font-semibold">
+                      {plan.cta}
+                    </NeonButton>
                   )}
                 </motion.div>
               );
@@ -465,11 +461,9 @@ export default function Pricing() {
                     <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Better discovery during campaign windows</li>
                     <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Renewable without losing existing time</li>
                   </ul>
-                  <button type="button" onClick={() => void startProfileSponsorship()} className="mt-6 w-full">
-                    <NeonButton glowColor="primary" className="w-full rounded-2xl py-3">
-                      {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
-                    </NeonButton>
-                  </button>
+                  <NeonButton glowColor="primary" onClick={() => void startProfileSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                    {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
+                  </NeonButton>
                 </div>
 
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
@@ -494,11 +488,9 @@ export default function Pricing() {
                       )}
                     </select>
                   </div>
-                  <button type="button" onClick={() => void startListingSponsorship()} className="mt-6 w-full">
-                    <NeonButton glowColor="accent" className="w-full rounded-2xl py-3">
-                      {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
-                    </NeonButton>
-                  </button>
+                  <NeonButton glowColor="accent" onClick={() => void startListingSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                    {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
+                  </NeonButton>
                 </div>
               </div>
 
@@ -515,18 +507,14 @@ export default function Pricing() {
                 One path stays on-platform in the site messenger. The other sends a proper contact form to your inbox email addresses.
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <button type="button" onClick={() => void openSupportMessenger()}>
-                  <NeonButton glowColor="primary" className="w-full rounded-2xl py-3">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    {isOpeningSupport ? "Opening..." : "Message Synthix"}
-                  </NeonButton>
-                </button>
-                <button type="button" onClick={() => setShowEnterpriseForm(true)}>
-                  <NeonButton glowColor="white" className="w-full rounded-2xl py-3">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Contact form
-                  </NeonButton>
-                </button>
+                <NeonButton glowColor="primary" onClick={() => void openSupportMessenger()} className="w-full rounded-2xl py-3">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  {isOpeningSupport ? "Opening..." : "Message Synthix"}
+                </NeonButton>
+                <NeonButton glowColor="white" onClick={() => setShowEnterpriseForm(true)} className="w-full rounded-2xl py-3">
+                  <Mail className="mr-2 h-4 w-4" />
+                  Contact form
+                </NeonButton>
               </div>
               <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-zinc-200">
                 <p className="font-semibold text-white">Enterprise sellers get:</p>

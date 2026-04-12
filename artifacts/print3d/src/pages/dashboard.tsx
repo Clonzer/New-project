@@ -31,7 +31,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 import { Tutorial } from "@/components/shared/Tutorial";
@@ -57,7 +57,7 @@ const CATEGORIES = ["Mechanical", "Miniatures", "Cosplay", "Functional", "Art", 
 
 // ─── Register equipment dialog (multi-category) ─────────────────────────────
 function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
-  open: boolean; onClose: () => void; userId: number; onSuccess: () => void;
+  open: boolean; onClose: () => void; userId: string; onSuccess: () => void;
 }) {
   const { toast } = useToast();
   const createPrinter = useCreatePrinter();
@@ -120,7 +120,8 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
       toast({ title: "Equipment registered!", description: "Buyers can see this on your shop." });
       handleClose();
       onSuccess();
-    } catch {
+    } catch (error) {
+      console.error('Registration error:', error);
       toast({ title: "Failed to register equipment", variant: "destructive" });
     }
   };
@@ -130,7 +131,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
       <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Add equipment</DialogTitle>
-          <p className="text-zinc-500 text-sm font-normal pt-1">3D printers, shop tools, metal fab, design services — list what you actually run.</p>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">3D printers, shop tools, metal fab, design services — list what you actually run.</DialogDescription>
         </DialogHeader>
 
         <AnimatePresence mode="wait">
@@ -363,6 +364,7 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
       <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Add Catalog Listing</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm">Create a new catalog listing for your shop.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -493,9 +495,9 @@ function EquipmentGroupDialog({
           <DialogTitle className="text-xl font-bold text-white">
             {initialData ? "Edit Equipment Group" : "Create Equipment Group"}
           </DialogTitle>
-          <p className="text-zinc-500 text-sm">
+          <DialogDescription className="text-zinc-500 text-sm">
             {initialData ? "Update the equipment group details." : "Organize your equipment into groups for better product transparency."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -556,12 +558,13 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
   const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
-  const [deletingPrinterId, setDeletingPrinterId] = useState<number | null>(null);
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
   const [showAddPrinter, setShowAddPrinter] = useState(false);
   const [showAddListing, setShowAddListing] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
+  const [editingPrinter, setEditingPrinter] = useState<any>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -637,7 +640,7 @@ export default function Dashboard() {
     }
   };
 
-  const togglePrinter = async (printerId: number, currentActive: boolean) => {
+  const togglePrinter = async (printerId: string, currentActive: boolean) => {
     setTogglingPrinterId(printerId);
     try {
       await updatePrinter.mutateAsync({ printerId, data: { isActive: !currentActive } });
@@ -683,6 +686,15 @@ export default function Dashboard() {
     }
   };
 
+  const handleAssignToGroup = async (printerId: string, groupId: string | null) => {
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { equipmentGroupId: groupId } });
+      refetchPrinters();
+    } catch (error) {
+      toast({ title: "Failed to assign to group", variant: "destructive" });
+    }
+  };
+
   const handleDeleteListing = async (listingId: number) => {
     try {
       await deleteListing.mutateAsync({ listingId });
@@ -697,7 +709,7 @@ export default function Dashboard() {
   const pendingRevenue = mySales?.orders.filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const totalFeesPaid = mySales?.orders.reduce((sum, o) => sum + o.platformFee, 0) ?? 0;
   const averageOrderValue = mySales?.orders.length ? totalRevenue / mySales.orders.length : 0;
-  const activeEquipmentCount = myPrinters?.printers.filter((printer) => printer.isActive).length ?? 0;
+  const activeEquipmentCount = myPrinters?.filter((printer) => printer.is_active).length ?? 0;
   const totalCatalogItems = myListings?.listings.length ?? 0;
 
   if (!user) {
@@ -941,13 +953,15 @@ export default function Dashboard() {
 
             {isSellerUser && (
               <TabsContent value="printers" className="mt-0">
-                <Equipment 
+                <Equipment
                   myEquipmentGroups={myEquipmentGroups}
                   myPrinters={myPrinters}
                   setShowAddEquipmentGroup={setShowAddEquipmentGroup}
                   setEditingEquipmentGroup={setEditingEquipmentGroup}
                   handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
                   setShowAddPrinter={setShowAddPrinter}
+                  setEditingPrinter={setEditingPrinter}
+                  handleAssignToGroup={handleAssignToGroup}
                   togglingPrinterId={togglingPrinterId}
                   togglePrinter={togglePrinter}
                   deletingPrinterId={deletingPrinterId}

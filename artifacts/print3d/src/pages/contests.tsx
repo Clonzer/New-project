@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { customFetch } from "@/lib/workspace-api-mock";
+import { listContests, listContestEntries, voteForEntry } from "@/lib/contest-api";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,14 +83,9 @@ export default function Contests() {
       try {
         setIsLoading(true);
         
-        // Fetch contests
-        const contestsResponse = await customFetch('/api/contests');
-        const contestsData = await contestsResponse.json();
+        // Fetch contests from Supabase
+        const contestsResult = await listContests();
         
-        // Fetch entries
-        const entriesResponse = await customFetch('/api/contest-entries');
-        const entriesData = await entriesResponse.json();
-
         // Transform data or use fallback
         // Generate sales-based contests with random active contest
         const generateSalesContests = (): Contest[] => {
@@ -237,13 +232,27 @@ export default function Contests() {
           return salesContests;
         };
 
-        const transformedContests: Contest[] = contestsData.contests?.length > 0 
-          ? contestsData.contests 
+        const transformedContests: Contest[] = contestsResult.contests?.length > 0
+          ? contestsResult.contests.map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              description: c.description,
+              category: c.category,
+              reward: c.prize,
+              status: c.status,
+              startDate: c.start_date,
+              endDate: c.end_date,
+              maxParticipants: c.max_participants,
+              currentParticipants: c.current_participants,
+              prizePool: parseInt(c.prize?.replace(/[^0-9]/g, '')) || 0,
+              judgingCriteria: c.rules || [],
+              requirements: c.rules || [],
+              badgeAwarded: c.badge_awarded
+            }))
           : generateSalesContests();
 
-        const transformedEntries: ContestEntry[] = entriesData.entries?.length > 0
-          ? entriesData.entries
-          : [
+        // Use mock entries for now
+        const transformedEntries: ContestEntry[] = [
               {
                 id: "1",
                 contestId: "1",
@@ -335,22 +344,16 @@ export default function Contests() {
     }
 
     try {
-      const response = await customFetch(`/api/contest-entries/${entryId}/vote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
+      await voteForEntry(entryId);
+      setEntries(prev => prev.map(entry =>
+        entry.id === entryId
+          ? { ...entry, votes: entry.votes + 1 }
+          : entry
+      ));
+      toast({
+        title: "Vote Recorded",
+        description: "Your vote has been successfully recorded."
       });
-
-      if (response.ok) {
-        setEntries(prev => prev.map(entry => 
-          entry.id === entryId 
-            ? { ...entry, votes: entry.votes + 1 }
-            : entry
-        ));
-        toast({
-          title: "Vote Recorded",
-          description: "Your vote has been successfully recorded."
-        });
-      }
     } catch (error) {
       toast({
         title: "Vote Failed",

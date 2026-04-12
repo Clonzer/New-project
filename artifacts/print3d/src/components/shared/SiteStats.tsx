@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 export function SiteStats() {
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -24,7 +25,8 @@ export function SiteStats() {
         });
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setError(err as Error);
         // Fallback to mock data if Supabase fails
         setStats({
           totalMakers: 1250,
@@ -68,9 +70,9 @@ export function SiteStats() {
   if (error) {
     return (
       <div className="w-full max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-        <Card className="bg-slate-50 rounded-2xl shadow-lg border border-slate-200 p-6">
+        <Card className="bg-zinc-900 rounded-2xl shadow-lg border border-zinc-800 p-6">
           <CardContent className="p-0">
-            <div className="text-center text-slate-500 text-sm">
+            <div className="text-center text-zinc-400 text-sm">
               Stats temporarily unavailable
             </div>
           </CardContent>
@@ -81,7 +83,7 @@ export function SiteStats() {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-      <Card className="bg-slate-50 rounded-2xl shadow-lg border border-slate-200 p-6 md:p-8 hover:shadow-xl transition-shadow duration-300">
+      <Card className="bg-zinc-900 rounded-2xl shadow-lg border border-zinc-800 p-6 md:p-8 hover:shadow-xl transition-shadow duration-300">
         <CardContent className="p-0">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {statsData.map((stat, index) => (
@@ -93,24 +95,24 @@ export function SiteStats() {
                   <Skeleton className="h-8 w-20 mx-auto mb-2" />
                 ) : (
                   <div className={`text-2xl md:text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-1`}>
-                    {stat.value || "-"}
+                    {stat.value || "0"}
                   </div>
                 )}
-                <p className="text-slate-600 text-sm font-medium">{stat.label}</p>
+                <p className="text-zinc-400 text-sm font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
           
           {!isLoading && stats && (
-            <div className="mt-6 pt-6 border-t border-slate-200">
-              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-sm text-slate-600">
+            <div className="mt-6 pt-6 border-t border-zinc-700">
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-sm text-zinc-400">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  <span>{stats.totalOrders?.toLocaleString() || "-"} orders completed</span>
+                  <span>{stats.totalOrders?.toLocaleString() || "0"} orders completed</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-blue-500" />
-                  <span>{stats.supportResponseTime || "-"} avg. response</span>
+                  <span>{stats.supportResponseTime || "0"} avg. response</span>
                 </div>
               </div>
             </div>

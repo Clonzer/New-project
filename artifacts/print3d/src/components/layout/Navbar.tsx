@@ -72,9 +72,9 @@ export function Navbar() {
   const isSeller = user?.role === "seller" || user?.role === "both";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 glass-panel">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
+      <div className="container mx-auto px-2 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-12">
           <Link href="/" className="flex items-center gap-2 group">
             <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent group-hover:drop-shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300">
               SYNTHIX
@@ -84,7 +84,7 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-8">
             {[
               { path: "/explore", label: "Explore Shops" },
               { path: "/listings", label: "Model Catalog" },

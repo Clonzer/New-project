@@ -154,41 +154,19 @@ export function useLocalePreferences() {
       });
     }
 
+    // Live FX rate fetch disabled due to CORS limitations
+    // Using static fallback rates instead
     if (currencyCode === "USD" || typeof window === "undefined") {
       setFxState({ rate: 1, updatedAt: new Date().toISOString(), source: "live" });
       return;
     }
 
-    const controller = new AbortController();
-    const endpoint = `https://api.frankfurter.app/v1/latest?base=USD&symbols=${currencyCode}`;
-
-    void fetch(endpoint, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Could not fetch live FX rate.");
-        const payload = (await response.json()) as { date?: string; rates?: Record<string, number> };
-        const rate = payload.rates?.[currencyCode];
-        if (!rate) throw new Error("Missing FX rate.");
-        const nextState: FxState = {
-          rate,
-          updatedAt: payload.date || new Date().toISOString(),
-          source: "live",
-        };
-        persistFx(currencyCode, nextState);
-        setFxState(nextState);
-      })
-      .catch(() => {
-        setFxState((current) =>
-          current.rate
-            ? current
-            : {
-                rate: USD_EXCHANGE_RATES[currencyCode] ?? 1,
-                updatedAt: FALLBACK_UPDATED_AT,
-                source: "fallback",
-              },
-        );
-      });
-
-    return () => controller.abort();
+    // Always use fallback rates to avoid CORS errors
+    setFxState({
+      rate: USD_EXCHANGE_RATES[currencyCode] ?? 1,
+      updatedAt: FALLBACK_UPDATED_AT,
+      source: "fallback",
+    });
   }, [currencyCode]);
 
   const formatter = useMemo(
