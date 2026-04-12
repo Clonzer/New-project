@@ -328,6 +328,27 @@ CREATE POLICY "Admins can create contest winners" ON contest_winners FOR INSERT 
 );
 ```
 
+### Enable pg_cron Extension
+
+```sql
+-- Enable pg_cron extension for scheduled tasks
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+```
+
+### Schedule Contest Sync with pg_cron
+
+```sql
+-- Schedule contest sync to run every hour
+SELECT cron.schedule(
+  'contest-sync-hourly',
+  '0 * * * *',
+  $$SELECT net.http_post(
+    url := 'YOUR_RENDER_URL/api/sync-contests',
+    headers := '{"Content-Type": "application/json"}'::jsonb
+  )$$
+);
+```
+
 ### SQL Functions for Contest Voting
 
 ```sql

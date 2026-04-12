@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/supabase-auth-context";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
+import { useSyncContestsOnMount } from "@/lib/contest-sync";
 
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
@@ -110,6 +111,8 @@ function Router() {
 }
 
 function App() {
+  useSyncContestsOnMount();
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
