@@ -192,11 +192,11 @@ export async function removeVote(entryId: string, userId: string) {
   if (error) throw error;
 
   // Decrement vote count
-  const { data, error } = await supabase.rpc('decrement_votes_count', {
+  const { data, error: rpcError } = await supabase.rpc('decrement_votes_count', {
     entry_id: entryId,
   });
 
-  if (error) throw error;
+  if (rpcError) throw rpcError;
 
   return { success: true };
 }
