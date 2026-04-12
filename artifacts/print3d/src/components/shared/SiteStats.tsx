@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 export function SiteStats() {
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -23,8 +24,9 @@ export function SiteStats() {
           avgResponseTime: 2.5
         });
         setIsLoading(false);
+        setError(null);
       })
-      .catch(() => {
+      .catch((err) => {
         // Fallback to mock data if Supabase fails
         setStats({
           totalMakers: 1250,
@@ -35,6 +37,7 @@ export function SiteStats() {
           avgResponseTime: 2.5
         });
         setIsLoading(false);
+        setError(err);
       });
   }, []);
 
