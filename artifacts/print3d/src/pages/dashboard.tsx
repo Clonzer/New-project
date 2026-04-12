@@ -316,6 +316,101 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
   );
 }
 
+function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
+  open: boolean; onClose: () => void; printer: any; onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const updatePrinter = useUpdatePrinter();
+  const [pricePerHour, setPricePerHour] = useState("");
+  const [pricePerGram, setPricePerGram] = useState("");
+  const [description, setDescription] = useState("");
+  const [materials, setMaterials] = useState("");
+
+  useEffect(() => {
+    if (printer) {
+      setPricePerHour(printer.price_per_hour?.toString() || "");
+      setPricePerGram(printer.price_per_gram?.toString() || "");
+      setDescription(printer.description || "");
+      setMaterials(Array.isArray(printer.materials) ? printer.materials.join(", ") : printer.materials || "");
+    }
+  }, [printer]);
+
+  const handleSubmit = async () => {
+    try {
+      await updatePrinter.mutateAsync({
+        printerId: printer.id,
+        data: {
+          pricePerHour: pricePerHour ? parseFloat(pricePerHour) : null,
+          pricePerGram: pricePerGram ? parseFloat(pricePerGram) : null,
+          description: description || null,
+          materials: materials ? materials.split(",").map(m => m.trim()).filter(Boolean) : null,
+        },
+      });
+      toast({ title: "Equipment updated!", description: "Your changes have been saved." });
+      onClose();
+      onSuccess();
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({ title: "Failed to update equipment", variant: "destructive" });
+    }
+  };
+
+  const is3d = printer.equipment_category === "printing_3d";
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">Edit Equipment</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">
+            {printer.name} - {printer.brand} {printer.model}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Hourly rate ($)</label>
+              <Input type="number" step="0.01" value={pricePerHour} onChange={e => setPricePerHour(e.target.value)} placeholder="e.g. 45" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+            {is3d && (
+              <div>
+                <label className="text-sm text-zinc-300 block mb-1.5">Price per gram ($)</label>
+                <Input type="number" step="0.001" value={pricePerGram} onChange={e => setPricePerGram(e.target.value)} placeholder="e.g. 0.05" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Materials (comma-separated)</label>
+            <Input value={materials} onChange={e => setMaterials(e.target.value)} placeholder="PLA, PETG, aluminum..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Notes (optional)</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Certifications, lead times, what buyers should know..."
+              rows={3}
+              className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+            />
+          </div>
+
+          <NeonButton
+            glowColor="primary"
+            className="w-full rounded-xl py-3"
+            onClick={handleSubmit}
+            disabled={updatePrinter.isPending}
+          >
+            {updatePrinter.isPending ? "Saving..." : "Save changes"}
+          </NeonButton>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Add Listing Dialog ───────────────────────────────────────────────────────
 function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
   open: boolean; onClose: () => void; sellerId: number; onSuccess: () => void;
@@ -793,6 +888,12 @@ export default function Dashboard() {
         open={showAddPrinter}
         onClose={() => setShowAddPrinter(false)}
         userId={user.id}
+        onSuccess={refetchPrinters}
+      />
+      <EditPrinterDialog
+        open={!!editingPrinter}
+        onClose={() => setEditingPrinter(null)}
+        printer={editingPrinter}
         onSuccess={refetchPrinters}
       />
       <EquipmentGroupDialog
