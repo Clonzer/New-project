@@ -24,6 +24,7 @@ export function SiteStats() {
           avgResponseTime: 2.5
         });
         setIsLoading(false);
+        setError(null);
       })
       .catch((err) => {
         setError(err as Error);
