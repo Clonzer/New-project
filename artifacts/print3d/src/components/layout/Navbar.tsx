@@ -97,7 +97,7 @@ export function Navbar() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
                     isActive("/explore-all") || isActive("/explore") || isActive("/listings")
                       ? "text-white border border-primary/50 bg-primary/20"
-                      : "text-muted-foreground hover:text-white border border-transparent hover:border-white/20"
+                      : "text-muted-foreground hover:text-white"
                   }`}
                 >
                   Explore
