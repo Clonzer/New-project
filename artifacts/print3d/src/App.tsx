@@ -116,7 +116,7 @@ function Router() {
 }
 
 function App() {
-  useSyncContestsOnMount();
+  // useSyncContestsOnMount(); // Temporarily disabled due to database schema issues
 
   return (
     <QueryClientProvider client={queryClient}>
