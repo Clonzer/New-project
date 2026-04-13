@@ -56,8 +56,8 @@ export default function Messages() {
     void listMessageThreads(search)
       .then((data) => {
         if (cancelled) return;
-        setThreads(data.threads);
-        setActiveThreadId((current) => current ?? readRequestedThreadId() ?? data.threads[0]?.id ?? null);
+        setThreads(data.threads || []);
+        setActiveThreadId((current) => current ?? readRequestedThreadId() ?? (data.threads && data.threads[0]?.id) ?? null);
       })
       .catch((err) => {
         if (!cancelled) setError(getApiErrorMessage(err));
