@@ -28,8 +28,11 @@ export default function Admin() {
   const users = usersData?.users || [];
   const listings = listingsData?.listings || [];
 
-  // Check if user has OWNER or MODERATOR role
-  if (!user || (user.role !== "OWNER" && user.role !== "MODERATOR")) {
+  // Check if user has OWNER or MODERATOR role, or is the admin email
+  const ADMIN_EMAIL = "evanhuelin8@gmail.com";
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === "OWNER" || user?.role === "MODERATOR";
+
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />

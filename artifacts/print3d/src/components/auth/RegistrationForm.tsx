@@ -22,6 +22,8 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
+import { createMessageThread } from "@/lib/messages-api";
+import { useListUsers } from "@/lib/workspace-api-mock";
 
 const registrationSchema = z
   .object({
@@ -79,6 +81,8 @@ export function RegistrationForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const { login, register: supabaseRegister } = useAuth();
+  const { data: usersData } = useListUsers();
+  const ADMIN_EMAIL = "evanhuelin8@gmail.com";
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),
@@ -159,6 +163,18 @@ export function RegistrationForm({
       };
       
       setSuccess("Account created. You're signed in.");
+
+      // Auto-create message thread with admin
+      try {
+        const adminUser = usersData?.users.find((u: any) => u.email === ADMIN_EMAIL);
+        if (adminUser && adminUser.id) {
+          await createMessageThread(adminUser.id, "Welcome to Synthix! Feel free to reach out if you have any questions.");
+        }
+      } catch (threadError) {
+        console.error("Failed to create admin message thread:", threadError);
+        // Don't block registration if thread creation fails
+      }
+
       await onRegistered(user);
     } catch (e: any) {
       setError(getApiErrorMessage(e));
