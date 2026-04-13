@@ -422,6 +422,7 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
   const [form, setForm] = useState({
     title: "", category: "Functional", imageUrl: "", basePrice: "", shippingCost: "",
     estimatedDaysMin: "3", estimatedDaysMax: "7", material: "", description: "", tags: "", stock: "",
+    listingType: "product", serviceCategory: "", serviceType: "",
   });
 
   const handleChange = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
@@ -446,6 +447,9 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
           estimatedDaysMax: parseInt(form.estimatedDaysMax),
           material: form.material || null,
           color: null,
+          listingType: form.listingType,
+          serviceCategory: form.serviceCategory || null,
+          serviceType: form.serviceType || null,
         },
       });
       toast({ title: "Listing added!", description: "Your model is now live in the catalog." });
@@ -464,6 +468,29 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
           <DialogDescription className="text-zinc-500 text-sm">Create a new catalog listing for your shop.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Listing Type</label>
+            <div className="flex gap-2">
+              <button onClick={() => handleChange("listingType", "product")} className={`flex-1 px-4 py-2 rounded-lg text-sm transition-all ${form.listingType === "product" ? "bg-primary text-white border border-primary" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                Product
+              </button>
+              <button onClick={() => handleChange("listingType", "service")} className={`flex-1 px-4 py-2 rounded-lg text-sm transition-all ${form.listingType === "service" ? "bg-primary text-white border border-primary" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                Service
+              </button>
+            </div>
+          </div>
+          {form.listingType === "service" && (
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Service Category</label>
+              <div className="flex flex-wrap gap-2">
+                {["Woodworking", "Steel Work", "Metalworking", "CNC Services", "Welding", "Fabrication", "Custom Design", "Other"].map(cat => (
+                  <button key={cat} onClick={() => handleChange("serviceCategory", cat)} className={`px-3 py-1.5 rounded-full text-xs transition-all ${form.serviceCategory === cat ? "bg-primary text-white border border-primary" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-sm text-zinc-300 block mb-1.5">Title *</label>
             <Input value={form.title} onChange={e => handleChange("title", e.target.value)} placeholder="e.g. Articulated Dragon" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />

@@ -46,6 +46,9 @@ export type Listing = {
   sellerName: string;
   orderCount: number;
   stockQuantity?: number;
+  listingType?: "product" | "service";
+  serviceCategory?: string | null;
+  serviceType?: string | null;
   trackStock?: boolean;
 };
 

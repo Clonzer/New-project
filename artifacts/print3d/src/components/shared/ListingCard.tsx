@@ -1,6 +1,6 @@
 import { Listing } from "@/lib/workspace-api-mock";
-import { Link } from "wouter";
-import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { addToCart } from "@/lib/cart-storage";
 import type { ListingPriceInsight } from "@/lib/listing-pricing";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export function ListingCard({
   listing,
@@ -24,9 +25,12 @@ export function ListingCard({
 }) {
   const { toast } = useToast();
   const { formatPrice } = useLocalePreferences();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const ship = listing.shippingCost ?? 0;
   const isOutOfStock = listing.trackStock && listing.stockQuantity === 0;
   const isLowStock = listing.trackStock && listing.stockQuantity && listing.stockQuantity <= 5 && listing.stockQuantity > 0;
+  const isServiceListing = listing.listingType === "service";
   const priceInsightClassName =
     priceInsight?.tone === "good"
       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
@@ -88,9 +92,9 @@ export function ListingCard({
               )}
             </div>
           ) : (
-            <ReportButton 
-              itemType="listing" 
-              itemId={listing.id} 
+            <ReportButton
+              itemType="listing"
+              itemId={String(listing.id)}
               itemName={listing.title}
               className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70"
             />
@@ -147,42 +151,63 @@ export function ListingCard({
         </div>
         
         <div className="mt-5 flex gap-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (isOutOfStock) {
-                toast({ variant: "destructive", title: "Out of stock", description: "This item is no longer available." });
-                return;
-              }
-              addToCart(listing.id, 1);
-              toast({ title: "Added to cart", description: listing.title });
-            }}
-            disabled={isOutOfStock}
-            className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium transition-all border flex items-center justify-center gap-1.5 ${
-              isOutOfStock
-                ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
-                : "bg-white/5 hover:bg-white/10 border-white/10"
-            }`}
-          >
-            <ShoppingCart className="w-4 h-4" /> Cart
-          </button>
-          <Link href={isOutOfStock ? "#" : `/order/new?listingId=${listing.id}`} onClick={(e) => {
-            if (isOutOfStock) e.preventDefault();
-          }} className="flex-1">
-            <button 
-              type="button" 
+          {!isServiceListing && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isOutOfStock) {
+                  toast({ variant: "destructive", title: "Out of stock", description: "This item is no longer available." });
+                  return;
+                }
+                addToCart(listing.id, 1);
+                toast({ title: "Added to cart", description: listing.title });
+              }}
               disabled={isOutOfStock}
-              className={`w-full py-2.5 rounded-xl text-white text-sm font-medium transition-all duration-300 border ${
+              className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium transition-all border flex items-center justify-center gap-1.5 ${
                 isOutOfStock
                   ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
-                  : "bg-white/5 hover:bg-primary border-white/10 hover:border-primary hover:shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                  : "bg-white/5 hover:bg-white/10 border-white/10"
               }`}
             >
-              {isOutOfStock ? "Out of Stock" : "Order Print"}
+              <ShoppingCart className="w-4 h-4" /> Cart
             </button>
-          </Link>
+          )}
+          {isServiceListing ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!user) {
+                  toast({ variant: "destructive", title: "Login required", description: "Please login to request a job." });
+                  setLocation("/login");
+                  return;
+                }
+                setLocation(`/messages?userId=${listing.sellerId}&listingId=${listing.id}`);
+              }}
+              className="w-full py-2.5 rounded-xl text-white text-sm font-medium transition-all duration-300 border bg-white/5 hover:bg-primary border-white/10 hover:border-primary hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] flex items-center justify-center gap-1.5"
+            >
+              <MessageSquare className="w-4 h-4" /> Request Job
+            </button>
+          ) : (
+            <Link href={isOutOfStock ? "#" : `/order/new?listingId=${listing.id}`} onClick={(e) => {
+              if (isOutOfStock) e.preventDefault();
+            }} className="flex-1">
+              <button
+                type="button"
+                disabled={isOutOfStock}
+                className={`w-full py-2.5 rounded-xl text-white text-sm font-medium transition-all duration-300 border ${
+                  isOutOfStock
+                    ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
+                    : "bg-white/5 hover:bg-primary border-white/10 hover:border-primary hover:shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                }`}
+              >
+                {isOutOfStock ? "Out of Stock" : "Order Print"}
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </div>
