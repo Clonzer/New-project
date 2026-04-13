@@ -14,7 +14,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
-import { customFetch } from "@/lib/workspace-api-mock";
 import { submitSupportContactForm } from "@/lib/support-api";
 
 const PLANS = [
@@ -213,7 +212,7 @@ export default function Pricing() {
       setLocation("/settings?section=payment");
       return;
     }
-    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}`;
+    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}&successPath=/dashboard?checkout=success&plan=${planId}`;
   };
 
   const startProfileSponsorship = async () => {
@@ -224,34 +223,12 @@ export default function Pricing() {
 
     setIsStartingProfileSponsor(true);
     try {
-      // Get sponsorship tiers from API
-      const tiersResponse = await customFetch('/api/sponsorships/tiers');
-      const { tiers } = await tiersResponse.json();
-      const profileTier = tiers.find((t: any) => t.slug === 'profile-sponsorship') || tiers[0];
-      
-      if (!profileTier) {
-        throw new Error('Profile sponsorship tier not found');
-      }
-
-      // Create sponsorship purchase
-      const purchaseResponse = await customFetch('/api/sponsorships/purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tierId: profileTier.id,
-          paymentMethodId: 'temp' // Will be replaced with Stripe integration
-        })
+      const session = await createSponsorshipCheckoutSession({
+        sponsorshipType: "profile",
+        successPath: "/dashboard?checkout=success&sponsorship=profile",
+        cancelPath: "/pricing?checkout=cancelled",
       });
-
-      if (purchaseResponse.ok) {
-        const result = await purchaseResponse.json();
-        toast({ 
-          title: "Sponsorship Activated!", 
-          description: `Your profile sponsorship is active until ${new Date(result.expiresAt).toLocaleDateString()}` 
-        });
-      } else {
-        throw new Error('Failed to purchase sponsorship');
-      }
+      window.location.href = session.url;
     } catch (err) {
       toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
     } finally {
@@ -272,35 +249,13 @@ export default function Pricing() {
 
     setIsStartingListingSponsor(true);
     try {
-      // Get sponsorship tiers from API
-      const tiersResponse = await customFetch('/api/sponsorships/tiers');
-      const { tiers } = await tiersResponse.json();
-      const productTier = tiers.find((t: any) => t.slug === 'product-sponsorship') || tiers[0];
-      
-      if (!productTier) {
-        throw new Error('Product sponsorship tier not found');
-      }
-
-      // Create sponsorship purchase
-      const purchaseResponse = await customFetch('/api/sponsorships/purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tierId: productTier.id,
-          paymentMethodId: 'temp', // Will be replaced with Stripe integration
-          listingId: selectedListingId
-        })
+      const session = await createSponsorshipCheckoutSession({
+        sponsorshipType: "listing",
+        listingId: selectedListingId,
+        successPath: "/dashboard?checkout=success&sponsorship=listing",
+        cancelPath: "/pricing?checkout=cancelled",
       });
-
-      if (purchaseResponse.ok) {
-        const result = await purchaseResponse.json();
-        toast({ 
-          title: "Product Sponsorship Activated!", 
-          description: `Your product sponsorship is active until ${new Date(result.expiresAt).toLocaleDateString()}` 
-        });
-      } else {
-        throw new Error('Failed to purchase sponsorship');
-      }
+      window.location.href = session.url;
     } catch (err) {
       toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
     } finally {

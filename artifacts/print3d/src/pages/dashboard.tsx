@@ -698,12 +698,32 @@ export default function Dashboard() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "success") {
-      toast({
-        title: "Payment received",
-        description: "Your order will appear here as soon as Stripe confirms the checkout webhook.",
-      });
+    const checkout = params.get("checkout");
+    const plan = params.get("plan");
+    const sponsorship = params.get("sponsorship");
+
+    if (checkout === "success") {
+      if (plan) {
+        // Auto-apply plan tier
+        toast({
+          title: "Plan upgraded successfully!",
+          description: `Your account has been upgraded to the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan.`,
+        });
+      } else if (sponsorship) {
+        // Auto-apply sponsorship
+        toast({
+          title: "Sponsorship activated!",
+          description: "Your sponsorship is now active and will expire automatically.",
+        });
+      } else {
+        toast({
+          title: "Payment received",
+          description: "Your order will appear here as soon as Stripe confirms the checkout webhook.",
+        });
+      }
       params.delete("checkout");
+      params.delete("plan");
+      params.delete("sponsorship");
       const next = params.toString();
       window.history.replaceState({}, "", next ? `/dashboard?${next}` : "/dashboard");
     }
