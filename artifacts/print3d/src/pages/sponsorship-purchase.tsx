@@ -90,7 +90,15 @@ export default function SponsorshipPurchase() {
       setIsProcessing(true);
       setSelectedTier(tierId);
 
-      const result = await createSponsorshipCheckoutSession(tierId);
+      // Map tier ID to sponsorship type
+      const sponsorshipType = tierId === "product-sponsorship" ? "listing" : "profile";
+
+      const result = await createSponsorshipCheckoutSession({
+        sponsorshipType,
+        quantity: 1,
+        successPath: "/dashboard?success=true",
+        cancelPath: "/sponsorship/purchase?cancelled=true"
+      });
       
       if (result.url) {
         window.location.href = result.url;

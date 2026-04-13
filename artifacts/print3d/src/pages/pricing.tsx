@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
 import { customFetch } from "@/lib/workspace-api-mock";
-import { ensureSupportThread, submitSupportContactForm } from "@/lib/support-api";
+import { submitSupportContactForm } from "@/lib/support-api";
 
 const PLANS = [
   {
@@ -119,7 +119,7 @@ const FAQS = [
   },
   {
     q: "Can I message Synthix directly from the site?",
-    a: "Yes. The pricing page has an in-app message action that opens a real support thread in the site messenger, so you can ask about plans, sponsorships, or setup without leaving the platform.",
+    a: "Yes. Visit the Messages page to start a conversation with the Synthix support team. You can ask about plans, sponsorships, or get help with setup without leaving the platform.",
   },
   {
     q: "How do paid plans help beyond lower fees?",
@@ -153,12 +153,11 @@ export default function Pricing() {
     message: "",
   });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
-  const [isOpeningSupport, setIsOpeningSupport] = useState(false);
   const [isStartingProfileSponsor, setIsStartingProfileSponsor] = useState(false);
   const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const isSeller = user?.role === "seller" || user?.role === "both";
-  const { data: ownListingsData } = useListListings({ sellerId: user?.id, limit: 100 });
+  const { data: ownListingsData } = useListListings();
 
   useEffect(() => {
     if (!user) return;
@@ -183,27 +182,6 @@ export default function Pricing() {
       })),
     [yearly],
   );
-
-  const openSupportMessenger = async () => {
-    if (!user) {
-      setLocation("/login");
-      return;
-    }
-
-    try {
-      setIsOpeningSupport(true);
-      const result = await ensureSupportThread();
-      setLocation(`/messages?threadId=${result.threadId}`);
-    } catch (error) {
-      toast({
-        title: "Could not open support chat",
-        description: getApiErrorMessage(error),
-        variant: "destructive",
-      });
-    } finally {
-      setIsOpeningSupport(false);
-    }
-  };
 
   const submitContact = async () => {
     try {
@@ -503,31 +481,6 @@ export default function Pricing() {
               ) : null}
             </div>
 
-            <div className="rounded-[2rem] border border-cyan-400/15 bg-cyan-400/10 p-7">
-              <h2 className="text-2xl font-display font-bold text-white">Talk to Synthix</h2>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                One path stays on-platform in the site messenger. The other sends a proper contact form to your inbox email addresses.
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <NeonButton glowColor="primary" onClick={() => void openSupportMessenger()} className="w-full rounded-2xl py-3">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  {isOpeningSupport ? "Opening..." : "Message Synthix"}
-                </NeonButton>
-                <NeonButton glowColor="white" onClick={() => setShowEnterpriseForm(true)} className="w-full rounded-2xl py-3">
-                  <Mail className="mr-2 h-4 w-4" />
-                  Contact form
-                </NeonButton>
-              </div>
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-zinc-200">
-                <p className="font-semibold text-white">Enterprise sellers get:</p>
-                <ul className="mt-3 space-y-2">
-                  <li>Dedicated onboarding and rollout support.</li>
-                  <li>Negotiated commercial terms and fees.</li>
-                  <li>Priority promotional planning and merchandising help.</li>
-                  <li>Owner-assigned enterprise features inside the product.</li>
-                </ul>
-              </div>
-            </div>
           </div>
         </section>
 

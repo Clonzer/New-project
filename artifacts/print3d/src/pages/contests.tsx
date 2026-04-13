@@ -15,7 +15,8 @@ import {
   Upload,
   Eye,
   Crown,
-  TrendingUp
+  TrendingUp,
+  Target
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -316,7 +317,7 @@ export default function Contests() {
     }
 
     try {
-      await voteForEntry(entryId);
+      await voteForEntry(entryId, user.id);
       setEntries(prev => prev.map(entry =>
         entry.id === entryId
           ? { ...entry, votes: entry.votes + 1 }
