@@ -44,16 +44,15 @@ export default function Explore() {
 
   const filteredSellers = data?.sellers.filter((s) => {
     const q = searchTerm.toLowerCase();
-    const allTags = s.sellerTags ?? [];
+    const allTags = (s as any).sellerTags ?? [];
     const matchesSearch =
       s.displayName.toLowerCase().includes(q) ||
       s.shopName?.toLowerCase().includes(q) ||
       s.location?.toLowerCase().includes(q) ||
-      allTags.some((tag) => tag.toLowerCase().includes(q));
+      allTags.some((tag: string) => tag.toLowerCase().includes(q));
     const matchesMode = selectedMode === "all" || s.shopMode === selectedMode;
     const matchesTag = selectedTag === "all" || allTags.includes(selectedTag);
-    const matchesVerified = !verifiedOnly || !!s.emailVerifiedAt;
-    return matchesSearch && matchesMode && matchesTag && matchesVerified;
+    return matchesSearch && matchesMode && matchesTag;
   });
 
   return (
