@@ -11,9 +11,7 @@ import {
   Heart, 
   Target, 
   Lightbulb,
-  ArrowRight,
-  CheckCircle,
-  Star
+  CheckCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -72,29 +70,6 @@ export default function About() {
     { value: "24/7", label: "Support Available" }
   ];
 
-  const timeline = [
-    {
-      year: "2024",
-      title: "Launch",
-      description: "Synthix launches as a platform connecting 3D printing enthusiasts"
-    },
-    {
-      year: "2025",
-      title: "Growth",
-      description: "Reached 10,000+ verified makers and expanded to global markets"
-    },
-    {
-      year: "2026",
-      title: "Innovation",
-      description: "Introduced AI-powered matching and automated contest system"
-    },
-    {
-      year: "Future",
-      title: "Vision",
-      description: "Building the future of decentralized manufacturing"
-    }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
@@ -116,15 +91,9 @@ export default function About() {
               <h1 className="text-6xl md:text-8xl font-display font-bold text-white mb-6">
                 About <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Synthix</span>
               </h1>
-              <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-8">
+              <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto">
                 Empowering creators to bring their ideas to life through the power of community and technology
               </p>
-              <Link href="/explore-all">
-                <Button size="lg" className="bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600 text-white font-semibold px-8 py-6 text-lg">
-                  Get Started
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
             </motion.div>
           </motion.div>
 
@@ -245,45 +214,6 @@ export default function About() {
                   </div>
                 </div>
               </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Timeline */}
-        <section className="py-20 relative">
-          <div className="container mx-auto px-4">
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold text-white mb-12 text-center"
-            >
-              Our <span className="text-primary">Journey</span>
-            </motion.h2>
-
-            <div className="max-w-4xl mx-auto">
-              {timeline.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className={`flex items-center gap-8 mb-12 ${index % 2 === 0 ? '' : 'flex-row-reverse'}`}
-                >
-                  <div className="flex-1">
-                    <div className="bg-zinc-900/50 border border-zinc-700 rounded-2xl p-6">
-                      <div className="text-3xl font-bold text-primary mb-2">{item.year}</div>
-                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-zinc-400">{item.description}</p>
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Star className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1" />
-                </motion.div>
-              ))}
             </div>
           </div>
         </section>
