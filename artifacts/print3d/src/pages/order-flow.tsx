@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/lib/payments-api";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { canSellerShipToCountry, getShippingEstimate } from "@/lib/shipping-profile";
 import { Box, ShieldCheck, Upload } from "lucide-react";
@@ -167,7 +167,7 @@ export default function OrderFlow() {
     } catch (error) {
       toast({
         title: "Checkout failed",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "processing your order"),
         variant: "destructive",
       });
       setIsSubmitting(false);

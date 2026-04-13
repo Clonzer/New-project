@@ -32,7 +32,7 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 import { Tutorial } from "@/components/shared/Tutorial";
 import { Analytics } from "@/components/dashboard/Analytics";
@@ -451,7 +451,7 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
       onClose();
       onSuccess();
     } catch (error) {
-      toast({ title: "Failed to create listing", description: getApiErrorMessage(error), variant: "destructive" });
+      toast({ title: "Failed to create listing", description: getApiErrorMessageWithSupport(error, "creating your listing"), variant: "destructive" });
     }
   };
 

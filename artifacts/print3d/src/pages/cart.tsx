@@ -9,7 +9,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import {
   clearCart,
   readCart,
@@ -114,7 +114,7 @@ export default function Cart() {
     } catch (error) {
       toast({
         title: "Checkout failed",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "processing your order"),
         variant: "destructive",
       });
       setIsCheckingOut(false);

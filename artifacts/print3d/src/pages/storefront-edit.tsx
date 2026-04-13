@@ -10,7 +10,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useUpdateUser } from "@/lib/workspace-stub";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import {
   ArrowLeft,
   Store,
@@ -265,7 +265,7 @@ export default function StorefrontEdit() {
     } catch (error) {
       toast({
         title: "Failed to save",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "saving your storefront"),
         variant: "destructive",
       });
     } finally {

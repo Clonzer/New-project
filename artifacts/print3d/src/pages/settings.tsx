@@ -8,7 +8,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
-import { getApiErrorMessage } from "@/lib/api-error";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import {
   COUNTRY_OPTIONS,
   CURRENCY_OPTIONS,
@@ -213,7 +213,7 @@ export default function Settings() {
     } catch (error) {
       toast({
         title: "Save failed",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "saving your settings"),
         variant: "destructive",
       });
     }
@@ -236,7 +236,7 @@ export default function Settings() {
     } catch (error) {
       toast({
         title: "Password update failed",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "updating your password"),
         variant: "destructive",
       });
     } finally {
@@ -258,7 +258,7 @@ export default function Settings() {
     } catch (error) {
       toast({
         title: "Could not send verification code",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "sending email verification"),
         variant: "destructive",
       });
     } finally {
@@ -276,7 +276,7 @@ export default function Settings() {
     } catch (error) {
       toast({
         title: "Verification failed",
-        description: getApiErrorMessage(error),
+        description: getApiErrorMessageWithSupport(error, "verifying your email"),
         variant: "destructive",
       });
     } finally {

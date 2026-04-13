@@ -28,3 +28,9 @@ export function getApiErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   return "Something went wrong. Please try again.";
 }
+
+/** Get error message with support contact info for important operations */
+export function getApiErrorMessageWithSupport(err: unknown, operation: string = "this operation"): string {
+  const baseMessage = getApiErrorMessage(err);
+  return `${baseMessage} If the problem persists, please contact support at evanhuelin8@gmail.com for assistance with ${operation}.`;
+}
