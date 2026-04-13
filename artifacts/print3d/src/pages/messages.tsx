@@ -50,21 +50,6 @@ export default function Messages() {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle URL parameters for contacting Synthix
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1]);
-    const contact = urlParams.get('contact');
-
-    if (contact && user && usersData?.users) {
-      // Find Synthix team user (ID: 2)
-      const synthixUser = usersData.users.find(u => u.id === 2);
-      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
-        // Start conversation with Synthix team
-        startConversation(synthixUser.id);
-      }
-    }
-  }, [location, user, usersData, threads]);
-
   useEffect(() => {
     let cancelled = false;
     setIsLoadingThreads(true);

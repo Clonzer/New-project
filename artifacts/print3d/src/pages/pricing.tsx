@@ -368,7 +368,7 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 pb-16">
+        <section className="container mx-auto px-4 pb-16 -mt-16 relative z-20">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {plans.map((plan, index) => {
               const Icon = plan.icon;
