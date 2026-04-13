@@ -920,16 +920,26 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
-                Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName}</span>
-                {user.isOwner ? (
-                  <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
-                    Owner
-                  </span>
-                ) : null}
-              </h1>
-              <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
+                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                  {user.isOwner ? (
+                    <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
+                      Owner
+                    </span>
+                  ) : null}
+                </h1>
+                <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+              </div>
+              {isSellerUser && (
+                <Link href="/sponsorship/purchase">
+                  <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-6 py-2">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Buy Sponsorship
+                  </Button>
+                </Link>
+              )}
             </div>
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
@@ -989,22 +999,6 @@ export default function Dashboard() {
                 </>
               )}
             </TabsList>
-
-            {/* Prominent Buy Sponsorship Button for Sellers */}
-            {isSellerUser && (
-              <div className="mb-6">
-                <Link href="/sponsorship/purchase">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-4 text-lg rounded-full flex items-center justify-center gap-2">
-                    <Trophy className="w-5 h-5" />
-                    Buy Sponsorship
-                    <ArrowRight className="w-5 h-5" />
-                  </NeonButton>
-                </Link>
-                <p className="text-center text-zinc-400 text-sm mt-2">
-                  Boost your visibility and reach more customers
-                </p>
-              </div>
-            )}
 
             {isSellerUser && (
               <TabsContent value="overview" className="mt-0">
