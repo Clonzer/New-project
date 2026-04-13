@@ -233,7 +233,7 @@ export function Navbar() {
                     </Link>
 
                     <Link
-                      href="/pricing"
+                      href="/messages?contact=2"
                       onClick={() => setContactOpen(false)}
                       className="block w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 group"
                     >
