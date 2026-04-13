@@ -59,9 +59,18 @@ export default function Explore() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
+          {/* Hero-like Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+              Explore All Makers
+            </h1>
+            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+              Discover shops offering additive, woodworking, metal fab, services, and more — ready for your next project.
+            </p>
+          </div>
           {/* Featured Shops Carousel with Dynamic Banners */}
           <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
@@ -107,17 +116,6 @@ export default function Explore() {
               </div>
             )}
           </section>
-
-          
-          {/* Search and Filter Section */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 text-glow">
-              Explore All Makers
-            </h1>
-            <p className="text-lg text-zinc-400 max-w-2xl">
-              Discover shops offering additive, woodworking, metal fab, services, and more — ready for your next project.
-            </p>
-          </div>
 
           <div className="flex flex-col md:flex-row gap-4 mb-12">
             <div className="relative flex-grow max-w-md">

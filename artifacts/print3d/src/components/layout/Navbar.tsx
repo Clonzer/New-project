@@ -96,17 +96,10 @@ export function Navbar() {
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
                     isActive("/explore-all") || isActive("/explore") || isActive("/listings")
-                      ? "text-white"
-                      : "text-muted-foreground hover:text-white"
+                      ? "text-white border border-primary/50 bg-primary/20"
+                      : "text-muted-foreground hover:text-white border border-transparent hover:border-white/20"
                   }`}
                 >
-                  {isActive("/explore-all") || isActive("/explore") || isActive("/listings") && (
-                    <motion.div
-                      layoutId="navbar-active"
-                      className="absolute inset-0 bg-white/10 rounded-full z-[-1]"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
                   Explore
                   <ChevronDown className="w-4 h-4" />
                 </button>

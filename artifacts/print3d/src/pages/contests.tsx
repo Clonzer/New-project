@@ -11,7 +11,6 @@ import {
   CheckCircle,
   AlertCircle,
   Medal,
-  Target,
   Calendar,
   Upload,
   Eye,
@@ -292,7 +291,7 @@ export default function Contests() {
     switch (status) {
       case "active": return <Target className="w-4 h-4" />;
       case "judging": return <Clock className="w-4 h-4" />;
-      case "completed": return <Trophy className="w-4 h-4" />;
+      case "completed": return <Award className="w-4 h-4" />;
       case "upcoming": return <Calendar className="w-4 h-4" />;
       default: return <AlertCircle className="w-4 h-4" />;
     }
@@ -363,11 +362,11 @@ export default function Contests() {
             className="text-center mb-12 pt-12"
           >
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Trophy className="w-8 h-8 text-yellow-400" />
+              <Target className="w-8 h-8 text-primary" />
               <h1 className="text-4xl md:text-5xl font-display font-bold text-white">
-                Design Contests
+                Performance Contests
               </h1>
-              <Trophy className="w-8 h-8 text-yellow-400" />
+              <Target className="w-8 h-8 text-primary" />
             </div>
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
               Compete with makers worldwide, showcase your skills, and win exclusive rewards including sponsored features and special badges.
@@ -386,7 +385,7 @@ export default function Contests() {
                 Leaderboard
               </TabsTrigger>
               <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-                <Trophy className="w-4 h-4 mr-2" />
+                <Award className="w-4 h-4 mr-2" />
                 Winners
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary data-[state=active]:text-white">
@@ -419,10 +418,10 @@ export default function Contests() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className="bg-zinc-800/50 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
+                      <Card className="bg-zinc-800 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
                         <div className="relative">
                           <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <Trophy className="w-16 h-16 text-primary/40" />
+                            <Target className="w-16 h-16 text-primary/40" />
                           </div>
                           <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)}`}>
                             <div className="flex items-center gap-1">
@@ -643,7 +642,7 @@ export default function Contests() {
                   </>
                 ) : (
                   <div className="text-center py-12">
-                    <Trophy className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                    <Award className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
                     <p className="text-zinc-400">No contests have been completed yet.</p>
                     <p className="text-zinc-500 text-sm mt-2">Be the first to win an upcoming contest!</p>
                   </div>
