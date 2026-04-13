@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
-  Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2,
+  Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -821,6 +821,13 @@ export default function Dashboard() {
               {!isSellerUser && (
                 <Link href="/register">
                   <NeonButton glowColor="accent" className="rounded-full px-5">Join Now</NeonButton>
+                </Link>
+              )}
+              {isSellerUser && (
+                <Link href="/settings?section=storefront">
+                  <Button variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5 rounded-full">
+                    <Store className="w-4 h-4 mr-2" /> Edit Storefront
+                  </Button>
                 </Link>
               )}
               <Link href="/settings">

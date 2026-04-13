@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useListUsers } from "@/lib/workspace-api-mock";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus, Search, Send } from "lucide-react";
@@ -37,9 +37,9 @@ function formatTimestamp(value?: string | null) {
 }
 
 export default function Messages() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user } = useAuth();
-  const { data: usersData } = useListUsers({ limit: 100 });
+  const { data: usersData } = useListUsers();
   const [threads, setThreads] = useState<MessageThreadSummary[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<number | null>(() => readRequestedThreadId());
   const [activeThread, setActiveThread] = useState<MessageThreadDetail | null>(null);
@@ -320,6 +320,46 @@ export default function Messages() {
                       <Plus className="h-4 w-4 text-zinc-400" />
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Contact Synthix Section */}
+              <div className="border-t border-white/10 p-4 bg-gradient-to-b from-primary/5 to-transparent">
+                <p className="mb-3 text-xs uppercase tracking-[0.2em] text-zinc-500">Need help?</p>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const synthixUser = usersData?.users?.find(u => u.id === 2);
+                      if (synthixUser) {
+                        void startConversation(synthixUser.id);
+                      }
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-left hover:border-primary/50 hover:bg-primary/20"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-white flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-primary" />
+                        Message Synthix
+                      </p>
+                      <p className="text-xs text-zinc-500">Support & questions</p>
+                    </div>
+                    <Plus className="h-4 w-4 text-primary" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLocation('/help')}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left hover:border-yellow-500/40 hover:bg-yellow-500/10"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                        Report / Flag
+                      </p>
+                      <p className="text-xs text-zinc-500">Report issues or concerns</p>
+                    </div>
+                    <Plus className="h-4 w-4 text-zinc-400" />
+                  </button>
                 </div>
               </div>
             </div>

@@ -73,13 +73,39 @@ export class ApiError extends Error {
   }
 }
 
-// Mock customFetch function
+// Mock customFetch function - returns a Response-like object with json() method
 export async function customFetch<T>(
   url: string,
   options?: RequestInit & { skipAuth?: boolean; credentials?: RequestCredentials }
 ): Promise<T> {
-  console.warn(`[MOCK] customFetch called for ${url} - returning empty response`);
-  return {} as T;
+  console.warn(`[MOCK] customFetch called for ${url} - returning mock response`);
+  
+  // Create a mock response object that works as both Response and data
+  const mockData: any = {
+    threads: [],
+    unreadCount: 0,
+    contests: [],
+    entries: [],
+  };
+  
+  // Add Response-like methods
+  mockData.ok = true;
+  mockData.status = 200;
+  mockData.json = async () => mockData;
+  mockData.text = async () => "";
+  mockData.blob = async () => new Blob();
+  mockData.arrayBuffer = async () => new ArrayBuffer(0);
+  mockData.clone = () => new Response();
+  mockData.headers = new Headers();
+  mockData.redirected = false;
+  mockData.statusText = "OK";
+  mockData.type = "basic";
+  mockData.url = url;
+  mockData.body = null;
+  mockData.bodyUsed = false;
+  mockData.formData = async () => new FormData();
+  
+  return mockData as T;
 }
 
 // Mock sellers data
@@ -301,7 +327,7 @@ export function useCreatePrinter() {
 
 export function useListUsers() {
   return {
-    data: [],
+    data: { users: [] },
     isLoading: false,
     error: null,
   };

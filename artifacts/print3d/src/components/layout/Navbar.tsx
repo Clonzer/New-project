@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -271,6 +271,15 @@ export function Navbar() {
             </Link>
           ) : null}
 
+          {/* Admin Link - Only for evanhuelin8@gmail.com */}
+          {user?.email === "evanhuelin8@gmail.com" ? (
+            <Link href="/admin">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative bg-amber-500/10 hover:bg-amber-500/20">
+                <Crown className="w-5 h-5 text-amber-500" />
+              </Button>
+            </Link>
+          ) : null}
+
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/dashboard">
@@ -286,9 +295,9 @@ export function Navbar() {
                   </div>
                   <div className="hidden sm:flex items-center gap-2">
                     <span className="text-sm font-medium">{user.displayName}</span>
-                    {user.isOwner ? (
+                    {user?.email === "evanhuelin8@gmail.com" ? (
                       <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-amber-200">
-                        Owner
+                        Admin
                       </span>
                     ) : null}
                   </div>
