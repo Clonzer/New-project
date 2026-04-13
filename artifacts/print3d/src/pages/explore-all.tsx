@@ -5,16 +5,19 @@ import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Sparkles, Store, Package, Grid3x3 } from "lucide-react";
+import { Search, Sparkles, Store, Package, Grid3x3, Filter } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { useSearch } from "wouter";
 import { NeonButton } from "@/components/ui/neon-button";
 import { motion } from "framer-motion";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 export default function ExploreAll() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "shops" | "models">("all");
   const { data, isLoading } = useListSellers({ limit: 50 });
   const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 12 });
 
@@ -58,7 +61,7 @@ export default function ExploreAll() {
               <p className="text-xl text-zinc-400 mb-8">
                 Discover top shops and amazing 3D models all in one place
               </p>
-              <div className="relative max-w-2xl mx-auto">
+              <div className="relative max-w-2xl mx-auto flex gap-2">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
                 <Input
                   type="text"
@@ -67,6 +70,24 @@ export default function ExploreAll() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-12 pr-4 py-4 bg-zinc-900/50 border border-zinc-700 rounded-full text-lg focus:ring-2 focus:ring-primary/50"
                 />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-12 w-12 rounded-full border-zinc-700 bg-zinc-900/50">
+                      <Filter className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-zinc-900 border-zinc-700">
+                    <DropdownMenuItem onClick={() => setFilterType("all")} className="text-white hover:bg-zinc-800">
+                      All
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterType("shops")} className="text-white hover:bg-zinc-800">
+                      Shops Only
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterType("models")} className="text-white hover:bg-zinc-800">
+                      Models Only
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </motion.div>
           </div>
@@ -74,7 +95,7 @@ export default function ExploreAll() {
 
         {/* Content Section */}
         <section className="container mx-auto px-4 py-12">
-          <Tabs defaultValue="all" className="w-full">
+          <Tabs value={filterType} onValueChange={(v) => setFilterType(v as any)} className="w-full">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-zinc-900 border border-zinc-700">
               <TabsTrigger value="all" className="data-[state=active]:bg-primary">
                 <Grid3x3 className="w-4 h-4 mr-2" />

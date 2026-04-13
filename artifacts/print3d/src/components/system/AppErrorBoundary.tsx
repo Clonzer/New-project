@@ -19,6 +19,8 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("frontendUnhandledError", { error, errorInfo });
+    // Automatically redirect to homepage on error
+    window.location.href = '/';
   }
 
   render() {
