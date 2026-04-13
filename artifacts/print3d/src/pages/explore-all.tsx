@@ -68,15 +68,18 @@ export default function ExploreAll() {
                   placeholder="Search shops and models..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 pr-4 py-4 bg-zinc-900/50 border border-zinc-700 rounded-full text-lg focus:ring-2 focus:ring-primary/50"
+                  className="pl-12 pr-4 py-4 h-14 bg-zinc-900/50 border border-zinc-700 rounded-full text-lg focus:ring-2 focus:ring-primary/50"
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-12 w-12 rounded-full border-zinc-700 bg-zinc-900/50">
+                    <Button variant="outline" size="icon" className="h-14 w-14 rounded-full border-zinc-700 bg-zinc-900/50">
                       <Filter className="w-5 h-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-zinc-900 border-zinc-700">
+                  <DropdownMenuContent className="bg-zinc-900 border-zinc-700 w-64">
+                    <div className="px-2 py-1.5">
+                      <p className="text-xs font-semibold text-zinc-400">Content Type</p>
+                    </div>
                     <DropdownMenuItem onClick={() => setFilterType("all")} className="text-white hover:bg-zinc-800">
                       All
                     </DropdownMenuItem>
@@ -85,6 +88,51 @@ export default function ExploreAll() {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setFilterType("models")} className="text-white hover:bg-zinc-800">
                       Models Only
+                    </DropdownMenuItem>
+                    <div className="px-2 py-1.5 border-t border-zinc-700 mt-2">
+                      <p className="text-xs font-semibold text-zinc-400">Price Range</p>
+                    </div>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Under $10
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      $10 - $50
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      $50 - $100
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      $100+
+                    </DropdownMenuItem>
+                    <div className="px-2 py-1.5 border-t border-zinc-700 mt-2">
+                      <p className="text-xs font-semibold text-zinc-400">Location</p>
+                    </div>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      North America
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Europe
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Asia
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Worldwide
+                    </DropdownMenuItem>
+                    <div className="px-2 py-1.5 border-t border-zinc-700 mt-2">
+                      <p className="text-xs font-semibold text-zinc-400">Tags</p>
+                    </div>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Electronics
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Art & Decor
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Tools & Hardware
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-zinc-800">
+                      Toys & Games
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
