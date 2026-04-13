@@ -34,6 +34,7 @@ import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
+import About from "@/pages/about";
 import { useLocation } from "wouter";
 
 const queryClient = new QueryClient({
@@ -86,6 +87,7 @@ function Router() {
       <Route path="/explore" component={Explore} />
       <Route path="/explore-models" component={ExploreModels} />
       <Route path="/discover" component={Discover} />
+      <Route path="/about" component={About} />
       <Route path="/contests" component={Contests} />
       <Route path="/listings" component={Listings} />
       <Route path="/shop/:id" component={Shop} />

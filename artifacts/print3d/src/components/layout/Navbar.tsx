@@ -130,6 +130,7 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
             {[
+              { path: "/about", label: "About" },
               { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },

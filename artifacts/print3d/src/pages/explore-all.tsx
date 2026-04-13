@@ -9,16 +9,12 @@ import { Search, Sparkles, Store, Package, Grid3x3 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import { useSearch } from "wouter";
-import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { useLocalePreferences } from "@/lib/locale-preferences";
 import { NeonButton } from "@/components/ui/neon-button";
 import { motion } from "framer-motion";
 
 export default function ExploreAll() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTag, setSelectedTag] = useState("all");
-  const { formatPrice } = useLocalePreferences();
   const { data, isLoading } = useListSellers({ limit: 50 });
   const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 12 });
 
@@ -30,13 +26,10 @@ export default function ExploreAll() {
 
   const filteredSellers = data?.sellers.filter((s) => {
     const q = searchTerm.toLowerCase();
-    const allTags = s.sellerTags ?? [];
     const matchesSearch =
       s.displayName.toLowerCase().includes(q) ||
-      s.description?.toLowerCase().includes(q) ||
       s.shopName?.toLowerCase().includes(q);
-    const matchesTag = selectedTag === "all" || allTags.includes(selectedTag);
-    return matchesSearch && matchesTag;
+    return matchesSearch;
   }) || [];
 
   const filteredListings = listingsData?.listings.filter((l) => {
@@ -48,7 +41,7 @@ export default function ExploreAll() {
   }) || [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
@@ -154,7 +147,7 @@ export default function ExploreAll() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
                         >
-                          <ListingCard listing={listing} formatPrice={formatPrice} />
+                          <ListingCard listing={listing} />
                         </motion.div>
                       ))}
                     </div>
@@ -170,20 +163,6 @@ export default function ExploreAll() {
 
             {/* Shops Tab */}
             <TabsContent value="shops" className="mt-8">
-              <div className="mb-6">
-                <select
-                  value={selectedTag}
-                  onChange={(e) => setSelectedTag(e.target.value)}
-                  className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white"
-                >
-                  <option value="all">All Categories</option>
-                  {SHOP_TAG_OPTIONS.map((tag) => (
-                    <option key={tag.value} value={tag.value}>
-                      {tag.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
               {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {[...Array(6)].map((_, i) => (
@@ -228,7 +207,7 @@ export default function ExploreAll() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <ListingCard listing={listing} formatPrice={formatPrice} />
+                      <ListingCard listing={listing} />
                     </motion.div>
                   ))}
                 </div>
