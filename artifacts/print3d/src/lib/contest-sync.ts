@@ -1,182 +1,245 @@
 import { supabase } from './supabase';
-import { announceContestWinner, getEndedContests, getVotingContests } from './contest-api';
 
 /**
- * Auto-contest configuration
+ * Metrics-based contest configuration
  */
-const AUTO_CONTEST_CONFIG = {
-  // Contest themes that rotate automatically
-  themes: [
-    { name: "Sci-Fi Models", category: "printing_3d", prize_pool: 500, entry_fee: 0 },
-    { name: "Functional Parts", category: "printing_3d", prize_pool: 750, entry_fee: 0 },
-    { name: "Artistic Sculptures", category: "printing_3d", prize_pool: 1000, entry_fee: 5 },
-    { name: "Miniatures & Figures", category: "printing_3d", prize_pool: 400, entry_fee: 0 },
-    { name: "Cosplay Props", category: "printing_3d", prize_pool: 600, entry_fee: 0 },
-    { name: "Custom Tools", category: "woodworking", prize_pool: 800, entry_fee: 0 },
-    { name: "Metalwork Masterpieces", category: "metalwork", prize_pool: 1200, entry_fee: 10 },
-    { name: "Design Innovation", category: "design", prize_pool: 1500, entry_fee: 0 },
-  ],
-  
-  // Contest duration in days
-  entryDuration: 7, // days to submit entries
-  votingDuration: 7, // days to vote
-  
-  // Max entries per contest
-  maxEntries: 100,
+const METRICS_CONTEST_CONFIG = {
+  contestTypes: [
+    {
+      id: 'most-sales-monthly',
+      title: 'Most Sales - Monthly',
+      description: 'Seller with the highest total sales count this month',
+      category: 'Sales',
+      reward: 'Pro Membership (6 months) + Homepage Feature',
+      badge: 'Top Seller',
+      durationDays: 30,
+      metric: 'total_sales',
+      minThreshold: 5
+    },
+    {
+      id: 'most-products-sold',
+      title: 'Most Products Sold',
+      description: 'Seller with the most individual products sold',
+      category: 'Sales',
+      reward: 'Sponsorship Package + Verified Seller Badge',
+      badge: 'Product Champion',
+      durationDays: 30,
+      metric: 'products_sold',
+      minThreshold: 10
+    },
+    {
+      id: 'most-jobs-completed',
+      title: 'Most Jobs Completed',
+      description: 'Maker with the most custom job completions',
+      category: 'Custom Jobs',
+      reward: 'Pro Membership (3 months) + Priority Badge',
+      badge: 'Job Master',
+      durationDays: 30,
+      metric: 'jobs_completed',
+      minThreshold: 5
+    },
+    {
+      id: 'revenue-leader',
+      title: 'Revenue Leader',
+      description: 'Highest revenue generator',
+      category: 'Sales',
+      reward: 'Marketing Credits ($500) + Featured Placement',
+      badge: 'Revenue King',
+      durationDays: 90,
+      metric: 'total_revenue',
+      minThreshold: 500
+    }
+  ]
 };
 
 /**
- * Create an auto-generated contest
+ * Get leaderboard data for a specific metric
  */
-export async function createAutoContest(themeIndex: number = 0) {
-  const theme = AUTO_CONTEST_CONFIG.themes[themeIndex % AUTO_CONTEST_CONFIG.themes.length];
-  const now = new Date();
-  const votingStarts = new Date(now.getTime() + AUTO_CONTEST_CONFIG.entryDuration * 24 * 60 * 60 * 1000);
-  const votingEnds = new Date(votingStarts.getTime() + AUTO_CONTEST_CONFIG.votingDuration * 24 * 60 * 60 * 1000);
-
+export async function getLeaderboard(metric: string, limit: number = 10) {
   try {
+    // Query sellers sorted by the specified metric
+    const { data, error } = await supabase
+      .from('sellers')
+      .select('*')
+      .gte(metric, 0)
+      .order(metric, { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return { success: true, leaderboard: data || [] };
+  } catch (error) {
+    console.error('Failed to get leaderboard:', error);
+    return { success: false, error, leaderboard: [] };
+  }
+}
+
+/**
+ * Select winner for a metrics-based contest
+ */
+export async function selectMetricsWinner(contestId: string, metric: string, minThreshold: number) {
+  try {
+    // Get top performer for the metric
+    const { data: topPerformers, error } = await supabase
+      .from('sellers')
+      .select('*')
+      .gte(metric, minThreshold)
+      .order(metric, { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+    if (!topPerformers || topPerformers.length === 0) {
+      console.log('No eligible performers for contest:', contestId);
+      return { success: true, message: 'No eligible performers' };
+    }
+
+    const winner = topPerformers[0];
+
+    // Record winner in contest_winners table
+    const { error: winnerError } = await supabase
+      .from('contest_winners')
+      .insert({
+        contest_id: contestId,
+        user_id: winner.id,
+        rank: 1,
+        metric_value: winner[metric],
+        awarded_at: new Date().toISOString()
+      });
+
+    if (winnerError) throw winnerError;
+
+    // Award badge to winner
+    const { error: badgeError } = await supabase
+      .from('seller_badges')
+      .insert({
+        seller_id: winner.id,
+        badge_name: METRICS_CONTEST_CONFIG.contestTypes.find(c => c.id === contestId)?.badge || 'Contest Winner',
+        awarded_at: new Date().toISOString()
+      });
+
+    if (badgeError) {
+      console.error('Failed to award badge:', badgeError);
+    }
+
+    console.log('Winner selected for contest:', contestId, winner);
+    return { success: true, winner };
+  } catch (error) {
+    console.error('Failed to select metrics winner:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Create new metrics-based contest
+ */
+export async function createMetricsContest(contestType: any) {
+  try {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
     const { data, error } = await supabase
       .from('contests')
       .insert({
-        title: `${theme.name} Contest`,
-        description: `Showcase your best ${theme.name.toLowerCase()}! Win prizes and get featured on our platform.`,
-        theme: theme.name,
-        category: theme.category,
-        prize_pool: theme.prize_pool,
-        entry_fee: theme.entry_fee,
-        max_entries: AUTO_CONTEST_CONFIG.maxEntries,
-        voting_starts_at: votingStarts.toISOString(),
-        voting_ends_at: votingEnds.toISOString(),
-        is_active: true,
-        is_featured: true,
+        id: contestType.id,
+        title: contestType.title,
+        description: contestType.description,
+        category: contestType.category,
+        reward: contestType.reward,
+        status: 'active',
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        max_participants: 999,
+        judging_criteria: [contestType.metric],
+        requirements: [`Minimum ${contestType.minThreshold} ${contestType.metric}`],
+        badge_awarded: contestType.badge,
+        metric_type: contestType.metric,
+        min_threshold: contestType.minThreshold
       })
       .select()
       .single();
 
     if (error) throw error;
-    
-    console.log('Auto-contest created:', data);
+
+    console.log('Metrics contest created:', data);
     return { success: true, contest: data };
   } catch (error) {
-    console.error('Failed to create auto-contest:', error);
+    console.error('Failed to create metrics contest:', error);
     return { success: false, error };
   }
 }
 
 /**
- * Select winners for an ended contest
- */
-export async function selectContestWinners(contestId: string) {
-  try {
-    // Get all entries for the contest, sorted by votes
-    const { data: entries, error } = await supabase
-      .from('contest_entries')
-      .select('*')
-      .eq('contest_id', contestId)
-      .order('votes_count', { ascending: false });
-
-    if (error) throw error;
-    if (!entries || entries.length === 0) {
-      console.log('No entries for contest:', contestId);
-      return { success: true, message: 'No entries to judge' };
-    }
-
-    // Get contest details for prize pool
-    const { data: contest } = await supabase
-      .from('contests')
-      .select('prize_pool')
-      .eq('id', contestId)
-      .single();
-
-    const prizePool = contest?.prize_pool || 0;
-
-    // Award prizes to top 3 entries
-    const prizes = [
-      { rank: 1, percentage: 0.5 },  // 50% of prize pool
-      { rank: 2, percentage: 0.3 },  // 30% of prize pool
-      { rank: 3, percentage: 0.2 },  // 20% of prize pool
-    ];
-
-    for (let i = 0; i < Math.min(entries.length, prizes.length); i++) {
-      const entry = entries[i];
-      const prize = prizes[i];
-      const prizeAmount = prizePool * prize.percentage;
-
-      await announceContestWinner(contestId, entry.id, prize.rank, prizeAmount);
-    }
-
-    console.log('Winners selected for contest:', contestId);
-    return { success: true, winnersCount: Math.min(entries.length, prizes.length) };
-  } catch (error) {
-    console.error('Failed to select contest winners:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Main auto-contest sync function
- * This should be called by a cron job or scheduled task
+ * Main sync function for metrics-based contests
+ * Automatically selects winners and creates new contests
  */
 export async function syncContestStatuses(): Promise<{ success: boolean; message: string }> {
   try {
     const now = new Date();
     const nowIso = now.toISOString();
 
-    // 1. Check if we need to create a new contest
-    // Look for active contests that haven't started voting yet
-    const { data: upcomingContests, error: upcomingError } = await supabase
-      .from('contests')
-      .select('*')
-      .eq('is_active', true)
-      .gte('voting_starts_at', nowIso)
-      .order('voting_starts_at', { ascending: true });
-
-    if (upcomingError) throw upcomingError;
-
-    // If no upcoming contests, create one
-    if (!upcomingContests || upcomingContests.length === 0) {
-      const themeIndex = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000)); // Rotate themes weekly
-      await createAutoContest(themeIndex);
-    }
-
-    // 2. Check for contests that have ended voting
+    // 1. Check for ended contests and select winners
     const { data: endedContests, error: endedError } = await supabase
       .from('contests')
       .select('*')
-      .eq('is_active', true)
-      .lt('voting_ends_at', nowIso)
+      .lt('end_date', nowIso)
       .is('winner_announced_at', null);
 
     if (endedError) throw endedError;
 
-    // Select winners for ended contests
     if (endedContests && endedContests.length > 0) {
       for (const contest of endedContests) {
-        await selectContestWinners(contest.id);
+        const contestType = METRICS_CONTEST_CONFIG.contestTypes.find(c => c.id === contest.id);
+        if (contestType) {
+          await selectMetricsWinner(contest.id, contestType.metric, contestType.minThreshold);
+          // Mark contest as completed
+          await supabase
+            .from('contests')
+            .update({ 
+              status: 'completed',
+              winner_announced_at: new Date().toISOString()
+            })
+            .eq('id', contest.id);
+        }
       }
     }
 
-    console.log('Contest sync completed successfully');
-    return { success: true, message: 'Contest sync completed' };
+    // 2. Check if we need to create new contests for the current month
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    for (const contestType of METRICS_CONTEST_CONFIG.contestTypes) {
+      // Check if a contest of this type exists for current month
+      const { data: existingContest } = await supabase
+        .from('contests')
+        .select('*')
+        .eq('id', contestType.id)
+        .single();
+
+      if (!existingContest) {
+        // Create new contest for this type
+        await createMetricsContest(contestType);
+      }
+    }
+
+    console.log('Metrics contest sync completed successfully');
+    return { success: true, message: 'Metrics contest sync completed' };
   } catch (error) {
-    console.error('Contest sync failed:', error);
-    return { success: false, message: 'Contest sync failed' };
+    console.error('Metrics contest sync failed:', error);
+    return { success: false, message: 'Metrics contest sync failed' };
   }
 }
 
 /**
  * Hook to sync contests on mount
- * Usage: useSyncContestsOnMount() in your layout or page component
  */
 export function useSyncContestsOnMount() {
   if (typeof window !== 'undefined') {
-    // Use requestIdleCallback or setTimeout to not block initial render
     const scheduleSync = () => {
       syncContestStatuses().then((result) => {
         console.log('Contest sync on mount:', result);
       });
     };
-    
+
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(scheduleSync, { timeout: 2000 });
     } else {
