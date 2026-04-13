@@ -42,8 +42,6 @@ interface Contest {
   startDate: string;
   endDate: string;
   maxParticipants: number;
-  currentParticipants: number;
-  prizePool: number;
   judgingCriteria: string[];
   requirements: string[];
   badgeAwarded?: string;
@@ -97,13 +95,11 @@ export default function Contests() {
               title: "Sales Champion of the Month",
               description: "Top seller by revenue this month wins premium sponsorship and featured placement",
               category: "Sales Performance",
-              reward: "$500 sponsorship + 30-day homepage feature",
+              reward: "Pro Membership (6 months) + Homepage Feature",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
               maxParticipants: 999,
-              currentParticipants: Math.floor(Math.random() * 50) + 20,
-              prizePool: 1000,
               judgingCriteria: ["Total Revenue", "Order Volume", "Customer Satisfaction", "Growth Rate"],
               requirements: ["Minimum 10 orders", "4.5+ star rating", "Active listings"],
               badgeAwarded: "Sales Champion"
@@ -113,13 +109,11 @@ export default function Contests() {
               title: "5-Star Review Master",
               description: "Earn the most 5-star reviews this quarter and win marketing credits",
               category: "Customer Service",
-              reward: "$300 marketing credits + Verified Seller badge",
+              reward: "Sponsorship Package + Verified Seller Badge",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1).toISOString(),
               endDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3 + 3, 0).toISOString(),
               maxParticipants: 500,
-              currentParticipants: Math.floor(Math.random() * 30) + 15,
-              prizePool: 600,
               judgingCriteria: ["Review Count", "Average Rating", "Response Time", "Customer Retention"],
               requirements: ["Minimum 5 reviews", "4.8+ average rating", "24h response time"],
               badgeAwarded: "Customer Service Expert"
@@ -129,13 +123,11 @@ export default function Contests() {
               title: "Lightning Fast Delivery",
               description: "Fastest average delivery time wins processing fee discounts",
               category: "Fulfillment",
-              reward: "50% processing fee discount for 3 months",
+              reward: "Pro Membership (3 months) + Priority Badge",
               status: "active" as const,
               startDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString(),
               maxParticipants: 200,
-              currentParticipants: Math.floor(Math.random() * 25) + 10,
-              prizePool: 400,
               judgingCriteria: ["Average Delivery Time", "On-Time Rate", "Packaging Quality", "Tracking Updates"],
               requirements: ["Minimum 15 completed orders", "95% on-time delivery", "Tracking on all orders"],
               badgeAwarded: "Speed Demon"
@@ -145,13 +137,11 @@ export default function Contests() {
               title: "Quality Maker Award",
               description: "Highest quality products based on customer feedback and returns",
               category: "Product Quality",
-              reward: "Quality certification + priority placement",
+              reward: "Quality Certification Badge + Pro Membership (3 months)",
               status: "judging" as const,
               startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
               maxParticipants: 150,
-              currentParticipants: Math.floor(Math.random() * 40) + 20,
-              prizePool: 750,
               judgingCriteria: ["Return Rate", "Customer Feedback", "Product Photos Accuracy", "Material Quality"],
               requirements: ["Minimum 20 orders", "<2% return rate", "Detailed product descriptions"],
               badgeAwarded: "Quality Certified"
@@ -161,13 +151,11 @@ export default function Contests() {
               title: "Rising Star Award",
               description: "Fastest growing shop by orders and revenue wins startup package",
               category: "Growth",
-              reward: "Startup package worth $1000 + mentorship",
+              reward: "Sponsorship Package + Mentorship Program",
               status: "upcoming" as const,
               startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 35 * 24 * 60 * 60 * 1000).toISOString(),
               maxParticipants: 100,
-              currentParticipants: 0,
-              prizePool: 1200,
               judgingCriteria: ["Growth Percentage", "New Customer Acquisition", "Revenue Growth", "Listing Quality"],
               requirements: ["Shop < 6 months old", "Minimum 5 orders", "Complete shop setup"],
               badgeAwarded: "Rising Star"
@@ -177,13 +165,11 @@ export default function Contests() {
               title: "Community Leader",
               description: "Most helpful in forums and community discussions",
               category: "Community",
-              reward: "Moderator privileges + exclusive badge",
+              reward: "Moderator Privileges + Exclusive Badge",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
               maxParticipants: 300,
-              currentParticipants: Math.floor(Math.random() * 20) + 8,
-              prizePool: 300,
               judgingCriteria: ["Forum Posts", "Helpful Answers", "Community Engagement", "Peer Recognition"],
               requirements: ["Minimum 10 helpful posts", "Positive community standing", "Active participation"],
               badgeAwarded: "Community Leader"
@@ -193,13 +179,11 @@ export default function Contests() {
               title: "Innovation Award",
               description: "Most innovative product designs and manufacturing techniques",
               category: "Innovation",
-              reward: "R&D grant + patent assistance",
+              reward: "R&D Grant + Patent Assistance",
               status: "upcoming" as const,
               startDate: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString(),
               maxParticipants: 80,
-              currentParticipants: 0,
-              prizePool: 2000,
               judgingCriteria: ["Design Innovation", "Technical Complexity", "Market Potential", "Originality"],
               requirements: ["Original designs", "Technical documentation", "Market analysis"],
               badgeAwarded: "Innovation Pioneer"
@@ -209,17 +193,15 @@ export default function Contests() {
               title: "Sustainability Champion",
               description: "Best eco-friendly practices and sustainable materials",
               category: "Sustainability",
-              reward: "Green certification + marketing boost",
+              reward: "Green Certification Badge + Sponsorship",
               status: "active" as const,
               startDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString(),
               maxParticipants: 120,
-              currentParticipants: Math.floor(Math.random() * 15) + 5,
-              prizePool: 500,
-              judgingCriteria: ["Sustainable Materials", "Waste Reduction", "Eco-Friendly Packaging", "Carbon Footprint"],
-              requirements: ["Sustainable materials used", "Eco-friendly packaging", "Waste reduction plan"],
-              badgeAwarded: "Eco Warrior"
-            }
+              judgingCriteria: ["Material Sustainability", "Waste Reduction", "Energy Efficiency", "Eco-Packaging"],
+              requirements: ["Sustainable materials", "Waste tracking", "Energy-efficient practices"],
+              badgeAwarded: "Eco Champion"
+            },
           ];
 
           // Ensure at least one contest is always active (random selection)
@@ -227,7 +209,6 @@ export default function Contests() {
           if (activeContests.length === 0 && salesContests.length > 0) {
             const randomIndex = Math.floor(Math.random() * salesContests.length);
             salesContests[randomIndex].status = "active";
-            salesContests[randomIndex].currentParticipants = Math.floor(Math.random() * 30) + 10;
           }
 
           return salesContests;
@@ -244,8 +225,6 @@ export default function Contests() {
               startDate: c.start_date,
               endDate: c.end_date,
               maxParticipants: c.max_participants,
-              currentParticipants: c.current_participants,
-              prizePool: parseInt(c.prize?.replace(/[^0-9]/g, '')) || 0,
               judgingCriteria: c.rules || [],
               requirements: c.rules || [],
               badgeAwarded: c.badge_awarded
@@ -465,7 +444,7 @@ export default function Contests() {
                               </Badge>
                             </div>
                             <div className="text-right">
-                              <div className="text-2xl font-bold text-primary">${contest.prizePool}</div>
+                              <div className="text-2xl font-bold text-primary">{contest.reward}</div>
                               <div className="text-xs text-zinc-400">Prize Pool</div>
                             </div>
                           </div>
@@ -474,13 +453,9 @@ export default function Contests() {
 
                           <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Participants</span>
-                              <span className="text-white">{contest.currentParticipants}/{contest.maxParticipants}</span>
+                              <span className="text-zinc-400">Reward</span>
+                              <span className="text-white">{contest.reward}</span>
                             </div>
-                            <Progress 
-                              value={(contest.currentParticipants / contest.maxParticipants) * 100} 
-                              className="h-2"
-                            />
                             <div className="flex justify-between text-sm">
                               <span className="text-zinc-400">Ends in</span>
                               <span className="text-white">
@@ -491,18 +466,12 @@ export default function Contests() {
 
                           <div className="flex gap-2">
                             <Button 
-                              onClick={() => handleEnterContest(contest.id)}
-                              className="flex-1 bg-primary hover:bg-primary/600"
-                            >
-                              <Upload className="w-4 h-4 mr-2" />
-                              Enter Contest
-                            </Button>
-                            <Button 
                               variant="outline" 
-                              size="sm"
+                              className="flex-1"
                               onClick={() => setSelectedContest(contest)}
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
                             </Button>
                           </div>
                         </CardContent>
@@ -642,8 +611,8 @@ export default function Contests() {
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Prize Pool</span>
-                              <span className="text-primary font-bold">${contest.prizePool}</span>
+                              <span className="text-zinc-400">Reward</span>
+                              <span className="text-primary font-bold">{contest.reward}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-zinc-400">Max Participants</span>

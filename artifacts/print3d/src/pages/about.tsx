@@ -63,13 +63,6 @@ export default function About() {
     }
   ];
 
-  const stats = [
-    { value: "10K+", label: "Active Makers" },
-    { value: "50K+", label: "Orders Delivered" },
-    { value: "99%", label: "Satisfaction Rate" },
-    { value: "24/7", label: "Support Available" }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
@@ -110,29 +103,6 @@ export default function About() {
           />
         </section>
 
-        {/* Stats Section */}
-        <section className="py-20 relative">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400 mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-zinc-400">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Mission Section */}
         <section className="py-20 relative">
           <div className="container mx-auto px-4">
@@ -152,6 +122,126 @@ export default function About() {
                 ideas to reality, regardless of their location or resources.
               </p>
             </motion.div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-20 relative">
+          <div className="container mx-auto px-4">
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-bold text-white mb-12 text-center"
+            >
+              How the <span className="text-primary">Marketplace</span> Works
+            </motion.h2>
+
+            <div className="max-w-6xl mx-auto space-y-16">
+              {/* For Customers */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="bg-zinc-900/50 border border-zinc-700 rounded-3xl p-8 md:p-12"
+              >
+                <h3 className="text-2xl font-bold text-white mb-6">For Customers</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">1</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Browse & Discover</h4>
+                        <p className="text-zinc-400 text-sm">Explore thousands of 3D models, compare shops, and find the perfect maker for your project.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">2</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Place an Order</h4>
+                        <p className="text-zinc-400 text-sm">Select your model, customize materials and settings, and place your order with secure payments.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">3</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Track Production</h4>
+                        <p className="text-zinc-400 text-sm">Get real-time updates as your order moves through printing, quality check, and shipping.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">4</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Receive & Review</h4>
+                        <p className="text-zinc-400 text-sm">Get your delivery, inspect the quality, and leave a review to help others.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* For Makers */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="bg-zinc-900/50 border border-zinc-700 rounded-3xl p-8 md:p-12"
+              >
+                <h3 className="text-2xl font-bold text-white mb-6">For Makers</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">1</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Register Your Shop</h4>
+                        <p className="text-zinc-400 text-sm">Create your maker profile, list your equipment, and set your pricing and availability.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">2</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">List Your Models</h4>
+                        <p className="text-zinc-400 text-sm">Upload your 3D designs, set pricing, and add detailed descriptions and images.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">3</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Receive Orders</h4>
+                        <p className="text-zinc-400 text-sm">Get notified of new orders, communicate with customers, and manage production schedules.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-primary font-bold">4</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Grow Your Business</h4>
+                        <p className="text-zinc-400 text-sm">Build your reputation, earn certifications, and unlock premium features and sponsorships.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 
