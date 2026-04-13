@@ -15,7 +15,8 @@ import {
   Calendar,
   Upload,
   Eye,
-  Crown
+  Crown,
+  TrendingUp
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -27,10 +28,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { listContests, listContestEntries, voteForEntry, getVotingContests, getEndedContests, getActiveContests } from "@/lib/contest-api";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useListContests, useListContestEntries, useVoteForEntry } from "@/lib/workspace-stub";
+import { getLeaderboard } from "@/lib/contest-sync";
 
 interface Contest {
   id: string;
@@ -76,6 +79,8 @@ export default function Contests() {
   const [entries, setEntries] = useState<ContestEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState("total_sales");
 
   useEffect(() => {
     const fetchContestsData = async () => {
@@ -247,6 +252,12 @@ export default function Contests() {
 
         setContests(transformedContests);
         setEntries(transformedEntries);
+
+        // Fetch leaderboard data
+        const leaderboardResult = await getLeaderboard(selectedMetric, 10);
+        if (leaderboardResult.success) {
+          setLeaderboard(leaderboardResult.leaderboard);
+        }
       } catch (error) {
         console.error("Failed to fetch contests data:", error);
       } finally {
@@ -256,6 +267,16 @@ export default function Contests() {
 
     fetchContestsData();
   }, []);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const leaderboardResult = await getLeaderboard(selectedMetric, 10);
+      if (leaderboardResult.success) {
+        setLeaderboard(leaderboardResult.leaderboard);
+      }
+    };
+    fetchLeaderboard();
+  }, [selectedMetric]);
 
   const getStatusColor = (status: Contest["status"]) => {
     switch (status) {
@@ -355,10 +376,14 @@ export default function Contests() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid w-full grid-cols-3 bg-zinc-800/50 border border-zinc-700">
+            <TabsList className="grid w-full grid-cols-4 bg-zinc-800/50 border border-zinc-700">
               <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                 <Target className="w-4 h-4 mr-2" />
                 Active Contests
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Leaderboard
               </TabsTrigger>
               <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                 <Trophy className="w-4 h-4 mr-2" />
@@ -458,6 +483,89 @@ export default function Contests() {
                   <p className="text-zinc-500 text-sm mt-2">Check back soon for new opportunities!</p>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Leaderboard Tab */}
+            <TabsContent value="leaderboard" className="mt-8">
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-4 items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Performance Leaderboard</h2>
+                    <p className="text-zinc-400">Track seller performance across key metrics</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={selectedMetric === "total_sales" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("total_sales")}
+                      className={selectedMetric === "total_sales" ? "bg-primary" : ""}
+                    >
+                      Most Sales
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "products_sold" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("products_sold")}
+                      className={selectedMetric === "products_sold" ? "bg-primary" : ""}
+                    >
+                      Products Sold
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "jobs_completed" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("jobs_completed")}
+                      className={selectedMetric === "jobs_completed" ? "bg-primary" : ""}
+                    >
+                      Jobs Completed
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "total_revenue" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("total_revenue")}
+                      className={selectedMetric === "total_revenue" ? "bg-primary" : ""}
+                    >
+                      Revenue
+                    </Button>
+                  </div>
+                </div>
+
+                <Card className="bg-zinc-800/50 border-zinc-700">
+                  <CardContent className="p-0">
+                    <div className="divide-y divide-zinc-700">
+                      {leaderboard.length > 0 ? (
+                        leaderboard.map((seller, index) => (
+                          <div key={seller.id} className="flex items-center gap-4 p-4 hover:bg-zinc-700/50 transition-colors">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-700 text-white font-bold">
+                              {index + 1}
+                            </div>
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={seller.avatar} />
+                              <AvatarFallback>{seller.displayName?.charAt(0) || "S"}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow">
+                              <p className="font-medium text-white">{seller.displayName || seller.shopName}</p>
+                              <p className="text-sm text-zinc-400">{seller.shopName || "Shop"}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-primary text-lg">{seller[selectedMetric] || 0}</p>
+                              <p className="text-xs text-zinc-400 capitalize">{selectedMetric.replace(/_/g, " ")}</p>
+                            </div>
+                            {index === 0 && (
+                              <Medal className="w-6 h-6 text-yellow-400" />
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-12">
+                          <TrendingUp className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                          <p className="text-zinc-400">No leaderboard data available yet</p>
+                          <p className="text-zinc-500 text-sm mt-2">Start making sales to appear on the leaderboard!</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Winners Tab */}
