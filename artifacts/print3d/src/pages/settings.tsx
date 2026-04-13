@@ -1159,9 +1159,7 @@ export default function Settings() {
                         <p className="mt-1 text-sm text-zinc-400">
                           {isVerified
                             ? "This account is verified."
-                            : isSeller
-                              ? "Verify your email to create listings, manage equipment, and process seller work."
-                              : "You can verify now, or wait until you want to sell on the platform."}
+                            : "You can verify your email to unlock additional features, but it's not required to create listings."}
                         </p>
                       </div>
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
