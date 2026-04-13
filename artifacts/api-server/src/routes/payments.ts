@@ -249,7 +249,7 @@ router.get("/payments/stripe/checkout", requireAuth, async (req: AuthedRequest, 
     const priceUsd = billing === "yearly" ? plan.yearly : plan.monthly;
     const stripeSession = await createStripeCheckoutSession({
       customerEmail: buyer.email,
-      successUrl: `${appUrl}/settings?section=payment&upgrade=success`,
+      successUrl: `${appUrl}/dashboard?checkout=success&plan=${planId}`,
       cancelUrl: `${appUrl}/pricing`,
       lineItems: [
         {
@@ -415,7 +415,7 @@ router.post("/payments/sponsorship/checkout-session", requireAuth, async (req: A
 
     const stripeSession = await createStripeCheckoutSession({
       customerEmail: buyer.email,
-      successUrl: `${appUrl}${successPath.startsWith("/") ? successPath : `/${successPath}`}`,
+      successUrl: `${appUrl}/dashboard?checkout=success&sponsorship=${sponsorshipType}`,
       cancelUrl: `${appUrl}${cancelPath.startsWith("/") ? cancelPath : `/${cancelPath}`}`,
       lineItems: [
         {

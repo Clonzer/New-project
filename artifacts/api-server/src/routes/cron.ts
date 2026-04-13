@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { contestsTable } from "@workspace/db";
+import { contestsTable, usersTable, listingsTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
+import { and, eq, lt, ne } from "drizzle-orm";
 
 const router = Router();
 
@@ -54,11 +55,51 @@ router.post("/contests", async (req, res) => {
 
 // Health check for cron
 router.get("/health", async (req, res) => {
-  res.json({ 
-    status: "ok", 
+  res.json({
+    status: "ok",
     timestamp: new Date().toISOString(),
     service: "cron-api"
   });
+});
+
+// Check and expire plans and sponsorships
+router.get("/check-expirations", async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Expire plans - downgrade to starter if expired
+    await db
+      .update(usersTable)
+      .set({ planTier: 'starter' })
+      .where(and(
+        lt(usersTable.plan_expires_at, now),
+        ne(usersTable.planTier, 'starter')
+      ));
+
+    // Expire sponsorships
+    await db
+      .update(usersTable)
+      .set({ isSponsored: false, sponsorship_type: null, sponsorship_expires_at: null })
+      .where(lt(usersTable.sponsorship_expires_at, now));
+
+    // Expire listing sponsorships
+    await db
+      .update(listingsTable)
+      .set({ sponsoredUntil: null })
+      .where(lt(listingsTable.sponsoredUntil, now));
+
+    res.json({
+      success: true,
+      message: "Plan and sponsorship expirations checked",
+      timestamp: now.toISOString()
+    });
+  } catch (error) {
+    console.error("Failed to check expirations:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to check expirations"
+    });
+  }
 });
 
 export default router;
