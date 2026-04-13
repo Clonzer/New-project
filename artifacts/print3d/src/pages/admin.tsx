@@ -10,83 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Shield, Users, CheckCircle, XCircle, AlertTriangle, Crown, Eye, Ban, Crown as CrownIcon, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data - replace with actual API calls
-const mockUsers = [
-  {
-    id: 1,
-    displayName: "John Maker",
-    email: "john@example.com",
-    role: "SELLER",
-    isVerified: true,
-    verificationStatus: "verified",
-    verificationSubmittedAt: "2024-01-15",
-    totalOrders: 145,
-    rating: 4.8,
-    joinDate: "2023-06-01"
-  },
-  {
-    id: 2,
-    displayName: "Sarah Creator",
-    email: "sarah@example.com", 
-    role: "SELLER",
-    isVerified: false,
-    verificationStatus: "pending",
-    verificationSubmittedAt: "2024-02-01",
-    totalOrders: 89,
-    rating: 4.9,
-    joinDate: "2023-08-15"
-  },
-  {
-    id: 3,
-    displayName: "Mike Designer",
-    email: "mike@example.com",
-    role: "USER",
-    isVerified: false,
-    verificationStatus: "not_submitted",
-    verificationSubmittedAt: null,
-    totalOrders: 12,
-    rating: null,
-    joinDate: "2024-01-20"
-  }
-];
-
-// Mock listings data for moderators
-const mockListings = [
-  {
-    id: 1,
-    title: "Custom Mechanical Keyboard",
-    description: "High-quality 3D printed mechanical keyboard",
-    seller: "John Maker",
-    status: "pending_review",
-    createdAt: "2024-02-15",
-    price: 89.99,
-    flagged: true,
-    flagReason: "Possible copyright issue"
-  },
-  {
-    id: 2,
-    title: "Dragon Figurine",
-    description: "Detailed dragon statue for collectors",
-    seller: "Sarah Creator", 
-    status: "approved",
-    createdAt: "2024-02-10",
-    price: 45.00,
-    flagged: false,
-    flagReason: null
-  },
-  {
-    id: 3,
-    title: "Phone Stand",
-    description: "Adjustable phone stand for desk use",
-    seller: "Mike Designer",
-    status: "flagged",
-    createdAt: "2024-02-12",
-    price: 25.00,
-    flagged: true,
-    flagReason: "Inappropriate content"
-  }
-];
+import { useListUsers, useListListings } from "@/lib/workspace-api-mock";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -96,6 +20,13 @@ export default function Admin() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const isOwner = user?.role === "OWNER";
   const isModerator = user?.role === "MODERATOR";
+
+  // Fetch real data from API
+  const { data: usersData, isLoading: isLoadingUsers } = useListUsers();
+  const { data: listingsData, isLoading: isLoadingListings } = useListListings({ limit: 100 });
+
+  const users = usersData?.users || [];
+  const listings = listingsData?.listings || [];
 
   // Check if user has OWNER or MODERATOR role
   if (!user || (user.role !== "OWNER" && user.role !== "MODERATOR")) {
@@ -118,12 +49,18 @@ export default function Admin() {
     );
   }
 
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
+
+  // Calculate real stats from data
+  const totalUsers = users.length;
+  const pendingVerifications = users.filter(u => (u as any).verificationStatus === "pending").length;
+  const activeSellers = users.filter(u => u.role === "SELLER" && (u as any).isVerified).length;
+  const moderators = users.filter(u => u.role === "MODERATOR").length;
 
   const handleVerifyUser = (userId: number, approved: boolean) => {
     // API call to verify/reject user
@@ -180,37 +117,37 @@ export default function Admin() {
                 <CardTitle className="text-white text-lg">Total Users</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-white">1,247</div>
-                <p className="text-zinc-400 text-sm">+12% this month</p>
+                <div className="text-3xl font-bold text-white">{totalUsers}</div>
+                <p className="text-zinc-400 text-sm">Registered users</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-zinc-800/50 border-zinc-700">
               <CardHeader className="pb-3">
                 <CardTitle className="text-white text-lg">Pending Verifications</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-yellow-500">23</div>
+                <div className="text-3xl font-bold text-yellow-500">{pendingVerifications}</div>
                 <p className="text-zinc-400 text-sm">Need review</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-zinc-800/50 border-zinc-700">
               <CardHeader className="pb-3">
                 <CardTitle className="text-white text-lg">Active Sellers</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-500">892</div>
+                <div className="text-3xl font-bold text-green-500">{activeSellers}</div>
                 <p className="text-zinc-400 text-sm">Verified makers</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-zinc-800/50 border-zinc-700">
               <CardHeader className="pb-3">
                 <CardTitle className="text-white text-lg">Moderators</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-500">5</div>
+                <div className="text-3xl font-bold text-blue-500">{moderators}</div>
                 <p className="text-zinc-400 text-sm">Active mods</p>
               </CardContent>
             </Card>
@@ -308,42 +245,42 @@ export default function Admin() {
                   </TableHeader>
                   <TableBody>
                     {filteredUsers
-                      .filter(user => user.verificationStatus !== "not_submitted")
+                      .filter(user => (user as any).verificationStatus && (user as any).verificationStatus !== "not_submitted")
                       .map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium text-white">{user.displayName}</div>
-                            <div className="text-sm text-zinc-400">{user.email}</div>
+                            <div className="font-medium text-white">{user.displayName || "Unknown"}</div>
+                            <div className="text-sm text-zinc-400">{user.email || "N/A"}</div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="border-zinc-600">
-                            {user.role}
+                            {user.role || "USER"}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            variant={user.verificationStatus === "verified" ? "default" : 
-                                   user.verificationStatus === "pending" ? "secondary" : "destructive"}
+                          <Badge
+                            variant={(user as any).verificationStatus === "verified" ? "default" :
+                                   (user as any).verificationStatus === "pending" ? "secondary" : "destructive"}
                             className={
-                              user.verificationStatus === "verified" ? "bg-green-600" :
-                              user.verificationStatus === "pending" ? "bg-yellow-600" : "bg-red-600"
+                              (user as any).verificationStatus === "verified" ? "bg-green-600" :
+                              (user as any).verificationStatus === "pending" ? "bg-yellow-600" : "bg-red-600"
                             }
                           >
-                            {user.verificationStatus}
+                            {(user as any).verificationStatus || "Unknown"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-zinc-300">
-                          {user.verificationSubmittedAt || "N/A"}
+                          {(user as any).verificationSubmittedAt || "N/A"}
                         </TableCell>
-                        <TableCell className="text-zinc-300">{user.totalOrders}</TableCell>
+                        <TableCell className="text-zinc-300">{(user as any).totalOrders || "N/A"}</TableCell>
                         <TableCell className="text-zinc-300">
-                          {user.rating ? `${user.rating} / 5.0` : "N/A"}
+                          {(user as any).rating ? `${(user as any).rating} / 5.0` : "N/A"}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            {user.verificationStatus === "pending" && (
+                            {(user as any).verificationStatus === "pending" && (
                               <>
                                 <Button
                                   size="sm"
@@ -363,7 +300,7 @@ export default function Admin() {
                                 </Button>
                               </>
                             )}
-                            {user.verificationStatus === "verified" && (
+                            {(user as any).verificationStatus === "verified" && (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -410,13 +347,13 @@ export default function Admin() {
                       <TableRow key={user.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium text-white">{user.displayName}</div>
-                            <div className="text-sm text-zinc-400">{user.email}</div>
+                            <div className="font-medium text-white">{user.displayName || "Unknown"}</div>
+                            <div className="text-sm text-zinc-400">{user.email || "N/A"}</div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Select
-                            value={user.role}
+                            value={user.role || "USER"}
                             onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
                           >
                             <SelectTrigger className="w-32 bg-zinc-800 border-zinc-600">
@@ -431,16 +368,16 @@ export default function Admin() {
                           </Select>
                         </TableCell>
                         <TableCell>
-                          {user.isVerified ? (
+                          {(user as any).isVerified ? (
                             <Badge className="bg-green-600">Verified</Badge>
                           ) : (
                             <Badge variant="outline" className="border-zinc-600">Not Verified</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-zinc-300">{user.joinDate}</TableCell>
-                        <TableCell className="text-zinc-300">{user.totalOrders}</TableCell>
+                        <TableCell className="text-zinc-300">{(user as any).joinDate || new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-zinc-300">{(user as any).totalOrders || "N/A"}</TableCell>
                         <TableCell className="text-zinc-300">
-                          {user.rating ? `${user.rating} / 5.0` : "N/A"}
+                          {(user as any).rating ? `${(user as any).rating} / 5.0` : "N/A"}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -493,7 +430,7 @@ export default function Admin() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockListings.map((listing) => (
+                    {listings.map((listing) => (
                       <TableRow key={listing.id}>
                         <TableCell>
                           <div>
@@ -501,116 +438,36 @@ export default function Admin() {
                             <div className="text-sm text-zinc-400 truncate max-w-xs">{listing.description}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-zinc-300">{listing.seller}</TableCell>
+                        <TableCell className="text-zinc-300">{listing.sellerName || listing.sellerId}</TableCell>
                         <TableCell>
-                          <Badge 
-                            variant={listing.status === "approved" ? "default" : 
-                                   listing.status === "pending_review" ? "secondary" : "destructive"}
-                            className={
-                              listing.status === "approved" ? "bg-green-600" :
-                              listing.status === "pending_review" ? "bg-yellow-600" : "bg-red-600"
-                            }
+                          <Badge
+                            variant="outline"
+                            className="border-zinc-600"
                           >
-                            {listing.status.replace("_", " ")}
+                            {(listing as any).status || "Active"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-zinc-300">${listing.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-zinc-300">{listing.createdAt}</TableCell>
+                        <TableCell className="text-zinc-300">${listing.price?.toFixed(2) || "N/A"}</TableCell>
+                        <TableCell className="text-zinc-300">{new Date(listing.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          {listing.flagged ? (
-                            <div className="space-y-1">
-                              <Badge variant="destructive" className="bg-red-600">
-                                Flagged
-                              </Badge>
-                              {listing.flagReason && (
-                                <div className="text-xs text-red-400">{listing.flagReason}</div>
-                              )}
-                            </div>
-                          ) : (
-                            <Badge variant="outline" className="border-zinc-600">No</Badge>
-                          )}
+                          <Badge variant="outline" className="border-zinc-600">No</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            {listing.status === "pending_review" && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Listing Approved",
-                                      description: "Listing has been approved and published",
-                                    });
-                                  }}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Listing Rejected",
-                                      description: "Listing has been rejected",
-                                      variant: "destructive",
-                                    });
-                                  }}
-                                >
-                                  <XCircle className="w-4 h-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
-                            {listing.status === "flagged" && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-zinc-600 hover:bg-zinc-700"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Flag Reviewed",
-                                      description: "Listing flag has been reviewed",
-                                    });
-                                  }}
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  Review
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Listing Removed",
-                                      description: "Listing has been removed from platform",
-                                      variant: "destructive",
-                                    });
-                                  }}
-                                >
-                                  <Ban className="w-4 h-4 mr-1" />
-                                  Remove
-                                </Button>
-                              </>
-                            )}
-                            {listing.status === "approved" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-zinc-600 hover:bg-zinc-700"
-                                onClick={() => {
-                                  toast({
-                                    title: "View Listing",
-                                    description: "Opening listing details...",
-                                  });
-                                }}
-                              >
-                                <Eye className="w-4 h-4 mr-1" />
-                                View
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-zinc-600 hover:bg-zinc-700"
+                              onClick={() => {
+                                toast({
+                                  title: "View Listing",
+                                  description: "Opening listing details...",
+                                });
+                              }}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
