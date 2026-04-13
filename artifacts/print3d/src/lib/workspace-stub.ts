@@ -85,12 +85,55 @@ type MutationReturn<T = any> = {
 };
 
 export function useCreateListing(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data } = vars;
+      const { error: insertError } = await supabase
+        .from('listings')
+        .insert({
+          seller_id: data.sellerId,
+          title: data.title,
+          description: data.description || null,
+          price: data.basePrice,
+          shipping_cost: data.shippingCost || 0,
+          estimated_days_min: data.estimatedDaysMin,
+          estimated_days_max: data.estimatedDaysMax,
+          material: data.material || null,
+          category: data.category,
+          tags: data.tags || [],
+          stock: data.stock || null,
+          images: data.imageUrl ? [data.imageUrl] : [],
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Listing insert error:', insertError);
+        throw insertError;
+      }
+
+      console.log('Listing created successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: async (vars?: any) => { await mutateAsync(vars).catch(() => {}); },
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 

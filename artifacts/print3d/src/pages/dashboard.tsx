@@ -42,6 +42,7 @@ import { Reviews } from "@/components/dashboard/Reviews";
 import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
+import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
@@ -1002,6 +1003,7 @@ export default function Dashboard() {
                   <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Manage Sales</TabsTrigger>
                   <TabsTrigger value="listings" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Listings</TabsTrigger>
                   <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Equipment</TabsTrigger>
+                  <TabsTrigger value="shipping" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Shipping Profiles</TabsTrigger>
                   <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Analytics</TabsTrigger>
                 </>
               )}
@@ -1072,7 +1074,13 @@ export default function Dashboard() {
                 />
               </TabsContent>
             )}
-            
+
+            {isSellerUser && (
+              <TabsContent value="shipping" className="mt-0">
+                <ShippingProfiles />
+              </TabsContent>
+            )}
+
             {isSellerUser && (
               <TabsContent value="analytics" className="mt-0">
                 <div className="space-y-8">
