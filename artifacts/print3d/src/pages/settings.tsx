@@ -77,6 +77,8 @@ export default function Settings() {
     websiteUrl: user?.websiteUrl ?? "",
     instagramHandle: user?.instagramHandle ?? "",
     supportEmail: user?.supportEmail ?? "",
+    tiktokHandle: user?.tiktokHandle ?? "",
+    xHandle: user?.xHandle ?? "",
     shopMode: user?.shopMode ?? "open",
     defaultShippingCost: user?.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
     shippingRegions: user?.shippingRegions ?? "",
@@ -113,6 +115,8 @@ export default function Settings() {
       websiteUrl: user.websiteUrl ?? "",
       instagramHandle: user.instagramHandle ?? "",
       supportEmail: user.supportEmail ?? "",
+      tiktokHandle: user.tiktokHandle ?? "",
+      xHandle: user.xHandle ?? "",
       shopMode: user.shopMode ?? "open",
       defaultShippingCost: user.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
       shippingRegions: user.shippingRegions ?? "",
@@ -185,6 +189,8 @@ export default function Settings() {
           websiteUrl: form.websiteUrl.trim() || null,
           instagramHandle: form.instagramHandle.trim() || null,
           supportEmail: form.supportEmail.trim() || null,
+          tiktokHandle: form.tiktokHandle.trim() || null,
+          xHandle: form.xHandle.trim() || null,
           shopMode: form.shopMode,
           defaultShippingCost: shipping != null && Number.isFinite(shipping) ? shipping : null,
           shippingRegions: form.shippingRegions.trim() || null,
@@ -591,6 +597,24 @@ export default function Settings() {
                             <Input
                               value={form.instagramHandle}
                               onChange={(event) => setForm((current) => ({ ...current, instagramHandle: event.target.value }))}
+                              placeholder="@yourshop"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">TikTok handle</label>
+                            <Input
+                              value={form.tiktokHandle}
+                              onChange={(event) => setForm((current) => ({ ...current, tiktokHandle: event.target.value }))}
+                              placeholder="@yourshop"
+                              className="bg-black/30 border-white/10 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-zinc-400 mb-1.5">X (Twitter) handle</label>
+                            <Input
+                              value={form.xHandle}
+                              onChange={(event) => setForm((current) => ({ ...current, xHandle: event.target.value }))}
                               placeholder="@yourshop"
                               className="bg-black/30 border-white/10 text-white"
                             />

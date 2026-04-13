@@ -15,6 +15,7 @@ import {
   Globe,
   Instagram,
   Mail,
+  X as TwitterX,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -207,6 +208,27 @@ export default function Shop() {
                     >
                       <Mail className="w-4 h-4 text-zinc-400" />
                       <span className="text-sm text-zinc-300">Email</span>
+                    </a>
+                  )}
+                  {user.tiktokHandle && (
+                    <a
+                      href={`https://tiktok.com/@${user.tiktokHandle.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+                    >
+                      <span className="text-sm text-zinc-300">TikTok</span>
+                    </a>
+                  )}
+                  {user.xHandle && (
+                    <a
+                      href={`https://x.com/${user.xHandle.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+                    >
+                      <TwitterX className="w-4 h-4 text-zinc-400" />
+                      <span className="text-sm text-zinc-300">X</span>
                     </a>
                   )}
                 </div>
