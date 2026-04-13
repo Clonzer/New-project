@@ -246,7 +246,7 @@ export function Navbar() {
                     </Link>
 
                     <Link
-                      href="/pricing#contact-form"
+                      href="/contact"
                       onClick={() => setContactOpen(false)}
                       className="block w-full p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 group"
                     >
