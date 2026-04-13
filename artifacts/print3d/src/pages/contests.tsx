@@ -303,7 +303,11 @@ export default function Contests() {
       setLocation("/login");
       return;
     }
-    setLocation(`/contests/${contestId}/enter`);
+    toast({
+      title: "Contest Entry",
+      description: "You have entered this contest. Upload your entry in the contest details.",
+      variant: "default",
+    });
   };
 
   const handleVote = async (entryId: string) => {
