@@ -16,7 +16,7 @@ export default function NotificationsPage() {
     setIsLoading(true);
     void listNotifications(50, 0)
       .then((data) => {
-        setNotifications(data.notifications);
+        setNotifications(data.notifications || []);
       })
       .catch(() => setNotifications([]))
       .finally(() => setIsLoading(false));

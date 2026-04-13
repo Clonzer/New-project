@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function fetchUserProfile(userId: string) {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
@@ -60,15 +60,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Create basic user from auth data if profile doesn't exist
         const { data: authData } = await supabase.auth.getUser();
         if (authData.user) {
-          setUser({
+          const userMetadata = authData.user.user_metadata || {};
+          const basicUser = {
             id: authData.user.id,
             email: authData.user.email || '',
-            role: 'buyer',
+            username: userMetadata.username || userMetadata.name || authData.user.email?.split('@')[0],
+            displayName: userMetadata.display_name || userMetadata.displayName || userMetadata.name || userMetadata.username,
+            role: userMetadata.role || 'buyer',
             isVerified: authData.user.email_confirmed_at ? true : false,
-          });
+          };
+          setUser(basicUser);
+
+          // Try to create the profile in the background
+          supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              email: authData.user.email,
+              username: basicUser.username,
+              display_name: basicUser.displayName,
+              role: basicUser.role,
+            })
+            .then(({ error: insertError }) => {
+              if (insertError) {
+                console.error('Error creating profile on fetch:', insertError);
+              } else {
+                console.log('Profile created successfully on fetch');
+                // Don't refetch to avoid infinite loop - user will reload or navigate
+              }
+            });
         }
       } else {
-        setUser(data as User);
+        // Map database column names (snake_case) to User type (camelCase)
+        setUser({
+          ...(data as any),
+          displayName: (data as any).display_name || (data as any).displayName,
+          shopName: (data as any).shop_name || (data as any).shopName,
+          shopMode: (data as any).shop_mode || (data as any).shopMode,
+          avatarUrl: (data as any).avatar_url || (data as any).avatarUrl,
+          isVerified: (data as any).is_verified || (data as any).isVerified,
+        } as User);
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -83,7 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function register(email: string, password: string, userData: Partial<User>) {
-    const { error } = await supabase.auth.signUp({
+    // First, create the auth user
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -91,17 +123,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (!error) {
-      // Create user profile in database
-      const { data: authData } = await supabase.auth.getUser();
-      if (authData.user) {
-        await supabase.from('users').insert({
-          id: authData.user.id,
-          email: authData.user.email,
-          role: userData.role || 'buyer',
-          name: userData.name,
-          is_verified: false,
-        });
+    if (error) {
+      return { error };
+    }
+
+    // Create profile manually to ensure data is saved
+    if (authData.user) {
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: authData.user.id,
+            email: authData.user.email,
+            username: userData.username || userData.displayName || authData.user.email?.split('@')[0],
+            display_name: userData.display_name || userData.displayName || userData.username || authData.user.email?.split('@')[0],
+            role: userData.role || 'buyer',
+            location: userData.location || null,
+            shop_name: userData.shop_name || userData.shopName || null,
+            shop_mode: userData.shop_mode || userData.shopMode || null,
+            avatar_url: userData.avatar || userData.avatarUrl || null,
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Don't fail registration if profile creation fails
+          // The trigger will try to create it
+        }
+      } catch (e) {
+        console.error('Error in profile creation:', e);
       }
     }
 

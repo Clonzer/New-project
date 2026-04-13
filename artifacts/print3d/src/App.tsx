@@ -5,9 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/supabase-auth-context";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
+import { useSyncContestsOnMount } from "@/lib/contest-sync";
 
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
+import ExploreAll from "@/pages/explore-all";
 import ExploreModels from "@/pages/explore-models";
 import Contests from "@/pages/contests";
 import Listings from "@/pages/listings";
@@ -32,6 +34,9 @@ import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import { useLocation } from "wouter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,10 +83,13 @@ function VendorDashboardPage() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={ExploreAll} />
+      <Route path="/explore-all" component={ExploreAll} />
       <Route path="/explore" component={Explore} />
       <Route path="/explore-models" component={ExploreModels} />
       <Route path="/discover" component={Discover} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route path="/contests" component={Contests} />
       <Route path="/listings" component={Listings} />
       <Route path="/shop/:id" component={Shop} />
@@ -110,6 +118,8 @@ function Router() {
 }
 
 function App() {
+  // useSyncContestsOnMount(); // Temporarily disabled due to database schema issues
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

@@ -11,11 +11,11 @@ import {
   CheckCircle,
   AlertCircle,
   Medal,
-  Target,
   Calendar,
   Upload,
   Eye,
-  Crown
+  Crown,
+  TrendingUp
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -27,9 +27,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { customFetch } from "@/lib/workspace-api-mock";
+import { Input } from "@/components/ui/input";
+import { listContests, listContestEntries, voteForEntry, getVotingContests, getEndedContests, getActiveContests } from "@/lib/contest-api";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { useListContests, useListContestEntries, useVoteForEntry } from "@/lib/workspace-stub";
+import { getLeaderboard } from "@/lib/contest-sync";
 
 interface Contest {
   id: string;
@@ -41,8 +44,6 @@ interface Contest {
   startDate: string;
   endDate: string;
   maxParticipants: number;
-  currentParticipants: number;
-  prizePool: number;
   judgingCriteria: string[];
   requirements: string[];
   badgeAwarded?: string;
@@ -77,152 +78,105 @@ export default function Contests() {
   const [entries, setEntries] = useState<ContestEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState("total_sales");
 
   useEffect(() => {
     const fetchContestsData = async () => {
       try {
         setIsLoading(true);
         
-        // Fetch contests
-        const contestsResponse = await customFetch('/api/contests');
-        const contestsData = await contestsResponse.json();
+        // Fetch contests from Supabase
+        const contestsResult = await listContests();
         
-        // Fetch entries
-        const entriesResponse = await customFetch('/api/contest-entries');
-        const entriesData = await entriesResponse.json();
-
         // Transform data or use fallback
         // Generate sales-based contests with random active contest
         const generateSalesContests = (): Contest[] => {
           const now = new Date();
           const salesContests = [
             {
-              id: "sales-champion",
-              title: "Sales Champion of the Month",
-              description: "Top seller by revenue this month wins premium sponsorship and featured placement",
-              category: "Sales Performance",
-              reward: "$500 sponsorship + 30-day homepage feature",
+              id: "most-sales-monthly",
+              title: "Most Sales - Monthly",
+              description: "Seller with the highest total sales count this month wins Pro Membership and homepage feature",
+              category: "Sales",
+              reward: "Pro Membership (6 months) + Homepage Feature",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
               maxParticipants: 999,
-              currentParticipants: Math.floor(Math.random() * 50) + 20,
-              prizePool: 1000,
-              judgingCriteria: ["Total Revenue", "Order Volume", "Customer Satisfaction", "Growth Rate"],
-              requirements: ["Minimum 10 orders", "4.5+ star rating", "Active listings"],
-              badgeAwarded: "Sales Champion"
+              judgingCriteria: ["Total Sales Count", "Revenue Generated", "Customer Satisfaction"],
+              requirements: ["Minimum 5 sales", "4.0+ star rating"],
+              badgeAwarded: "Top Seller"
             },
             {
-              id: "review-master",
-              title: "5-Star Review Master",
-              description: "Earn the most 5-star reviews this quarter and win marketing credits",
-              category: "Customer Service",
-              reward: "$300 marketing credits + Verified Seller badge",
-              status: "active" as const,
-              startDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1).toISOString(),
-              endDate: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3 + 3, 0).toISOString(),
-              maxParticipants: 500,
-              currentParticipants: Math.floor(Math.random() * 30) + 15,
-              prizePool: 600,
-              judgingCriteria: ["Review Count", "Average Rating", "Response Time", "Customer Retention"],
-              requirements: ["Minimum 5 reviews", "4.8+ average rating", "24h response time"],
-              badgeAwarded: "Customer Service Expert"
-            },
-            {
-              id: "fast-delivery",
-              title: "Lightning Fast Delivery",
-              description: "Fastest average delivery time wins processing fee discounts",
-              category: "Fulfillment",
-              reward: "50% processing fee discount for 3 months",
-              status: "active" as const,
-              startDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-              endDate: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-              maxParticipants: 200,
-              currentParticipants: Math.floor(Math.random() * 25) + 10,
-              prizePool: 400,
-              judgingCriteria: ["Average Delivery Time", "On-Time Rate", "Packaging Quality", "Tracking Updates"],
-              requirements: ["Minimum 15 completed orders", "95% on-time delivery", "Tracking on all orders"],
-              badgeAwarded: "Speed Demon"
-            },
-            {
-              id: "quality-maker",
-              title: "Quality Maker Award",
-              description: "Highest quality products based on customer feedback and returns",
-              category: "Product Quality",
-              reward: "Quality certification + priority placement",
-              status: "judging" as const,
-              startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-              endDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-              maxParticipants: 150,
-              currentParticipants: Math.floor(Math.random() * 40) + 20,
-              prizePool: 750,
-              judgingCriteria: ["Return Rate", "Customer Feedback", "Product Photos Accuracy", "Material Quality"],
-              requirements: ["Minimum 20 orders", "<2% return rate", "Detailed product descriptions"],
-              badgeAwarded: "Quality Certified"
-            },
-            {
-              id: "growth-star",
-              title: "Rising Star Award",
-              description: "Fastest growing shop by orders and revenue wins startup package",
-              category: "Growth",
-              reward: "Startup package worth $1000 + mentorship",
-              status: "upcoming" as const,
-              startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-              endDate: new Date(now.getTime() + 35 * 24 * 60 * 60 * 1000).toISOString(),
-              maxParticipants: 100,
-              currentParticipants: 0,
-              prizePool: 1200,
-              judgingCriteria: ["Growth Percentage", "New Customer Acquisition", "Revenue Growth", "Listing Quality"],
-              requirements: ["Shop < 6 months old", "Minimum 5 orders", "Complete shop setup"],
-              badgeAwarded: "Rising Star"
-            },
-            {
-              id: "community-leader",
-              title: "Community Leader",
-              description: "Most helpful in forums and community discussions",
-              category: "Community",
-              reward: "Moderator privileges + exclusive badge",
+              id: "most-products-sold",
+              title: "Most Products Sold",
+              description: "Seller with the most individual products sold wins sponsorship package",
+              category: "Sales",
+              reward: "Sponsorship Package + Verified Seller Badge",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
-              maxParticipants: 300,
-              currentParticipants: Math.floor(Math.random() * 20) + 8,
-              prizePool: 300,
-              judgingCriteria: ["Forum Posts", "Helpful Answers", "Community Engagement", "Peer Recognition"],
-              requirements: ["Minimum 10 helpful posts", "Positive community standing", "Active participation"],
-              badgeAwarded: "Community Leader"
+              maxParticipants: 999,
+              judgingCriteria: ["Products Sold Count", "Variety of Products", "Repeat Customers"],
+              requirements: ["Minimum 10 products sold", "Active listings"],
+              badgeAwarded: "Product Champion"
             },
             {
-              id: "innovation-award",
-              title: "Innovation Award",
-              description: "Most innovative product designs and manufacturing techniques",
-              category: "Innovation",
-              reward: "R&D grant + patent assistance",
+              id: "most-jobs-completed",
+              title: "Most Jobs Completed",
+              description: "Maker with the most custom job completions wins Pro Membership",
+              category: "Custom Jobs",
+              reward: "Pro Membership (3 months) + Priority Badge",
+              status: "active" as const,
+              startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+              endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
+              maxParticipants: 500,
+              judgingCriteria: ["Jobs Completed Count", "On-Time Delivery", "Customer Rating"],
+              requirements: ["Minimum 5 jobs completed", "4.5+ star rating"],
+              badgeAwarded: "Job Master"
+            },
+            {
+              id: "revenue-leader",
+              title: "Revenue Leader",
+              description: "Highest revenue generator this quarter wins marketing credits",
+              category: "Sales",
+              reward: "Marketing Credits ($500) + Featured Placement",
+              status: "upcoming" as const,
+              startDate: new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString(),
+              endDate: new Date(now.getFullYear(), now.getMonth() + 4, 0).toISOString(),
+              maxParticipants: 999,
+              judgingCriteria: ["Total Revenue", "Average Order Value", "Growth Rate"],
+              requirements: ["Minimum $500 revenue", "Active shop"],
+              badgeAwarded: "Revenue King"
+            },
+            {
+              id: "fastest-growing",
+              title: "Fastest Growing Shop",
+              description: "Shop with highest growth rate wins Pro Membership",
+              category: "Growth",
+              reward: "Pro Membership (3 months) + Growth Badge",
+              status: "upcoming" as const,
+              startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              endDate: new Date(now.getTime() + 37 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 300,
+              judgingCriteria: ["Growth Percentage", "New Customers", "Order Volume Increase"],
+              requirements: ["Minimum 30 days active", "10+ orders"],
+              badgeAwarded: "Rising Star"
+            },
+            {
+              id: "customer-favorite",
+              title: "Customer Favorite",
+              description: "Highest rated shop by customers wins verified seller badge",
+              category: "Customer Service",
+              reward: "Verified Seller Badge + Priority Placement",
               status: "upcoming" as const,
               startDate: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-              endDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString(),
-              maxParticipants: 80,
-              currentParticipants: 0,
-              prizePool: 2000,
-              judgingCriteria: ["Design Innovation", "Technical Complexity", "Market Potential", "Originality"],
-              requirements: ["Original designs", "Technical documentation", "Market analysis"],
-              badgeAwarded: "Innovation Pioneer"
-            },
-            {
-              id: "sustainability-champ",
-              title: "Sustainability Champion",
-              description: "Best eco-friendly practices and sustainable materials",
-              category: "Sustainability",
-              reward: "Green certification + marketing boost",
-              status: "active" as const,
-              startDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-              endDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-              maxParticipants: 120,
-              currentParticipants: Math.floor(Math.random() * 15) + 5,
-              prizePool: 500,
-              judgingCriteria: ["Sustainable Materials", "Waste Reduction", "Eco-Friendly Packaging", "Carbon Footprint"],
-              requirements: ["Sustainable materials used", "Eco-friendly packaging", "Waste reduction plan"],
-              badgeAwarded: "Eco Warrior"
+              endDate: new Date(now.getTime() + 44 * 24 * 60 * 60 * 1000).toISOString(),
+              maxParticipants: 500,
+              judgingCriteria: ["Average Rating", "Review Count", "Response Time"],
+              requirements: ["Minimum 10 reviews", "4.8+ average rating"],
+              badgeAwarded: "Customer Favorite"
             }
           ];
 
@@ -231,19 +185,30 @@ export default function Contests() {
           if (activeContests.length === 0 && salesContests.length > 0) {
             const randomIndex = Math.floor(Math.random() * salesContests.length);
             salesContests[randomIndex].status = "active";
-            salesContests[randomIndex].currentParticipants = Math.floor(Math.random() * 30) + 10;
           }
 
           return salesContests;
         };
 
-        const transformedContests: Contest[] = contestsData.contests?.length > 0 
-          ? contestsData.contests 
+        const transformedContests: Contest[] = contestsResult.contests?.length > 0
+          ? contestsResult.contests.map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              description: c.description,
+              category: c.category,
+              reward: c.prize,
+              status: c.status,
+              startDate: c.start_date,
+              endDate: c.end_date,
+              maxParticipants: c.max_participants,
+              judgingCriteria: c.rules || [],
+              requirements: c.rules || [],
+              badgeAwarded: c.badge_awarded
+            }))
           : generateSalesContests();
 
-        const transformedEntries: ContestEntry[] = entriesData.entries?.length > 0
-          ? entriesData.entries
-          : [
+        // Use mock entries for now
+        const transformedEntries: ContestEntry[] = [
               {
                 id: "1",
                 contestId: "1",
@@ -286,6 +251,12 @@ export default function Contests() {
 
         setContests(transformedContests);
         setEntries(transformedEntries);
+
+        // Fetch leaderboard data
+        const leaderboardResult = await getLeaderboard(selectedMetric, 10);
+        if (leaderboardResult.success) {
+          setLeaderboard(leaderboardResult.leaderboard);
+        }
       } catch (error) {
         console.error("Failed to fetch contests data:", error);
       } finally {
@@ -295,6 +266,16 @@ export default function Contests() {
 
     fetchContestsData();
   }, []);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const leaderboardResult = await getLeaderboard(selectedMetric, 10);
+      if (leaderboardResult.success) {
+        setLeaderboard(leaderboardResult.leaderboard);
+      }
+    };
+    fetchLeaderboard();
+  }, [selectedMetric]);
 
   const getStatusColor = (status: Contest["status"]) => {
     switch (status) {
@@ -310,7 +291,7 @@ export default function Contests() {
     switch (status) {
       case "active": return <Target className="w-4 h-4" />;
       case "judging": return <Clock className="w-4 h-4" />;
-      case "completed": return <Trophy className="w-4 h-4" />;
+      case "completed": return <Award className="w-4 h-4" />;
       case "upcoming": return <Calendar className="w-4 h-4" />;
       default: return <AlertCircle className="w-4 h-4" />;
     }
@@ -335,22 +316,16 @@ export default function Contests() {
     }
 
     try {
-      const response = await customFetch(`/api/contest-entries/${entryId}/vote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
+      await voteForEntry(entryId);
+      setEntries(prev => prev.map(entry =>
+        entry.id === entryId
+          ? { ...entry, votes: entry.votes + 1 }
+          : entry
+      ));
+      toast({
+        title: "Vote Recorded",
+        description: "Your vote has been successfully recorded."
       });
-
-      if (response.ok) {
-        setEntries(prev => prev.map(entry => 
-          entry.id === entryId 
-            ? { ...entry, votes: entry.votes + 1 }
-            : entry
-        ));
-        toast({
-          title: "Vote Recorded",
-          description: "Your vote has been successfully recorded."
-        });
-      }
     } catch (error) {
       toast({
         title: "Vote Failed",
@@ -387,11 +362,11 @@ export default function Contests() {
             className="text-center mb-12 pt-12"
           >
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Trophy className="w-8 h-8 text-yellow-400" />
+              <Target className="w-8 h-8 text-primary" />
               <h1 className="text-4xl md:text-5xl font-display font-bold text-white">
-                Design Contests
+                Performance Contests
               </h1>
-              <Trophy className="w-8 h-8 text-yellow-400" />
+              <Target className="w-8 h-8 text-primary" />
             </div>
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
               Compete with makers worldwide, showcase your skills, and win exclusive rewards including sponsored features and special badges.
@@ -400,13 +375,17 @@ export default function Contests() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid w-full grid-cols-3 bg-zinc-800/50 border border-zinc-700">
+            <TabsList className="grid w-full grid-cols-4 bg-zinc-800/50 border border-zinc-700">
               <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                 <Target className="w-4 h-4 mr-2" />
                 Active Contests
               </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Leaderboard
+              </TabsTrigger>
               <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-                <Trophy className="w-4 h-4 mr-2" />
+                <Award className="w-4 h-4 mr-2" />
                 Winners
               </TabsTrigger>
               <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary data-[state=active]:text-white">
@@ -439,10 +418,10 @@ export default function Contests() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className="bg-zinc-800/50 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
+                      <Card className="bg-zinc-800 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
                         <div className="relative">
                           <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <Trophy className="w-16 h-16 text-primary/40" />
+                            <Target className="w-16 h-16 text-primary/40" />
                           </div>
                           <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)}`}>
                             <div className="flex items-center gap-1">
@@ -461,7 +440,7 @@ export default function Contests() {
                               </Badge>
                             </div>
                             <div className="text-right">
-                              <div className="text-2xl font-bold text-primary">${contest.prizePool}</div>
+                              <div className="text-2xl font-bold text-primary">{contest.reward}</div>
                               <div className="text-xs text-zinc-400">Prize Pool</div>
                             </div>
                           </div>
@@ -470,13 +449,9 @@ export default function Contests() {
 
                           <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Participants</span>
-                              <span className="text-white">{contest.currentParticipants}/{contest.maxParticipants}</span>
+                              <span className="text-zinc-400">Reward</span>
+                              <span className="text-white">{contest.reward}</span>
                             </div>
-                            <Progress 
-                              value={(contest.currentParticipants / contest.maxParticipants) * 100} 
-                              className="h-2"
-                            />
                             <div className="flex justify-between text-sm">
                               <span className="text-zinc-400">Ends in</span>
                               <span className="text-white">
@@ -487,18 +462,12 @@ export default function Contests() {
 
                           <div className="flex gap-2">
                             <Button 
-                              onClick={() => handleEnterContest(contest.id)}
-                              className="flex-1 bg-primary hover:bg-primary/600"
-                            >
-                              <Upload className="w-4 h-4 mr-2" />
-                              Enter Contest
-                            </Button>
-                            <Button 
                               variant="outline" 
-                              size="sm"
+                              className="flex-1"
                               onClick={() => setSelectedContest(contest)}
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
                             </Button>
                           </div>
                         </CardContent>
@@ -513,6 +482,89 @@ export default function Contests() {
                   <p className="text-zinc-500 text-sm mt-2">Check back soon for new opportunities!</p>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Leaderboard Tab */}
+            <TabsContent value="leaderboard" className="mt-8">
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-4 items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Performance Leaderboard</h2>
+                    <p className="text-zinc-400">Track seller performance across key metrics</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={selectedMetric === "total_sales" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("total_sales")}
+                      className={selectedMetric === "total_sales" ? "bg-primary" : ""}
+                    >
+                      Most Sales
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "products_sold" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("products_sold")}
+                      className={selectedMetric === "products_sold" ? "bg-primary" : ""}
+                    >
+                      Products Sold
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "jobs_completed" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("jobs_completed")}
+                      className={selectedMetric === "jobs_completed" ? "bg-primary" : ""}
+                    >
+                      Jobs Completed
+                    </Button>
+                    <Button
+                      variant={selectedMetric === "total_revenue" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedMetric("total_revenue")}
+                      className={selectedMetric === "total_revenue" ? "bg-primary" : ""}
+                    >
+                      Revenue
+                    </Button>
+                  </div>
+                </div>
+
+                <Card className="bg-zinc-800/50 border-zinc-700">
+                  <CardContent className="p-0">
+                    <div className="divide-y divide-zinc-700">
+                      {leaderboard.length > 0 ? (
+                        leaderboard.map((seller, index) => (
+                          <div key={seller.id} className="flex items-center gap-4 p-4 hover:bg-zinc-700/50 transition-colors">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-700 text-white font-bold">
+                              {index + 1}
+                            </div>
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={seller.avatar} />
+                              <AvatarFallback>{seller.displayName?.charAt(0) || "S"}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow">
+                              <p className="font-medium text-white">{seller.displayName || seller.shopName}</p>
+                              <p className="text-sm text-zinc-400">{seller.shopName || "Shop"}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-primary text-lg">{seller[selectedMetric] || 0}</p>
+                              <p className="text-xs text-zinc-400 capitalize">{selectedMetric.replace(/_/g, " ")}</p>
+                            </div>
+                            {index === 0 && (
+                              <Medal className="w-6 h-6 text-yellow-400" />
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-12">
+                          <TrendingUp className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                          <p className="text-zinc-400">No leaderboard data available yet</p>
+                          <p className="text-zinc-500 text-sm mt-2">Start making sales to appear on the leaderboard!</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* Winners Tab */}
@@ -590,7 +642,7 @@ export default function Contests() {
                   </>
                 ) : (
                   <div className="text-center py-12">
-                    <Trophy className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                    <Award className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
                     <p className="text-zinc-400">No contests have been completed yet.</p>
                     <p className="text-zinc-500 text-sm mt-2">Be the first to win an upcoming contest!</p>
                   </div>
@@ -638,8 +690,8 @@ export default function Contests() {
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Prize Pool</span>
-                              <span className="text-primary font-bold">${contest.prizePool}</span>
+                              <span className="text-zinc-400">Reward</span>
+                              <span className="text-primary font-bold">{contest.reward}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-zinc-400">Max Participants</span>

@@ -2,9 +2,9 @@ import { Link } from "wouter";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-black/40 pt-16 pb-8 mt-24">
+    <footer className="border-t border-white/10 bg-zinc-900 pt-16 pb-8 mt-24">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
@@ -36,6 +36,15 @@ export function Footer() {
               <li><Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
               <li><Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">Refund Policy</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-display font-semibold text-white mb-4">Contact</h3>
+            <ul className="space-y-3">
+              <li><Link href="/messages?contact=2" className="text-muted-foreground hover:text-primary transition-colors">Message Synthix</Link></li>
+              <li><Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Form</Link></li>
+              <li><Link href="/help" className="text-muted-foreground hover:text-primary transition-colors">Help Center</Link></li>
             </ul>
           </div>
         </div>

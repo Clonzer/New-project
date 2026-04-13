@@ -31,7 +31,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
 import { Tutorial } from "@/components/shared/Tutorial";
@@ -57,7 +57,7 @@ const CATEGORIES = ["Mechanical", "Miniatures", "Cosplay", "Functional", "Art", 
 
 // ─── Register equipment dialog (multi-category) ─────────────────────────────
 function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
-  open: boolean; onClose: () => void; userId: number; onSuccess: () => void;
+  open: boolean; onClose: () => void; userId: string; onSuccess: () => void;
 }) {
   const { toast } = useToast();
   const createPrinter = useCreatePrinter();
@@ -120,7 +120,8 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
       toast({ title: "Equipment registered!", description: "Buyers can see this on your shop." });
       handleClose();
       onSuccess();
-    } catch {
+    } catch (error) {
+      console.error('Registration error:', error);
       toast({ title: "Failed to register equipment", variant: "destructive" });
     }
   };
@@ -130,7 +131,7 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
       <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Add equipment</DialogTitle>
-          <p className="text-zinc-500 text-sm font-normal pt-1">3D printers, shop tools, metal fab, design services — list what you actually run.</p>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">3D printers, shop tools, metal fab, design services — list what you actually run.</DialogDescription>
         </DialogHeader>
 
         <AnimatePresence mode="wait">
@@ -315,6 +316,102 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
   );
 }
 
+function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
+  open: boolean; onClose: () => void; printer: any; onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const updatePrinter = useUpdatePrinter();
+  const [pricePerHour, setPricePerHour] = useState("");
+  const [pricePerGram, setPricePerGram] = useState("");
+  const [description, setDescription] = useState("");
+  const [materials, setMaterials] = useState("");
+
+  useEffect(() => {
+    if (printer) {
+      setPricePerHour(printer.price_per_hour?.toString() || "");
+      setPricePerGram(printer.price_per_gram?.toString() || "");
+      setDescription(printer.description || "");
+      setMaterials(Array.isArray(printer.materials) ? printer.materials.join(", ") : printer.materials || "");
+    }
+  }, [printer]);
+
+  const handleSubmit = async () => {
+    if (!printer) return;
+    try {
+      await updatePrinter.mutateAsync({
+        printerId: printer.id,
+        data: {
+          pricePerHour: pricePerHour ? parseFloat(pricePerHour) : null,
+          pricePerGram: pricePerGram ? parseFloat(pricePerGram) : null,
+          description: description || null,
+          materials: materials ? materials.split(",").map(m => m.trim()).filter(Boolean) : null,
+        },
+      });
+      toast({ title: "Equipment updated!", description: "Your changes have been saved." });
+      onClose();
+      onSuccess();
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({ title: "Failed to update equipment", variant: "destructive" });
+    }
+  };
+
+  const is3d = printer?.equipment_category === "printing_3d";
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">Edit Equipment</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">
+            {printer?.name} - {printer?.brand} {printer?.model}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Hourly rate ($)</label>
+              <Input type="number" step="0.01" value={pricePerHour} onChange={e => setPricePerHour(e.target.value)} placeholder="e.g. 45" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+            {is3d && (
+              <div>
+                <label className="text-sm text-zinc-300 block mb-1.5">Price per gram ($)</label>
+                <Input type="number" step="0.001" value={pricePerGram} onChange={e => setPricePerGram(e.target.value)} placeholder="e.g. 0.05" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Materials (comma-separated)</label>
+            <Input value={materials} onChange={e => setMaterials(e.target.value)} placeholder="PLA, PETG, aluminum..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Notes (optional)</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Certifications, lead times, what buyers should know..."
+              rows={3}
+              className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+            />
+          </div>
+
+          <NeonButton
+            glowColor="primary"
+            className="w-full rounded-xl py-3"
+            onClick={handleSubmit}
+            disabled={updatePrinter.isPending}
+          >
+            {updatePrinter.isPending ? "Saving..." : "Save changes"}
+          </NeonButton>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Add Listing Dialog ───────────────────────────────────────────────────────
 function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
   open: boolean; onClose: () => void; sellerId: number; onSuccess: () => void;
@@ -363,6 +460,7 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
       <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Add Catalog Listing</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm">Create a new catalog listing for your shop.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -493,9 +591,9 @@ function EquipmentGroupDialog({
           <DialogTitle className="text-xl font-bold text-white">
             {initialData ? "Edit Equipment Group" : "Create Equipment Group"}
           </DialogTitle>
-          <p className="text-zinc-500 text-sm">
+          <DialogDescription className="text-zinc-500 text-sm">
             {initialData ? "Update the equipment group details." : "Organize your equipment into groups for better product transparency."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -556,12 +654,13 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
   const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
-  const [deletingPrinterId, setDeletingPrinterId] = useState<number | null>(null);
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
   const [showAddPrinter, setShowAddPrinter] = useState(false);
   const [showAddListing, setShowAddListing] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
+  const [editingPrinter, setEditingPrinter] = useState<any>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -637,7 +736,7 @@ export default function Dashboard() {
     }
   };
 
-  const togglePrinter = async (printerId: number, currentActive: boolean) => {
+  const togglePrinter = async (printerId: string, currentActive: boolean) => {
     setTogglingPrinterId(printerId);
     try {
       await updatePrinter.mutateAsync({ printerId, data: { isActive: !currentActive } });
@@ -683,6 +782,15 @@ export default function Dashboard() {
     }
   };
 
+  const handleAssignToGroup = async (printerId: string, groupId: string | null) => {
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { equipmentGroupId: groupId } });
+      refetchPrinters();
+    } catch (error) {
+      toast({ title: "Failed to assign to group", variant: "destructive" });
+    }
+  };
+
   const handleDeleteListing = async (listingId: number) => {
     try {
       await deleteListing.mutateAsync({ listingId });
@@ -697,7 +805,7 @@ export default function Dashboard() {
   const pendingRevenue = mySales?.orders.filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
   const totalFeesPaid = mySales?.orders.reduce((sum, o) => sum + o.platformFee, 0) ?? 0;
   const averageOrderValue = mySales?.orders.length ? totalRevenue / mySales.orders.length : 0;
-  const activeEquipmentCount = myPrinters?.printers.filter((printer) => printer.isActive).length ?? 0;
+  const activeEquipmentCount = myPrinters?.filter((printer) => printer.is_active).length ?? 0;
   const totalCatalogItems = myListings?.listings.length ?? 0;
 
   if (!user) {
@@ -783,6 +891,12 @@ export default function Dashboard() {
         userId={user.id}
         onSuccess={refetchPrinters}
       />
+      <EditPrinterDialog
+        open={!!editingPrinter}
+        onClose={() => setEditingPrinter(null)}
+        printer={editingPrinter}
+        onSuccess={refetchPrinters}
+      />
       <EquipmentGroupDialog
         open={showAddEquipmentGroup}
         onClose={() => setShowAddEquipmentGroup(false)}
@@ -806,16 +920,26 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
-                Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName}</span>
-                {user.isOwner ? (
-                  <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
-                    Owner
-                  </span>
-                ) : null}
-              </h1>
-              <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
+                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                  {user.isOwner ? (
+                    <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
+                      Owner
+                    </span>
+                  ) : null}
+                </h1>
+                <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+              </div>
+              {isSellerUser && (
+                <Link href="/sponsorship/purchase">
+                  <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-6 py-2">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Buy Sponsorship
+                  </Button>
+                </Link>
+              )}
             </div>
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
@@ -883,22 +1007,6 @@ export default function Dashboard() {
               )}
             </TabsList>
 
-            {/* Prominent Buy Sponsorship Button for Sellers */}
-            {isSellerUser && (
-              <div className="mb-6">
-                <Link href="/sponsorship/purchase">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-4 text-lg rounded-full flex items-center justify-center gap-2">
-                    <Trophy className="w-5 h-5" />
-                    Buy Sponsorship
-                    <ArrowRight className="w-5 h-5" />
-                  </NeonButton>
-                </Link>
-                <p className="text-center text-zinc-400 text-sm mt-2">
-                  Boost your visibility and reach more customers
-                </p>
-              </div>
-            )}
-
             {isSellerUser && (
               <TabsContent value="overview" className="mt-0">
                 <Overview 
@@ -948,13 +1056,15 @@ export default function Dashboard() {
 
             {isSellerUser && (
               <TabsContent value="printers" className="mt-0">
-                <Equipment 
+                <Equipment
                   myEquipmentGroups={myEquipmentGroups}
                   myPrinters={myPrinters}
                   setShowAddEquipmentGroup={setShowAddEquipmentGroup}
                   setEditingEquipmentGroup={setEditingEquipmentGroup}
                   handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
                   setShowAddPrinter={setShowAddPrinter}
+                  setEditingPrinter={setEditingPrinter}
+                  handleAssignToGroup={handleAssignToGroup}
                   togglingPrinterId={togglingPrinterId}
                   togglePrinter={togglePrinter}
                   deletingPrinterId={deletingPrinterId}

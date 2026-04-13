@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,6 +10,12 @@ import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare"
 import { listMessageThreads } from "@/lib/messages-api";
 import { getUnreadNotificationsCount } from "@/lib/notifications-api";
 import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -72,11 +78,11 @@ export function Navbar() {
   const isSeller = user?.role === "seller" || user?.role === "both";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 glass-panel">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
+      <div className="container mx-auto px-2 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-12">
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="font-display font-extrabold text-xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent group-hover:drop-shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300">
+            <span className="font-extrabold text-xl tracking-widest text-white group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] transition-all duration-300">
               SYNTHIX
             </span>
             <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
@@ -84,10 +90,40 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-8">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
+                    isActive("/explore-all") || isActive("/explore") || isActive("/listings")
+                      ? "text-white border border-primary/50 bg-primary/20"
+                      : "text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  Explore
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-zinc-900 border-zinc-700">
+                <DropdownMenuItem asChild>
+                  <Link href="/explore-all" className="cursor-pointer">
+                    Explore All
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/explore" className="cursor-pointer">
+                    Explore Shops
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/listings" className="cursor-pointer">
+                    Model Catalog
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {[
-              { path: "/explore", label: "Explore Shops" },
-              { path: "/listings", label: "Model Catalog" },
+              { path: "/about", label: "About" },
               { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },
@@ -190,7 +226,7 @@ export function Navbar() {
                     </Link>
 
                     <Link
-                      href="/pricing"
+                      href="/messages?contact=2"
                       onClick={() => setContactOpen(false)}
                       className="block w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 group"
                     >
@@ -210,7 +246,7 @@ export function Navbar() {
                     </Link>
 
                     <Link
-                      href="/pricing#contact-form"
+                      href="/contact"
                       onClick={() => setContactOpen(false)}
                       className="block w-full p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 group"
                     >

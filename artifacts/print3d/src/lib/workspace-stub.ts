@@ -1,6 +1,7 @@
 // Stub for @workspace/api-client-react compatibility
 // This allows the app to run while we migrate to Supabase
 
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./supabase";
 
 // Error class for API errors
@@ -80,7 +81,7 @@ type MutationReturn<T = any> = {
   mutateAsync: (vars?: T) => Promise<any>;
   isLoading: boolean;
   isPending: boolean;
-  error: null;
+  error: Error | null;
 };
 
 export function useCreateListing(): MutationReturn {
@@ -114,32 +115,144 @@ export function useDeleteListing(): MutationReturn {
 }
 
 export function useCreatePrinter(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data } = vars;
+      console.log('Creating printer with data:', data);
+
+      const { error: insertError } = await supabase
+        .from('printers')
+        .insert({
+          user_id: data.userId,
+          equipment_category: data.equipmentCategory,
+          tool_or_service_type: data.toolOrServiceType,
+          name: data.name,
+          brand: data.brand,
+          model: data.model,
+          technology: data.technology,
+          materials: data.materials,
+          build_volume: data.buildVolume,
+          price_per_hour: data.pricePerHour,
+          price_per_gram: data.pricePerGram,
+          description: data.description,
+        });
+
+      if (insertError) {
+        console.error('Printer insert error:', insertError);
+        throw insertError;
+      }
+
+      console.log('Printer created successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: async (vars?: any) => { await mutateAsync(vars).catch(() => {}); },
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
 export function useDeletePrinter(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { printerId } = vars;
+      console.log('Deleting printer:', printerId);
+
+      const { error: deleteError } = await supabase
+        .from('printers')
+        .delete()
+        .eq('id', printerId);
+
+      if (deleteError) {
+        console.error('Printer delete error:', deleteError);
+        throw deleteError;
+      }
+
+      console.log('Printer deleted successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      console.error('Printer deletion failed:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
 export function useUpdateUser(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { userId, data } = vars;
+      console.log('Updating profile for userId:', userId);
+      console.log('Update data:', data);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          display_name: data.displayName,
+          bio: data.bio,
+          location: data.location,
+          avatar_url: data.avatarUrl,
+          shop_name: data.shopName,
+          shop_mode: data.shopMode,
+        })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw updateError;
+      }
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: async (vars?: any) => { await mutateAsync(vars).catch(() => {}); },
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
@@ -232,11 +345,42 @@ export function useGetPrinters() {
 }
 
 export function useListPrinters() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchPrinters = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) {
+        setData([]);
+        return;
+      }
+
+      const { data: printers, error: fetchError } = await supabase
+        .from('printers')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setData(printers || []);
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      console.error('Error fetching printers:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPrinters();
+  }, [fetchPrinters]);
+
+  return { data, isLoading, error, refetch: fetchPrinters };
 }
 
 export function useGetPortfolio() {
@@ -331,50 +475,236 @@ export function useCreateReview(): MutationReturn {
 }
 
 export function useCreateEquipmentGroup(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data } = vars;
+      console.log('Creating equipment group with data:', data);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('User ID:', user?.id);
+
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const { error: insertError } = await supabase
+        .from('equipment_groups')
+        .insert({
+          user_id: user.id,
+          name: data.name,
+          description: data.description,
+          category: data.category,
+        });
+
+      if (insertError) {
+        console.error('Equipment group insert error:', insertError);
+        throw insertError;
+      }
+
+      console.log('Equipment group created successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      console.error('Equipment group creation failed:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
 export function useDeleteEquipmentGroup(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { groupId } = vars;
+      console.log('Deleting equipment group:', groupId);
+
+      const { error: deleteError } = await supabase
+        .from('equipment_groups')
+        .delete()
+        .eq('id', groupId);
+
+      if (deleteError) {
+        console.error('Equipment group delete error:', deleteError);
+        throw deleteError;
+      }
+
+      console.log('Equipment group deleted successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      console.error('Equipment group deletion failed:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
 export function useListEquipmentGroups() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchGroups = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) {
+        setData([]);
+        return;
+      }
+
+      const { data: groups, error: fetchError } = await supabase
+        .from('equipment_groups')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setData(groups || []);
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      console.error('Error fetching equipment groups:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGroups();
+  }, [fetchGroups]);
+
+  return { data, isLoading, error, refetch: fetchGroups };
 }
 
 export function useUpdateEquipmentGroup(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { groupId, data } = vars;
+      console.log('Updating equipment group:', groupId, data);
+
+      const { error: updateError } = await supabase
+        .from('equipment_groups')
+        .update({
+          name: data.name,
+          description: data.description,
+          category: data.category,
+        })
+        .eq('id', groupId);
+
+      if (updateError) {
+        console.error('Equipment group update error:', updateError);
+        throw updateError;
+      }
+
+      console.log('Equipment group updated successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      console.error('Equipment group update failed:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
 export function useUpdatePrinter(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { printerId, data } = vars;
+      console.log('Updating printer:', printerId, data);
+
+      const { error: updateError } = await supabase
+        .from('printers')
+        .update({
+          name: data.name,
+          brand: data.brand,
+          model: data.model,
+          technology: data.technology,
+          materials: data.materials,
+          build_volume: data.buildVolume,
+          price_per_hour: data.pricePerHour,
+          price_per_gram: data.pricePerGram,
+          description: data.description,
+          is_active: data.isActive,
+          equipment_group_id: data.equipmentGroupId,
+        })
+        .eq('id', printerId);
+
+      if (updateError) {
+        console.error('Printer update error:', updateError);
+        throw updateError;
+      }
+
+      console.log('Printer updated successfully');
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      console.error('Printer update failed:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
@@ -564,3 +894,167 @@ export function getGetMessagesQueryKey() {
 export function getGetNotificationsQueryKey() {
   return ['notifications'];
 }
+
+export function getListContestsQueryKey() {
+  return ['contests'];
+}
+
+export function getGetContestQueryKey(contestId: string) {
+  return ['contests', contestId];
+}
+
+export function getListContestEntriesQueryKey(contestId: string) {
+  return ['contests', contestId, 'entries'];
+}
+
+// Contest hooks
+export function useListContests() {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchContests() {
+      try {
+        setIsLoading(true);
+        const { contests } = await import('./contest-api').then(m => m.listContests());
+        setData(contests);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchContests();
+  }, []);
+
+  return { data, isLoading, error };
+}
+
+export function useGetContest(contestId: string) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchContest() {
+      try {
+        setIsLoading(true);
+        const { contest } = await import('./contest-api').then(m => m.getContest(contestId));
+        setData(contest);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (contestId) fetchContest();
+  }, [contestId]);
+
+  return { data, isLoading, error };
+}
+
+export function useListContestEntries(contestId: string) {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchEntries() {
+      try {
+        setIsLoading(true);
+        const { entries } = await import('./contest-api').then(m => m.listContestEntries(contestId));
+        setData(entries);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (contestId) fetchEntries();
+  }, [contestId]);
+
+  return { data, isLoading, error };
+}
+
+export function useCreateContestEntry(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await import('./contest-api').then(m => m.createContestEntry(vars));
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+
+export function useVoteForEntry(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await import('./contest-api').then(m => m.voteForEntry(vars.entryId, vars.userId));
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+
+export function useCreateContest(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await import('./contest-api').then(m => m.createContest(vars));
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutate: (vars: any) => mutateAsync(vars),
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
+  };
+}
+

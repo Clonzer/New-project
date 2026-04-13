@@ -39,13 +39,22 @@ import { SiteStats } from "@/components/shared/SiteStats";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      {/* Hero gradient applied to entire page */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-[#050510]" />
+        <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-40 blur-[100px] bg-gradient-to-br from-[#7c3aed] via-[#4f46e5] to-transparent animate-aurora-1" />
+        <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-30 blur-[90px] bg-gradient-to-bl from-[#06b6d4] via-[#0891b2] to-transparent animate-aurora-2" />
+        <div className="absolute bottom-[0%] left-[20%] w-[60vw] h-[40vw] max-w-[700px] max-h-[500px] rounded-full opacity-25 blur-[110px] bg-gradient-to-tr from-[#a855f7] via-[#7c3aed] to-transparent animate-aurora-3" />
+        <div className="absolute top-[40%] left-[-5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-[#06b6d4] to-transparent animate-aurora-4" />
+        <div className="absolute inset-0 opacity-[0.03] bg-noise" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(139,92,246,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.4) 1px, transparent 1px)`, backgroundSize: "80px 80px" }} />
+      </div>
       <Navbar />
       <OnboardingTutorial />
 
-      <main className="flex-grow">
+      <main className="flex-grow relative z-10">
         <section className="relative pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
-          <AnimatedGradientBg />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
@@ -84,8 +93,8 @@ export default function Home() {
         {/* Hero Analytics Overlay */}
         <SiteStats />
 
-        {/* Section 2: Features - Dark Grey Background */}
-        <section className="py-24 bg-zinc-900">
+        {/* Section 2: Features */}
+        <section className="py-24">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -169,8 +178,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 3: How It Works - Black Background */}
-        <section className="py-24 bg-black">
+        {/* Section 3: How It Works */}
+        <section className="py-24">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -220,7 +229,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   className="relative"
                 >
-                  <Card className="bg-zinc-900/80 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 h-full relative overflow-hidden">
+                  <Card className="bg-black/30 border-zinc-800 hover:border-zinc-700 hover:bg-black/40 transition-all duration-300 h-full relative overflow-hidden">
                     <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
                     <CardHeader className="pt-8">
                       <div className="flex items-center gap-4 mb-4">
@@ -248,8 +257,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 4: Categories - Dark Background */}
-        <section className="py-24 bg-zinc-900">
+        {/* Section 4: Categories */}
+        <section className="py-24">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -268,7 +277,7 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-cyan-400 to-blue-500" },
                 { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-emerald-400 to-green-500" },
@@ -287,8 +296,8 @@ export default function Home() {
                   whileHover={{ scale: 1.03 }}
                 >
                   <Link href="/listings">
-                    <Card className="bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
-                      <CardContent className="p-6 flex items-center gap-4">
+                    <Card className="bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                      <CardContent className="p-4 flex items-center gap-4">
                         <div className={`w-12 h-12 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
                           <category.icon className="w-6 h-6 text-white" />
                         </div>
@@ -305,8 +314,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 5: Testimonials - Dark Grey Background */}
-        <section className="py-24 bg-zinc-800">
+        {/* Section 5: Testimonials */}
+        <section className="py-24">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -325,7 +334,7 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   name: "Sarah Johnson",
@@ -359,7 +368,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -4 }}
                 >
-                  <Card className="bg-zinc-900/60 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-900/80 transition-all duration-300 h-full">
+                  <Card className="bg-black/30 border-zinc-800 hover:border-zinc-700 hover:bg-black/40 transition-all duration-300 h-full">
                     <CardContent className="p-6">
                       <div className={`w-12 h-12 bg-gradient-to-r ${testimonial.color} rounded-xl flex items-center justify-center mb-4`}>
                         <Quote className="w-6 h-6 text-white" />

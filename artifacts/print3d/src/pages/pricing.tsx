@@ -328,25 +328,27 @@ export default function Pricing() {
                 Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
                 Both now have real support actions behind them instead of dead-end buttons.
               </p>
-              <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5">
-                <button
-                  onClick={() => setYearly(false)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${!yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
-                >
-                  Monthly
-                </button>
-                <button
-                  onClick={() => setYearly(true)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
-                >
-                  Yearly
-                </button>
-              </div>
             </motion.div>
           </div>
         </section>
 
-        <section className="container mx-auto px-4 pb-16">
+        <section className="container mx-auto px-4 pb-16 -mt-16 relative z-20">
+          <div className="mx-auto max-w-6xl mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-zinc-800/80 px-2 py-1.5 backdrop-blur-sm">
+              <button
+                onClick={() => setYearly(false)}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${!yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setYearly(true)}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
+              >
+                Yearly
+              </button>
+            </div>
+          </div>
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {plans.map((plan, index) => {
               const Icon = plan.icon;
@@ -358,8 +360,8 @@ export default function Pricing() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.08, duration: 0.45 }}
-                  className={`glass-panel relative flex flex-col rounded-3xl border p-8 ${
-                    plan.highlight ? "scale-[1.01] border-primary/40 bg-primary/5 shadow-[0_0_40px_rgba(139,92,246,0.18)]" : "border-white/10"
+                  className={`relative flex flex-col rounded-3xl border p-8 ${
+                    plan.highlight ? "scale-[1.01] border-primary/40 bg-zinc-800 shadow-[0_0_40px_rgba(139,92,246,0.18)]" : "bg-zinc-800 border-white/10"
                   }`}
                 >
                   {plan.badge ? (
@@ -400,17 +402,13 @@ export default function Pricing() {
                   </ul>
 
                   {isEnterprise ? (
-                    <button type="button" onClick={() => setShowEnterpriseForm(true)} className="w-full">
-                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
-                        {plan.cta}
-                      </NeonButton>
-                    </button>
+                    <NeonButton glowColor={plan.glow} onClick={() => setShowEnterpriseForm(true)} className="w-full rounded-2xl py-3 font-semibold">
+                      {plan.cta}
+                    </NeonButton>
                   ) : (
-                    <button type="button" onClick={() => startPlanCheckout(plan.id)} className="w-full">
-                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
-                        {plan.cta}
-                      </NeonButton>
-                    </button>
+                    <NeonButton glowColor={plan.glow} onClick={() => startPlanCheckout(plan.id)} className="w-full rounded-2xl py-3 font-semibold">
+                      {plan.cta}
+                    </NeonButton>
                   )}
                 </motion.div>
               );
@@ -443,11 +441,9 @@ export default function Pricing() {
                     <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Better discovery during campaign windows</li>
                     <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Renewable without losing existing time</li>
                   </ul>
-                  <button type="button" onClick={() => void startProfileSponsorship()} className="mt-6 w-full">
-                    <NeonButton glowColor="primary" className="w-full rounded-2xl py-3">
-                      {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
-                    </NeonButton>
-                  </button>
+                  <NeonButton glowColor="primary" onClick={() => void startProfileSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                    {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
+                  </NeonButton>
                 </div>
 
                 <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
@@ -472,11 +468,9 @@ export default function Pricing() {
                       )}
                     </select>
                   </div>
-                  <button type="button" onClick={() => void startListingSponsorship()} className="mt-6 w-full">
-                    <NeonButton glowColor="accent" className="w-full rounded-2xl py-3">
-                      {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
-                    </NeonButton>
-                  </button>
+                  <NeonButton glowColor="accent" onClick={() => void startListingSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                    {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
+                  </NeonButton>
                 </div>
               </div>
 
