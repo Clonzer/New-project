@@ -882,42 +882,70 @@ export default function Dashboard() {
   const buyerTutorialSteps = [
     {
       title: "Welcome to SYNTHIX!",
-      description: "Your gateway to custom 3D prints and maker services. Let's get you started with the basics."
+      description: "Your gateway to custom 3D prints and maker services. Let's get you started with the basics of the platform."
     },
     {
-      title: "Browse Makers & Products",
-      description: "Explore our marketplace of verified makers. Use the search and filters to find exactly what you need."
+      title: "Discover Shops & Makers",
+      description: "Browse the discover page to find makers, compare shops by equipment and pricing, and explore their catalogs. Use filters to find exactly what you need."
     },
     {
-      title: "Place Orders",
-      description: "Found something you like? Add it to cart and checkout securely. Funds are held in escrow until delivery."
+      title: "Order Custom 3D Prints",
+      description: "Order custom 3D prints directly from sellers. Specify materials, colors, and quantity. Your order will appear in 'My Orders' once confirmed."
+    },
+    {
+      title: "Request Custom Jobs",
+      description: "For woodworking, steel work, or other custom services, use the 'Request Job' button on service listings to message the seller directly."
     },
     {
       title: "Track Your Orders",
-      description: "Monitor your order status in the 'My Orders' tab. Leave reviews once your order is complete."
+      description: "Monitor your order status in the 'My Orders' tab. Communicate with sellers, track progress, and leave reviews once your order is complete."
+    },
+    {
+      title: "Compare Shops",
+      description: "Use the shop comparison feature to compare equipment, pricing, and reviews across multiple sellers to find the best fit for your project."
     }
   ];
 
   const sellerTutorialSteps = [
     {
       title: "Welcome Seller!",
-      description: "Ready to start selling your 3D prints and services? Let's set up your shop."
+      description: "Ready to start selling your 3D prints and services? Let's set up your shop for success on the SYNTHIX platform."
+    },
+    {
+      title: "Complete Your Profile",
+      description: "Go to Settings to complete your profile, add your shop name, banner, and social media links (Instagram, TikTok, X). This builds trust with buyers."
+    },
+    {
+      title: "Configure Shipping Profiles",
+      description: "Set up shipping profiles in the new 'Shipping Profiles' tab. Define costs by region (Domestic, Europe, North America, International) and free shipping thresholds."
     },
     {
       title: "Add Your Equipment",
-      description: "Register your 3D printers, CNC machines, or other equipment in the 'My Equipment' tab."
+      description: "Register your 3D printers, CNC machines, woodworking tools, and other equipment in the 'My Equipment' tab. This helps buyers understand your capabilities."
     },
     {
-      title: "Create Listings",
-      description: "Add products to your catalog in the 'My Listings' tab. Include photos, descriptions, and pricing."
+      title: "Create Product Listings",
+      description: "Add your 3D printed products to your catalog in 'My Listings'. Include images, pricing, materials, and shipping costs. You can now create listings without email verification."
+    },
+    {
+      title: "Create Service Listings",
+      description: "Offer custom woodworking, steel work, metalworking, and other services. Select 'Service' as listing type to show 'Request Job' button instead of buy button."
     },
     {
       title: "Manage Orders",
-      description: "Track incoming orders in the 'Manage Sales' tab. Update statuses and communicate with buyers."
+      description: "Handle incoming orders in the 'Manage Sales' tab. Update order statuses, communicate with buyers, and manage your workflow efficiently."
+    },
+    {
+      title: "Upgrade Your Plan",
+      description: "Visit the Pricing page to upgrade to Pro or Elite plans for lower fees, more listings, analytics, and priority support. Plans auto-apply after payment."
+    },
+    {
+      title: "Sponsor Your Shop",
+      description: "Boost visibility with profile and product sponsorships. Sponsorships auto-activate after payment and expire automatically after 14 days."
     },
     {
       title: "View Analytics",
-      description: "Check your shop performance in the 'Analytics' tab to optimize your business."
+      description: "Check your shop performance in the 'Analytics' tab. Track revenue, orders, average order value, and optimize your business strategy."
     }
   ];
 
