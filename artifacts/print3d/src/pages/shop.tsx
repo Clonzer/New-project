@@ -12,6 +12,9 @@ import {
   Star,
   CheckCircle2,
   Package,
+  Globe,
+  Instagram,
+  Mail,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -170,6 +173,41 @@ export default function Shop() {
                       <Package className="w-4 h-4 text-purple-400" />
                       <span className="text-sm font-medium text-purple-400">Pro Catalog</span>
                     </div>
+                  )}
+                </div>
+
+                {/* Social Media Links */}
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {user.websiteUrl && (
+                    <a
+                      href={user.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+                    >
+                      <Globe className="w-4 h-4 text-zinc-400" />
+                      <span className="text-sm text-zinc-300">Website</span>
+                    </a>
+                  )}
+                  {user.instagramHandle && (
+                    <a
+                      href={`https://instagram.com/${user.instagramHandle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+                    >
+                      <Instagram className="w-4 h-4 text-zinc-400" />
+                      <span className="text-sm text-zinc-300">Instagram</span>
+                    </a>
+                  )}
+                  {user.supportEmail && (
+                    <a
+                      href={`mailto:${user.supportEmail}`}
+                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+                    >
+                      <Mail className="w-4 h-4 text-zinc-400" />
+                      <span className="text-sm text-zinc-300">Email</span>
+                    </a>
                   )}
                 </div>
               </div>
