@@ -336,6 +336,7 @@ function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
   }, [printer]);
 
   const handleSubmit = async () => {
+    if (!printer) return;
     try {
       await updatePrinter.mutateAsync({
         printerId: printer.id,
@@ -355,7 +356,7 @@ function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
     }
   };
 
-  const is3d = printer.equipment_category === "printing_3d";
+  const is3d = printer?.equipment_category === "printing_3d";
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
@@ -363,7 +364,7 @@ function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Edit Equipment</DialogTitle>
           <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">
-            {printer.name} - {printer.brand} {printer.model}
+            {printer?.name} - {printer?.brand} {printer?.model}
           </DialogDescription>
         </DialogHeader>
 
