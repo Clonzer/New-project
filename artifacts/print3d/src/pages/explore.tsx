@@ -50,8 +50,8 @@ export default function Explore() {
       s.shopName?.toLowerCase().includes(q) ||
       s.location?.toLowerCase().includes(q) ||
       allTags.some((tag: string) => tag.toLowerCase().includes(q));
-    const matchesMode = selectedMode === "all" || s.shopMode === selectedMode;
-    const matchesTag = selectedTag === "all" || allTags.includes(selectedTag);
+    const matchesMode = selectedMode === "all" || !(s as any).shopMode || (s as any).shopMode === selectedMode;
+    const matchesTag = selectedTag === "all" || allTags.length === 0 || allTags.includes(selectedTag);
     return matchesSearch && matchesMode && matchesTag;
   });
 
