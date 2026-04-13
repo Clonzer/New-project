@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,6 +10,12 @@ import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare"
 import { listMessageThreads } from "@/lib/messages-api";
 import { getUnreadNotificationsCount } from "@/lib/notifications-api";
 import { VerifyEmailBanner } from "@/components/layout/VerifyEmailBanner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -85,9 +91,45 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
+                    isActive("/explore-all") || isActive("/explore") || isActive("/listings")
+                      ? "text-white"
+                      : "text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  {isActive("/explore-all") || isActive("/explore") || isActive("/listings") && (
+                    <motion.div
+                      layoutId="navbar-active"
+                      className="absolute inset-0 bg-white/10 rounded-full z-[-1]"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  Explore
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-zinc-900 border-zinc-700">
+                <DropdownMenuItem asChild>
+                  <Link href="/explore-all" className="cursor-pointer">
+                    Explore All
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/explore" className="cursor-pointer">
+                    Explore Shops
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/listings" className="cursor-pointer">
+                    Model Catalog
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {[
-              { path: "/explore", label: "Explore Shops" },
-              { path: "/listings", label: "Model Catalog" },
               { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },

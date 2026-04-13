@@ -9,6 +9,7 @@ import { useSyncContestsOnMount } from "@/lib/contest-sync";
 
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
+import ExploreAll from "@/pages/explore-all";
 import ExploreModels from "@/pages/explore-models";
 import Contests from "@/pages/contests";
 import Listings from "@/pages/listings";
@@ -33,6 +34,7 @@ import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
+import { useLocation } from "wouter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,7 +81,8 @@ function VendorDashboardPage() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={ExploreAll} />
+      <Route path="/explore-all" component={ExploreAll} />
       <Route path="/explore" component={Explore} />
       <Route path="/explore-models" component={ExploreModels} />
       <Route path="/discover" component={Discover} />
