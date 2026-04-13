@@ -517,7 +517,13 @@ function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
           </div>
           <div>
             <label className="text-sm text-zinc-300 block mb-1.5">Shipping ($)</label>
-            <Input type="number" step="0.01" value={form.shippingCost} onChange={e => handleChange("shippingCost", e.target.value)} placeholder="e.g. 5.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            <div className="flex gap-2">
+              <Input type="number" step="0.01" value={form.shippingCost} onChange={e => handleChange("shippingCost", e.target.value)} placeholder="e.g. 5.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl flex-1" />
+              <Button type="button" variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+                Use Profile
+              </Button>
+            </div>
+            <p className="text-xs text-zinc-500 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
           </div>
           <div>
             <label className="text-sm text-zinc-300 block mb-1.5">Primary Material</label>
