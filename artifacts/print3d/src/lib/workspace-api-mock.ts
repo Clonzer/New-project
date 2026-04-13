@@ -73,39 +73,79 @@ export class ApiError extends Error {
   }
 }
 
+// Response-like interface for mock fetch
+interface MockResponse {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  headers: Headers;
+  url: string;
+  type: string;
+  redirected: boolean;
+  body: ReadableStream<Uint8Array> | null;
+  bodyUsed: boolean;
+  json(): Promise<any>;
+  text(): Promise<string>;
+  blob(): Promise<Blob>;
+  arrayBuffer(): Promise<ArrayBuffer>;
+  formData(): Promise<FormData>;
+  clone(): MockResponse;
+}
+
 // Mock customFetch function - returns a Response-like object with json() method
 export async function customFetch<T>(
   url: string,
   options?: RequestInit & { skipAuth?: boolean; credentials?: RequestCredentials }
-): Promise<T> {
+): Promise<T & MockResponse> {
   console.warn(`[MOCK] customFetch called for ${url} - returning mock response`);
-  
-  // Create a mock response object that works as both Response and data
-  const mockData: any = {
+
+  // Create base mock data
+  const baseData: any = {
     threads: [],
     unreadCount: 0,
     contests: [],
     entries: [],
+    listings: [],
+    sellers: [],
+    users: [],
+    orders: [],
+    printers: [],
+    equipmentGroups: [],
+    reviews: [],
   };
-  
-  // Add Response-like methods
-  mockData.ok = true;
-  mockData.status = 200;
-  mockData.json = async () => mockData;
-  mockData.text = async () => "";
-  mockData.blob = async () => new Blob();
-  mockData.arrayBuffer = async () => new ArrayBuffer(0);
-  mockData.clone = () => new Response();
-  mockData.headers = new Headers();
-  mockData.redirected = false;
-  mockData.statusText = "OK";
-  mockData.type = "basic";
-  mockData.url = url;
-  mockData.body = null;
-  mockData.bodyUsed = false;
-  mockData.formData = async () => new FormData();
-  
-  return mockData as T;
+
+  // URL-specific responses
+  if (url.includes('/api/sponsorships/tiers')) {
+    baseData.tiers = [
+      { slug: 'profile-sponsorship', name: 'Profile Sponsorship', price: 29 },
+      { slug: 'product-sponsorship', name: 'Product Sponsorship', price: 19 }
+    ];
+  }
+  if (url.includes('/api/sponsorships/purchase')) {
+    baseData.expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  // Create mock response object
+  const mockResponse: MockResponse = {
+    ok: true,
+    status: 200,
+    statusText: "OK",
+    headers: new Headers(),
+    url: url,
+    type: "basic",
+    redirected: false,
+    body: null,
+    bodyUsed: false,
+    json: async () => baseData,
+    text: async () => "",
+    blob: async () => new Blob(),
+    arrayBuffer: async () => new ArrayBuffer(0),
+    formData: async () => new FormData(),
+    clone: function() { return { ...this }; }
+  };
+
+  // Merge data with response methods
+  return { ...baseData, ...mockResponse } as T & MockResponse;
 }
 
 // Mock sellers data
@@ -242,8 +282,8 @@ export function useListSellers(options: { limit?: number }) {
   return { data, isLoading, error };
 }
 
-export function useListListings(options: { limit?: number }) {
-  const { limit = 10 } = options;
+export function useListListings(options?: { limit?: number }) {
+  const { limit = 10 } = options ?? {};
   const [data, setData] = useState<{ listings: Listing[]; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

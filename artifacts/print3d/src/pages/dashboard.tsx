@@ -932,14 +932,6 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
               </div>
-              {isSellerUser && (
-                <Link href="/sponsorship/purchase">
-                  <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-6 py-2">
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Buy Sponsorship
-                  </Button>
-                </Link>
-              )}
             </div>
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
@@ -948,11 +940,19 @@ export default function Dashboard() {
                 </Link>
               )}
               {isSellerUser && (
-                <Link href="/settings?section=storefront">
-                  <Button variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5 rounded-full">
-                    <Store className="w-4 h-4 mr-2" /> Edit Storefront
-                  </Button>
-                </Link>
+                <>
+                  <Link href="/storefront/edit">
+                    <Button variant="outline" className="glass-panel text-white border-primary/30 hover:bg-primary/10 hover:border-primary/50 rounded-full">
+                      <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
+                    </Button>
+                  </Link>
+                  <Link href="/sponsorship/purchase">
+                    <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-6 py-2">
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Buy Sponsorship
+                    </Button>
+                  </Link>
+                </>
               )}
               <Link href="/settings">
                 <Button variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5 rounded-full">
