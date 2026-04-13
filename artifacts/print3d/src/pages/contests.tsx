@@ -422,7 +422,9 @@ export default function Contests() {
                       <Card className="bg-zinc-800 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
                         <div className="relative">
                           <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <Target className="w-16 h-16 text-primary/40" />
+                            <div className="text-6xl font-display font-bold bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent">
+                              {contest.title.split(' ').map((word: string) => word.charAt(0)).join('').slice(0, 3).toUpperCase()}
+                            </div>
                           </div>
                           <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)}`}>
                             <div className="flex items-center gap-1">
@@ -431,7 +433,7 @@ export default function Contests() {
                             </div>
                           </Badge>
                         </div>
-                        
+
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div>
@@ -450,10 +452,6 @@ export default function Contests() {
 
                           <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Reward</span>
-                              <span className="text-white">{contest.reward}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
                               <span className="text-zinc-400">Ends in</span>
                               <span className="text-white">
                                 {Math.ceil((new Date(contest.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
@@ -461,9 +459,25 @@ export default function Contests() {
                             </div>
                           </div>
 
+                          <div className="mb-4">
+                            <div className="text-xs text-zinc-400 mb-2">Participants</div>
+                            <div className="flex -space-x-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Avatar key={i} className="w-8 h-8 border-2 border-zinc-800">
+                                  <AvatarFallback className="bg-gradient-to-br from-primary/50 to-accent/50 text-white text-xs">
+                                    {String.fromCharCode(65 + i)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              ))}
+                              <div className="w-8 h-8 rounded-full bg-zinc-700 border-2 border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
+                                +
+                              </div>
+                            </div>
+                          </div>
+
                           <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               className="flex-1"
                               onClick={() => setSelectedContest(contest)}
                             >
@@ -700,20 +714,8 @@ export default function Contests() {
                             </div>
                           </div>
 
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium text-white">Requirements:</p>
-                            <ul className="text-sm text-zinc-400 space-y-1">
-                              {contest.requirements.map((req, i) => (
-                                <li key={i} className="flex items-center gap-2">
-                                  <CheckCircle className="w-3 h-3 text-green-400" />
-                                  {req}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             className="w-full mt-4"
                             onClick={() => setSelectedContest(contest)}
                           >
@@ -777,18 +779,6 @@ export default function Contests() {
                           <li key={index} className="flex items-center gap-2 text-zinc-300">
                             <Star className="w-4 h-4 text-yellow-400" />
                             {criteria}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Requirements</h3>
-                      <ul className="space-y-2">
-                        {selectedContest.requirements.map((req, index) => (
-                          <li key={index} className="flex items-center gap-2 text-zinc-300">
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            {req}
                           </li>
                         ))}
                       </ul>
