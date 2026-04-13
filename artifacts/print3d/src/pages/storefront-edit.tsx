@@ -11,11 +11,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useUpdateUser } from "@/lib/workspace-stub";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { 
-  ArrowLeft, 
-  Store, 
-  Eye, 
-  Save, 
+import {
+  ArrowLeft,
+  Store,
+  Eye,
+  Save,
   Image as ImageIcon,
   Palette,
   Tag,
@@ -26,7 +26,9 @@ import {
   Loader2,
   ExternalLink,
   Sparkles,
-  Camera
+  Camera,
+  Upload,
+  X
 } from "lucide-react";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,6 +157,10 @@ export default function StorefrontEdit() {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const [customTag, setCustomTag] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [bannerPreview, setBannerPreview] = useState<string>("");
 
   const [form, setForm] = useState({
     shopName: "",
@@ -193,6 +199,44 @@ export default function StorefrontEdit() {
   const handleChange = useCallback((field: string, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));
   }, []);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+        handleChange("avatarUrl", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBannerFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerPreview(reader.result as string);
+        handleChange("bannerUrl", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview("");
+    handleChange("avatarUrl", "");
+  };
+
+  const handleRemoveBanner = () => {
+    setBannerFile(null);
+    setBannerPreview("");
+    handleChange("bannerUrl", "");
+  };
 
   const addTag = (tag: string) => {
     if (tag && !form.sellerTags.includes(tag)) {
@@ -410,23 +454,85 @@ export default function StorefrontEdit() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-sm text-zinc-400">Avatar URL</label>
-                        <Input
-                          value={form.avatarUrl}
-                          onChange={e => handleChange("avatarUrl", e.target.value)}
-                          placeholder="https://..."
-                          className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
-                        />
+                        <label className="text-sm text-zinc-400">Avatar</label>
+                        <div className="space-y-3">
+                          {avatarPreview || form.avatarUrl ? (
+                            <div className="relative w-full aspect-square max-w-[200px] mx-auto rounded-2xl overflow-hidden border border-white/10">
+                              <img
+                                src={avatarPreview || form.avatarUrl}
+                                alt="Avatar preview"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleRemoveAvatar}
+                                className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="flex flex-col items-center justify-center w-full aspect-square max-w-[200px] mx-auto rounded-2xl border-2 border-dashed border-white/20 hover:border-white/40 cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
+                              <Upload className="w-8 h-8 text-zinc-400 mb-2" />
+                              <span className="text-sm text-zinc-400">Upload avatar</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                          {!avatarPreview && !form.avatarUrl && (
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAvatarUpload}
+                              className="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30"
+                            />
+                          )}
+                        </div>
                         <p className="text-xs text-zinc-500">Square image recommended (400x400px)</p>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-zinc-400">Banner URL</label>
-                        <Input
-                          value={form.bannerUrl}
-                          onChange={e => handleChange("bannerUrl", e.target.value)}
-                          placeholder="https://..."
-                          className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
-                        />
+                        <label className="text-sm text-zinc-400">Banner</label>
+                        <div className="space-y-3">
+                          {bannerPreview || form.bannerUrl ? (
+                            <div className="relative w-full aspect-[3/1] max-w-[300px] mx-auto rounded-2xl overflow-hidden border border-white/10">
+                              <img
+                                src={bannerPreview || form.bannerUrl}
+                                alt="Banner preview"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleRemoveBanner}
+                                className="absolute top-2 right-2 p-1 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="flex flex-col items-center justify-center w-full aspect-[3/1] max-w-[300px] mx-auto rounded-2xl border-2 border-dashed border-white/20 hover:border-white/40 cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
+                              <Upload className="w-8 h-8 text-zinc-400 mb-2" />
+                              <span className="text-sm text-zinc-400">Upload banner</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleBannerUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                          {!bannerPreview && !form.bannerUrl && (
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleBannerUpload}
+                              className="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30"
+                            />
+                          )}
+                        </div>
                         <p className="text-xs text-zinc-500">Wide banner image (1200x400px)</p>
                       </div>
                     </div>
@@ -560,6 +666,26 @@ export default function StorefrontEdit() {
                 <p className="text-xs text-zinc-500 text-center">
                   This is how your shop will appear to customers
                 </p>
+
+                {user?.id && (
+                  <>
+                    <div className="flex items-center gap-2 text-zinc-400 mb-2 mt-6">
+                      <ExternalLink className="w-4 h-4" />
+                      <span className="text-sm font-medium">Your Actual Shop Page</span>
+                    </div>
+                    <div className="glass-panel rounded-2xl border border-white/10 p-4">
+                      <Link href={`/shop/${user.id}`} target="_blank">
+                        <Button variant="outline" className="w-full border-white/20 hover:bg-white/5">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open Your Shop in New Tab
+                        </Button>
+                      </Link>
+                      <p className="text-xs text-zinc-500 text-center mt-2">
+                        View your live shop page as customers see it
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
