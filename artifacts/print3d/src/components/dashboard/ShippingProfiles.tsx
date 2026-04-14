@@ -6,8 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
-import { Truck, Globe, Package, MapPin, Plus, Trash2 } from "lucide-react";
+import { Truck, Globe, Package, MapPin, Plus, Trash2, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
+const COUNTRY_OPTIONS = [
+  { code: "US", name: "United States" },
+  { code: "CA", name: "Canada" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "AU", name: "Australia" },
+  { code: "JP", name: "Japan" },
+  { code: "NL", name: "Netherlands" },
+  { code: "ES", name: "Spain" },
+  { code: "IT", name: "Italy" },
+];
 
 interface ShippingProfile {
   id: string;
@@ -18,6 +32,7 @@ interface ShippingProfile {
   internationalCost: number;
   freeShippingThreshold: number;
   enabled: boolean;
+  shippingRegions: string[];
 }
 
 export function ShippingProfiles() {
@@ -34,6 +49,7 @@ export function ShippingProfiles() {
       internationalCost: user?.internationalShippingCost || 19.99,
       freeShippingThreshold: user?.freeShippingThreshold || 50,
       enabled: true,
+      shippingRegions: user?.sellingRegions || ["US", "CA", "GB"],
     },
   ]);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,6 +71,7 @@ export function ShippingProfiles() {
             freeShippingThreshold: defaultProfile.freeShippingThreshold,
             defaultShippingCost: defaultProfile.domesticCost,
             localPickupEnabled: true,
+            sellingRegions: defaultProfile.shippingRegions,
           },
         });
         toast({
@@ -81,6 +98,7 @@ export function ShippingProfiles() {
       internationalCost: 19.99,
       freeShippingThreshold: 50,
       enabled: true,
+      shippingRegions: ["US", "CA"],
     };
     setProfiles([...profiles, newProfile]);
     setEditingProfile(newProfile);
@@ -187,6 +205,11 @@ export function ShippingProfiles() {
                   <span className="text-zinc-400">Free Shipping Threshold:</span>
                   <span className="text-white font-semibold">${profile.freeShippingThreshold.toFixed(2)}</span>
                 </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="w-4 h-4 text-zinc-400" />
+                  <span className="text-zinc-400">Shipping to:</span>
+                  <span className="text-white font-semibold">{profile.shippingRegions.length} regions</span>
+                </div>
               </div>
               <Button
                 variant="outline"
@@ -200,17 +223,17 @@ export function ShippingProfiles() {
         ))}
       </div>
 
-      {isEditing && editingProfile && (
-        <Card className="bg-zinc-800 border-zinc-700">
-          <CardHeader>
-            <CardTitle className="text-white">Edit Shipping Profile</CardTitle>
-            <CardDescription className="text-zinc-400">Configure shipping costs for different regions</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Dialog open={isEditing && editingProfile !== null} onOpenChange={setIsEditing}>
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Shipping Profile</DialogTitle>
+            <DialogDescription className="text-zinc-400">Configure shipping costs and regions</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
             <div>
               <label className="text-sm text-zinc-300 block mb-1.5">Profile Name</label>
               <Input
-                value={editingProfile.name}
+                value={editingProfile?.name || ""}
                 onChange={(e) => handleUpdateProfile("name", e.target.value)}
                 className="bg-black/30 border-white/10 text-white"
               />
@@ -221,7 +244,7 @@ export function ShippingProfiles() {
                 <Input
                   type="number"
                   step="0.01"
-                  value={editingProfile.domesticCost}
+                  value={editingProfile?.domesticCost || 0}
                   onChange={(e) => handleUpdateProfile("domesticCost", parseFloat(e.target.value))}
                   className="bg-black/30 border-white/10 text-white"
                 />
@@ -231,7 +254,7 @@ export function ShippingProfiles() {
                 <Input
                   type="number"
                   step="0.01"
-                  value={editingProfile.europeCost}
+                  value={editingProfile?.europeCost || 0}
                   onChange={(e) => handleUpdateProfile("europeCost", parseFloat(e.target.value))}
                   className="bg-black/30 border-white/10 text-white"
                 />
@@ -241,7 +264,7 @@ export function ShippingProfiles() {
                 <Input
                   type="number"
                   step="0.01"
-                  value={editingProfile.northAmericaCost}
+                  value={editingProfile?.northAmericaCost || 0}
                   onChange={(e) => handleUpdateProfile("northAmericaCost", parseFloat(e.target.value))}
                   className="bg-black/30 border-white/10 text-white"
                 />
@@ -251,7 +274,7 @@ export function ShippingProfiles() {
                 <Input
                   type="number"
                   step="0.01"
-                  value={editingProfile.internationalCost}
+                  value={editingProfile?.internationalCost || 0}
                   onChange={(e) => handleUpdateProfile("internationalCost", parseFloat(e.target.value))}
                   className="bg-black/30 border-white/10 text-white"
                 />
@@ -262,10 +285,58 @@ export function ShippingProfiles() {
               <Input
                 type="number"
                 step="0.01"
-                value={editingProfile.freeShippingThreshold}
+                value={editingProfile?.freeShippingThreshold || 0}
                 onChange={(e) => handleUpdateProfile("freeShippingThreshold", parseFloat(e.target.value))}
                 className="bg-black/30 border-white/10 text-white"
               />
+            </div>
+            <div>
+              <label className="text-sm text-zinc-300 block mb-2">Shipping Regions</label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editingProfile) {
+                      handleUpdateProfile("shippingRegions", editingProfile.shippingRegions.includes("WORLDWIDE") ? [] : ["WORLDWIDE"]);
+                    }
+                  }}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                    editingProfile?.shippingRegions.includes("WORLDWIDE")
+                      ? "border-emerald-400/50 bg-emerald-400/15 text-white"
+                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  Worldwide
+                </button>
+                {COUNTRY_OPTIONS.map((option) => {
+                  const selected = editingProfile?.shippingRegions.includes(option.code);
+                  return (
+                    <button
+                      key={option.code}
+                      type="button"
+                      onClick={() => {
+                        if (editingProfile) {
+                          handleUpdateProfile(
+                            "shippingRegions",
+                            editingProfile.shippingRegions.includes("WORLDWIDE")
+                              ? [option.code]
+                              : selected
+                                ? editingProfile.shippingRegions.filter((value) => value !== option.code)
+                                : [...editingProfile.shippingRegions, option.code]
+                          );
+                        }
+                      }}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                        selected
+                          ? "border-primary/50 bg-primary/15 text-white"
+                          : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {option.name}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex gap-3">
               <Button onClick={() => setIsEditing(false)} variant="outline">
@@ -275,9 +346,9 @@ export function ShippingProfiles() {
                 Save Profile
               </NeonButton>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex justify-end">
         <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
