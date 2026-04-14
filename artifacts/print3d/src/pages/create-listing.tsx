@@ -223,7 +223,10 @@ export default function CreateListing() {
         if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
           newErrors.estimatedDaysMin = "Minimum days is required";
         }
-        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin || "0")) {
+        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < 1) {
+          newErrors.estimatedDaysMax = "Maximum days is required";
+        }
+        if (formData.estimatedDaysMin && formData.estimatedDaysMax && parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin)) {
           newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
         }
         break;
@@ -378,7 +381,7 @@ export default function CreateListing() {
                     <TooltipTrigger>
                       <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-zinc-800 border border-zinc-600">
                       <p className="text-sm">A clear, descriptive title helps buyers find your listing</p>
                     </TooltipContent>
                   </Tooltip>
@@ -400,7 +403,7 @@ export default function CreateListing() {
                     <TooltipTrigger>
                       <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-zinc-800 border border-zinc-600">
                       <p className="text-sm">Detailed description of your product including features, dimensions, and materials</p>
                     </TooltipContent>
                   </Tooltip>
@@ -424,7 +427,7 @@ export default function CreateListing() {
                     <TooltipTrigger>
                       <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-zinc-800 border border-zinc-600">
                       <p className="text-sm">Select the category that best describes your product</p>
                     </TooltipContent>
                   </Tooltip>
@@ -433,7 +436,7 @@ export default function CreateListing() {
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -459,7 +462,7 @@ export default function CreateListing() {
                     <TooltipTrigger>
                       <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-zinc-800 border border-zinc-600">
                       <p className="text-sm">The type of product you are listing</p>
                     </TooltipContent>
                   </Tooltip>
@@ -468,7 +471,7 @@ export default function CreateListing() {
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select product type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
                     {PRODUCT_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div>
@@ -497,7 +500,7 @@ export default function CreateListing() {
                   <TooltipTrigger>
                     <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className="bg-zinc-800 border border-zinc-600">
                     <p className="text-sm">Add relevant tags to help buyers discover your listing</p>
                   </TooltipContent>
                 </Tooltip>
@@ -547,7 +550,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">The base price for your product before any shipping or additional fees</p>
                       </TooltipContent>
                     </Tooltip>
@@ -572,7 +575,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">Primary material used for this product (e.g., PLA, ABS, Wood)</p>
                       </TooltipContent>
                     </Tooltip>
@@ -593,7 +596,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">Primary color or finish of the product</p>
                       </TooltipContent>
                     </Tooltip>
@@ -614,7 +617,7 @@ export default function CreateListing() {
                     <TooltipTrigger>
                       <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-zinc-800 border border-zinc-600">
                       <p className="text-sm">How this product is fulfilled - from inventory, made to order, or digital download</p>
                     </TooltipContent>
                   </Tooltip>
@@ -623,7 +626,7 @@ export default function CreateListing() {
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select stock type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
                     {STOCK_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div>
@@ -655,7 +658,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">Select a shipping profile to apply predefined shipping rates and regions</p>
                       </TooltipContent>
                     </Tooltip>
@@ -664,7 +667,7 @@ export default function CreateListing() {
                     <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                       <SelectValue placeholder="Select shipping profile" />
                     </SelectTrigger>
-                    <SelectContent className="bg-zinc-800 border-zinc-700">
+                    <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
                       <SelectItem value="">No shipping profile</SelectItem>
                       {/* TODO: Fetch shipping profiles from API */}
                       <SelectItem value="default">Default Profile</SelectItem>
@@ -682,7 +685,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">Minimum number of days needed to produce this item</p>
                       </TooltipContent>
                     </Tooltip>
@@ -706,7 +709,7 @@ export default function CreateListing() {
                       <TooltipTrigger>
                         <Info className="w-4 h-4 text-zinc-400 cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
                         <p className="text-sm">Maximum number of days needed to produce this item</p>
                       </TooltipContent>
                     </Tooltip>
