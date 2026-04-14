@@ -95,26 +95,28 @@ export function useCreateListing(): MutationReturn {
     try {
       const { data } = vars;
       console.log('Creating listing with data:', data);
-      const { error: insertError } = await supabase
+      const insertData = {
+        seller_id: data.sellerId,
+        title: data.title,
+        description: data.description || null,
+        price: data.basePrice,
+        shipping_cost: data.shippingCost || 0,
+        estimated_days_min: data.estimatedDaysMin,
+        estimated_days_max: data.estimatedDaysMax,
+        material: data.material || null,
+        category: data.category,
+        tags: data.tags || [],
+        stock: data.stock || null,
+        images: data.images || [],
+        listing_type: data.listingType || 'product',
+        service_category: data.serviceCategory || null,
+        equipment_used: data.equipmentUsed || [],
+        equipment_groups: data.equipmentGroups || [],
+      };
+      console.log('Inserting data into listings table:', insertData);
+      const { error: insertError, data: insertedData } = await supabase
         .from('listings')
-        .insert({
-          seller_id: data.sellerId,
-          title: data.title,
-          description: data.description || null,
-          price: data.basePrice,
-          shipping_cost: data.shippingCost || 0,
-          estimated_days_min: data.estimatedDaysMin,
-          estimated_days_max: data.estimatedDaysMax,
-          material: data.material || null,
-          category: data.category,
-          tags: data.tags || [],
-          stock: data.stock || null,
-          images: data.images || [],
-          listing_type: data.listingType || 'product',
-          service_category: data.serviceCategory || null,
-          equipment_used: data.equipmentUsed || [],
-          equipment_groups: data.equipmentGroups || [],
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -123,8 +125,8 @@ export function useCreateListing(): MutationReturn {
         throw insertError;
       }
 
-      console.log('Listing created successfully');
-      return { success: true };
+      console.log('Listing created successfully, returned data:', insertedData);
+      return { success: true, data: insertedData };
     } catch (e) {
       const err = e as Error;
       setError(err);
