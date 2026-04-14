@@ -145,10 +145,6 @@ const PRINTING_3D: CatalogEquipmentItem[] = [
   { id: "stratasys-f170-f270", category: "printing_3d", brand: "Stratasys", model: "F170 / F270", technology: "FDM", materials: ["ABS", "ASA"], gradient: "from-indigo-800 to-blue-800", buildVolume: "254x254x254 mm / 254x254x305 mm" },
   { id: "stratasys-j7", category: "printing_3d", brand: "Stratasys", model: "J7", technology: "MJF", materials: ["Full color sandstone"], gradient: "from-amber-800 to-orange-800", buildVolume: "127x80x72 mm" },
   
-  // HP Jet Fusion
-  { id: "hp-mjf-4200", category: "printing_3d", brand: "HP", model: "Jet Fusion 4200", technology: "MJF", materials: ["PA 12", "PA 11", "TPA"], gradient: "from-blue-700 to-cyan-700", buildVolume: "380x284x380 mm" },
-  { id: "hp-mjf-580-color", category: "printing_3d", brand: "HP", model: "Jet Fusion 580 Color", technology: "MJF", materials: ["PA 12", "PA 11 GF", "TPU"], gradient: "from-cyan-600 to-sky-700", buildVolume: "302.4x191.04x381 mm" },
-  
   // EOS - Industrial Powder/Laser
   { id: "eos-m290", category: "printing_3d", brand: "EOS", model: "M 290", technology: "DMLS", materials: ["Stainless steel", "Tool steel", "Aluminum", "Nickel alloys", "Titanium"], gradient: "from-slate-700 to-gray-700", buildVolume: "250x250x325 mm" },
   { id: "eos-m300", category: "printing_3d", brand: "EOS", model: "M 300", technology: "DMLS", materials: ["Steel", "Titanium", "Aluminum"], gradient: "from-gray-700 to-slate-800", buildVolume: "300x300x400 mm" },
