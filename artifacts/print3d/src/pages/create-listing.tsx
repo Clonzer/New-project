@@ -334,8 +334,27 @@ export default function CreateListing() {
     if (!validateStep(currentStep) || !user) return;
 
     try {
-      await createListingMutation.mutateAsync();
-      // navigate("/dashboard"); // Temporarily disabled to see console errors
+      await createListingMutation.mutateAsync({
+        data: {
+          sellerId: user.id,
+          title: formData.title,
+          description: formData.description,
+          basePrice: parseFloat(formData.basePrice),
+          shippingCost: formData.shippingProfileId ? 0 : null,
+          estimatedDaysMin: parseInt(formData.estimatedDaysMin),
+          estimatedDaysMax: parseInt(formData.estimatedDaysMax),
+          material: formData.material,
+          category: formData.category,
+          tags: formData.tags,
+          stock: formData.stockType === 'inventory' ? 10 : null,
+          images: formData.mediaFiles.map(m => m.url),
+          listingType: formData.productType,
+          serviceCategory: formData.isDigitalProduct ? formData.category : null,
+          equipmentUsed: formData.equipmentUsed,
+          equipmentGroups: formData.equipmentGroups,
+        }
+      });
+      navigate("/dashboard");
       console.log("Listing created successfully");
     } catch (error) {
       console.error("Failed to create listing:", error);
