@@ -220,15 +220,7 @@ export default function CreateListing() {
         }
         break;
       case 3:
-        if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
-          newErrors.estimatedDaysMin = "Minimum days is required";
-        }
-        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < 1) {
-          newErrors.estimatedDaysMax = "Maximum days is required";
-        }
-        if (formData.estimatedDaysMin && formData.estimatedDaysMax && parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin)) {
-          newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
-        }
+        // Temporarily disabled validation to debug crash
         break;
       case 4:
         // Equipment validation - optional
