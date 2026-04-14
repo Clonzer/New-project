@@ -650,26 +650,7 @@ export default function CreateListing() {
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
           >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
-                    Shipping Profile <span className="text-xs text-zinc-400">(optional)</span>
-                  </Label>
-                  <Select value={formData.shippingProfileId} onValueChange={(value) => updateFormData("shippingProfileId", value)}>
-                    <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
-                      <SelectValue placeholder="Select shipping profile" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
-                      <SelectItem value="">No shipping profile</SelectItem>
-                      {/* TODO: Fetch shipping profiles from API */}
-                      <SelectItem value="default">Default Profile</SelectItem>
-                      <SelectItem value="express">Express Shipping</SelectItem>
-                      <SelectItem value="international">International</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
-                </div>
-
+              <div className="space-y-4">
                 <div>
                   <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
                     Min Production Days <span className="text-red-400">*</span>
