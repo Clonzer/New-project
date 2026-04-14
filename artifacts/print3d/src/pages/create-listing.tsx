@@ -654,14 +654,6 @@ export default function CreateListing() {
                 <div>
                   <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
                     Shipping Profile <span className="text-xs text-zinc-400">(optional)</span>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
-                        <p className="text-sm">Select a shipping profile to apply predefined shipping rates and regions</p>
-                      </TooltipContent>
-                    </Tooltip>
                   </Label>
                   <Select value={formData.shippingProfileId} onValueChange={(value) => updateFormData("shippingProfileId", value)}>
                     <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
@@ -681,14 +673,6 @@ export default function CreateListing() {
                 <div>
                   <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
                     Min Production Days <span className="text-red-400">*</span>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
-                        <p className="text-sm">Minimum number of days needed to produce this item</p>
-                      </TooltipContent>
-                    </Tooltip>
                   </Label>
                   <Input
                     id="estimatedDaysMin"
@@ -705,14 +689,6 @@ export default function CreateListing() {
                 <div>
                   <Label htmlFor="estimatedDaysMax" className="text-white flex items-center gap-2">
                     Max Production Days <span className="text-red-400">*</span>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-zinc-800 border border-zinc-600">
-                        <p className="text-sm">Maximum number of days needed to produce this item</p>
-                      </TooltipContent>
-                    </Tooltip>
                   </Label>
                   <Input
                     id="estimatedDaysMax"
