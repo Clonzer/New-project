@@ -331,10 +331,23 @@ export default function CreateListing() {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(currentStep) || !user) return;
+    console.log("handleSubmit called");
+    console.log("currentStep:", currentStep);
+    console.log("user:", user);
+    console.log("formData:", formData);
+    
+    const isValid = validateStep(currentStep);
+    console.log("isValid:", isValid);
+    console.log("errors:", errors);
+    
+    if (!isValid || !user) {
+      console.log("Validation failed or no user");
+      return;
+    }
 
     try {
-      await createListingMutation.mutateAsync({
+      console.log("Calling createListingMutation.mutateAsync");
+      const result = await createListingMutation.mutateAsync({
         data: {
           sellerId: user.id,
           title: formData.title,
@@ -354,6 +367,7 @@ export default function CreateListing() {
           equipmentGroups: formData.equipmentGroups,
         }
       });
+      console.log("Mutation result:", result);
       navigate("/dashboard");
       console.log("Listing created successfully");
     } catch (error) {
