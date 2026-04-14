@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "wouter";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -129,7 +129,7 @@ const initialFormData: ListingFormData = {
 };
 
 export default function CreateListing() {
-  const [, navigate] = useRouter();
+  const [, navigate] = useLocation();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ListingFormData>(initialFormData);
@@ -145,8 +145,8 @@ export default function CreateListing() {
   const { data: equipmentData, isLoading: loadingEquipment } = useListEquipment();
   const { data: equipmentGroupsData, isLoading: loadingEquipmentGroups } = useListEquipmentGroups();
 
-  const availableEquipment = equipmentData?.equipment ?? [];
-  const availableEquipmentGroups = equipmentGroupsData?.groups ?? [];
+  const availableEquipment = Array.isArray(equipmentData) ? equipmentData : [];
+  const availableEquipmentGroups = Array.isArray(equipmentGroupsData) ? equipmentGroupsData : [];
 
   const totalSteps = 5;
 
@@ -176,10 +176,10 @@ export default function CreateListing() {
     updateFormData("tags", formData.tags.filter(tag => tag !== tagToRemove));
   };
 
-  const toggleEquipment = (equipmentId: number) => {
+  const toggleEquipment = (equipmentId: string | number) => {
     const currentEquipment = formData.equipmentUsed;
-    const isSelected = currentEquipment.includes(equipmentId);
-    
+    const isSelected = currentEquipment.includes(equipmentId as any);
+
     if (isSelected) {
       updateFormData("equipmentUsed", currentEquipment.filter(id => id !== equipmentId));
     } else {
@@ -187,10 +187,10 @@ export default function CreateListing() {
     }
   };
 
-  const toggleEquipmentGroup = (groupId: number) => {
+  const toggleEquipmentGroup = (groupId: string | number) => {
     const currentGroups = formData.equipmentGroups;
-    const isSelected = currentGroups.includes(groupId);
-    
+    const isSelected = currentGroups.includes(groupId as any);
+
     if (isSelected) {
       updateFormData("equipmentGroups", currentGroups.filter(id => id !== groupId));
     } else {
@@ -323,30 +323,7 @@ export default function CreateListing() {
     if (!validateStep(currentStep) || !user) return;
 
     try {
-      await createListingMutation.mutateAsync({
-        data: {
-          sellerId: user.id,
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          tags: formData.tags,
-          imageUrl: formData.imageUrl,
-          basePrice: parseFloat(formData.basePrice),
-          shippingCost: formData.shippingCost ? parseFloat(formData.shippingCost) : undefined,
-          estimatedDaysMin: parseInt(formData.estimatedDaysMin),
-          estimatedDaysMax: parseInt(formData.estimatedDaysMax),
-          material: formData.material || undefined,
-          color: formData.color || undefined,
-          productType: formData.productType,
-          equipmentUsed: formData.equipmentUsed,
-          equipmentGroups: formData.equipmentGroups,
-          isPrintOnDemand: formData.isPrintOnDemand,
-          isDigitalProduct: formData.isDigitalProduct,
-          digitalFiles: formData.digitalFiles.map(file => file.url),
-          stockType: formData.stockType,
-        },
-      });
-
+      await createListingMutation.mutateAsync();
       navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create listing:", error);
@@ -693,8 +670,8 @@ export default function CreateListing() {
                       <div key={group.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`group-${group.id}`}
-                          checked={formData.equipmentGroups.includes(group.id)}
-                          onCheckedChange={() => toggleEquipmentGroup(group.id)}
+                          checked={formData.equipmentGroups.includes(group.id as any)}
+                          onCheckedChange={() => toggleEquipmentGroup(group.id as any)}
                           className="border-zinc-600"
                         />
                         <Label
@@ -702,7 +679,7 @@ export default function CreateListing() {
                           className="text-sm text-zinc-300 cursor-pointer flex-1"
                         >
                           <div className="font-medium text-white">{group.name}</div>
-                          <div className="text-xs text-zinc-400">{group.description || group.category}</div>
+                          <div className="text-xs text-zinc-400">{group.equipment?.length || 0} items</div>
                         </Label>
                       </div>
                     ))}
@@ -736,22 +713,17 @@ export default function CreateListing() {
                       <div key={equipment.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`equipment-${equipment.id}`}
-                          checked={formData.equipmentUsed.includes(equipment.id)}
-                          onCheckedChange={() => toggleEquipment(equipment.id)}
+                          checked={formData.equipmentUsed.includes(equipment.id as any)}
+                          onCheckedChange={() => toggleEquipment(equipment.id as any)}
                           className="border-zinc-600"
                         />
                         <Label
                           htmlFor={`equipment-${equipment.id}`}
                           className="text-sm text-zinc-300 cursor-pointer flex-1"
                         >
-                          <div className="font-medium text-white">
-                            {equipment.name}
-                            {equipment.model && ` (${equipment.model})`}
-                          </div>
+                          <div className="font-medium text-white">{equipment.name}</div>
                           <div className="text-xs text-zinc-400">
-                            {equipment.manufacturer && `${equipment.manufacturer} • `}
-                            {equipment.category}
-                            {equipment.status !== 'active' && ` • ${equipment.status}`}
+                            {equipment.type} • {equipment.status}
                           </div>
                         </Label>
                       </div>
