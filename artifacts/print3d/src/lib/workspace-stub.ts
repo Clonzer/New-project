@@ -94,29 +94,26 @@ export function useCreateListing(): MutationReturn {
     setError(null);
     try {
       const { data } = vars;
-      console.log('Creating listing with data:', data);
-      const insertData = {
-        seller_id: data.sellerId,
-        title: data.title,
-        description: data.description || null,
-        price: data.basePrice,
-        shipping_cost: data.shippingCost || 0,
-        estimated_days_min: data.estimatedDaysMin,
-        estimated_days_max: data.estimatedDaysMax,
-        material: data.material || null,
-        category: data.category,
-        tags: data.tags || [],
-        stock: data.stock || null,
-        images: data.images || [],
-        listing_type: data.listingType || 'product',
-        service_category: data.serviceCategory || null,
-        equipment_used: data.equipmentUsed || [],
-        equipment_groups: data.equipmentGroups || [],
-      };
-      console.log('Inserting data into listings table:', insertData);
-      const { error: insertError, data: insertedData } = await supabase
+      const { error: insertError } = await supabase
         .from('listings')
-        .insert(insertData)
+        .insert({
+          seller_id: data.sellerId,
+          title: data.title,
+          description: data.description || null,
+          price: data.basePrice,
+          shipping_cost: data.shippingCost || 0,
+          estimated_days_min: data.estimatedDaysMin,
+          estimated_days_max: data.estimatedDaysMax,
+          material: data.material || null,
+          category: data.category,
+          tags: data.tags || [],
+          stock: data.stock || null,
+          images: data.images || [],
+          listing_type: data.listingType || 'product',
+          service_category: data.serviceCategory || null,
+          equipment_used: data.equipmentUsed || [],
+          equipment_groups: data.equipmentGroups || [],
+        })
         .select()
         .single();
 
@@ -125,8 +122,7 @@ export function useCreateListing(): MutationReturn {
         throw insertError;
       }
 
-      console.log('Listing created successfully, returned data:', insertedData);
-      return { success: true, data: insertedData };
+      return { success: true };
     } catch (e) {
       const err = e as Error;
       setError(err);
@@ -325,14 +321,12 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       setIsLoading(true);
       setError(null);
       try {
-        console.log('Fetching listings with options:', options);
         let query = supabase
           .from('listings')
           .select('*')
           .order('created_at', { ascending: false });
 
         if (options?.sellerId) {
-          console.log('Filtering by seller_id:', options.sellerId);
           query = query.eq('seller_id', options.sellerId);
         }
 
@@ -341,12 +335,9 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
         }
 
         const result = await query;
-        console.log('Listings query result:', result);
         if (result.error) throw result.error;
-        console.log('Setting listings data:', result.data);
         setData({ listings: result.data || [] });
       } catch (err) {
-        console.error('Error fetching listings:', err);
         setError(err as Error);
         setData({ listings: [] });
       } finally {
