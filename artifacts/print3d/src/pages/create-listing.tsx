@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +26,7 @@ import {
   Info
 } from "lucide-react";
 import { useCreateListing } from "@/lib/workspace-api-mock";
-import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-api-mock";
+import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-stub";
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -35,6 +36,7 @@ const PRODUCT_TYPES = [
   { value: "cnc", label: "CNC Machining", description: "Computer numerical control machining" },
   { value: "laser", label: "Laser Cutting", description: "Laser cut designs" },
   { value: "digital", label: "Digital Files", description: "Digital designs and files" },
+  { value: "other", label: "Other", description: "Custom product type" },
 ];
 
 const STOCK_TYPES = [
@@ -81,13 +83,15 @@ interface ListingFormData {
   description: string;
   category: string;
   productType: string;
+  customCategory: string;
+  customProductType: string;
   tags: string[];
 
   // Product Details
   material: string;
   color: string;
   basePrice: string;
-  shippingCost: string;
+  shippingProfileId: string;
   estimatedDaysMin: string;
   estimatedDaysMax: string;
 
@@ -112,11 +116,13 @@ const initialFormData: ListingFormData = {
   description: "",
   category: "",
   productType: "3d_printing",
+  customCategory: "",
+  customProductType: "",
   tags: [],
   material: "",
   color: "",
   basePrice: "",
-  shippingCost: "",
+  shippingProfileId: "",
   estimatedDaysMin: "",
   estimatedDaysMax: "",
   stockType: "inventory",
@@ -359,40 +365,41 @@ export default function CreateListing() {
     switch (currentStep) {
       case 1:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div>
-              <Label htmlFor="title" className="text-white flex items-center gap-2">
-                Title <span className="text-red-400">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => updateFormData("title", e.target.value)}
-                placeholder="Enter a compelling title for your listing"
-                className="mt-1"
-              />
-              {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
-            </div>
+          <TooltipProvider>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div>
+                <Label htmlFor="title" className="text-white flex items-center gap-2">
+                  Title <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => updateFormData("title", e.target.value)}
+                  placeholder="Enter a compelling title for your listing"
+                  className="mt-1 bg-zinc-800 border-zinc-700"
+                />
+                {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
+              </div>
 
-            <div>
-              <Label htmlFor="description" className="text-white flex items-center gap-2">
-                Description <span className="text-red-400">*</span>
-              </Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => updateFormData("description", e.target.value)}
-                placeholder="Describe your product in detail..."
-                rows={4}
-                className="mt-1"
-              />
-              {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
-            </div>
+              <div>
+                <Label htmlFor="description" className="text-white flex items-center gap-2">
+                  Description <span className="text-red-400">*</span>
+                </Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => updateFormData("description", e.target.value)}
+                  placeholder="Describe your product in detail..."
+                  rows={4}
+                  className="mt-1 bg-zinc-800 border-zinc-700"
+                />
+                {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
+              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -400,10 +407,10 @@ export default function CreateListing() {
                   Category <span className="text-red-400">*</span>
                 </Label>
                 <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60">
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -411,6 +418,14 @@ export default function CreateListing() {
                     ))}
                   </SelectContent>
                 </Select>
+                {formData.category === "Other" && (
+                  <Input
+                    value={formData.customCategory}
+                    onChange={(e) => updateFormData("customCategory", e.target.value)}
+                    placeholder="Enter custom category"
+                    className="mt-2 bg-zinc-800 border-zinc-700"
+                  />
+                )}
                 {errors.category && <p className="text-red-400 text-sm mt-1">{errors.category}</p>}
               </div>
 
@@ -419,10 +434,10 @@ export default function CreateListing() {
                   Product Type <span className="text-red-400">*</span>
                 </Label>
                 <Select value={formData.productType} onValueChange={(value) => updateFormData("productType", value)}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select product type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60">
                     {PRODUCT_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div>
@@ -433,6 +448,14 @@ export default function CreateListing() {
                     ))}
                   </SelectContent>
                 </Select>
+                {formData.productType === "other" && (
+                  <Input
+                    value={formData.customProductType}
+                    onChange={(e) => updateFormData("customProductType", e.target.value)}
+                    placeholder="Enter custom product type"
+                    className="mt-2 bg-zinc-800 border-zinc-700"
+                  />
+                )}
               </div>
             </div>
 
@@ -447,7 +470,7 @@ export default function CreateListing() {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                   placeholder="Add tags..."
-                  className="flex-1"
+                  className="flex-1 bg-zinc-800 border-zinc-700"
                 />
                 <Button onClick={addTag} variant="outline" size="sm">
                   <Plus className="w-4 h-4" />
@@ -467,69 +490,71 @@ export default function CreateListing() {
               {errors.tags && <p className="text-red-400 text-sm mt-1">{errors.tags}</p>}
             </div>
           </motion.div>
+          </TooltipProvider>
         );
 
       case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="basePrice" className="text-white flex items-center gap-2">
-                  Base Price ($) <span className="text-red-400">*</span>
-                </Label>
-                <Input
-                  id="basePrice"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.basePrice}
-                  onChange={(e) => updateFormData("basePrice", e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1"
-                />
-                {errors.basePrice && <p className="text-red-400 text-sm mt-1">{errors.basePrice}</p>}
-              </div>
+          <TooltipProvider>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="basePrice" className="text-white flex items-center gap-2">
+                    Base Price ($) <span className="text-red-400">*</span>
+                  </Label>
+                  <Input
+                    id="basePrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.basePrice}
+                    onChange={(e) => updateFormData("basePrice", e.target.value)}
+                    placeholder="0.00"
+                    className="mt-1 bg-zinc-800 border-zinc-700"
+                  />
+                  {errors.basePrice && <p className="text-red-400 text-sm mt-1">{errors.basePrice}</p>}
+                </div>
 
-              <div>
-                <Label htmlFor="material" className="text-white flex items-center gap-2">
-                  Material <span className="text-xs text-zinc-400">(optional)</span>
-                </Label>
-                <Input
-                  id="material"
-                  value={formData.material}
-                  onChange={(e) => updateFormData("material", e.target.value)}
-                  placeholder="PLA, ABS, Wood, etc."
-                  className="mt-1"
-                />
-              </div>
+                <div>
+                  <Label htmlFor="material" className="text-white flex items-center gap-2">
+                    Material <span className="text-xs text-zinc-400">(optional)</span>
+                  </Label>
+                  <Input
+                    id="material"
+                    value={formData.material}
+                    onChange={(e) => updateFormData("material", e.target.value)}
+                    placeholder="PLA, ABS, Wood, etc."
+                    className="mt-1 bg-zinc-800 border-zinc-700"
+                  />
+                </div>
 
-              <div>
-                <Label htmlFor="color" className="text-white flex items-center gap-2">
-                  Color <span className="text-xs text-zinc-400">(optional)</span>
-                </Label>
-                <Input
-                  id="color"
-                  value={formData.color}
-                  onChange={(e) => updateFormData("color", e.target.value)}
-                  placeholder="Black, White, Natural, etc."
-                  className="mt-1"
-                />
-              </div>
+                <div>
+                  <Label htmlFor="color" className="text-white flex items-center gap-2">
+                    Color <span className="text-xs text-zinc-400">(optional)</span>
+                  </Label>
+                  <Input
+                    id="color"
+                    value={formData.color}
+                    onChange={(e) => updateFormData("color", e.target.value)}
+                    placeholder="Black, White, Natural, etc."
+                    className="mt-1 bg-zinc-800 border-zinc-700"
+                  />
+                </div>
 
               <div>
                 <Label htmlFor="stockType" className="text-white flex items-center gap-2">
                   Stock Type <span className="text-red-400">*</span>
                 </Label>
                 <Select value={formData.stockType} onValueChange={(value) => updateFormData("stockType", value)}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select stock type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-800 border-zinc-700">
                     {STOCK_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div>
@@ -542,94 +567,97 @@ export default function CreateListing() {
                 </Select>
               </div>
             </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isPrintOnDemand"
-                  checked={formData.isPrintOnDemand}
-                  onCheckedChange={(checked) => updateFormData("isPrintOnDemand", checked)}
-                />
-                <Label htmlFor="isPrintOnDemand" className="text-white">
-                  Print on Demand
-                  <span className="text-xs text-zinc-400 ml-2">(Made when ordered)</span>
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isDigitalProduct"
-                  checked={formData.isDigitalProduct}
-                  onCheckedChange={(checked) => updateFormData("isDigitalProduct", checked)}
-                />
-                <Label htmlFor="isDigitalProduct" className="text-white">
-                  Digital Product
-                  <span className="text-xs text-zinc-400 ml-2">(Files for download)</span>
-                </Label>
-              </div>
-            </div>
           </motion.div>
+          </TooltipProvider>
         );
 
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="shippingCost" className="text-white flex items-center gap-2">
-                  Shipping Cost ($) <span className="text-xs text-zinc-400">(optional)</span>
-                </Label>
-                <Input
-                  id="shippingCost"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.shippingCost}
-                  onChange={(e) => updateFormData("shippingCost", e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1"
-                />
-                <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
-              </div>
+          <TooltipProvider>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
+                    Shipping Profile <span className="text-xs text-zinc-400">(optional)</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">Select a shipping profile to apply predefined shipping rates and regions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
+                  <Select value={formData.shippingProfileId} onValueChange={(value) => updateFormData("shippingProfileId", value)}>
+                    <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
+                      <SelectValue placeholder="Select shipping profile" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-800 border-zinc-700">
+                      <SelectItem value="">No shipping profile</SelectItem>
+                      {/* TODO: Fetch shipping profiles from API */}
+                      <SelectItem value="default">Default Profile</SelectItem>
+                      <SelectItem value="express">Express Shipping</SelectItem>
+                      <SelectItem value="international">International</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
+                </div>
 
-              <div>
-                <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
-                  Min Production Days <span className="text-red-400">*</span>
-                </Label>
-                <Input
-                  id="estimatedDaysMin"
-                  type="number"
-                  min="1"
-                  value={formData.estimatedDaysMin}
-                  onChange={(e) => updateFormData("estimatedDaysMin", e.target.value)}
-                  placeholder="1"
-                  className="mt-1"
-                />
-                {errors.estimatedDaysMin && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMin}</p>}
-              </div>
+                <div>
+                  <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
+                    Min Production Days <span className="text-red-400">*</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">Minimum number of days needed to produce this item</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
+                  <Input
+                    id="estimatedDaysMin"
+                    type="number"
+                    min="1"
+                    value={formData.estimatedDaysMin}
+                    onChange={(e) => updateFormData("estimatedDaysMin", e.target.value)}
+                    placeholder="1"
+                    className="mt-1 bg-zinc-800 border-zinc-700"
+                  />
+                  {errors.estimatedDaysMin && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMin}</p>}
+                </div>
 
-              <div>
-                <Label htmlFor="estimatedDaysMax" className="text-white flex items-center gap-2">
-                  Max Production Days <span className="text-red-400">*</span>
-                </Label>
-                <Input
-                  id="estimatedDaysMax"
-                  type="number"
-                  min="1"
-                  value={formData.estimatedDaysMax}
-                  onChange={(e) => updateFormData("estimatedDaysMax", e.target.value)}
-                  placeholder="3"
-                  className="mt-1"
-                />
-                {errors.estimatedDaysMax && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMax}</p>}
+                <div>
+                  <Label htmlFor="estimatedDaysMax" className="text-white flex items-center gap-2">
+                    Max Production Days <span className="text-red-400">*</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">Maximum number of days needed to produce this item</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
+                  <Input
+                    id="estimatedDaysMax"
+                    type="number"
+                    min="1"
+                    value={formData.estimatedDaysMax}
+                    onChange={(e) => updateFormData("estimatedDaysMax", e.target.value)}
+                    placeholder="3"
+                    className="mt-1 bg-zinc-800 border-zinc-700"
+                  />
+                  {errors.estimatedDaysMax && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMax}</p>}
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </TooltipProvider>
         );
 
       case 4:
@@ -752,56 +780,21 @@ export default function CreateListing() {
                 Product Image <span className="text-red-400">*</span>
               </Label>
               <p className="text-xs text-zinc-400 mt-1 mb-3">
-                Upload a high-quality image of your product
+                Enter the URL of your product image
               </p>
 
-              {/* Image Upload */}
-              <div className="mb-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
-                  disabled={isUploadingImage}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="flex items-center justify-center w-full h-32 border-2 border-dashed border-zinc-600 rounded-lg cursor-pointer hover:border-primary transition-colors"
-                >
-                  {isUploadingImage ? (
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                      <p className="text-zinc-400">Uploading...</p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <Upload className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
-                      <p className="text-zinc-400">Click to upload image</p>
-                      <p className="text-xs text-zinc-500">PNG, JPG, GIF up to 10MB</p>
-                    </div>
-                  )}
-                </label>
-              </div>
-
-              {/* Manual URL input as fallback */}
-              <div className="mb-4">
-                <Label htmlFor="imageUrl" className="text-white text-sm">
-                  Or enter image URL manually
-                </Label>
-                <Input
-                  id="imageUrl"
-                  value={formData.imageUrl}
-                  onChange={(e) => updateFormData("imageUrl", e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="mt-1"
-                />
-              </div>
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) => updateFormData("imageUrl", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="mt-1 bg-zinc-800 border-zinc-700"
+              />
 
               {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
 
               {formData.imageUrl && (
-                <div className="border border-zinc-700 rounded-lg p-4">
+                <div className="border border-zinc-700 rounded-lg p-4 mt-4">
                   <Label className="text-white mb-2 block">Preview</Label>
                   <img
                     src={formData.imageUrl}
@@ -934,9 +927,10 @@ export default function CreateListing() {
               </CardTitle>
               <CardDescription>
                 {currentStep === 1 && "Basic product information"}
-                {currentStep === 2 && "Pricing and production details"}
-                {currentStep === 3 && "Equipment and capabilities"}
-                {currentStep === 4 && "Images and final details"}
+                {currentStep === 2 && "Pricing and material options"}
+                {currentStep === 3 && "Shipping & Production"}
+                {currentStep === 4 && "Equipment selection"}
+                {currentStep === 5 && "Images and final details"}
               </CardDescription>
             </CardHeader>
             <CardContent>
