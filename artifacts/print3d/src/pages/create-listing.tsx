@@ -644,12 +644,7 @@ export default function CreateListing() {
 
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
@@ -683,7 +678,7 @@ export default function CreateListing() {
                   {errors.estimatedDaysMax && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMax}</p>}
                 </div>
               </div>
-            </motion.div>
+            </div>
         );
 
       case 4:
