@@ -748,6 +748,51 @@ export function useListEquipmentGroups() {
   return { data, isLoading, error, refetch };
 }
 
+export function useListShippingProfiles() {
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchProfiles = async () => {
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data: profiles, error: fetchError } = await supabase
+        .from('profiles')
+        .select('id, domestic_shipping_cost, europe_shipping_cost, north_america_shipping_cost, international_shipping_cost, free_shipping_threshold, selling_regions')
+        .eq('id', user.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (!profiles) return [];
+
+      // Convert user profile data to shipping profile format
+      return [{
+        id: profiles.id,
+        name: 'Default Shipping Profile',
+        domesticCost: profiles.domestic_shipping_cost || 5.99,
+        europeCost: profiles.europe_shipping_cost || 12.99,
+        northAmericaCost: profiles.north_america_shipping_cost || 8.99,
+        internationalCost: profiles.international_shipping_cost || 19.99,
+        freeShippingThreshold: profiles.free_shipping_threshold || 50,
+        shippingRegions: profiles.selling_regions || ['US'],
+      }];
+    } catch (err) {
+      setError(err as Error);
+      console.error('Error fetching shipping profiles:', err);
+      return [];
+    }
+  };
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['shipping-profiles'],
+    queryFn: fetchProfiles,
+  });
+
+  return { data, isLoading, error, refetch };
+}
+
 export function useUpdateEquipmentGroup(): MutationReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

@@ -26,7 +26,7 @@ import {
   Info
 } from "lucide-react";
 import { useCreateListing } from "@/lib/workspace-api-mock";
-import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-stub";
+import { useListEquipment, useListEquipmentGroups, useListShippingProfiles } from "@/lib/workspace-stub";
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -150,9 +150,11 @@ export default function CreateListing() {
   // Equipment data
   const { data: equipmentData, isLoading: loadingEquipment } = useListEquipment();
   const { data: equipmentGroupsData, isLoading: loadingEquipmentGroups } = useListEquipmentGroups();
+  const { data: shippingProfilesData, isLoading: loadingShippingProfiles } = useListShippingProfiles();
 
   const availableEquipment = Array.isArray(equipmentData) ? equipmentData : [];
   const availableEquipmentGroups = Array.isArray(equipmentGroupsData) ? equipmentGroupsData : [];
+  const availableShippingProfiles = Array.isArray(shippingProfilesData) ? shippingProfilesData : [];
 
   const totalSteps = 5;
 
@@ -652,68 +654,56 @@ export default function CreateListing() {
                     Shipping Profile <span className="text-xs text-zinc-400">(optional)</span>
                   </Label>
                   <p className="text-xs text-zinc-400 mt-1 mb-3">Select a shipping profile to apply predefined shipping rates and regions</p>
-                  <div className="space-y-2">
-                    <div
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.shippingProfileId === ""
-                          ? "bg-primary/20 border-primary"
-                          : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
-                      }`}
-                      onClick={() => updateFormData("shippingProfileId", "")}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border ${
-                          formData.shippingProfileId === "" ? "bg-primary border-primary" : "border-zinc-600"
-                        }`} />
-                        <span className="text-white">No shipping profile</span>
-                      </div>
+                  {loadingShippingProfiles ? (
+                    <div className="space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-12 bg-zinc-700/50 rounded-lg animate-pulse" />
+                      ))}
                     </div>
-                    <div
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.shippingProfileId === "default"
-                          ? "bg-primary/20 border-primary"
-                          : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
-                      }`}
-                      onClick={() => updateFormData("shippingProfileId", "default")}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border ${
-                          formData.shippingProfileId === "default" ? "bg-primary border-primary" : "border-zinc-600"
-                        }`} />
-                        <span className="text-white">Default Profile</span>
+                  ) : availableShippingProfiles.length > 0 ? (
+                    <div className="space-y-2">
+                      <div
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          formData.shippingProfileId === ""
+                            ? "bg-primary/20 border-primary"
+                            : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
+                        }`}
+                        onClick={() => updateFormData("shippingProfileId", "")}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full border ${
+                            formData.shippingProfileId === "" ? "bg-primary border-primary" : "border-zinc-600"
+                          }`} />
+                          <span className="text-white">No shipping profile</span>
+                        </div>
                       </div>
+                      {availableShippingProfiles.map((profile: any) => (
+                        <div
+                          key={profile.id}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                            formData.shippingProfileId === profile.id
+                              ? "bg-primary/20 border-primary"
+                              : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
+                          }`}
+                          onClick={() => updateFormData("shippingProfileId", profile.id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full border ${
+                              formData.shippingProfileId === profile.id ? "bg-primary border-primary" : "border-zinc-600"
+                            }`} />
+                            <div>
+                              <span className="text-white">{profile.name}</span>
+                              <div className="text-xs text-zinc-400">
+                                Domestic: ${profile.domesticCost} | International: ${profile.internationalCost}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.shippingProfileId === "express"
-                          ? "bg-primary/20 border-primary"
-                          : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
-                      }`}
-                      onClick={() => updateFormData("shippingProfileId", "express")}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border ${
-                          formData.shippingProfileId === "express" ? "bg-primary border-primary" : "border-zinc-600"
-                        }`} />
-                        <span className="text-white">Express Shipping</span>
-                      </div>
-                    </div>
-                    <div
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        formData.shippingProfileId === "international"
-                          ? "bg-primary/20 border-primary"
-                          : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
-                      }`}
-                      onClick={() => updateFormData("shippingProfileId", "international")}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full border ${
-                          formData.shippingProfileId === "international" ? "bg-primary border-primary" : "border-zinc-600"
-                        }`} />
-                        <span className="text-white">International</span>
-                      </div>
-                    </div>
-                  </div>
+                  ) : (
+                    <p className="text-zinc-400 text-sm">No shipping profiles configured. Configure shipping profiles in the Shipping Profiles tab.</p>
+                  )}
                   <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
                 </div>
 
