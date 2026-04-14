@@ -131,7 +131,7 @@ const initialFormData: ListingFormData = {
   equipmentUsed: [],
   equipmentGroups: [],
   digitalFiles: [] as UploadedFile[],
-  imageUrl: "",
+  mediaFiles: [] as { type: 'image' | 'video'; url: string; file?: File }[],
 };
 
 export default function CreateListing() {
@@ -236,7 +236,7 @@ export default function CreateListing() {
         // Equipment validation - optional
         break;
       case 5:
-        if (!formData.imageUrl.trim()) newErrors.imageUrl = "At least one image is required";
+        if (formData.mediaFiles.length === 0) newErrors.mediaFiles = "At least one image or video is required";
         break;
     }
 
@@ -863,31 +863,34 @@ export default function CreateListing() {
           >
             <div>
               <Label className="text-white flex items-center gap-2">
-                Product Image <span className="text-red-400">*</span>
+                Product Images & Videos <span className="text-red-400">*</span>
               </Label>
               <p className="text-xs text-zinc-400 mt-1 mb-3">
-                Upload an image of your product
+                Upload multiple images and videos of your product
               </p>
 
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
+                multiple
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
+                  const files = Array.from(e.target.files || []);
+                  files.forEach((file) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                      updateFormData("imageUrl", reader.result as string);
+                      const type = file.type.startsWith('video/') ? 'video' : 'image';
+                      const newMedia = { type, url: reader.result as string, file };
+                      updateFormData("mediaFiles", [...formData.mediaFiles, newMedia]);
                     };
                     reader.readAsDataURL(file);
-                  }
+                  });
                 }}
                 disabled={isUploadingImage}
                 className="hidden"
-                id="image-upload"
+                id="media-upload"
               />
               <Label
-                htmlFor="image-upload"
+                htmlFor="media-upload"
                 className="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-600 border-dashed rounded-lg cursor-pointer hover:border-zinc-500 transition-colors bg-zinc-800/50"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -895,20 +898,60 @@ export default function CreateListing() {
                   <p className="text-sm text-zinc-400">
                     <span className="font-semibold">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-zinc-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                  <p className="text-xs text-zinc-500 mt-1">PNG, JPG, GIF, MP4, WebM up to 10MB each</p>
                 </div>
               </Label>
 
-              {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
+              {errors.mediaFiles && <p className="text-red-400 text-sm mt-1">{errors.mediaFiles}</p>}
 
-              {formData.imageUrl && (
+              {formData.mediaFiles.length > 0 && (
                 <div className="border border-zinc-700 rounded-lg p-4 mt-4">
-                  <Label className="text-white mb-2 block">Preview</Label>
-                  <img
-                    src={formData.imageUrl}
-                    alt="Product preview"
-                    className="w-full max-w-md h-48 object-cover rounded-lg mx-auto"
-                  />
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-white">Uploaded Media ({formData.mediaFiles.length})</Label>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => updateFormData("mediaFiles", [])}
+                      className="h-8"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {formData.mediaFiles.map((media, index) => (
+                      <div key={index} className="relative group">
+                        {media.type === 'video' ? (
+                          <video
+                            src={media.url}
+                            controls
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <img
+                            src={media.url}
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                        )}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            const updated = formData.mediaFiles.filter((_, i) => i !== index);
+                            updateFormData("mediaFiles", updated);
+                          }}
+                          className="absolute top-2 right-2 w-8 h-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-xs text-white">
+                          {media.type === 'video' ? 'Video' : 'Image'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
