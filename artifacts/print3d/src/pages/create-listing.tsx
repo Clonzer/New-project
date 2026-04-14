@@ -365,16 +365,23 @@ export default function CreateListing() {
     switch (currentStep) {
       case 1:
         return (
-          <TooltipProvider>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
               <div>
                 <Label htmlFor="title" className="text-white flex items-center gap-2">
                   Title <span className="text-red-400">*</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">A clear, descriptive title helps buyers find your listing</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Label>
                 <Input
                   id="title"
@@ -389,6 +396,14 @@ export default function CreateListing() {
               <div>
                 <Label htmlFor="description" className="text-white flex items-center gap-2">
                   Description <span className="text-red-400">*</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Detailed description of your product including features, dimensions, and materials</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Label>
                 <Textarea
                   id="description"
@@ -405,12 +420,20 @@ export default function CreateListing() {
               <div>
                 <Label htmlFor="category" className="text-white flex items-center gap-2">
                   Category <span className="text-red-400">*</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Select the category that best describes your product</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Label>
                 <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60">
+                  <SelectContent className="bg-zinc-800 border-zinc-700">
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -432,12 +455,20 @@ export default function CreateListing() {
               <div>
                 <Label htmlFor="productType" className="text-white flex items-center gap-2">
                   Product Type <span className="text-red-400">*</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">The type of product you are listing</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Label>
                 <Select value={formData.productType} onValueChange={(value) => updateFormData("productType", value)}>
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
                     <SelectValue placeholder="Select product type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60">
+                  <SelectContent className="bg-zinc-800 border-zinc-700">
                     {PRODUCT_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div>
@@ -462,6 +493,14 @@ export default function CreateListing() {
             <div>
               <Label className="text-white flex items-center gap-2">
                 Tags <span className="text-red-400">*</span>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm">Add relevant tags to help buyers discover your listing</p>
+                  </TooltipContent>
+                </Tooltip>
                 <span className="text-xs text-zinc-400">(Press Enter to add)</span>
               </Label>
               <div className="flex gap-2 mt-1">
@@ -490,22 +529,28 @@ export default function CreateListing() {
               {errors.tags && <p className="text-red-400 text-sm mt-1">{errors.tags}</p>}
             </div>
           </motion.div>
-          </TooltipProvider>
         );
 
       case 2:
         return (
-          <TooltipProvider>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="basePrice" className="text-white flex items-center gap-2">
                     Base Price ($) <span className="text-red-400">*</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">The base price for your product before any shipping or additional fees</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </Label>
                   <Input
                     id="basePrice"
@@ -523,6 +568,14 @@ export default function CreateListing() {
                 <div>
                   <Label htmlFor="material" className="text-white flex items-center gap-2">
                     Material <span className="text-xs text-zinc-400">(optional)</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">Primary material used for this product (e.g., PLA, ABS, Wood)</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </Label>
                   <Input
                     id="material"
@@ -536,6 +589,14 @@ export default function CreateListing() {
                 <div>
                   <Label htmlFor="color" className="text-white flex items-center gap-2">
                     Color <span className="text-xs text-zinc-400">(optional)</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">Primary color or finish of the product</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </Label>
                   <Input
                     id="color"
@@ -549,6 +610,14 @@ export default function CreateListing() {
               <div>
                 <Label htmlFor="stockType" className="text-white flex items-center gap-2">
                   Stock Type <span className="text-red-400">*</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-zinc-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">How this product is fulfilled - from inventory, made to order, or digital download</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </Label>
                 <Select value={formData.stockType} onValueChange={(value) => updateFormData("stockType", value)}>
                   <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
@@ -568,18 +637,16 @@ export default function CreateListing() {
               </div>
             </div>
           </motion.div>
-          </TooltipProvider>
         );
 
       case 3:
         return (
-          <TooltipProvider>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
@@ -657,7 +724,6 @@ export default function CreateListing() {
                 </div>
               </div>
             </motion.div>
-          </TooltipProvider>
         );
 
       case 4:
@@ -896,7 +962,7 @@ export default function CreateListing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       <Navbar />
 
       <main className="flex-grow pt-12 pb-24">
@@ -934,9 +1000,11 @@ export default function CreateListing() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AnimatePresence mode="wait">
-                {renderStepContent()}
-              </AnimatePresence>
+              <TooltipProvider>
+                <AnimatePresence mode="wait">
+                  {renderStepContent()}
+                </AnimatePresence>
+              </TooltipProvider>
             </CardContent>
           </Card>
 
