@@ -2,6 +2,7 @@
 // This allows the app to run while we migrate to Supabase
 
 import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "./supabase";
 
 // Error class for API errors
@@ -716,19 +717,13 @@ export function useDeleteEquipmentGroup(): MutationReturn {
 }
 
 export function useListEquipmentGroups() {
-  const [data, setData] = useState<any[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchGroups = useCallback(async () => {
-    setIsLoading(true);
+  const fetchGroups = async () => {
     setError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.id) {
-        setData([]);
-        return;
-      }
+      if (!user) throw new Error('User not authenticated');
 
       const { data: groups, error: fetchError } = await supabase
         .from('equipment_groups')
@@ -737,21 +732,20 @@ export function useListEquipmentGroups() {
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
-      setData(groups || []);
-    } catch (e) {
-      const err = e as Error;
-      setError(err);
+      return groups || [];
+    } catch (err) {
+      setError(err as Error);
       console.error('Error fetching equipment groups:', err);
-    } finally {
-      setIsLoading(false);
+      return [];
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchGroups();
-  }, [fetchGroups]);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['equipment-groups'],
+    queryFn: fetchGroups,
+  });
 
-  return { data, isLoading, error, refetch: fetchGroups };
+  return { data, isLoading, error, refetch };
 }
 
 export function useUpdateEquipmentGroup(): MutationReturn {
@@ -941,11 +935,34 @@ export function useMarkOrderDelivered(): MutationReturn {
 }
 
 export function useListEquipment() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchEquipment = async () => {
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data: equipment, error: fetchError } = await supabase
+        .from('equipment')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (fetchError) throw fetchError;
+      return equipment || [];
+    } catch (err) {
+      setError(err as Error);
+      console.error('Error fetching equipment:', err);
+      return [];
+    }
   };
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['equipment'],
+    queryFn: fetchEquipment,
+  });
+
+  return { data, isLoading, error, refetch };
 }
 
 export function useGetEquipment() {

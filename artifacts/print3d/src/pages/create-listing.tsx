@@ -648,20 +648,6 @@ export default function CreateListing() {
           <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
-                    Shipping Profile ID <span className="text-xs text-zinc-400">(optional)</span>
-                  </Label>
-                  <Input
-                    id="shippingProfileId"
-                    value={formData.shippingProfileId}
-                    onChange={(e) => updateFormData("shippingProfileId", e.target.value)}
-                    placeholder="Enter shipping profile ID"
-                    className="mt-1 bg-zinc-800 border-zinc-700"
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
-                </div>
-
-                <div>
                   <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
                     Min Production Days <span className="text-red-400">*</span>
                   </Label>
@@ -816,16 +802,38 @@ export default function CreateListing() {
                 Product Image <span className="text-red-400">*</span>
               </Label>
               <p className="text-xs text-zinc-400 mt-1 mb-3">
-                Enter the URL of your product image
+                Upload an image of your product
               </p>
 
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => updateFormData("imageUrl", e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="mt-1 bg-zinc-800 border-zinc-700"
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      updateFormData("imageUrl", reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                disabled={isUploadingImage}
+                className="hidden"
+                id="image-upload"
               />
+              <Label
+                htmlFor="image-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-600 border-dashed rounded-lg cursor-pointer hover:border-zinc-500 transition-colors bg-zinc-800/50"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-3 text-zinc-400" />
+                  <p className="text-sm text-zinc-400">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-zinc-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </Label>
 
               {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
 
@@ -836,9 +844,6 @@ export default function CreateListing() {
                     src={formData.imageUrl}
                     alt="Product preview"
                     className="w-full max-w-md h-48 object-cover rounded-lg mx-auto"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                 </div>
               )}
