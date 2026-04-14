@@ -323,12 +323,14 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       setIsLoading(true);
       setError(null);
       try {
+        console.log('Fetching listings with options:', options);
         let query = supabase
           .from('listings')
           .select('*')
           .order('created_at', { ascending: false });
 
         if (options?.sellerId) {
+          console.log('Filtering by seller_id:', options.sellerId);
           query = query.eq('seller_id', options.sellerId);
         }
 
@@ -337,9 +339,12 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
         }
 
         const result = await query;
+        console.log('Listings query result:', result);
         if (result.error) throw result.error;
+        console.log('Setting listings data:', result.data);
         setData({ listings: result.data || [] });
       } catch (err) {
+        console.error('Error fetching listings:', err);
         setError(err as Error);
         setData({ listings: [] });
       } finally {
