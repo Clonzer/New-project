@@ -307,28 +307,104 @@ export function useListUsers() {
   };
 }
 
-export function useListListings() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useListListings(options?: { limit?: number; offset?: number; sellerId?: string }) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        let query = supabase
+          .from('listings')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (options?.sellerId) {
+          query = query.eq('seller_id', options.sellerId);
+        }
+
+        if (options?.limit) {
+          query = query.limit(options.limit);
+        }
+
+        const result = await query;
+        if (result.error) throw result.error;
+        setData({ listings: result.data || [] });
+      } catch (err) {
+        setError(err as Error);
+        setData({ listings: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchListings();
+  }, [options?.limit, options?.offset, options?.sellerId]);
+
+  return { data, isLoading, error };
 }
 
-export function useListSellers() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useListSellers(options?: { limit?: number; offset?: number }) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchSellers = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await supabase
+          .from('users')
+          .select('*')
+          .in('role', ['seller', 'both'])
+          .order('created_at', { ascending: false });
+        if (result.error) throw result.error;
+        setData({ sellers: result.data || [] });
+      } catch (err) {
+        setError(err as Error);
+        setData({ sellers: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSellers();
+  }, [options?.limit, options?.offset]);
+
+  return { data, isLoading, error };
 }
 
-export function useGetUser() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useGetUser(userId?: string | number) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchUser = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .single();
+        if (result.error) throw result.error;
+        setData(result.data);
+      } catch (err) {
+        setError(err as Error);
+        setData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, [userId]);
+
+  return { data, isLoading, error };
 }
 
 export function useGetListing() {
@@ -387,7 +463,42 @@ export function useGetPrinters() {
   };
 }
 
-export function useListPrinters() {
+export function useListReviews(options?: { revieweeId?: string | number }) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        let query = supabase
+          .from('reviews')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (options?.revieweeId) {
+          query = query.eq('reviewee_id', options.revieweeId);
+        }
+
+        const result = await query;
+        if (result.error) throw result.error;
+        setData({ reviews: result.data || [] });
+      } catch (err) {
+        setError(err as Error);
+        setData({ reviews: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [options?.revieweeId]);
+
+  return { data, isLoading, error };
+}
+
+export function useListPrinters(options?: { userId?: string | number }) {
   const [data, setData] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -435,14 +546,6 @@ export function useGetPortfolio() {
 }
 
 export function useGetReviews() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
-}
-
-export function useListReviews() {
   return {
     data: null,
     isLoading: false,

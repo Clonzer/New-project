@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { useGetUser, useListListings, useListPrinters, useListReviews } from "@/lib/workspace-api-mock";
+import { useGetUser, useListListings, useListPrinters, useListReviews } from "@/lib/workspace-stub";
 import {
   Calendar,
   GitCompareArrows,
@@ -32,7 +32,7 @@ import { buildListingPriceInsights } from "@/lib/listing-pricing";
 
 export default function Shop() {
   const params = useParams();
-  const shopId = parseInt(params.id || "0", 10);
+  const shopId = params.id || "0";
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(false);
 

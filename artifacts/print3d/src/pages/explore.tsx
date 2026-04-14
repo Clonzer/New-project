@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { useListSellers, useListListings } from "@/lib/workspace-api-mock";
+import { useListSellers, useListListings } from "@/lib/workspace-stub";
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
