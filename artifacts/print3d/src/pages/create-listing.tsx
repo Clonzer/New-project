@@ -325,7 +325,8 @@ export default function CreateListing() {
 
     try {
       await createListingMutation.mutateAsync();
-      navigate("/dashboard");
+      // navigate("/dashboard"); // Temporarily disabled to see console errors
+      console.log("Listing created successfully");
     } catch (error) {
       console.error("Failed to create listing:", error);
     }
