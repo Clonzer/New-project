@@ -94,6 +94,7 @@ export function useCreateListing(): MutationReturn {
     setError(null);
     try {
       const { data } = vars;
+      console.log('Creating listing with data:', data);
       const { error: insertError } = await supabase
         .from('listings')
         .insert({
@@ -108,7 +109,11 @@ export function useCreateListing(): MutationReturn {
           category: data.category,
           tags: data.tags || [],
           stock: data.stock || null,
-          images: data.imageUrl ? [data.imageUrl] : [],
+          images: data.images || [],
+          listing_type: data.listingType || 'product',
+          service_category: data.serviceCategory || null,
+          equipment_used: data.equipmentUsed || [],
+          equipment_groups: data.equipmentGroups || [],
         })
         .select()
         .single();
