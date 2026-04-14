@@ -81,10 +81,6 @@ function VendorDashboardPage() {
   return <ProtectedRoute children={<VendorDashboard />} />;
 }
 
-function DashboardPage() {
-  return <ProtectedRoute children={<Dashboard />} />;
-}
-
 function StorefrontEditPage() {
   return <ProtectedRoute children={<StorefrontEdit />} />;
 }
