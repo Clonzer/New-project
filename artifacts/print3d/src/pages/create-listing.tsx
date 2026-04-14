@@ -220,7 +220,15 @@ export default function CreateListing() {
         }
         break;
       case 3:
-        // Temporarily disabled validation to debug crash
+        if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
+          newErrors.estimatedDaysMin = "Minimum days is required";
+        }
+        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < 1) {
+          newErrors.estimatedDaysMax = "Maximum days is required";
+        }
+        if (formData.estimatedDaysMin && formData.estimatedDaysMax && parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin)) {
+          newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
+        }
         break;
       case 4:
         // Equipment validation - optional
@@ -638,7 +646,26 @@ export default function CreateListing() {
       case 3:
         return (
           <div className="space-y-6">
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="shippingProfileId" className="text-white flex items-center gap-2">
+                    Shipping Profile <span className="text-xs text-zinc-400">(optional)</span>
+                  </Label>
+                  <Select value={formData.shippingProfileId} onValueChange={(value) => updateFormData("shippingProfileId", value)}>
+                    <SelectTrigger className="mt-1 bg-zinc-800 border-zinc-700">
+                      <SelectValue placeholder="Select shipping profile" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-800 border-zinc-700 max-h-60 overflow-y-auto">
+                      <SelectItem value="">No shipping profile</SelectItem>
+                      {/* TODO: Fetch shipping profiles from API */}
+                      <SelectItem value="default">Default Profile</SelectItem>
+                      <SelectItem value="express">Express Shipping</SelectItem>
+                      <SelectItem value="international">International</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
+                </div>
+
                 <div>
                   <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
                     Min Production Days <span className="text-red-400">*</span>
