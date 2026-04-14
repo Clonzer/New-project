@@ -54,7 +54,20 @@ function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   return <Sparkles className={cls} />;
 }
 
-const CATEGORIES = ["Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture", "Toys", "Tools"];
+const CATEGORIES = ["Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture", "Toys", "Tools", "Home Decor", "Gadgets", "Automotive", "Electronics", "Fashion", "Gaming", "Education", "Prototypes", "Replacement Parts", "Figures", "Models", "Props", "Signage", "Fixtures", "Custom", "Other"];
+
+const SERVICE_CATEGORIES = ["Woodworking", "Steel Work", "Metalworking", "CNC Services", "Welding", "Fabrication", "Custom Design", "3D Modeling", "CAD Design", "Laser Cutting", "Waterjet Cutting", "Powder Coating", "Finishing", "Assembly", "Prototyping", "Consulting", "Other"];
+
+const TAGS = [
+  "3D Printable", "Articulated", "Flexible", "Painted", "Unpainted", "Assembled", "Kit", "Customizable",
+  "Large Format", "Small Scale", "Detailed", "Simple", "Complex", "Rugged", "Delicate", "Waterproof",
+  "Heat Resistant", "Food Safe", "Biodegradable", "Recycled", "Premium", "Budget", "Quick Ship",
+  "Made to Order", "Ready to Ship", "Limited Edition", "Exclusive", "Best Seller", "New",
+  "On Sale", "Gift", "Collectible", "Display", "Functional", "Decorative", "Educational",
+  "Gaming", "Cosplay", "Prop", "Replacement", "Upgrade", "Accessory", "Part", "Assembly",
+  "Tool", "Holder", "Stand", "Mount", "Bracket", "Case", "Cover", "Protector", "Adapter",
+  "Connector", "Joint", "Hinge", "Latch", "Clip", "Clamp", "Fastener", "Screw", "Nut", "Bolt"
+];
 
 // ─── Register equipment dialog (multi-category) ─────────────────────────────
 function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
@@ -690,7 +703,6 @@ export default function Dashboard() {
   const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
   const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
   const [showAddPrinter, setShowAddPrinter] = useState(false);
-  const [showAddListing, setShowAddListing] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
@@ -990,12 +1002,6 @@ export default function Dashboard() {
         onSubmit={(data) => handleUpdateEquipmentGroup(editingEquipmentGroup.id, data)}
         initialData={editingEquipmentGroup}
       />
-      <AddListingDialog
-        open={showAddListing}
-        onClose={() => setShowAddListing(false)}
-        sellerId={user.id}
-        onSuccess={refetchListings}
-      />
 
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">
@@ -1093,12 +1099,11 @@ export default function Dashboard() {
             {isSellerUser && (
               <TabsContent value="overview" className="mt-0">
                 <Overview 
-                  user={user} 
-                  mySales={mySales} 
-                  averageOrderValue={averageOrderValue} 
-                  activeEquipmentCount={activeEquipmentCount} 
+                  user={user}
+                  mySales={mySales}
+                  averageOrderValue={averageOrderValue}
+                  activeEquipmentCount={activeEquipmentCount}
                   totalCatalogItems={totalCatalogItems}
-                  setShowAddListing={setShowAddListing}
                   setShowAddPrinter={setShowAddPrinter}
                 />
               </TabsContent>
@@ -1130,8 +1135,6 @@ export default function Dashboard() {
               <TabsContent value="listings" className="mt-0">
                 <Listings 
                   myListings={myListings} 
-                  showAddListing={showAddListing} 
-                  setShowAddListing={setShowAddListing} 
                   handleDeleteListing={handleDeleteListing} 
                 />
               </TabsContent>
@@ -1318,8 +1321,8 @@ export default function Dashboard() {
                       />
                       <div className="text-center">
                         <Link href="/pricing">
-                          <NeonButton glowColor="primary" className="rounded-full px-6">
-                            View Sponsorship Plans
+                          <NeonButton glowColor="primary" onClick={() => navigate("/create-listing")}>
+                            <Plus className="w-4 h-4 mr-2" /> Create Listing
                           </NeonButton>
                         </Link>
                       </div>

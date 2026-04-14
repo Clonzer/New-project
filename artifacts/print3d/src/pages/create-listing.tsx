@@ -45,7 +45,26 @@ const STOCK_TYPES = [
 
 const CATEGORIES = [
   "Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture",
-  "Tools", "Home & Garden", "Toys & Games", "Wearables", "Prototypes", "Education"
+  "Tools", "Home & Garden", "Toys & Games", "Wearables", "Prototypes", "Education",
+  "Home Decor", "Gadgets", "Automotive", "Electronics", "Fashion", "Gaming",
+  "Replacement Parts", "Figures", "Models", "Props", "Signage", "Fixtures", "Custom", "Other"
+];
+
+const SERVICE_CATEGORIES = [
+  "Woodworking", "Steel Work", "Metalworking", "CNC Services", "Welding", "Fabrication",
+  "Custom Design", "3D Modeling", "CAD Design", "Laser Cutting", "Waterjet Cutting",
+  "Powder Coating", "Finishing", "Assembly", "Prototyping", "Consulting", "Other"
+];
+
+const TAGS = [
+  "3D Printable", "Articulated", "Flexible", "Painted", "Unpainted", "Assembled", "Kit", "Customizable",
+  "Large Format", "Small Scale", "Detailed", "Simple", "Complex", "Rugged", "Delicate", "Waterproof",
+  "Heat Resistant", "Food Safe", "Biodegradable", "Recycled", "Premium", "Budget", "Quick Ship",
+  "Made to Order", "Ready to Ship", "Limited Edition", "Exclusive", "Best Seller", "New",
+  "On Sale", "Gift", "Collectible", "Display", "Functional", "Decorative", "Educational",
+  "Gaming", "Cosplay", "Prop", "Replacement", "Upgrade", "Accessory", "Part", "Assembly",
+  "Tool", "Holder", "Stand", "Mount", "Bracket", "Case", "Cover", "Protector", "Adapter",
+  "Connector", "Joint", "Hinge", "Latch", "Clip", "Clamp", "Fastener", "Screw", "Nut", "Bolt"
 ];
 
 interface UploadedFile {
@@ -129,7 +148,15 @@ export default function CreateListing() {
   const availableEquipment = equipmentData?.equipment ?? [];
   const availableEquipmentGroups = equipmentGroupsData?.groups ?? [];
 
-  const totalSteps = 4;
+  const totalSteps = 5;
+
+  const STEPS = [
+    { id: 1, title: "Product Details", description: "Basic information about your listing" },
+    { id: 2, title: "Pricing", description: "Set your price and material options" },
+    { id: 3, title: "Shipping & Production", description: "Shipping costs and production time" },
+    { id: 4, title: "Equipment", description: "Select equipment used for this listing" },
+    { id: 5, title: "Images", description: "Upload product images" },
+  ];
 
   const updateFormData = (field: keyof ListingFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -185,6 +212,8 @@ export default function CreateListing() {
         if (!formData.basePrice || parseFloat(formData.basePrice) <= 0) {
           newErrors.basePrice = "Valid price is required";
         }
+        break;
+      case 3:
         if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
           newErrors.estimatedDaysMin = "Minimum days is required";
         }
@@ -192,10 +221,10 @@ export default function CreateListing() {
           newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
         }
         break;
-      case 3:
+      case 4:
         // Equipment validation - optional
         break;
-      case 4:
+      case 5:
         if (!formData.imageUrl.trim()) newErrors.imageUrl = "At least one image is required";
         break;
     }
@@ -490,6 +519,91 @@ export default function CreateListing() {
               </div>
 
               <div>
+                <Label htmlFor="material" className="text-white flex items-center gap-2">
+                  Material <span className="text-xs text-zinc-400">(optional)</span>
+                </Label>
+                <Input
+                  id="material"
+                  value={formData.material}
+                  onChange={(e) => updateFormData("material", e.target.value)}
+                  placeholder="PLA, ABS, Wood, etc."
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="color" className="text-white flex items-center gap-2">
+                  Color <span className="text-xs text-zinc-400">(optional)</span>
+                </Label>
+                <Input
+                  id="color"
+                  value={formData.color}
+                  onChange={(e) => updateFormData("color", e.target.value)}
+                  placeholder="Black, White, Natural, etc."
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="stockType" className="text-white flex items-center gap-2">
+                  Stock Type <span className="text-red-400">*</span>
+                </Label>
+                <Select value={formData.stockType} onValueChange={(value) => updateFormData("stockType", value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select stock type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STOCK_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div>
+                          <div className="font-medium">{type.label}</div>
+                          <div className="text-xs text-zinc-400">{type.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPrintOnDemand"
+                  checked={formData.isPrintOnDemand}
+                  onCheckedChange={(checked) => updateFormData("isPrintOnDemand", checked)}
+                />
+                <Label htmlFor="isPrintOnDemand" className="text-white">
+                  Print on Demand
+                  <span className="text-xs text-zinc-400 ml-2">(Made when ordered)</span>
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isDigitalProduct"
+                  checked={formData.isDigitalProduct}
+                  onCheckedChange={(checked) => updateFormData("isDigitalProduct", checked)}
+                />
+                <Label htmlFor="isDigitalProduct" className="text-white">
+                  Digital Product
+                  <span className="text-xs text-zinc-400 ml-2">(Files for download)</span>
+                </Label>
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 3:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
                 <Label htmlFor="shippingCost" className="text-white flex items-center gap-2">
                   Shipping Cost ($) <span className="text-xs text-zinc-400">(optional)</span>
                 </Label>
@@ -503,10 +617,9 @@ export default function CreateListing() {
                   placeholder="0.00"
                   className="mt-1"
                 />
+                <p className="text-xs text-zinc-400 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="estimatedDaysMin" className="text-white flex items-center gap-2">
                   Min Production Days <span className="text-red-400">*</span>
@@ -539,85 +652,10 @@ export default function CreateListing() {
                 {errors.estimatedDaysMax && <p className="text-red-400 text-sm mt-1">{errors.estimatedDaysMax}</p>}
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="material" className="text-white flex items-center gap-2">
-                  Material <span className="text-xs text-zinc-400">(optional)</span>
-                </Label>
-                <Input
-                  id="material"
-                  value={formData.material}
-                  onChange={(e) => updateFormData("material", e.target.value)}
-                  placeholder="PLA, ABS, Wood, etc."
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="color" className="text-white flex items-center gap-2">
-                  Color <span className="text-xs text-zinc-400">(optional)</span>
-                </Label>
-                <Input
-                  id="color"
-                  value={formData.color}
-                  onChange={(e) => updateFormData("color", e.target.value)}
-                  placeholder="Black, White, Natural, etc."
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="stockType" className="text-white flex items-center gap-2">
-                Stock Type <span className="text-red-400">*</span>
-              </Label>
-              <Select value={formData.stockType} onValueChange={(value) => updateFormData("stockType", value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select stock type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STOCK_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div>
-                        <div className="font-medium">{type.label}</div>
-                        <div className="text-xs text-zinc-400">{type.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isPrintOnDemand"
-                  checked={formData.isPrintOnDemand}
-                  onCheckedChange={(checked) => updateFormData("isPrintOnDemand", checked)}
-                />
-                <Label htmlFor="isPrintOnDemand" className="text-white">
-                  Print on Demand
-                  <span className="text-xs text-zinc-400 ml-2">(Made when ordered)</span>
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isDigitalProduct"
-                  checked={formData.isDigitalProduct}
-                  onCheckedChange={(checked) => updateFormData("isDigitalProduct", checked)}
-                />
-                <Label htmlFor="isDigitalProduct" className="text-white">
-                  Digital Product
-                  <span className="text-xs text-zinc-400 ml-2">(Files for download)</span>
-                </Label>
-              </div>
-            </div>
           </motion.div>
         );
 
-      case 3:
+      case 4:
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -729,7 +767,7 @@ export default function CreateListing() {
           </motion.div>
         );
 
-      case 4:
+      case 5:
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}

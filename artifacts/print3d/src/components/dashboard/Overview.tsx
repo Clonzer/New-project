@@ -1,8 +1,10 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { NeonButton } from "@/components/ui/neon-button";
 import { PortfolioManager } from "./PortfolioManager";
 
-export function Overview({ user, mySales, averageOrderValue, activeEquipmentCount, totalCatalogItems, setShowAddListing, setShowAddPrinter }) {
+export function Overview({ user, mySales, averageOrderValue, activeEquipmentCount, totalCatalogItems, setShowAddPrinter }) {
+  const [, navigate] = useLocation();
+
   return (
     <div>
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -32,7 +34,7 @@ export function Overview({ user, mySales, averageOrderValue, activeEquipmentCoun
             <p className="text-sm text-zinc-500 mt-1">Shortcuts for the most common seller tasks.</p>
           </div>
           <div className="p-6 space-y-3">
-            <button type="button" onClick={() => setShowAddListing(true)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-primary/40 hover:bg-primary/10">
+            <button type="button" onClick={() => navigate("/create-listing")} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left transition hover:border-primary/40 hover:bg-primary/10">
               <p className="font-semibold text-white">Add a new catalog listing</p>
               <p className="mt-1 text-sm text-zinc-400">Publish a model or made-to-order product from your dashboard.</p>
             </button>
