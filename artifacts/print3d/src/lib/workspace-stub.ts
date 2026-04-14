@@ -989,7 +989,7 @@ export function useListEquipment() {
       if (!user) throw new Error('User not authenticated');
 
       const { data: equipment, error: fetchError } = await supabase
-        .from('equipment')
+        .from('printers')
         .select('*')
         .eq('user_id', user.id);
 

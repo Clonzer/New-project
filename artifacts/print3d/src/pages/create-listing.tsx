@@ -663,40 +663,42 @@ export default function CreateListing() {
                   ) : availableShippingProfiles.length > 0 ? (
                     <div className="space-y-2">
                       <div
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                           formData.shippingProfileId === ""
-                            ? "bg-primary/20 border-primary"
+                            ? "bg-primary/30 border-primary ring-2 ring-primary/50"
                             : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
                         }`}
                         onClick={() => updateFormData("shippingProfileId", "")}
                       >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full border ${
-                            formData.shippingProfileId === "" ? "bg-primary border-primary" : "border-zinc-600"
-                          }`} />
-                          <span className="text-white">No shipping profile</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {formData.shippingProfileId === "" && <Check className="w-5 h-5 text-primary" />}
+                            <span className={`text-white ${formData.shippingProfileId === "" ? "font-semibold" : ""}`}>No shipping profile</span>
+                          </div>
+                          {formData.shippingProfileId === "" && <div className="text-xs text-primary font-medium">Selected</div>}
                         </div>
                       </div>
                       {availableShippingProfiles.map((profile: any) => (
                         <div
                           key={profile.id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                             formData.shippingProfileId === profile.id
-                              ? "bg-primary/20 border-primary"
+                              ? "bg-primary/30 border-primary ring-2 ring-primary/50"
                               : "bg-zinc-800/50 border-zinc-700 hover:border-zinc-600"
                           }`}
                           onClick={() => updateFormData("shippingProfileId", profile.id)}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full border ${
-                              formData.shippingProfileId === profile.id ? "bg-primary border-primary" : "border-zinc-600"
-                            }`} />
-                            <div>
-                              <span className="text-white">{profile.name}</span>
-                              <div className="text-xs text-zinc-400">
-                                Domestic: ${profile.domesticCost} | International: ${profile.internationalCost}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {formData.shippingProfileId === profile.id && <Check className="w-5 h-5 text-primary" />}
+                              <div>
+                                <span className={`text-white ${formData.shippingProfileId === profile.id ? "font-semibold" : ""}`}>{profile.name}</span>
+                                <div className="text-xs text-zinc-400 mt-1">
+                                  Domestic: ${profile.domesticCost} | International: ${profile.internationalCost}
+                                </div>
                               </div>
                             </div>
+                            {formData.shippingProfileId === profile.id && <div className="text-xs text-primary font-medium">Selected</div>}
                           </div>
                         </div>
                       ))}
