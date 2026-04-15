@@ -333,6 +333,9 @@ export default function CreateListing() {
   const handleSubmit = async () => {
     if (!validateStep(currentStep) || !user) return;
 
+    console.log("handleSubmit called");
+    console.log("User ID:", user.id);
+    console.log("Form data:", formData);
     try {
       await createListingMutation.mutateAsync({
         data: {
