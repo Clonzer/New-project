@@ -354,7 +354,8 @@ export default function CreateListing() {
           equipmentGroups: formData.equipmentGroups,
         }
       });
-      navigate("/dashboard?tab=listings");
+      localStorage.setItem('dashboardTab', 'listings');
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create listing:", error);
     }

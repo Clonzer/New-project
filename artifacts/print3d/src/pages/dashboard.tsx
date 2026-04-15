@@ -707,12 +707,21 @@ export default function Dashboard() {
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
+  const [defaultTab, setDefaultTab] = useState("purchases");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get("checkout");
     const plan = params.get("plan");
     const sponsorship = params.get("sponsorship");
+    const savedTab = localStorage.getItem('dashboardTab');
+
+    if (savedTab) {
+      setDefaultTab(savedTab);
+      localStorage.removeItem('dashboardTab');
+    } else if (user) {
+      setDefaultTab(isSeller(user?.role) ? "overview" : "purchases");
+    }
 
     if (checkout === "success") {
       if (plan) {
@@ -1073,7 +1082,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          <Tabs defaultValue={isSellerUser ? "overview" : "purchases"} className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8 flex flex-wrap h-auto w-fit gap-1">
               {isSellerUser && (
                 <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Overview</TabsTrigger>
