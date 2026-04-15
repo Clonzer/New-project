@@ -355,7 +355,8 @@ export default function CreateListing() {
         }
       });
       localStorage.setItem('dashboardTab', 'listings');
-      navigate("/dashboard");
+      // Temporarily disabled to see console logs
+      // navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create listing:", error);
     }
