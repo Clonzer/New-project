@@ -355,9 +355,7 @@ export default function CreateListing() {
         }
       });
       localStorage.setItem('dashboardTab', 'listings');
-      // Temporarily disabled to see console logs
-      // navigate("/dashboard");
-      console.log("Listing created successfully - check console for seller_id logs");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create listing:", error);
     }

@@ -94,24 +94,10 @@ export function useCreateListing(): MutationReturn {
     setError(null);
     try {
       const { data } = vars;
-      console.log('Creating listing with seller_id:', data.sellerId);
-      
-      // Check if seller exists in sellers table
-      const { data: seller, error: sellerError } = await supabase
-        .from('sellers')
-        .select('id')
-        .eq('user_id', data.sellerId)
-        .single();
-      
-      console.log('Seller query result:', seller, sellerError);
-      
-      const actualSellerId = seller?.id || data.sellerId;
-      console.log('Using seller_id for insert:', actualSellerId);
-      
       const { error: insertError } = await supabase
         .from('listings')
         .insert({
-          seller_id: actualSellerId,
+          seller_id: data.sellerId,
           title: data.title,
           description: data.description || null,
           price: data.basePrice,
