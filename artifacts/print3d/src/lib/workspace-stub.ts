@@ -118,6 +118,10 @@ export function useCreateListing(): MutationReturn {
 
       if (insertError) {
         console.error('Listing insert error:', insertError);
+        console.error('Error details:', JSON.stringify(insertError, null, 2));
+        console.error('Error message:', insertError.message);
+        console.error('Error code:', insertError.code);
+        console.error('Error details:', insertError.details);
         throw insertError;
       }
 
