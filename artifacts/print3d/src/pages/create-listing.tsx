@@ -25,7 +25,7 @@ import {
   AlertCircle,
   Info
 } from "lucide-react";
-import { useCreateListing } from "@/lib/workspace-api-mock";
+import { useCreateListing } from "@/lib/workspace-stub";
 import { useListEquipment, useListEquipmentGroups, useListShippingProfiles } from "@/lib/workspace-stub";
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
