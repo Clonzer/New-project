@@ -752,7 +752,7 @@ export default function Dashboard() {
 
   const purchaseParams = { buyerId: user?.id };
   const salesParams = { sellerId: user?.id };
-  const listingParams = { sellerId: user?.id };
+  const listingParams = { sellerId: user?.id, userId: user?.id };
   const printerParams = { userId: user?.id };
   const writtenReviewParams = { reviewerId: user?.id };
   const { data: myPurchases, refetch: refetchPurchases } = useListOrders(purchaseParams, {

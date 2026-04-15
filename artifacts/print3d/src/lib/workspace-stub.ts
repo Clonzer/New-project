@@ -94,42 +94,10 @@ export function useCreateListing(): MutationReturn {
     setError(null);
     try {
       const { data } = vars;
-      
-      // Check if seller exists, create if not
-      const { data: seller, error: sellerError } = await supabase
-        .from('sellers')
-        .select('id')
-        .eq('user_id', data.sellerId)
-        .single();
-      
-      let sellerId = seller?.id;
-      
-      if (!seller || sellerError) {
-        // Create seller record
-        const { data: newSeller, error: createError } = await supabase
-          .from('sellers')
-          .insert({
-            user_id: data.sellerId,
-            store_name: 'My Shop',
-            rating: 0,
-            total_orders: 0,
-            is_verified: false,
-          })
-          .select()
-          .single();
-        
-        if (createError) {
-          console.error('Error creating seller:', createError);
-          throw createError;
-        }
-        
-        sellerId = newSeller.id;
-      }
-      
       const { error: insertError } = await supabase
         .from('listings')
         .insert({
-          seller_id: sellerId,
+          seller_id: data.sellerId,
           title: data.title,
           description: data.description || null,
           price: data.basePrice,
@@ -336,7 +304,7 @@ export function useListUsers() {
   };
 }
 
-export function useListListings(options?: { limit?: number; offset?: number; sellerId?: string }) {
+export function useListListings(options?: { limit?: number; offset?: number; sellerId?: string; userId?: string }) {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -351,17 +319,11 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (options?.sellerId) {
-          // Filter by seller's user_id by joining with sellers table
-          const { data: seller } = await supabase
-            .from('sellers')
-            .select('id')
-            .eq('user_id', options.sellerId)
-            .single();
-          
-          if (seller) {
-            query = query.eq('seller_id', seller.id);
-          }
+        if (options?.userId) {
+          // Filter by seller's user_id directly
+          query = query.eq('seller_id', options.userId);
+        } else if (options?.sellerId) {
+          query = query.eq('seller_id', options.sellerId);
         }
 
         if (options?.limit) {
@@ -379,7 +341,7 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       }
     };
     fetchListings();
-  }, [options?.limit, options?.offset, options?.sellerId]);
+  }, [options?.limit, options?.offset, options?.sellerId, options?.userId]);
 
   return { data, isLoading, error };
 }
