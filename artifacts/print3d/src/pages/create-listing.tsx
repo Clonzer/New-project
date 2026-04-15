@@ -331,9 +331,16 @@ export default function CreateListing() {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(currentStep) || !user) return;
-
     console.log("handleSubmit called");
+    console.log("Current step:", currentStep);
+    console.log("Validation result:", validateStep(currentStep));
+    console.log("User exists:", !!user);
+    
+    if (!validateStep(currentStep) || !user) {
+      console.log("Returning early due to validation failure or missing user");
+      return;
+    }
+
     console.log("User ID:", user.id);
     console.log("Form data:", formData);
     console.log("createListingMutation:", createListingMutation);
