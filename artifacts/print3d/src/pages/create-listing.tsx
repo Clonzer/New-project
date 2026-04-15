@@ -336,7 +336,9 @@ export default function CreateListing() {
     console.log("handleSubmit called");
     console.log("User ID:", user.id);
     console.log("Form data:", formData);
+    console.log("createListingMutation:", createListingMutation);
     try {
+      console.log("Calling mutateAsync...");
       await createListingMutation.mutateAsync({
         data: {
           sellerId: user.id,
