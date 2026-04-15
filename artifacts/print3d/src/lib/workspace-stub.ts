@@ -94,7 +94,10 @@ export function useCreateListing(): MutationReturn {
     setError(null);
     try {
       const { data } = vars;
-      const { error: insertError } = await supabase
+      console.log('Creating listing with seller_id:', data.sellerId);
+      console.log('Listing data:', data);
+      
+      const { error: insertError, data: insertedData } = await supabase
         .from('listings')
         .insert({
           seller_id: data.sellerId,
@@ -115,6 +118,7 @@ export function useCreateListing(): MutationReturn {
         throw insertError;
       }
 
+      console.log('Listing inserted successfully:', insertedData);
       return { success: true };
     } catch (e) {
       const err = e as Error;
