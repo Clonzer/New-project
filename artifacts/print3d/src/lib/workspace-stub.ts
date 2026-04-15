@@ -352,7 +352,16 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
           .order('created_at', { ascending: false });
 
         if (options?.sellerId) {
-          query = query.eq('seller_id', options.sellerId);
+          // Filter by seller's user_id by joining with sellers table
+          const { data: seller } = await supabase
+            .from('sellers')
+            .select('id')
+            .eq('user_id', options.sellerId)
+            .single();
+          
+          if (seller) {
+            query = query.eq('seller_id', seller.id);
+          }
         }
 
         if (options?.limit) {
