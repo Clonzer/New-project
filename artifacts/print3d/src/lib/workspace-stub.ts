@@ -86,10 +86,13 @@ type MutationReturn<T = any> = {
 };
 
 export function useCreateListing(): MutationReturn {
+  console.log("useCreateListing function called");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutateAsync = async (vars: any) => {
+    console.log("useCreateListing mutateAsync called");
+    console.log("vars:", vars);
     setIsLoading(true);
     setError(null);
     try {
