@@ -104,11 +104,20 @@ export function useCreateListing(): MutationReturn {
       
       if (sellerCheckError && sellerCheckError.code === 'PGRST116') {
         // Seller doesn't exist, create one
+        // Fetch user's profile to get their name
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name, username')
+          .eq('id', data.sellerId)
+          .single();
+
+        const storeName = profileData?.full_name || profileData?.username || 'My Shop';
+
         const { error: createSellerError } = await supabase
           .from('sellers')
           .insert({
             id: data.sellerId,
-            store_name: 'My Shop',
+            store_name: storeName,
           });
         
         if (createSellerError) {
