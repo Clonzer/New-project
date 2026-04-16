@@ -26,7 +26,7 @@ import {
   Boxes,
   Quote
 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+// import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -50,7 +50,7 @@ export default function Home() {
         <div className="absolute inset-0 opacity-[0.03] bg-noise" />
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(139,92,246,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.4) 1px, transparent 1px)`, backgroundSize: "80px 80px" }} />
       </div>
-      <Navbar />
+      {/* <Navbar /> */}
       {/* <OnboardingTutorial /> */}
 
       <main className="flex-grow relative z-10">
