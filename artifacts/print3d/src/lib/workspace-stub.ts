@@ -86,54 +86,36 @@ type MutationReturn<T = any> = {
 };
 
 export function useCreateListing(): MutationReturn {
-  console.log("useCreateListing function called");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutateAsync = async (vars: any) => {
-    console.log("useCreateListing mutateAsync called");
-    console.log("vars:", vars);
     setIsLoading(true);
     setError(null);
     try {
       const { data } = vars;
-      console.log('Creating listing with seller_id:', data.sellerId);
-      console.log('Listing data:', data);
       
       // Check if seller exists, create if not
-      console.log('Checking if seller exists...');
       const { data: existingSeller, error: sellerCheckError } = await supabase
         .from('sellers')
         .select('id')
         .eq('id', data.sellerId)
         .single();
       
-      if (sellerCheckError) {
-        console.error('Seller check error:', sellerCheckError);
-        console.error('Seller check error details:', JSON.stringify(sellerCheckError, null, 2));
+      if (sellerCheckError && sellerCheckError.code === 'PGRST116') {
+        // Seller doesn't exist, create one
+        const { error: createSellerError } = await supabase
+          .from('sellers')
+          .insert({
+            id: data.sellerId,
+            store_name: 'My Shop',
+          });
         
-        if (sellerCheckError.code === 'PGRST116') {
-          // Seller doesn't exist, create one
-          console.log('Seller does not exist, creating seller record...');
-          const { error: createSellerError } = await supabase
-            .from('sellers')
-            .insert({
-              id: data.sellerId,
-              store_name: 'My Shop',
-            });
-          
-          if (createSellerError) {
-            console.error('Failed to create seller:', createSellerError);
-            console.error('Seller creation error details:', JSON.stringify(createSellerError, null, 2));
-            throw createSellerError;
-          }
-          console.log('Seller created successfully');
-        } else {
-          console.error('Unexpected seller check error:', sellerCheckError);
-          throw sellerCheckError;
+        if (createSellerError) {
+          throw createSellerError;
         }
-      } else {
-        console.log('Seller exists');
+      } else if (sellerCheckError) {
+        throw sellerCheckError;
       }
       
       const { error: insertError, data: insertedData } = await supabase
@@ -153,15 +135,9 @@ export function useCreateListing(): MutationReturn {
         .single();
 
       if (insertError) {
-        console.error('Listing insert error:', insertError);
-        console.error('Error details:', JSON.stringify(insertError, null, 2));
-        console.error('Error message:', insertError.message);
-        console.error('Error code:', insertError.code);
-        console.error('Error details:', insertError.details);
         throw insertError;
       }
 
-      console.log('Listing inserted successfully:', insertedData);
       return { success: true };
     } catch (e) {
       const err = e as Error;

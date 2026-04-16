@@ -331,21 +331,9 @@ export default function CreateListing() {
   };
 
   const handleSubmit = async () => {
-    console.log("handleSubmit called");
-    console.log("Current step:", currentStep);
-    console.log("Validation result:", validateStep(currentStep));
-    console.log("User exists:", !!user);
-    
-    if (!validateStep(currentStep) || !user) {
-      console.log("Returning early due to validation failure or missing user");
-      return;
-    }
+    if (!validateStep(currentStep) || !user) return;
 
-    console.log("User ID:", user.id);
-    console.log("Form data:", formData);
-    console.log("createListingMutation:", createListingMutation);
     try {
-      console.log("Calling mutateAsync...");
       await createListingMutation.mutateAsync({
         data: {
           sellerId: user.id,
@@ -367,8 +355,7 @@ export default function CreateListing() {
         }
       });
       localStorage.setItem('dashboardTab', 'listings');
-      // Temporarily disabled to see console logs
-      // navigate("/dashboard");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create listing:", error);
     }
