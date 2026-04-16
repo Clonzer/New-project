@@ -101,31 +101,38 @@ export function useCreateListing(): MutationReturn {
       console.log('Listing data:', data);
       
       // Check if seller exists, create if not
+      console.log('Checking if seller exists...');
       const { data: existingSeller, error: sellerCheckError } = await supabase
         .from('sellers')
         .select('id')
         .eq('id', data.sellerId)
         .single();
       
-      if (sellerCheckError && sellerCheckError.code === 'PGRST116') {
-        // Seller doesn't exist, create one
-        console.log('Seller does not exist, creating seller record...');
-        const { error: createSellerError } = await supabase
-          .from('sellers')
-          .insert({
-            id: data.sellerId,
-            shop_name: 'My Shop',
-            shop_mode: 'catalog',
-          });
+      if (sellerCheckError) {
+        console.error('Seller check error:', sellerCheckError);
+        console.error('Seller check error details:', JSON.stringify(sellerCheckError, null, 2));
         
-        if (createSellerError) {
-          console.error('Failed to create seller:', createSellerError);
-          throw createSellerError;
+        if (sellerCheckError.code === 'PGRST116') {
+          // Seller doesn't exist, create one
+          console.log('Seller does not exist, creating seller record...');
+          const { error: createSellerError } = await supabase
+            .from('sellers')
+            .insert({
+              id: data.sellerId,
+              shop_name: 'My Shop',
+              shop_mode: 'catalog',
+            });
+          
+          if (createSellerError) {
+            console.error('Failed to create seller:', createSellerError);
+            console.error('Seller creation error details:', JSON.stringify(createSellerError, null, 2));
+            throw createSellerError;
+          }
+          console.log('Seller created successfully');
+        } else {
+          console.error('Unexpected seller check error:', sellerCheckError);
+          throw sellerCheckError;
         }
-        console.log('Seller created successfully');
-      } else if (sellerCheckError) {
-        console.error('Error checking seller:', sellerCheckError);
-        throw sellerCheckError;
       } else {
         console.log('Seller exists');
       }
