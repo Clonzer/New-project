@@ -90,7 +90,7 @@ export default function ListingDetail() {
             {/* Images Section */}
             <div className="space-y-4">
               {mainImage ? (
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black/40">
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black/40 shadow-2xl ring-1 ring-white/10">
                   <img
                     src={mainImage}
                     alt={listing.title}
@@ -98,19 +98,19 @@ export default function ListingDetail() {
                   />
                 </div>
               ) : (
-                <div className="aspect-video rounded-2xl bg-black/40 flex items-center justify-center">
+                <div className="aspect-video rounded-2xl bg-black/40 flex items-center justify-center shadow-2xl ring-1 ring-white/10">
                   <Package className="w-16 h-16 text-white/20" />
                 </div>
               )}
               
               {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {images.slice(1, 5).map((image: string, index: number) => (
-                    <div key={index} className="aspect-square rounded-lg overflow-hidden bg-black/40">
+                    <div key={index} className="aspect-square rounded-xl overflow-hidden bg-black/40 ring-1 ring-white/10 cursor-pointer hover:ring-primary/50 transition-all hover:scale-105">
                       <img
                         src={image}
                         alt={`${listing.title} ${index + 2}`}
-                        className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ))}
