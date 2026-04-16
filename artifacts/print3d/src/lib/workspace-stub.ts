@@ -119,8 +119,7 @@ export function useCreateListing(): MutationReturn {
             .from('sellers')
             .insert({
               id: data.sellerId,
-              shop_name: 'My Shop',
-              shop_mode: 'catalog',
+              store_name: 'My Shop',
             });
           
           if (createSellerError) {
