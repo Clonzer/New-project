@@ -339,7 +339,14 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       try {
         let query = supabase
           .from('listings')
-          .select('*')
+          .select(`
+            *,
+            sellers (
+              id,
+              store_name,
+              user_id
+            )
+          `)
           .order('created_at', { ascending: false });
 
         if (options?.userId) {
@@ -355,7 +362,34 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
 
         const result = await query;
         if (result.error) throw result.error;
-        setData({ listings: result.data || [] });
+
+        // Map database columns to component expectations
+        const mappedListings = (result.data || []).map((listing: any) => ({
+          id: listing.id,
+          title: listing.title,
+          description: listing.description,
+          basePrice: listing.price,
+          imageUrl: listing.images && listing.images.length > 0 ? listing.images[0] : null,
+          images: listing.images || [],
+          category: listing.category,
+          stockQuantity: listing.stock,
+          trackStock: listing.track_stock || false,
+          estimatedDaysMin: listing.estimated_days_min || 3,
+          estimatedDaysMax: listing.estimated_days_max || 7,
+          shippingCost: listing.shipping_cost || 0,
+          tags: listing.tags || [],
+          listingType: listing.listing_type || 'product',
+          serviceCategory: listing.service_category,
+          serviceType: listing.service_type,
+          sellerId: listing.seller_id,
+          sellerName: listing.sellers?.store_name || 'Unknown Seller',
+          isActive: listing.is_active,
+          views: listing.views,
+          createdAt: listing.created_at,
+          updatedAt: listing.updated_at,
+        }));
+
+        setData({ listings: mappedListings });
       } catch (err) {
         setError(err as Error);
         setData({ listings: [] });

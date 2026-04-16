@@ -15,6 +15,13 @@ ALTER TABLE listings ADD COLUMN IF NOT EXISTS listing_type VARCHAR(20) DEFAULT '
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS service_category VARCHAR(100);
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS service_type VARCHAR(100);
 
+-- Add missing fields for listing display
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS estimated_days_min INTEGER;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS estimated_days_max INTEGER;
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS shipping_cost DECIMAL(10,2);
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS tags TEXT[];
+ALTER TABLE listings ADD COLUMN IF NOT EXISTS track_stock BOOLEAN DEFAULT false;
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_profiles_plan_expires_at ON profiles(plan_expires_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_sponsorship_expires_at ON profiles(sponsorship_expires_at);
