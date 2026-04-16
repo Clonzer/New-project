@@ -37,6 +37,7 @@ import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import ListingDetail from "@/pages/listing-detail";
 import { useLocation } from "wouter";
 
 const queryClient = new QueryClient({
@@ -97,6 +98,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/contests" component={Contests} />
       <Route path="/listings" component={Listings} />
+      <Route path="/listings/:id" component={ListingDetail} />
       <Route path="/shop/:id" component={Shop} />
       <Route path="/order/new" component={OrderFlowPage} />
       <Route path="/cart" component={CartPage} />

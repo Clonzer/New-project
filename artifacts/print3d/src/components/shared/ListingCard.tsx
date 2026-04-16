@@ -39,7 +39,8 @@ export function ListingCard({
         : "bg-sky-500/15 text-sky-200 border-sky-500/30";
 
   return (
-    <div className="group relative rounded-2xl overflow-hidden glass-panel border border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] flex flex-col h-full">
+    <Link href={`/listings/${listing.id}`} className="block">
+      <div className="group relative rounded-2xl overflow-hidden glass-panel border border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] flex flex-col h-full">
       <div className="relative aspect-video overflow-hidden bg-black/40">
         {listing.imageUrl ? (
           <img 
@@ -164,6 +165,7 @@ export function ListingCard({
                 addToCart(listing.id, 1);
                 toast({ title: "Added to cart", description: listing.title });
               }}
+              onMouseDown={(e) => e.stopPropagation()}
               disabled={isOutOfStock}
               className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium transition-all border flex items-center justify-center gap-1.5 ${
                 isOutOfStock
@@ -211,5 +213,6 @@ export function ListingCard({
         </div>
       </div>
     </div>
+    </Link>
   );
 }

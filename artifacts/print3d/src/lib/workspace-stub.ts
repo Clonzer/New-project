@@ -389,9 +389,6 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
         const result = await query;
         if (result.error) throw result.error;
 
-        console.log('Raw listings data from database:', result.data);
-        console.log('First listing (if exists):', result.data?.[0]);
-
         // Map database columns to component expectations
         const mappedListings = (result.data || []).map((listing: any) => ({
           id: listing.id,
@@ -428,6 +425,73 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
     };
     fetchListings();
   }, [options?.limit, options?.offset, options?.sellerId, options?.userId]);
+
+  return { data, isLoading, error };
+}
+
+export function useGetListing(listingId?: string) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      if (!listingId) return;
+      
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await supabase
+          .from('listings')
+          .select(`
+            *,
+            sellers (
+              id,
+              store_name,
+              user_id
+            )
+          `)
+          .eq('id', listingId)
+          .single();
+
+        if (result.error) throw result.error;
+
+        // Map database columns to component expectations
+        const mappedListing = {
+          id: result.data.id,
+          title: result.data.title,
+          description: result.data.description,
+          basePrice: result.data.price,
+          imageUrl: result.data.images && result.data.images.length > 0 ? result.data.images[0] : null,
+          images: result.data.images || [],
+          category: result.data.category,
+          stockQuantity: result.data.stock,
+          trackStock: result.data.track_stock || false,
+          estimatedDaysMin: result.data.estimated_days_min || 3,
+          estimatedDaysMax: result.data.estimated_days_max || 7,
+          shippingCost: result.data.shipping_cost || 0,
+          tags: result.data.tags || [],
+          listingType: result.data.listing_type || 'product',
+          serviceCategory: result.data.service_category,
+          serviceType: result.data.service_type,
+          sellerId: result.data.seller_id,
+          sellerName: result.data.sellers?.store_name || 'Unknown Seller',
+          isActive: result.data.is_active,
+          views: result.data.views,
+          createdAt: result.data.created_at,
+          updatedAt: result.data.updated_at,
+        };
+
+        setData(mappedListing);
+      } catch (err) {
+        setError(err as Error);
+        setData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchListing();
+  }, [listingId]);
 
   return { data, isLoading, error };
 }
@@ -493,13 +557,6 @@ export function useGetUser(userId?: string | number) {
   return { data, isLoading, error };
 }
 
-export function useGetListing() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
-}
 
 export function useGetCart() {
   return {
