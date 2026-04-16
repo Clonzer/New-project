@@ -168,12 +168,38 @@ export function useUpdateListing(): MutationReturn {
 }
 
 export function useDeleteListing(): MutationReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutateAsync = async (vars: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { listingId } = vars;
+      
+      const { error: deleteError } = await supabase
+        .from('listings')
+        .delete()
+        .eq('id', listingId);
+
+      if (deleteError) throw deleteError;
+
+      return { success: true };
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
-    mutate: async () => {},
-    mutateAsync: async () => ({}),
-    isLoading: false,
-    isPending: false,
-    error: null,
+    mutate: async (vars?: any) => { await mutateAsync(vars).catch(() => {}); },
+    mutateAsync,
+    isLoading,
+    isPending: isLoading,
+    error,
   };
 }
 
