@@ -389,6 +389,9 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
         const result = await query;
         if (result.error) throw result.error;
 
+        console.log('Raw listings data from database:', result.data);
+        console.log('First listing (if exists):', result.data?.[0]);
+
         // Map database columns to component expectations
         const mappedListings = (result.data || []).map((listing: any) => ({
           id: listing.id,
