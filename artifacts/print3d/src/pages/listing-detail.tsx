@@ -121,42 +121,42 @@ export default function ListingDetail() {
             {/* Details Section */}
             <div className="space-y-6">
               <div>
-                <Badge variant="secondary" className="mb-3 bg-primary/20 text-primary border-primary/30">
+                <Badge variant="secondary" className="mb-4 bg-primary/20 text-primary border-primary/30 font-medium px-3 py-1">
                   {listing.category}
                 </Badge>
-                <h1 className="text-4xl font-display font-bold text-white mb-2">{listing.title}</h1>
-                <Link href={`/shop/${listing.sellerId}`} className="text-zinc-400 hover:text-primary transition-colors">
+                <h1 className="text-5xl font-display font-bold text-white mb-3 leading-tight">{listing.title}</h1>
+                <Link href={`/shop/${listing.sellerId}`} className="text-zinc-400 hover:text-primary transition-colors text-lg">
                   by {listing.sellerName}
                 </Link>
               </div>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-display font-bold text-primary">
+                <span className="text-5xl font-display font-bold text-primary">
                   ${listing.basePrice?.toFixed(2) || "0.00"}
                 </span>
                 {listing.shippingCost > 0 && (
-                  <span className="text-zinc-400">+ ${listing.shippingCost?.toFixed(2)} shipping</span>
+                  <span className="text-zinc-400 text-lg">+ ${listing.shippingCost?.toFixed(2)} shipping</span>
                 )}
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-zinc-400">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
+              <div className="flex items-center gap-6 text-sm text-zinc-400">
+                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
+                  <Clock className="w-4 h-4 text-primary" />
                   <span>Est. {listing.estimatedDaysMin}-{listing.estimatedDaysMax} days</span>
                 </div>
                 {listing.stockQuantity !== undefined && listing.trackStock && (
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4" />
+                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
+                    <Package className="w-4 h-4 text-emerald-400" />
                     <span>{listing.stockQuantity} in stock</span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 pt-4">
                 {!isServiceListing && (
                   <Button
                     onClick={handleAddToCart}
-                    className="w-full py-6 text-lg bg-primary hover:bg-primary/90"
+                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
                     disabled={listing.stockQuantity === 0}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
@@ -167,37 +167,37 @@ export default function ListingDetail() {
                 {isServiceListing ? (
                   <Button
                     onClick={handleRequestJob}
-                    className="w-full py-6 text-lg bg-primary hover:bg-primary/90"
+                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
                   >
                     <MessageSquare className="w-5 h-5 mr-2" />
                     Request Job
                   </Button>
                 ) : (
                   <Link href={`/order/new?listingId=${listing.id}`} className="block">
-                    <Button className="w-full py-6 text-lg bg-white/10 hover:bg-white/20 border border-white/20">
+                    <Button className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300">
                       Order Now
                     </Button>
                   </Link>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-3 text-sm text-zinc-400">
-                  <Shield className="w-5 h-5 text-emerald-500" />
-                  <span>Secure Payment</span>
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
+                <div className="flex items-center gap-3 text-sm text-zinc-400 bg-white/5 p-4 rounded-xl">
+                  <Shield className="w-5 h-5 text-emerald-400" />
+                  <span className="font-medium">Secure Payment</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-zinc-400">
-                  <Truck className="w-5 h-5 text-blue-500" />
-                  <span>Tracked Shipping</span>
+                <div className="flex items-center gap-3 text-sm text-zinc-400 bg-white/5 p-4 rounded-xl">
+                  <Truck className="w-5 h-5 text-blue-400" />
+                  <span className="font-medium">Tracked Shipping</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Description Section */}
-          <div className="bg-zinc-900/50 rounded-2xl p-8 mb-12 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-4">Description</h2>
-            <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+          <div className="bg-zinc-900/50 rounded-2xl p-8 mb-12 border border-white/10 shadow-xl">
+            <h2 className="text-3xl font-bold text-white mb-6">Description</h2>
+            <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-lg">
               {listing.description || "No description provided."}
             </p>
           </div>
@@ -205,10 +205,10 @@ export default function ListingDetail() {
           {/* Tags Section */}
           {listing.tags && listing.tags.length > 0 && (
             <div className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-4">Tags</h2>
-              <div className="flex flex-wrap gap-2">
+              <h2 className="text-3xl font-bold text-white mb-6">Tags</h2>
+              <div className="flex flex-wrap gap-3">
                 {listing.tags.map((tag: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="bg-white/10 text-zinc-300 border-white/20">
+                  <Badge key={index} variant="secondary" className="bg-white/10 text-zinc-300 border-white/20 px-4 py-2 text-sm font-medium hover:bg-white/15 transition-colors">
                     {tag}
                   </Badge>
                 ))}
@@ -219,7 +219,7 @@ export default function ListingDetail() {
           {/* Related Products Section */}
           {relatedListings.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-white mb-6">More from {listing.sellerName}</h2>
+              <h2 className="text-3xl font-bold text-white mb-8">More from {listing.sellerName}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedListings.map((relatedListing) => (
                   <ListingCard key={relatedListing.id} listing={relatedListing} />
