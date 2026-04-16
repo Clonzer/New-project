@@ -88,7 +88,7 @@ function StorefrontEditPage() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={ExploreAll} />
+      <Route path="/" component={Home} />
       <Route path="/explore-all" component={ExploreAll} />
       <Route path="/explore" component={Explore} />
       <Route path="/explore-models" component={ExploreModels} />
