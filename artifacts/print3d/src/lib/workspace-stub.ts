@@ -100,6 +100,36 @@ export function useCreateListing(): MutationReturn {
       console.log('Creating listing with seller_id:', data.sellerId);
       console.log('Listing data:', data);
       
+      // Check if seller exists, create if not
+      const { data: existingSeller, error: sellerCheckError } = await supabase
+        .from('sellers')
+        .select('id')
+        .eq('id', data.sellerId)
+        .single();
+      
+      if (sellerCheckError && sellerCheckError.code === 'PGRST116') {
+        // Seller doesn't exist, create one
+        console.log('Seller does not exist, creating seller record...');
+        const { error: createSellerError } = await supabase
+          .from('sellers')
+          .insert({
+            id: data.sellerId,
+            shop_name: 'My Shop',
+            shop_mode: 'catalog',
+          });
+        
+        if (createSellerError) {
+          console.error('Failed to create seller:', createSellerError);
+          throw createSellerError;
+        }
+        console.log('Seller created successfully');
+      } else if (sellerCheckError) {
+        console.error('Error checking seller:', sellerCheckError);
+        throw sellerCheckError;
+      } else {
+        console.log('Seller exists');
+      }
+      
       const { error: insertError, data: insertedData } = await supabase
         .from('listings')
         .insert({
