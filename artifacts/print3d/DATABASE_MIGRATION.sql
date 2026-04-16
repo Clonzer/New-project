@@ -22,6 +22,15 @@ ALTER TABLE listings ADD COLUMN IF NOT EXISTS shipping_cost DECIMAL(10,2);
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS tags TEXT[];
 ALTER TABLE listings ADD COLUMN IF NOT EXISTS track_stock BOOLEAN DEFAULT false;
 
+-- Update existing seller records to use user's actual name from profiles
+UPDATE sellers
+SET store_name = COALESCE(
+  (SELECT full_name FROM profiles WHERE profiles.id = sellers.id),
+  (SELECT username FROM profiles WHERE profiles.id = sellers.id),
+  'My Shop'
+)
+WHERE store_name = 'My Shop';
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_profiles_plan_expires_at ON profiles(plan_expires_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_sponsorship_expires_at ON profiles(sponsorship_expires_at);
