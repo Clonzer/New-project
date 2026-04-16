@@ -25,7 +25,7 @@ ALTER TABLE listings ADD COLUMN IF NOT EXISTS track_stock BOOLEAN DEFAULT false;
 -- Update existing seller records to use user's actual name from profiles
 UPDATE sellers
 SET store_name = COALESCE(
-  (SELECT full_name FROM profiles WHERE profiles.id = sellers.id),
+  (SELECT display_name FROM profiles WHERE profiles.id = sellers.id),
   (SELECT username FROM profiles WHERE profiles.id = sellers.id),
   'My Shop'
 )

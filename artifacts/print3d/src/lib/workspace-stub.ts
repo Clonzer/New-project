@@ -107,11 +107,11 @@ export function useCreateListing(): MutationReturn {
         // Fetch user's profile to get their name
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('full_name, username')
+          .select('display_name, username')
           .eq('id', data.sellerId)
           .single();
 
-        const storeName = profileData?.full_name || profileData?.username || 'My Shop';
+        const storeName = profileData?.display_name || profileData?.username || 'My Shop';
 
         const { error: createSellerError } = await supabase
           .from('sellers')
