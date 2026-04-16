@@ -9,16 +9,16 @@ interface NeonButtonProps extends ButtonProps {
 export const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
   ({ className, glowColor = "primary", children, ...props }, ref) => {
     const glowClasses = {
-      primary: "shadow-[0_0_15px_rgba(139,92,246,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-white",
-      accent: "shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] border-accent/50 bg-accent/10 text-accent hover:bg-accent hover:text-white",
-      white: "shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] border-white/20 bg-white/5 text-white hover:bg-white hover:text-black",
+      primary: "shadow-lg shadow-primary/25 hover:shadow-primary/40 border-primary/30 bg-gradient-to-r from-primary/20 to-primary/10 text-primary hover:from-primary/30 hover:to-primary/20 hover:text-white transition-all duration-300",
+      accent: "shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 border-cyan-500/30 bg-gradient-to-r from-cyan-500/20 to-cyan-500/10 text-cyan-400 hover:from-cyan-500/30 hover:to-cyan-500/20 hover:text-white transition-all duration-300",
+      white: "shadow-lg shadow-white/10 hover:shadow-white/20 border-white/20 bg-gradient-to-r from-white/10 to-white/5 text-white hover:from-white/20 hover:to-white/10 hover:text-black transition-all duration-300",
     };
 
     return (
       <Button
         ref={ref}
         className={cn(
-          "relative overflow-hidden transition-all duration-300 border backdrop-blur-sm font-semibold rounded-xl",
+          "relative overflow-hidden border backdrop-blur-md font-semibold rounded-xl hover:-translate-y-0.5 active:translate-y-0",
           glowClasses[glowColor],
           className
         )}
