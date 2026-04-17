@@ -34,7 +34,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
-import { Tutorial } from "@/components/shared/Tutorial";
 import { Analytics } from "@/components/dashboard/Analytics";
 import { Overview } from "@/components/dashboard/Overview";
 import { Purchases } from "@/components/dashboard/Purchases";
@@ -703,7 +702,6 @@ export default function Dashboard() {
   const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
   const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
   const [showAddPrinter, setShowAddPrinter] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
@@ -898,90 +896,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // Tutorial steps
-  const buyerTutorialSteps = [
-    {
-      title: "Welcome to SYNTHIX!",
-      description: "Your gateway to custom 3D prints and maker services. Let's get you started with the basics of the platform."
-    },
-    {
-      title: "Discover Shops & Makers",
-      description: "Browse the discover page to find makers, compare shops by equipment and pricing, and explore their catalogs. Use filters to find exactly what you need."
-    },
-    {
-      title: "Order Custom 3D Prints",
-      description: "Order custom 3D prints directly from sellers. Specify materials, colors, and quantity. Your order will appear in 'My Orders' once confirmed."
-    },
-    {
-      title: "Request Custom Jobs",
-      description: "For woodworking, steel work, or other custom services, use the 'Request Job' button on service listings to message the seller directly."
-    },
-    {
-      title: "Track Your Orders",
-      description: "Monitor your order status in the 'My Orders' tab. Communicate with sellers, track progress, and leave reviews once your order is complete."
-    },
-    {
-      title: "Compare Shops",
-      description: "Use the shop comparison feature to compare equipment, pricing, and reviews across multiple sellers to find the best fit for your project."
-    }
-  ];
-
-  const sellerTutorialSteps = [
-    {
-      title: "Welcome Seller!",
-      description: "Ready to start selling your 3D prints and services? Let's set up your shop for success on the SYNTHIX platform."
-    },
-    {
-      title: "Complete Your Profile",
-      description: "Go to Settings to complete your profile, add your shop name, banner, and social media links (Instagram, TikTok, X). This builds trust with buyers."
-    },
-    {
-      title: "Configure Shipping Profiles",
-      description: "Set up shipping profiles in the new 'Shipping Profiles' tab. Define costs by region (Domestic, Europe, North America, International) and free shipping thresholds."
-    },
-    {
-      title: "Add Your Equipment",
-      description: "Register your 3D printers, CNC machines, woodworking tools, and other equipment in the 'My Equipment' tab. This helps buyers understand your capabilities."
-    },
-    {
-      title: "Create Product Listings",
-      description: "Add your 3D printed products to your catalog in 'My Listings'. Include images, pricing, materials, and shipping costs. You can now create listings without email verification."
-    },
-    {
-      title: "Create Service Listings",
-      description: "Offer custom woodworking, steel work, metalworking, and other services. Select 'Service' as listing type to show 'Request Job' button instead of buy button."
-    },
-    {
-      title: "Manage Orders",
-      description: "Handle incoming orders in the 'Manage Sales' tab. Update order statuses, communicate with buyers, and manage your workflow efficiently."
-    },
-    {
-      title: "Upgrade Your Plan",
-      description: "Visit the Pricing page to upgrade to Pro or Elite plans for lower fees, more listings, analytics, and priority support. Plans auto-apply after payment."
-    },
-    {
-      title: "Sponsor Your Shop",
-      description: "Boost visibility with profile and product sponsorships. Sponsorships auto-activate after payment and expire automatically after 14 days."
-    },
-    {
-      title: "View Analytics",
-      description: "Check your shop performance in the 'Analytics' tab. Track revenue, orders, average order value, and optimize your business strategy."
-    }
-  ];
-
-  // Show tutorial on first visit
-  useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem(`tutorial-${user.id}`);
-    if (!hasSeenTutorial) {
-      setShowTutorial(true);
-    }
-  }, [user.id]);
-
-  const handleTutorialClose = () => {
-    setShowTutorial(false);
-    localStorage.setItem(`tutorial-${user.id}`, 'true');
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -1343,13 +1257,6 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </main>
-
-      <Tutorial
-        isOpen={showTutorial}
-        onClose={handleTutorialClose}
-        steps={isSellerUser ? sellerTutorialSteps : buyerTutorialSteps}
-        userType={isSellerUser ? "seller" : "buyer"}
-      />
     </div>
   );
 }

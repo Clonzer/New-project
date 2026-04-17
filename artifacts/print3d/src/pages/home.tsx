@@ -30,7 +30,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
-import { OnboardingTutorial } from "@/components/shared/OnboardingTutorial";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,6 @@ export default function Home() {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(139,92,246,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.4) 1px, transparent 1px)`, backgroundSize: "80px 80px" }} />
       </div>
       <Navbar />
-      <OnboardingTutorial />
 
       <main className="flex-grow relative z-10">
         <section className="relative pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
