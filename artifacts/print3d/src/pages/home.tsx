@@ -64,24 +64,24 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="max-w-3xl text-center mx-auto"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#9fe5ff] backdrop-blur-sm shadow-[0_0_30px_rgba(159,229,255,0.12)]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 px-5 py-2 text-sm font-semibold text-cyan-300 backdrop-blur-md shadow-lg shadow-cyan-500/20">
                 <Sparkles className="w-4 h-4" />
                 Storefront marketplace
               </span>
-              <h1 className="mt-6 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
-                Synthix: Your 3D Printing <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Marketplace</span>
+              <h1 className="mt-8 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
+                Synthix: Your 3D Printing <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-[length:200%_auto] animate-gradient">Marketplace</span>
               </h1>
-              <p className="mt-5 max-w-2xl mx-auto text-lg text-zinc-300 leading-relaxed">
+              <p className="mt-6 max-w-2xl mx-auto text-xl text-zinc-300 leading-relaxed">
                 Welcome to Synthix, the easiest way to find verified makers, buy ready-to-ship products, and order custom prints.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/explore">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-10 py-5 text-base rounded-full">
                     Browse makers <ChevronRight className="w-5 h-5 ml-1" />
                   </NeonButton>
                 </Link>
                 <Link href="/listings">
-                  <NeonButton glowColor="white" className="w-full sm:w-auto px-8 py-5 text-base rounded-full">
+                  <NeonButton glowColor="white" className="w-full sm:w-auto px-10 py-5 text-base rounded-full">
                     Browse catalog
                   </NeonButton>
                 </Link>
@@ -157,17 +157,17 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -4 }}
+                  whileHover={{ y: -6 }}
                 >
-                  <Card className="bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 h-full group overflow-hidden">
+                  <Card className="bg-zinc-900/50 border-white/10 hover:border-primary/50 hover:bg-zinc-900/70 transition-all duration-300 h-full group overflow-hidden shadow-xl">
                     <CardHeader>
-                      <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-7 h-7 text-white" />
+                      <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-${feature.color.split('-')[1]}-500/30 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300`}>
+                        <feature.icon className="w-8 h-8 text-white" />
                       </div>
-                      <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
+                      <CardTitle className="text-white text-2xl">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-zinc-400 text-base">
+                      <p className="text-zinc-400 text-lg leading-relaxed">
                         {feature.description}
                       </p>
                     </CardContent>
