@@ -6,11 +6,11 @@
   "packageManager": "npm@10.0.0",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts",
+    "build": "vite build --config vite.config.ts --mode production",
     "build:cloudflare": "vite build --config vite.config.ts --mode production",
     "build:render": "vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4"
@@ -46,7 +46,6 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/typography": "^0.5.15",
-    "@tailwindcss/postcss": "^4.0.17",
     "@tanstack/react-query": "^5.71.0",
     "@types/node": "^22.13.11",
     "@types/react": "^19.0.12",

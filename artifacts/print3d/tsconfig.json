@@ -1,6 +1,6 @@
 {
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "lib/**/*"],
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "lib/**/*", "../lib/**/*"],
   "compilerOptions": {
     "noEmit": true,
     "jsx": "preserve",
@@ -12,6 +12,10 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   }
 }

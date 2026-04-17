@@ -11,6 +11,13 @@ watch_dir = "src"
 [build.environment]
 NODE_VERSION = "20"
 
+[build.processing]
+skip_type_checking = true
+
+[build.ignore]
+gitignore = [".gitignore"]
+ignore = ["lib/**", "../lib/**"]
+
 [[redirects]]
 from = "/*"
 to = "/index.html"

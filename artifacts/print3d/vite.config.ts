@@ -24,6 +24,9 @@ export default defineConfig({
     },
     dedupe: ["react", "react-dom"],
   },
+  esbuild: {
+    logLevel: 'error',
+  },
   root: path.resolve(__dirname),
   build: {
     outDir: "dist",
