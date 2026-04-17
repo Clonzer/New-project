@@ -9,8 +9,7 @@
     "build": "vite build --config vite.config.ts --mode production",
     "build:cloudflare": "vite build --config vite.config.ts --mode production",
     "build:render": "vite build --config vite.config.ts",
-    "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+    "serve": "vite preview --config vite.config.ts --host 0.0.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4"
