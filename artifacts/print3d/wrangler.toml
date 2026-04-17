@@ -3,11 +3,12 @@
 name = "print3d"
 compatibility_date = "2024-01-01"
 
+pages_build_output_dir = "dist"
+
 [build]
 command = "npm run build"
-cwd = "artifacts/print3d"
+cwd = "."
 watch_dir = "src"
-root = "artifacts/print3d"
 
 [build.environment]
 NODE_VERSION = "20"
