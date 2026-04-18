@@ -9,9 +9,9 @@ interface NeonButtonProps extends ButtonProps {
 export const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
   ({ className, glowColor = "primary", children, ...props }, ref) => {
     const glowClasses = {
-      primary: "shadow-lg shadow-primary/25 hover:shadow-primary/40 border-primary/30 bg-gradient-to-r from-primary/20 to-primary/10 text-primary hover:from-primary/30 hover:to-primary/20 hover:text-white transition-all duration-300",
-      accent: "shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 border-cyan-500/30 bg-gradient-to-r from-cyan-500/20 to-cyan-500/10 text-cyan-400 hover:from-cyan-500/30 hover:to-cyan-500/20 hover:text-white transition-all duration-300",
-      white: "shadow-lg shadow-white/10 hover:shadow-white/20 border-white/20 bg-gradient-to-r from-white/10 to-white/5 text-white hover:from-white/20 hover:to-white/10 hover:text-black transition-all duration-300",
+      primary: "shadow-lg shadow-primary/25 hover:shadow-primary/40 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 hover:text-white transition-all duration-300",
+      accent: "shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:text-white transition-all duration-300",
+      white: "shadow-lg shadow-white/10 hover:shadow-white/20 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-black transition-all duration-300",
     };
 
     return (
