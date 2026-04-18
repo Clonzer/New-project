@@ -36,30 +36,42 @@ export default function ExploreAll() {
 
   useEffect(() => {
     async function fetchSellers() {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('sellers')
-        .select('*')
-        .limit(50);
-      if (data && !error) {
-        setSellers(data);
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('sellers')
+          .select('*')
+          .limit(50);
+        if (data && !error) {
+          setSellers(data);
+        }
+      } catch (err) {
+        console.error('Error fetching sellers:', err);
+        setSellers([]);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     fetchSellers();
   }, []);
 
   useEffect(() => {
     async function fetchListings() {
-      setLoadingListings(true);
-      const { data, error } = await supabase
-        .from('listings')
-        .select('*')
-        .limit(12);
-      if (data && !error) {
-        setListings(data);
+      try {
+        setLoadingListings(true);
+        const { data, error } = await supabase
+          .from('listings')
+          .select('*')
+          .limit(12);
+        if (data && !error) {
+          setListings(data);
+        }
+      } catch (err) {
+        console.error('Error fetching listings:', err);
+        setListings([]);
+      } finally {
+        setLoadingListings(false);
       }
-      setLoadingListings(false);
     }
     fetchListings();
   }, []);
