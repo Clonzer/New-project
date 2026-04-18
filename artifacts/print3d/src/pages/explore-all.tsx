@@ -46,8 +46,8 @@ function transformListing(listing: any) {
     listingType: listing.listing_type || listing.listingType,
     sellerId: listing.seller_id || listing.sellerId,
     sellerName: listing.seller_name || listing.sellerName,
-    estimatedDaysMin: listing.estimated_days_min || listing.estimatedDaysMin || 1,
-    estimatedDaysMax: listing.estimated_days_max || listing.estimatedDaysMax || 7,
+    estimatedDaysMin: listing.estimated_days_min || listing.estimatedDaysMin,
+    estimatedDaysMax: listing.estimated_days_max || listing.estimatedDaysMax,
     tags: listing.tags || [],
     stockQuantity: listing.stock_quantity !== undefined ? listing.stock_quantity : listing.stock,
     trackStock: listing.track_stock !== undefined ? listing.track_stock : listing.track_stock,
@@ -64,44 +64,47 @@ export default function ExploreAll() {
   const [loadingListings, setLoadingListings] = useState(false);
 
   useEffect(() => {
-    async function fetchSellers() {
+    const fetchSellers = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from('sellers')
-          .select('*')
-          .limit(50);
+        const { data, error } = await supabase.from('sellers').select('*');
         if (data && !error) {
           setSellers(data.map(transformSeller));
         }
       } catch (err) {
         console.error('Error fetching sellers:', err);
-        setSellers([]);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
     fetchSellers();
   }, []);
 
   useEffect(() => {
-    async function fetchListings() {
+    const fetchListings = async () => {
       try {
         setLoadingListings(true);
-        const { data, error } = await supabase
-          .from('listings')
-          .select('*')
-          .limit(12);
-        if (data && !error) {
-          setListings(data.map(transformListing));
+        const { data: listingsData, error: listingsError } = await supabase.from('listings').select('*');
+        const { data: sellersData, error: sellersError } = await supabase.from('sellers').select('id, store_name');
+
+        if (listingsData && !listingsError && sellersData && !sellersError) {
+          // Create a map of seller IDs to seller names
+          const sellerMap = new Map(sellersData.map(s => [s.id, s.store_name]));
+
+          // Transform listings with seller names
+          const transformedListings = listingsData.map((listing: any) => {
+            const transformed = transformListing(listing);
+            transformed.sellerName = sellerMap.get(listing.seller_id) || 'Unknown Seller';
+            return transformed;
+          });
+          setListings(transformedListings);
         }
       } catch (err) {
         console.error('Error fetching listings:', err);
-        setListings([]);
       } finally {
         setLoadingListings(false);
       }
-    }
+    };
     fetchListings();
   }, []);
 
