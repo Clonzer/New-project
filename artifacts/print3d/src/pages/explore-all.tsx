@@ -52,7 +52,8 @@ export default function ExploreAll() {
         setIsLoading(false);
       }
     }
-    fetchSellers();
+    // Temporarily disabled to prevent landing page error
+    // fetchSellers();
   }, []);
 
   useEffect(() => {
@@ -73,7 +74,8 @@ export default function ExploreAll() {
         setLoadingListings(false);
       }
     }
-    fetchListings();
+    // Temporarily disabled to prevent landing page error
+    // fetchListings();
   }, []);
 
   const filteredSellers = sellers.filter((s) => {
