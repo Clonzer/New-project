@@ -32,12 +32,12 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
-                <div className="w-full h-full rounded-full bg-card overflow-hidden">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 overflow-hidden">
                   {seller.avatarUrl || seller.avatar_url ? (
                     <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-lg font-bold font-display text-white">
-                      {(seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
+                      {(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -52,23 +52,23 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md backdrop-blur-sm border border-white/5">
                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                 <span className="text-sm font-bold text-white">{seller.rating?.toFixed(1) || "New"}</span>
               </div>
-              <span className="text-[10px] text-zinc-500 mt-1">{seller.reviewCount} reviews</span>
-              <ReportButton 
-                itemType="profile" 
-                itemId={seller.id} 
+              <span className="text-[10px] text-zinc-500">{seller.reviewCount || 0} reviews</span>
+              <ReportButton
+                itemType="profile"
+                itemId={seller.id}
                 itemName={seller.shopName || seller.displayName}
                 className="opacity-60 hover:opacity-100 transition-opacity"
               />
             </div>
           </div>
           
-          <p className="text-sm text-zinc-400 line-clamp-2 mb-5 h-10">
+          <p className="text-sm text-zinc-400 line-clamp-2 mb-4">
             {seller.bio || "Fabrication, additive, and custom work — see shop for details."}
           </p>
 
@@ -80,8 +80,17 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
                 </span>
               ))}
             </div>
-          ) : null}
-          
+          ) : (
+            <div className="mb-4 flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
+                New Shop
+              </span>
+              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
+                Open
+              </span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
             <div className="flex items-center gap-2 text-sm text-zinc-300">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
