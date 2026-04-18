@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { useListSellers, useListListings } from "@/lib/workspace-api-mock";
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
@@ -13,13 +12,21 @@ import { NeonButton } from "@/components/ui/neon-button";
 import { motion } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
+  (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
+);
 
 export default function ExploreAll() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "shops" | "models">("all");
-  const { data, isLoading } = useListSellers({ limit: 50 });
-  const { data: listingsData, isLoading: loadingListings } = useListListings({ limit: 12 });
+  const [sellers, setSellers] = useState<any[]>([]);
+  const [listings, setListings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
     const qs = rawSearch.startsWith("?") ? rawSearch.slice(1) : rawSearch;
@@ -27,21 +34,51 @@ export default function ExploreAll() {
     if (q) setSearchTerm(q);
   }, [rawSearch]);
 
-  const filteredSellers = data?.sellers.filter((s) => {
+  useEffect(() => {
+    async function fetchSellers() {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('sellers')
+        .select('*')
+        .limit(50);
+      if (data && !error) {
+        setSellers(data);
+      }
+      setIsLoading(false);
+    }
+    fetchSellers();
+  }, []);
+
+  useEffect(() => {
+    async function fetchListings() {
+      setLoadingListings(true);
+      const { data, error } = await supabase
+        .from('listings')
+        .select('*')
+        .limit(12);
+      if (data && !error) {
+        setListings(data);
+      }
+      setLoadingListings(false);
+    }
+    fetchListings();
+  }, []);
+
+  const filteredSellers = sellers.filter((s) => {
     const q = searchTerm.toLowerCase();
     const matchesSearch =
-      s.displayName.toLowerCase().includes(q) ||
-      s.shopName?.toLowerCase().includes(q);
+      s.display_name?.toLowerCase().includes(q) ||
+      s.store_name?.toLowerCase().includes(q);
     return matchesSearch;
-  }) || [];
+  });
 
-  const filteredListings = listingsData?.listings.filter((l) => {
+  const filteredListings = listings.filter((l) => {
     const q = searchTerm.toLowerCase();
     return (
-      l.title.toLowerCase().includes(q) ||
+      l.title?.toLowerCase().includes(q) ||
       l.description?.toLowerCase().includes(q)
     );
-  }) || [];
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
@@ -56,7 +93,7 @@ export default function ExploreAll() {
               className="max-w-3xl mx-auto"
             >
               <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-6">
-                Explore Everything
+                The All in One Makers Marketplace
               </h1>
               <p className="text-xl text-zinc-400 mb-8">
                 Discover top shops and amazing 3D models all in one place
