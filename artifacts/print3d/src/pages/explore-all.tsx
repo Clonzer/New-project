@@ -17,8 +17,7 @@ const supabase = createClient(
 
 // Transform seller data from snake_case (database) to camelCase (components)
 function transformSeller(seller: any) {
-  console.log('Raw seller data:', seller);
-  const transformed = {
+  return {
     ...seller,
     displayName: seller.store_name || seller.display_name || seller.displayName,
     shopName: seller.store_name || seller.shopName,
@@ -32,14 +31,11 @@ function transformSeller(seller: any) {
     shopMode: seller.shop_mode || seller.shopMode || 'both',
     bio: seller.bio,
   };
-  console.log('Transformed seller data:', transformed);
-  return transformed;
 }
 
 // Transform listing data from snake_case (database) to camelCase (components)
 function transformListing(listing: any) {
-  console.log('Raw listing data:', listing);
-  const transformed = {
+  return {
     ...listing,
     imageUrl: listing.images?.[0] || listing.image_url || listing.imageUrl,
     title: listing.title,
@@ -56,8 +52,6 @@ function transformListing(listing: any) {
     stockQuantity: listing.stock_quantity !== undefined ? listing.stock_quantity : listing.stock,
     trackStock: listing.track_stock !== undefined ? listing.track_stock : listing.track_stock,
   };
-  console.log('Transformed listing data:', transformed);
-  return transformed;
 }
 
 export default function ExploreAll() {
