@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
-import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { useAuth } from "@/contexts/supabase-auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -60,15 +59,14 @@ export default function Login() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
-      <AnimatedGradientBg />
+    <div className="min-h-screen flex flex-col bg-black">
       <Navbar />
 
-      <main className="flex-grow flex items-start justify-center p-4 pt-16 relative z-10">
-        <div className="w-full max-w-lg">
-          <div className="glass-panel rounded-3xl border border-white/10 p-8 md:p-10">
-            <h1 className="text-3xl font-display font-bold text-white mb-2 text-center">Sign in</h1>
-            <p className="text-zinc-400 text-sm text-center mb-8">
+      <main className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16">
+            <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Sign in</h1>
+            <p className="text-zinc-400 text-base text-center mb-8">
               Use your email and password to sign in.
             </p>
 

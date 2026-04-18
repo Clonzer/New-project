@@ -52,8 +52,7 @@ export default function ExploreAll() {
         setIsLoading(false);
       }
     }
-    // Temporarily disabled to isolate error
-    // fetchSellers();
+    fetchSellers();
   }, []);
 
   useEffect(() => {
@@ -74,8 +73,7 @@ export default function ExploreAll() {
         setLoadingListings(false);
       }
     }
-    // Temporarily disabled to isolate error
-    // fetchListings();
+    fetchListings();
   }, []);
 
   const filteredSellers = sellers.filter((s) => {
