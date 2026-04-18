@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SellerCard } from "@/components/shared/SellerCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Store, Package, Grid3x3 } from "lucide-react";
@@ -134,9 +135,7 @@ export default function ExploreAll() {
                   ) : filteredSellers.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                       {filteredSellers.slice(0, 6).map((seller) => (
-                        <div key={seller.id} className="bg-zinc-900/50 border border-zinc-700 rounded-lg p-6">
-                          <p className="text-white">{seller.store_name || seller.display_name || 'Unknown Shop'}</p>
-                        </div>
+                        <SellerCard key={seller.id} seller={seller} />
                       ))}
                     </div>
                   ) : (
@@ -186,9 +185,7 @@ export default function ExploreAll() {
               ) : filteredSellers.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {filteredSellers.map((seller) => (
-                    <div key={seller.id} className="bg-zinc-900/50 border border-zinc-700 rounded-lg p-6">
-                      <p className="text-white">{seller.store_name || seller.display_name || 'Unknown Shop'}</p>
-                    </div>
+                    <SellerCard key={seller.id} seller={seller} />
                   ))}
                 </div>
               ) : (
