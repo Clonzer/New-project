@@ -34,10 +34,10 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-card overflow-hidden">
                   {seller.avatarUrl ? (
-                    <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
+                    <img src={seller.avatarUrl} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-lg font-bold font-display text-white">
-                      {seller.displayName.charAt(0).toUpperCase()}
+                      {(seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
