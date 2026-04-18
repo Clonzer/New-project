@@ -15,6 +15,45 @@ const supabase = createClient(
   (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
 );
 
+// Transform seller data from snake_case (database) to camelCase (components)
+function transformSeller(seller: any) {
+  return {
+    ...seller,
+    displayName: seller.display_name || seller.displayName,
+    shopName: seller.store_name || seller.shopName,
+    avatarUrl: seller.avatar_url || seller.avatarUrl,
+    location: seller.location,
+    rating: seller.rating,
+    reviewCount: seller.review_count || seller.reviewCount || 0,
+    sellerTags: seller.seller_tags || seller.sellerTags || [],
+    printerCount: seller.printer_count || seller.printerCount || 0,
+    totalPrints: seller.total_prints || seller.totalPrints || 0,
+    shopMode: seller.shop_mode || seller.shopMode,
+    bio: seller.bio,
+  };
+}
+
+// Transform listing data from snake_case (database) to camelCase (components)
+function transformListing(listing: any) {
+  return {
+    ...listing,
+    imageUrl: listing.image_url || listing.imageUrl,
+    title: listing.title,
+    description: listing.description,
+    category: listing.category,
+    basePrice: listing.base_price || listing.basePrice || 0,
+    shippingCost: listing.shipping_cost || listing.shippingCost || 0,
+    listingType: listing.listing_type || listing.listingType,
+    sellerId: listing.seller_id || listing.sellerId,
+    sellerName: listing.seller_name || listing.sellerName,
+    estimatedDaysMin: listing.estimated_days_min || listing.estimatedDaysMin || 1,
+    estimatedDaysMax: listing.estimated_days_max || listing.estimatedDaysMax || 7,
+    tags: listing.tags || [],
+    stockQuantity: listing.stock_quantity || listing.stockQuantity,
+    trackStock: listing.track_stock || listing.trackStock,
+  };
+}
+
 export default function ExploreAll() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,7 +72,7 @@ export default function ExploreAll() {
           .select('*')
           .limit(50);
         if (data && !error) {
-          setSellers(data);
+          setSellers(data.map(transformSeller));
         }
       } catch (err) {
         console.error('Error fetching sellers:', err);
@@ -54,7 +93,7 @@ export default function ExploreAll() {
           .select('*')
           .limit(12);
         if (data && !error) {
-          setListings(data);
+          setListings(data.map(transformListing));
         }
       } catch (err) {
         console.error('Error fetching listings:', err);
@@ -69,8 +108,8 @@ export default function ExploreAll() {
   const filteredSellers = sellers.filter((s) => {
     const q = (searchTerm || '').toLowerCase();
     const matchesSearch =
-      (s.display_name || '').toLowerCase().includes(q) ||
-      (s.store_name || '').toLowerCase().includes(q);
+      (s.displayName || '').toLowerCase().includes(q) ||
+      (s.shopName || '').toLowerCase().includes(q);
     return matchesSearch;
   });
 
