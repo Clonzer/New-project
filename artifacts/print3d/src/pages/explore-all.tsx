@@ -20,16 +20,16 @@ function transformSeller(seller: any) {
   console.log('Raw seller data:', seller);
   const transformed = {
     ...seller,
-    displayName: seller.display_name || seller.displayName,
+    displayName: seller.store_name || seller.display_name || seller.displayName,
     shopName: seller.store_name || seller.shopName,
     avatarUrl: seller.avatar_url || seller.avatarUrl,
     location: seller.location,
-    rating: seller.rating,
+    rating: seller.rating || 0,
     reviewCount: seller.review_count || seller.reviewCount || 0,
     sellerTags: seller.seller_tags || seller.sellerTags || [],
     printerCount: seller.printer_count || seller.printerCount || 0,
     totalPrints: seller.total_prints || seller.totalPrints || 0,
-    shopMode: seller.shop_mode || seller.shopMode,
+    shopMode: seller.shop_mode || seller.shopMode || 'both',
     bio: seller.bio,
   };
   console.log('Transformed seller data:', transformed);
@@ -41,11 +41,11 @@ function transformListing(listing: any) {
   console.log('Raw listing data:', listing);
   const transformed = {
     ...listing,
-    imageUrl: listing.image_url || listing.imageUrl,
+    imageUrl: listing.images?.[0] || listing.image_url || listing.imageUrl,
     title: listing.title,
     description: listing.description,
     category: listing.category,
-    basePrice: listing.base_price || listing.basePrice || 0,
+    basePrice: listing.price || listing.base_price || listing.basePrice || 0,
     shippingCost: listing.shipping_cost || listing.shippingCost || 0,
     listingType: listing.listing_type || listing.listingType,
     sellerId: listing.seller_id || listing.sellerId,
@@ -53,8 +53,8 @@ function transformListing(listing: any) {
     estimatedDaysMin: listing.estimated_days_min || listing.estimatedDaysMin || 1,
     estimatedDaysMax: listing.estimated_days_max || listing.estimatedDaysMax || 7,
     tags: listing.tags || [],
-    stockQuantity: listing.stock_quantity || listing.stockQuantity,
-    trackStock: listing.track_stock || listing.trackStock,
+    stockQuantity: listing.stock_quantity !== undefined ? listing.stock_quantity : listing.stock,
+    trackStock: listing.track_stock !== undefined ? listing.track_stock : listing.track_stock,
   };
   console.log('Transformed listing data:', transformed);
   return transformed;
