@@ -33,8 +33,8 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-card overflow-hidden">
-                  {seller.avatarUrl ? (
-                    <img src={seller.avatarUrl} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
+                  {seller.avatarUrl || seller.avatar_url ? (
+                    <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-lg font-bold font-display text-white">
                       {(seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
@@ -44,7 +44,7 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               </div>
               <div>
                 <h3 className="font-display font-bold text-lg text-white group-hover:text-accent transition-colors">
-                  {seller.shopName || seller.displayName}
+                  {seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'Unknown Shop'}
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
                   <MapPin className="w-3 h-3" />
@@ -72,9 +72,9 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
             {seller.bio || "Fabrication, additive, and custom work — see shop for details."}
           </p>
 
-          {seller.sellerTags?.length ? (
+          {(seller.sellerTags || seller.seller_tags)?.length ? (
             <div className="mb-4 flex flex-wrap gap-1.5">
-              {seller.sellerTags.slice(0, 3).map((tag) => (
+              {(seller.sellerTags || seller.seller_tags).slice(0, 3).map((tag: string) => (
                 <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
                   {tag}
                 </span>
@@ -88,7 +88,7 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
                 <Printer className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-bold text-white">{seller.printerCount}</p>
+                <p className="font-bold text-white">{seller.printerCount || seller.printer_count || 0}</p>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Equipment</p>
               </div>
             </div>
@@ -97,17 +97,17 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
                 <Package className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-bold text-white">{seller.totalPrints}</p>
+                <p className="font-bold text-white">{seller.totalPrints || seller.total_prints || 0}</p>
                 <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Orders</p>
               </div>
             </div>
           </div>
           
           <div className="mt-4 flex gap-2">
-            {seller.shopMode === "catalog" || seller.shopMode === "both" ? (
+            {seller.shopMode === "catalog" || seller.shopMode === "both" || seller.shop_mode === "catalog" || seller.shop_mode === "both" ? (
               <Badge variant="outline" className="text-xs bg-transparent border-primary/30 text-primary font-normal">Catalog</Badge>
             ) : null}
-            {seller.shopMode === "open" || seller.shopMode === "both" ? (
+            {seller.shopMode === "custom" || seller.shopMode === "both" || seller.shop_mode === "custom" || seller.shop_mode === "both" ? (
               <Badge variant="outline" className="text-xs bg-transparent border-accent/30 text-accent font-normal">Custom Jobs</Badge>
             ) : null}
           </div>
@@ -123,13 +123,13 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
               onClick={() => {
                 const added = toggleComparedShop({
                   id: seller.id,
-                  displayName: seller.displayName,
-                  shopName: seller.shopName ?? null,
+                  displayName: seller.displayName || seller.display_name,
+                  shopName: (seller.shopName || seller.store_name) ?? null,
                   location: seller.location ?? null,
                   rating: seller.rating ?? null,
-                  reviewCount: seller.reviewCount,
-                  shopMode: seller.shopMode ?? null,
-                  totalPrints: seller.totalPrints,
+                  reviewCount: seller.reviewCount || seller.review_count || 0,
+                  shopMode: (seller.shopMode || seller.shop_mode) ?? null,
+                  totalPrints: seller.totalPrints || seller.total_prints || 0,
                 });
                 toast({
                   title: added ? "Shop added to compare" : "Shop removed from compare",
