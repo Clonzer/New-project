@@ -70,11 +70,12 @@ const TAGS = [
 ];
 
 interface UploadedFile {
-  filename: string;
-  originalName: string;
+  type: "image" | "video";
   url: string;
-  size: number;
-  mimetype: string;
+  file?: File;
+  originalName?: string;
+  size?: number;
+  mimetype?: string;
 }
 
 interface ListingFormData {
@@ -98,6 +99,7 @@ interface ListingFormData {
   // Stock & Production
   stockType: string;
   isPrintOnDemand: boolean;
+  mediaFiles: UploadedFile[];
   isDigitalProduct: boolean;
 
   // Equipment
@@ -131,7 +133,8 @@ const initialFormData: ListingFormData = {
   equipmentUsed: [],
   equipmentGroups: [],
   digitalFiles: [] as UploadedFile[],
-  mediaFiles: [] as { type: 'image' | 'video'; url: string; file?: File }[],
+  mediaFiles: [] as UploadedFile[],
+  imageUrl: "",
 };
 
 export default function CreateListing() {
@@ -144,6 +147,7 @@ export default function CreateListing() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const createListingMutation = useCreateListing();
 
@@ -356,9 +360,23 @@ export default function CreateListing() {
       });
       localStorage.setItem('dashboardTab', 'listings');
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create listing:", error);
+      const errorCode = generateListingErrorCode(error);
+      setSubmitError(errorCode);
     }
+  };
+
+  const generateListingErrorCode = (error: any): string => {
+    const errorStr = `${error?.message || 'unknown'}-${error?.code || 'unknown'}`;
+    let hash = 0;
+    for (let i = 0; i < errorStr.length; i++) {
+      const char = errorStr.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const hexCode = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0').slice(-8);
+    return `LIST-${hexCode}`;
   };
 
   const renderStepIndicator = () => (
@@ -1125,13 +1143,22 @@ export default function CreateListing() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </NeonButton>
             ) : (
-              <NeonButton
-                onClick={handleSubmit}
-                glowColor="primary"
-                disabled={createListingMutation.isPending}
-              >
-                {createListingMutation.isPending ? "Creating..." : "Create Listing"}
-              </NeonButton>
+              <>
+                <NeonButton
+                  onClick={handleSubmit}
+                  glowColor="primary"
+                  disabled={createListingMutation.isPending}
+                >
+                  {createListingMutation.isPending ? "Creating..." : "Create Listing"}
+                </NeonButton>
+                {submitError && (
+                  <div className="mt-4 rounded-lg border border-red-400/20 bg-red-400/10 p-4 text-center">
+                    <p className="text-xs text-red-200 mb-1">Listing creation failed</p>
+                    <p className="text-sm font-mono text-red-400 font-semibold">{submitError}</p>
+                    <p className="text-xs text-red-200 mt-2">Copy this code and check the FAQ for troubleshooting steps</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
