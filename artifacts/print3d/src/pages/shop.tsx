@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { useGetUser, useListListings, useListPrinters, useListReviews } from "@/lib/workspace-stub";
+import { useListListings, useListPrinters, useListReviews } from "@/lib/workspace-stub";
+import { createClient } from "@supabase/supabase-js";
 import {
   Calendar,
   GitCompareArrows,
@@ -17,6 +18,11 @@ import {
   Mail,
   X as TwitterX,
 } from "lucide-react";
+
+const supabase = createClient(
+  (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
+  (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
+);
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/shared/ListingCard";
@@ -35,12 +41,60 @@ export default function Shop() {
   const shopId = params.id || "0";
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(false);
+  const [seller, setSeller] = useState<any>(null);
+  const [loadingSeller, setLoadingSeller] = useState(true);
 
-  const { data: user, isLoading: loadingUser } = useGetUser(shopId);
-  const { data: printersData } = useListPrinters({ userId: shopId });
+  const { data: printersData } = useListPrinters({ sellerId: shopId });
   const { data: listingsData } = useListListings({ sellerId: shopId });
   const { data: reviewsData } = useListReviews({ revieweeId: shopId });
   const priceInsights = listingsData?.listings ? buildListingPriceInsights(listingsData.listings) : new Map();
+
+  useEffect(() => {
+    async function fetchSeller() {
+      try {
+        setLoadingSeller(true);
+        const { data, error } = await supabase
+          .from('sellers')
+          .select('*')
+          .eq('id', shopId)
+          .single();
+        if (data && !error) {
+          // Transform seller data to match expected format
+          setSeller({
+            ...data,
+            displayName: data.store_name || data.display_name,
+            shopName: data.store_name,
+            avatarUrl: data.avatar_url,
+            bannerUrl: data.hero_image_url,
+            location: data.location,
+            rating: data.rating || 0,
+            reviewCount: data.review_count || 0,
+            sellerTags: data.seller_tags || [],
+            totalPrints: data.total_prints || 0,
+            shopMode: data.shop_mode || 'both',
+            bio: data.bio,
+            joinedAt: data.created_at,
+            emailVerifiedAt: data.is_verified ? data.created_at : null,
+            shopAnnouncement: null,
+            brandStory: null,
+            portfolio: [],
+            websiteUrl: null,
+            instagramHandle: null,
+            supportEmail: null,
+            tiktokHandle: null,
+            xHandle: null,
+            planTier: null,
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching seller:', err);
+        setSeller(null);
+      } finally {
+        setLoadingSeller(false);
+      }
+    }
+    fetchSeller();
+  }, [shopId]);
 
   useEffect(() => {
     const sync = () => setIsCompared(isComparedShop(shopId));
@@ -53,7 +107,7 @@ export default function Shop() {
     };
   }, [shopId]);
 
-  if (loadingUser) {
+  if (loadingSeller) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -64,7 +118,7 @@ export default function Shop() {
     );
   }
 
-  if (!user) {
+  if (!seller) {
     return <div className="min-h-screen flex items-center justify-center text-white">Shop not found.</div>;
   }
 
@@ -80,74 +134,74 @@ export default function Shop() {
             <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
                 <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-background">
-                  {user.avatarUrl ? (
-                    <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
+                  {seller.avatarUrl ? (
+                    <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-white">
-                      {user.displayName.charAt(0)}
+                      {seller.displayName.charAt(0)}
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="flex-grow">
-                {user.bannerUrl ? (
+                {seller.bannerUrl ? (
                   <div className="mb-5 overflow-hidden rounded-[1.5rem] border border-white/10">
                     <img
-                      src={user.bannerUrl}
-                      alt={`${user.shopName || user.displayName} banner`}
+                      src={seller.bannerUrl}
+                      alt={`${seller.shopName || seller.displayName} banner`}
                       className="h-40 w-full object-cover"
                     />
                   </div>
                 ) : null}
 
                 <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                  {user.shopName || user.displayName}
+                  {seller.shopName || seller.displayName}
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
-                  {user.location ? (
+                  {seller.location ? (
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-primary" /> {user.location}
+                      <MapPin className="w-4 h-4 text-primary" /> {seller.location}
                     </span>
                   ) : null}
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(user.joinedAt), "MMM yyyy")}
+                    <Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(seller.joinedAt), "MMM yyyy")}
                   </span>
                   <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
-                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {user.rating?.toFixed(1) || "New"} ({user.reviewCount})
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {seller.rating?.toFixed(1) || "New"} ({seller.reviewCount})
                   </span>
-                  {user.emailVerifiedAt ? (
+                  {seller.emailVerifiedAt ? (
                     <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
                       Verified maker
                     </span>
                   ) : null}
-                  {user.planTier === "enterprise" ? (
+                  {seller.planTier === "enterprise" ? (
                     <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
                       Enterprise
                     </span>
                   ) : null}
                 </div>
 
-                {user.shopAnnouncement ? (
+                {seller.shopAnnouncement ? (
                   <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-white">
-                    {user.shopAnnouncement}
+                    {seller.shopAnnouncement}
                   </div>
                 ) : null}
 
                 <p className="text-zinc-300 max-w-2xl text-lg leading-relaxed">
-                  {user.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
+                  {seller.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
                 </p>
 
-                {user.brandStory ? (
+                {seller.brandStory ? (
                   <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400">
-                    {user.brandStory}
+                    {seller.brandStory}
                   </p>
                 ) : null}
 
-                {user.sellerTags?.length ? (
+                {seller.sellerTags?.length ? (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {user.sellerTags.map((tag) => (
+                    {seller.sellerTags.map((tag) => (
                       <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200">
                         {tag}
                       </span>
@@ -157,7 +211,7 @@ export default function Shop() {
 
                 {/* Seller Badges */}
                 <div className="mt-6 flex flex-wrap gap-3">
-                  {user.reviewCount >= 3 && (
+                  {seller.reviewCount >= 3 && (
                     <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span className="text-sm font-medium text-emerald-400">Trusted Seller</span>
@@ -179,9 +233,9 @@ export default function Shop() {
 
                 {/* Social Media Links */}
                 <div className="mt-6 flex flex-wrap gap-3">
-                  {user.websiteUrl && (
+                  {seller.websiteUrl && (
                     <a
-                      href={user.websiteUrl}
+                      href={seller.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
@@ -190,9 +244,9 @@ export default function Shop() {
                       <span className="text-sm text-zinc-300">Website</span>
                     </a>
                   )}
-                  {user.instagramHandle && (
+                  {seller.instagramHandle && (
                     <a
-                      href={`https://instagram.com/${user.instagramHandle}`}
+                      href={`https://instagram.com/${seller.instagramHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
@@ -201,18 +255,18 @@ export default function Shop() {
                       <span className="text-sm text-zinc-300">Instagram</span>
                     </a>
                   )}
-                  {user.supportEmail && (
+                  {seller.supportEmail && (
                     <a
-                      href={`mailto:${user.supportEmail}`}
+                      href={`mailto:${seller.supportEmail}`}
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
                     >
                       <Mail className="w-4 h-4 text-zinc-400" />
                       <span className="text-sm text-zinc-300">Email</span>
                     </a>
                   )}
-                  {user.tiktokHandle && (
+                  {seller.tiktokHandle && (
                     <a
-                      href={`https://tiktok.com/@${user.tiktokHandle.replace('@', '')}`}
+                      href={`https://tiktok.com/@${seller.tiktokHandle.replace('@', '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
@@ -220,9 +274,9 @@ export default function Shop() {
                       <span className="text-sm text-zinc-300">TikTok</span>
                     </a>
                   )}
-                  {user.xHandle && (
+                  {seller.xHandle && (
                     <a
-                      href={`https://x.com/${user.xHandle.replace('@', '')}`}
+                      href={`https://x.com/${seller.xHandle.replace('@', '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
@@ -240,14 +294,14 @@ export default function Shop() {
                   className="w-full py-6 text-lg rounded-xl glass-panel text-white hover:bg-white/10 border-white/20 mb-3"
                   onClick={() => {
                     const added = toggleComparedShop({
-                      id: user.id,
-                      displayName: user.displayName,
-                      shopName: user.shopName ?? null,
-                      location: user.location ?? null,
-                      rating: user.rating ?? null,
-                      reviewCount: user.reviewCount,
-                      shopMode: user.shopMode ?? null,
-                      totalPrints: user.totalPrints,
+                      id: seller.id,
+                      displayName: seller.displayName,
+                      shopName: seller.shopName ?? null,
+                      location: seller.location ?? null,
+                      rating: seller.rating ?? null,
+                      reviewCount: seller.reviewCount,
+                      shopMode: seller.shopMode ?? null,
+                      totalPrints: seller.totalPrints,
                     });
                     toast({
                       title: added ? "Shop added to compare" : "Shop removed from compare",
@@ -260,8 +314,8 @@ export default function Shop() {
                   <GitCompareArrows className="w-5 h-5 mr-2" />
                   {isCompared ? "Remove from compare" : "Compare shop"}
                 </Button>
-                {user.shopMode === "open" || user.shopMode === "both" ? (
-                  <Link href={`/order/new?sellerId=${user.id}`}>
+                {seller.shopMode === "open" || seller.shopMode === "both" ? (
+                  <Link href={`/order/new?sellerId=${seller.id}`}>
                     <NeonButton className="w-full py-6 text-lg rounded-xl mb-3">Request custom work</NeonButton>
                   </Link>
                 ) : null}
@@ -345,9 +399,9 @@ export default function Shop() {
             </TabsContent>
 
             <TabsContent value="portfolio" className="mt-0">
-              {user.portfolio?.length ? (
+              {seller.portfolio?.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {user.portfolio.map((item) => (
+                  {seller.portfolio.map((item) => (
                     <div key={item.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
                       <img src={item.imageUrl} alt={item.title} className="h-52 w-full object-cover" />
                       <div className="p-5">
