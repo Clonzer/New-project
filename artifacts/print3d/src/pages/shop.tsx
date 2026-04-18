@@ -38,13 +38,13 @@ import { buildListingPriceInsights } from "@/lib/listing-pricing";
 
 export default function Shop() {
   const params = useParams();
-  const shopId = params.id || "0";
+  const shopId = (params as any).id || "0";
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(false);
   const [seller, setSeller] = useState<any>(null);
   const [loadingSeller, setLoadingSeller] = useState(true);
 
-  const { data: printersData } = useListPrinters({ sellerId: shopId });
+  const { data: printersData } = useListPrinters({ userId: shopId });
   const { data: listingsData } = useListListings({ sellerId: shopId });
   const { data: reviewsData } = useListReviews({ revieweeId: shopId });
   const priceInsights = listingsData?.listings ? buildListingPriceInsights(listingsData.listings) : new Map();
@@ -217,7 +217,7 @@ export default function Shop() {
                       <span className="text-sm font-medium text-emerald-400">Trusted Seller</span>
                     </div>
                   )}
-                  {printersData?.printers && printersData.printers.length >= 3 && (
+                  {printersData && printersData.length >= 3 && (
                     <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-3 py-2">
                       <PrinterIcon className="w-4 h-4 text-blue-400" />
                       <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
@@ -352,7 +352,7 @@ export default function Shop() {
 
             <TabsContent value="printers" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {printersData?.printers.map((printer) => (
+                {printersData?.map((printer) => (
                   <div key={printer.id} className="glass-panel p-6 rounded-2xl border border-white/5 flex gap-6">
                     <div className="w-24 h-24 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0">
                       {printer.imageUrl ? (
@@ -392,7 +392,7 @@ export default function Shop() {
                     </div>
                   </div>
                 ))}
-                {printersData?.printers.length === 0 ? (
+                {printersData?.length === 0 ? (
                   <p className="text-zinc-500 col-span-full">No equipment listed publicly.</p>
                 ) : null}
               </div>
