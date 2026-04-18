@@ -63,6 +63,15 @@ export default function ExploreAll() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingListings, setLoadingListings] = useState(false);
 
+  // Handle filter query parameter from URL
+  useEffect(() => {
+    const params = new URLSearchParams(rawSearch);
+    const filter = params.get('filter');
+    if (filter === 'shops' || filter === 'models') {
+      setFilterType(filter);
+    }
+  }, [rawSearch]);
+
   useEffect(() => {
     const fetchSellers = async () => {
       try {

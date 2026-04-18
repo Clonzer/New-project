@@ -91,6 +91,72 @@ export default function Home() {
         {/* Hero Analytics Overlay */}
         <SiteStats />
 
+        {/* Section: Explore All Buttons */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-12"
+            >
+              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+                <Sparkles className="w-3 h-3 mr-1" /> Discover
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Everything</span>
+              </h2>
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+                Browse all shops and models in one place
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Link href="/explore-all?filter=shops">
+                  <Card className="bg-gradient-to-br from-cyan-600/20 to-blue-600/20 border-cyan-500/30 hover:border-cyan-400/50 hover:from-cyan-600/30 hover:to-blue-600/30 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                    <CardContent className="p-8 text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <Users className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-3">Explore All Shops</h3>
+                      <p className="text-zinc-300 mb-6">Discover verified makers and their equipment</p>
+                      <Button className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold py-6 rounded-xl group-hover:shadow-lg group-hover:shadow-cyan-500/25 transition-all">
+                        Browse Shops <ChevronRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Link href="/explore-all?filter=models">
+                  <Card className="bg-gradient-to-br from-emerald-600/20 to-green-600/20 border-emerald-500/30 hover:border-emerald-400/50 hover:from-emerald-600/30 hover:to-green-600/30 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                    <CardContent className="p-8 text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <Package className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-3">Explore All Models</h3>
+                      <p className="text-zinc-300 mb-6">Find ready-to-ship products and custom listings</p>
+                      <Button className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-6 rounded-xl group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all">
+                        Browse Models <ChevronRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Section 2: Features */}
         <section className="py-24">
           <div className="container mx-auto px-4">
