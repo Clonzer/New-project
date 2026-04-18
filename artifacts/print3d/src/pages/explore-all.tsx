@@ -25,8 +25,8 @@ export default function ExploreAll() {
   const [filterType, setFilterType] = useState<"all" | "shops" | "models">("all");
   const [sellers, setSellers] = useState<any[]>([]);
   const [listings, setListings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadingListings, setLoadingListings] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingListings, setLoadingListings] = useState(false);
 
   useEffect(() => {
     const qs = rawSearch.startsWith("?") ? rawSearch.slice(1) : rawSearch;
