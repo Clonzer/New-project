@@ -52,7 +52,8 @@ export default function ExploreAll() {
         setIsLoading(false);
       }
     }
-    fetchSellers();
+    // Temporarily disabled to isolate error
+    // fetchSellers();
   }, []);
 
   useEffect(() => {
@@ -73,22 +74,23 @@ export default function ExploreAll() {
         setLoadingListings(false);
       }
     }
-    fetchListings();
+    // Temporarily disabled to isolate error
+    // fetchListings();
   }, []);
 
   const filteredSellers = sellers.filter((s) => {
-    const q = searchTerm.toLowerCase();
+    const q = (searchTerm || '').toLowerCase();
     const matchesSearch =
-      s.display_name?.toLowerCase().includes(q) ||
-      s.store_name?.toLowerCase().includes(q);
+      (s.display_name || '').toLowerCase().includes(q) ||
+      (s.store_name || '').toLowerCase().includes(q);
     return matchesSearch;
   });
 
   const filteredListings = listings.filter((l) => {
-    const q = searchTerm.toLowerCase();
+    const q = (searchTerm || '').toLowerCase();
     return (
-      l.title?.toLowerCase().includes(q) ||
-      l.description?.toLowerCase().includes(q)
+      (l.title || '').toLowerCase().includes(q) ||
+      (l.description || '').toLowerCase().includes(q)
     );
   });
 
