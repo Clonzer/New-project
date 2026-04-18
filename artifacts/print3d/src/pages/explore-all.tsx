@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SellerCard } from "@/components/shared/SellerCard";
+import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Store, Package, Grid3x3 } from "lucide-react";
@@ -160,9 +161,7 @@ export default function ExploreAll() {
                   ) : filteredListings.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                       {filteredListings.slice(0, 8).map((listing) => (
-                        <div key={listing.id} className="bg-zinc-900/50 border border-zinc-700 rounded-lg p-6">
-                          <p className="text-white">{listing.title || 'Unknown Listing'}</p>
-                        </div>
+                        <ListingCard key={listing.id} listing={listing} />
                       ))}
                     </div>
                   ) : (
@@ -206,9 +205,7 @@ export default function ExploreAll() {
               ) : filteredListings.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   {filteredListings.map((listing) => (
-                    <div key={listing.id} className="bg-zinc-900/50 border border-zinc-700 rounded-lg p-6">
-                      <p className="text-white">{listing.title || 'Unknown Listing'}</p>
-                    </div>
+                    <ListingCard key={listing.id} listing={listing} />
                   ))}
                 </div>
               ) : (
