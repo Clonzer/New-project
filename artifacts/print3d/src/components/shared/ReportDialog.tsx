@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ReportDialogProps {
   itemType: "message" | "listing" | "profile";
@@ -20,6 +22,7 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleSubmit = async () => {
     if (!reason) {
@@ -31,12 +34,31 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You must be signed in to submit a report.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // TODO: Implement actual report submission to backend
-      // For now, just show success message
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const { error } = await supabase.from('reports').insert({
+        reporter_id: user.id,
+        item_type: itemType,
+        item_id: itemId,
+        reason: reason,
+        additional_info: additionalInfo || null,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        throw error;
+      }
 
       toast({
         title: "Report submitted",
@@ -47,9 +69,10 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
       setReason("");
       setAdditionalInfo("");
     } catch (error) {
+      console.error('Report submission error:', error);
       toast({
         title: "Failed to submit report",
-        description: "Please try again later or contact support directly.",
+        description: error instanceof Error ? error.message : "Please try again later or contact support directly.",
         variant: "destructive",
       });
     } finally {
