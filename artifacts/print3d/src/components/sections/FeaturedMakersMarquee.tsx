@@ -210,7 +210,7 @@ export function FeaturedMakersMarquee() {
                   alt={selectedMaker.username}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/70 to-black" />
+                <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 via-zinc-900/70 to-zinc-900" />
               </div>
 
               {/* Content */}

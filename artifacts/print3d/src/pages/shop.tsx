@@ -231,6 +231,30 @@ export default function Shop() {
                   )}
                 </div>
 
+                {/* Equipment Display */}
+                {printersData && printersData.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-zinc-400 mb-3 uppercase tracking-wide">Equipment</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {printersData.slice(0, 4).map((printer) => (
+                        <div key={printer.id} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                          {printer.equipment_category === "printing_3d" ? (
+                            <PrinterIcon className="w-4 h-4 text-primary" />
+                          ) : (
+                            <Hammer className="w-4 h-4 text-accent" />
+                          )}
+                          <span className="text-xs text-zinc-300">{printer.name}</span>
+                        </div>
+                      ))}
+                      {printersData.length > 4 && (
+                        <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                          <span className="text-xs text-zinc-400">+{printersData.length - 4} more</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Social Media Links */}
                 <div className="mt-6 flex flex-wrap gap-3">
                   {seller.websiteUrl && (

@@ -47,7 +47,7 @@ function ShopPreview({ form }: { form: any }) {
             : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' 
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent rounded-2xl" />
         <div className="absolute bottom-4 left-4 right-4">
           <h2 className="text-2xl font-bold text-white">
             {form.shopName || "Your Shop Name"}

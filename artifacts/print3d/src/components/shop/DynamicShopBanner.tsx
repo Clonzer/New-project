@@ -134,7 +134,7 @@ export function DynamicShopBanner({ userId, shopName, className = "" }: DynamicS
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-gradient-to-r from-zinc-800/50 to-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-700 p-6 ${className}`}
+      className={`bg-gradient-to-r from-zinc-600/50 to-zinc-700/50 backdrop-blur-sm rounded-xl border border-zinc-600 p-6 ${className}`}
     >
       <div className="flex items-start justify-between mb-4">
         <div>

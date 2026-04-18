@@ -26,13 +26,13 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
   return (
     <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-zinc-600/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(107,114,128,0.15)] relative overflow-hidden">
         {/* Glow effect behind */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-zinc-900/0 via-zinc-800/0 to-zinc-900/0 group-hover:from-zinc-900/20 group-hover:via-zinc-800/20 group-hover:to-zinc-900/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 overflow-hidden">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">
                   {seller.avatarUrl || seller.avatar_url ? (
                     <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
                   ) : (

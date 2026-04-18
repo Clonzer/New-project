@@ -20,7 +20,7 @@ export function Overview({ user, mySales, averageOrderValue, activeEquipmentCoun
               { label: "Catalog listings", value: totalCatalogItems },
               { label: "Open sales pipeline", value: mySales?.orders.filter((order) => order.status !== "delivered" && order.status !== "cancelled").length ?? 0 },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-gradient-to-br from-black/30 to-black/20 p-4 hover:border-primary/30 transition-all duration-300">
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-800/30 to-zinc-900/20 p-4 hover:border-primary/30 transition-all duration-300">
                 <p className="text-xs uppercase tracking-wider text-zinc-500">{item.label}</p>
                 <p className="mt-2 text-2xl font-display font-bold text-white">{item.value}</p>
               </div>
