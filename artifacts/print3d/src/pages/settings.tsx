@@ -540,6 +540,7 @@ export default function Settings() {
                         >
                           Join Now
                         </Button>
+                      </div>
                     ) : (
                       <>
                         <div>
