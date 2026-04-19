@@ -1089,46 +1089,46 @@ export default function Dashboard() {
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 flex flex-wrap h-auto w-full gap-2">
               {isSellerUser && (
-                <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Overview
                 </TabsTrigger>
               )}
               {user.isOwner ? (
-                <TabsTrigger value="admin" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                <TabsTrigger value="admin" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <Settings className="w-4 h-4 mr-2" />
                   Admin
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+              <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                 <Package className="w-4 h-4 mr-2" />
                 My Orders
               </TabsTrigger>
               {isSellerUser && (
-                <TabsTrigger value="reviews" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                <TabsTrigger value="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   My Reviews
                 </TabsTrigger>
               )}
               {isSellerUser && (
                 <>
-                  <TabsTrigger value="sales" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TabsTrigger value="sales" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <DollarSign className="w-4 h-4 mr-2" />
                     Manage Sales
                   </TabsTrigger>
-                  <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Store className="w-4 h-4 mr-2" />
                     My Listings
                   </TabsTrigger>
-                  <TabsTrigger value="printers" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TabsTrigger value="printers" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <PrinterIcon className="w-4 h-4 mr-2" />
                     My Equipment
                   </TabsTrigger>
-                  <TabsTrigger value="shipping" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TabsTrigger value="shipping" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Truck className="w-4 h-4 mr-2" />
                     Shipping Profiles
                   </TabsTrigger>
-                  <TabsTrigger value="analytics" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TabsTrigger value="analytics" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(139,92,246,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>

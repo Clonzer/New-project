@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { useListListings, useListPrinters, useListReviews } from "@/lib/workspace-stub";
+import { useListListings, useListPrinters, useListReviews, useCreateReview } from "@/lib/workspace-stub";
 import { createClient } from "@supabase/supabase-js";
 import {
   Calendar,
@@ -18,7 +18,12 @@ import {
   Mail,
   X as TwitterX,
   Music,
+  PenLine,
+  X,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
 
 const supabase = createClient(
   (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
@@ -41,9 +46,14 @@ export default function Shop() {
   const params = useParams();
   const shopId = (params as any).id || "0";
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isCompared, setIsCompared] = useState(false);
   const [seller, setSeller] = useState<any>(null);
   const [loadingSeller, setLoadingSeller] = useState(true);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const createReview = useCreateReview();
 
   const { data: printersData } = useListPrinters({ userId: shopId });
   const { data: listingsData } = useListListings({ sellerId: shopId });
@@ -457,6 +467,14 @@ export default function Shop() {
 
             <TabsContent value="reviews" className="mt-0">
               <div className="space-y-4">
+                {user && user.id !== shopId && (
+                  <div className="flex justify-end mb-4">
+                    <NeonButton glowColor="accent" onClick={() => setReviewDialogOpen(true)}>
+                      <PenLine className="w-4 h-4" />
+                      Write a Review
+                    </NeonButton>
+                  </div>
+                )}
                 {reviewsData?.reviews.map((review) => (
                   <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
                     <div className="flex justify-between items-start mb-4">
@@ -490,6 +508,81 @@ export default function Shop() {
           </Tabs>
         </div>
       </main>
+
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Write a Review</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Share your experience with {seller?.shopName || "this seller"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex justify-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setReviewRating(star)}
+                  className="p-1 hover:scale-110 transition-transform"
+                >
+                  <Star
+                    className={`w-8 h-8 ${
+                      star <= reviewRating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-zinc-600"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <Textarea
+              placeholder="Share your experience with this seller..."
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              className="bg-black/30 border-white/10 text-white min-h-[100px]"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setReviewDialogOpen(false)}
+                className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <NeonButton
+                glowColor="accent"
+                onClick={async () => {
+                  if (!user) return;
+                  try {
+                    await createReview.mutateAsync({
+                      revieweeId: shopId,
+                      rating: reviewRating,
+                      comment: reviewComment,
+                    });
+                    toast({
+                      title: "Review submitted",
+                      description: "Thank you for your feedback!",
+                    });
+                    setReviewDialogOpen(false);
+                    setReviewRating(5);
+                    setReviewComment("");
+                  } catch (error) {
+                    toast({
+                      title: "Failed to submit review",
+                      description: "Please try again later.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                disabled={createReview.isPending || !reviewComment.trim()}
+              >
+                {createReview.isPending ? "Submitting..." : "Submit Review"}
+              </NeonButton>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

@@ -96,7 +96,7 @@ export function Navbar() {
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
                     isActive("/explore-all") || isActive("/explore") || isActive("/listings")
-                      ? "text-white border border-primary/50 bg-primary/20"
+                      ? "text-white border border-primary bg-primary/30 shadow-[0_0_15px_rgba(139,92,246,0.4)] ring-2 ring-primary/30"
                       : "text-muted-foreground hover:text-white"
                   }`}
                 >
@@ -132,16 +132,11 @@ export function Navbar() {
                 key={route.path}
                 href={route.path}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative ${
-                  isActive(route.path) ? "text-white" : "text-muted-foreground hover:text-white"
+                  isActive(route.path)
+                    ? "text-white bg-primary/30 border border-primary shadow-[0_0_15px_rgba(139,92,246,0.4)] ring-2 ring-primary/30"
+                    : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
               >
-                {isActive(route.path) && (
-                  <motion.div
-                    layoutId="navbar-active"
-                    className="absolute inset-0 bg-white/10 rounded-full z-[-1]"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
                 {route.label}
               </Link>
             ))}

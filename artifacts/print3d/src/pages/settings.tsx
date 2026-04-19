@@ -308,10 +308,10 @@ export default function Settings() {
                     <button
                       key={section.id}
                       onClick={() => setActiveSection(section.id)}
-                      className={`w-full flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors ${
+                      className={`w-full flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-all duration-200 ${
                         activeSection === section.id
-                          ? "bg-primary/20 text-primary border-l-2 border-primary"
-                          : "text-zinc-400 hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                          ? "bg-gradient-to-r from-primary/30 to-primary/10 text-white border-l-4 border-primary shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                          : "text-zinc-400 hover:text-white hover:bg-white/5 border-l-4 border-transparent"
                       } ${index !== 0 ? "border-t border-white/5" : ""}`}
                     >
                       <span className="flex items-center gap-2.5">
