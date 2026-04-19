@@ -61,27 +61,6 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
         throw error;
       }
 
-      // Send email notification to admin (using Supabase Edge Function)
-      try {
-        await fetch('/api/notify-admin-report', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            itemType,
-            itemId,
-            itemName,
-            reason,
-            additionalInfo,
-            reporterEmail: user.email,
-          }),
-        });
-      } catch (emailError) {
-        console.error('Failed to send admin notification:', emailError);
-        // Don't fail the report submission if email fails
-      }
-
       toast({
         title: "Report submitted",
         description: "Thank you for your report. We'll review it and take appropriate action.",
