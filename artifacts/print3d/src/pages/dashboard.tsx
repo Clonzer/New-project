@@ -997,24 +997,51 @@ export default function Dashboard() {
           )}
 
           <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8 flex flex-wrap h-auto w-fit gap-1">
+            <TabsList className="bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 flex flex-wrap h-auto w-full gap-2">
               {isSellerUser && (
-                <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Overview</TabsTrigger>
+                <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Overview
+                </TabsTrigger>
               )}
               {user.isOwner ? (
-                <TabsTrigger value="admin" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Admin</TabsTrigger>
+                <TabsTrigger value="admin" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin
+                </TabsTrigger>
               ) : null}
-              <TabsTrigger value="purchases" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Orders</TabsTrigger>
+              <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                <Package className="w-4 h-4 mr-2" />
+                My Orders
+              </TabsTrigger>
               {isSellerUser && (
-                <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Reviews</TabsTrigger>
+                <TabsTrigger value="reviews" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  My Reviews
+                </TabsTrigger>
               )}
               {isSellerUser && (
                 <>
-                  <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Manage Sales</TabsTrigger>
-                  <TabsTrigger value="listings" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Listings</TabsTrigger>
-                  <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">My Equipment</TabsTrigger>
-                  <TabsTrigger value="shipping" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Shipping Profiles</TabsTrigger>
-                  <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white px-5">Analytics</TabsTrigger>
+                  <TabsTrigger value="sales" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Manage Sales
+                  </TabsTrigger>
+                  <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                    <Store className="w-4 h-4 mr-2" />
+                    My Listings
+                  </TabsTrigger>
+                  <TabsTrigger value="printers" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                    <PrinterIcon className="w-4 h-4 mr-2" />
+                    My Equipment
+                  </TabsTrigger>
+                  <TabsTrigger value="shipping" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                    <Truck className="w-4 h-4 mr-2" />
+                    Shipping Profiles
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/50 px-6 py-3 font-semibold text-sm transition-all">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Analytics
+                  </TabsTrigger>
                 </>
               )}
             </TabsList>
