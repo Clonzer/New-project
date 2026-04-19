@@ -172,6 +172,12 @@ export default function CreateListing() {
 
   const updateFormData = (field: keyof ListingFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Auto-set isDigitalProduct when stockType changes
+    if (field === "stockType" && value === "digital") {
+      setFormData(prev => ({ ...prev, isDigitalProduct: true }));
+    } else if (field === "stockType" && value !== "digital") {
+      setFormData(prev => ({ ...prev, isDigitalProduct: false }));
+    }
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
@@ -226,14 +232,17 @@ export default function CreateListing() {
         }
         break;
       case 3:
-        if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
-          newErrors.estimatedDaysMin = "Minimum days is required";
-        }
-        if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < 1) {
-          newErrors.estimatedDaysMax = "Maximum days is required";
-        }
-        if (formData.estimatedDaysMin && formData.estimatedDaysMax && parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin)) {
-          newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
+        // Skip shipping/production validation for digital products
+        if (!formData.isDigitalProduct) {
+          if (!formData.estimatedDaysMin || parseInt(formData.estimatedDaysMin) < 1) {
+            newErrors.estimatedDaysMin = "Minimum days is required";
+          }
+          if (!formData.estimatedDaysMax || parseInt(formData.estimatedDaysMax) < 1) {
+            newErrors.estimatedDaysMax = "Maximum days is required";
+          }
+          if (formData.estimatedDaysMin && formData.estimatedDaysMax && parseInt(formData.estimatedDaysMax) < parseInt(formData.estimatedDaysMin)) {
+            newErrors.estimatedDaysMax = "Maximum days must be greater than minimum";
+          }
         }
         break;
       case 4:
@@ -344,9 +353,9 @@ export default function CreateListing() {
           title: formData.title,
           description: formData.description,
           basePrice: parseFloat(formData.basePrice),
-          shippingCost: formData.shippingProfileId ? 0 : null,
-          estimatedDaysMin: parseInt(formData.estimatedDaysMin),
-          estimatedDaysMax: parseInt(formData.estimatedDaysMax),
+          shippingCost: formData.isDigitalProduct ? null : (formData.shippingProfileId ? 0 : null),
+          estimatedDaysMin: formData.isDigitalProduct ? null : parseInt(formData.estimatedDaysMin),
+          estimatedDaysMax: formData.isDigitalProduct ? null : parseInt(formData.estimatedDaysMax),
           material: formData.material,
           category: formData.category,
           tags: formData.tags,
@@ -685,6 +694,15 @@ export default function CreateListing() {
       case 3:
         return (
           <div className="space-y-6">
+            {formData.isDigitalProduct ? (
+              <div className="text-center py-12">
+                <Check className="w-16 h-16 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Shipping & Production Skipped</h3>
+                <p className="text-zinc-400 max-w-md mx-auto">
+                  Digital downloads don't require shipping or production time. You can proceed to the next step.
+                </p>
+              </div>
+            ) : (
               <div className="space-y-4">
                 <div>
                   <Label className="text-white flex items-center gap-2">
@@ -780,7 +798,8 @@ export default function CreateListing() {
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+          </div>
         );
 
       case 4:
