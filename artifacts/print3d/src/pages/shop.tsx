@@ -17,6 +17,7 @@ import {
   Instagram,
   Mail,
   X as TwitterX,
+  Music,
 } from "lucide-react";
 
 const supabase = createClient(
@@ -282,6 +283,8 @@ export default function Shop() {
                   {seller.supportEmail && (
                     <a
                       href={`mailto:${seller.supportEmail}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
                     >
                       <Mail className="w-4 h-4 text-zinc-400" />
@@ -290,11 +293,12 @@ export default function Shop() {
                   )}
                   {seller.tiktokHandle && (
                     <a
-                      href={`https://tiktok.com/@${seller.tiktokHandle.replace('@', '')}`}
+                      href={`https://tiktok.com/@${seller.tiktokHandle}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
                     >
+                      <Music className="w-4 h-4 text-zinc-400" />
                       <span className="text-sm text-zinc-300">TikTok</span>
                     </a>
                   )}
