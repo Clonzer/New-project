@@ -191,7 +191,72 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
                     </p>
                   </button>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedBrand("Other")}
+                  className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                >
+                  <p className="text-white font-semibold text-sm">Other / Custom</p>
+                  <p className="text-zinc-500 text-xs mt-1">Add your own brand</p>
+                </button>
               </div>
+            </motion.div>
+          ) : selectedBrand === "Other" ? (
+            <motion.div key="custom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <button type="button" onClick={() => setSelectedBrand(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
+                <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
+              </button>
+              <p className="text-zinc-400 text-sm mb-4">Enter your custom brand details.</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Brand Name *</label>
+                  <Input value={customBrand} onChange={e => setCustomBrand(e.target.value)} placeholder="e.g. Creality, Prusa, Custom" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Model Name *</label>
+                  <Input value={customModel} onChange={e => setCustomModel(e.target.value)} placeholder="e.g. Ender 3, MK3S" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                </div>
+                {is3d && (
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Technology</label>
+                    <Select value={customTech || "FDM"} onValueChange={setCustomTech}>
+                      <SelectTrigger className="bg-black/30 border-white/10 text-white h-11 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black/90 border-white/10">
+                        <SelectItem value="FDM">FDM (Fused Deposition Modeling)</SelectItem>
+                        <SelectItem value="SLA">SLA (Stereolithography)</SelectItem>
+                        <SelectItem value="SLS">SLS (Selective Laser Sintering)</SelectItem>
+                        <SelectItem value="DLP">DLP (Digital Light Processing)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (!customBrand.trim() || !customModel.trim()) {
+                    toast({ title: "Required fields", description: "Brand and model name are required.", variant: "destructive" });
+                    return;
+                  }
+                  setSelected({
+                    id: "custom",
+                    category: equipCategory,
+                    brand: customBrand,
+                    model: customModel,
+                    technology: is3d ? (customTech as any) || "FDM" : undefined,
+                    materials: [],
+                    buildVolume: null,
+                    gradient: "from-zinc-600 to-zinc-800",
+                    isOther: true,
+                    allowsHourlyRate: true,
+                  } as any);
+                }}
+                className="w-full mt-6 bg-primary text-white hover:bg-primary/90 rounded-xl"
+              >
+                Continue
+              </Button>
             </motion.div>
           ) : !selected ? (
             <motion.div key="pick" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -222,6 +287,31 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
                     </span>
                   </button>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomBrand(selectedBrand === "Other" ? customBrand : selectedBrand);
+                    setSelected({
+                      id: "custom",
+                      category: equipCategory,
+                      brand: selectedBrand === "Other" ? customBrand : selectedBrand,
+                      model: "",
+                      technology: is3d ? "FDM" : undefined,
+                      materials: [],
+                      buildVolume: null,
+                      gradient: "from-zinc-600 to-zinc-800",
+                      isOther: true,
+                      allowsHourlyRate: true,
+                    } as any);
+                  }}
+                  className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="text-white font-semibold text-sm leading-tight">Other / Custom</p>
+                  <p className="text-zinc-400 text-xs mt-0.5 line-clamp-2">Add your own model</p>
+                </button>
               </div>
             </motion.div>
           ) : (

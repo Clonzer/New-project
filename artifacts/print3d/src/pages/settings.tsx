@@ -31,6 +31,7 @@ const SECTIONS = [
   { id: "payment", label: "Payments", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
+  { id: "accounts", label: "Accounts", icon: User },
   { id: "security", label: "Security", icon: Shield },
 ];
 
@@ -1146,6 +1147,46 @@ export default function Settings() {
                       <p className="text-sm text-emerald-200">
                         ✓ <strong>All feedback is valuable.</strong> Even a one-line suggestion helps us prioritize what matters most to our community.
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeSection === "accounts" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Accounts</h2>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+                      <div>
+                        <p className="text-sm font-medium text-white">Current Account</p>
+                        <div className="mt-3 p-4 rounded-xl bg-primary/10 border border-primary/25">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold">
+                              {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white font-semibold">{user?.displayName || "User"}</p>
+                              <p className="text-xs text-zinc-400 truncate">{user?.email}</p>
+                            </div>
+                            <div className="px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-medium">
+                              Active
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-white/10">
+                        <p className="text-sm font-medium text-white mb-3">Quick Actions</p>
+                        <div className="space-y-3">
+                          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                            <p className="text-sm text-zinc-400 mb-2">
+                              Multiple account support allows you to switch between different seller accounts without logging out. This is useful if you manage multiple shops or businesses.
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <Eye className="w-3 h-3" />
+                              <span>Coming soon: Add and switch between accounts</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

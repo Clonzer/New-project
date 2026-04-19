@@ -8,6 +8,8 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/supabase-auth-context";
 import type { User } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Store, ChevronRight, ChevronLeft,
   Printer as PrinterIcon, Cpu, Layers, Package,
-  Hammer, Wrench, PenLine, Sparkles,
+  Hammer, Wrench, PenLine, Sparkles, Plus,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -354,7 +356,113 @@ export default function Register() {
                               </p>
                             </button>
                           ))}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedBrand("Other")}
+                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                          >
+                            <p className="text-white font-semibold text-sm">Other / Custom</p>
+                            <p className="text-zinc-500 text-xs mt-1">Add your own brand</p>
+                          </button>
                         </div>
+                      </motion.div>
+                    ) : selectedBrand === "Other" ? (
+                      <motion.div key="reg-custom-brand" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBrand(null)}
+                          className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
+                        </button>
+                        <p className="text-zinc-400 text-sm mb-4">Enter your custom brand details.</p>
+                        <div className="space-y-4">
+                          <FormField
+                            control={printerForm.control}
+                            name="customBrand"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-zinc-300">Brand Name *</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="e.g. Creality, Prusa, Custom"
+                                    className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={printerForm.control}
+                            name="customModel"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-zinc-300">Model Name *</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="e.g. Ender 3, MK3S"
+                                    className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {equipCategory === "printing_3d" && (
+                            <FormField
+                              control={printerForm.control}
+                              name="customTechnology"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-zinc-300">Technology</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value || "FDM"}>
+                                    <FormControl>
+                                      <SelectTrigger className="bg-black/30 border-white/10 text-white h-11 rounded-xl">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-black/90 border-white/10">
+                                      <SelectItem value="FDM">FDM (Fused Deposition Modeling)</SelectItem>
+                                      <SelectItem value="SLA">SLA (Stereolithography)</SelectItem>
+                                      <SelectItem value="SLS">SLS (Selective Laser Sintering)</SelectItem>
+                                      <SelectItem value="DLP">DLP (Digital Light Processing)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            const brand = printerForm.getValues("customBrand");
+                            const model = printerForm.getValues("customModel");
+                            if (!brand || !model) {
+                              toast({ title: "Required fields", description: "Brand and model name are required.", variant: "destructive" });
+                              return;
+                            }
+                            setSelectedPrinter({
+                              id: "custom",
+                              category: equipCategory,
+                              brand,
+                              model,
+                              technology: equipCategory === "printing_3d" ? (printerForm.getValues("customTechnology") || "FDM") : undefined,
+                              materials: [],
+                              buildVolume: null,
+                              gradient: "from-zinc-600 to-zinc-800",
+                              isOther: true,
+                              allowsHourlyRate: true,
+                            } as any);
+                          }}
+                          className="w-full mt-6 bg-primary text-white hover:bg-primary/90 rounded-xl"
+                        >
+                          Continue
+                        </Button>
                       </motion.div>
                     ) : !selectedPrinter ? (
                       <motion.div key="reg-pick" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -389,6 +497,31 @@ export default function Register() {
                               </span>
                             </button>
                           ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              printerForm.setValue("customBrand", selectedBrand === "Other" ? "" : selectedBrand);
+                              setSelectedPrinter({
+                                id: "custom",
+                                category: equipCategory,
+                                brand: selectedBrand === "Other" ? "" : selectedBrand,
+                                model: "",
+                                technology: equipCategory === "printing_3d" ? "FDM" : undefined,
+                                materials: [],
+                                buildVolume: null,
+                                gradient: "from-zinc-600 to-zinc-800",
+                                isOther: true,
+                                allowsHourlyRate: true,
+                              } as any);
+                            }}
+                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                              <Plus className="w-5 h-5 text-white" />
+                            </div>
+                            <p className="text-white font-semibold text-sm leading-tight">Other / Custom</p>
+                            <p className="text-zinc-400 text-xs mt-0.5 line-clamp-2">Add your own model</p>
+                          </button>
                         </div>
                       </motion.div>
                     ) : (
