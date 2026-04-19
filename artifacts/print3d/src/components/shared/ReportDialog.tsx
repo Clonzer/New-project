@@ -115,7 +115,7 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
           <span className="sr-only">Report {getItemTypeLabel()}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-zinc-700">
         <DialogHeader>
           <DialogTitle>Report {getItemTypeLabel()}</DialogTitle>
         </DialogHeader>
@@ -123,12 +123,12 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
           <div>
             <Label htmlFor="reason">Reason for report</Label>
             <Select value={reason} onValueChange={setReason}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
                 <SelectValue placeholder="Select a reason..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-zinc-800 border-zinc-700">
                 {reportReasons.map((reportReason) => (
-                  <SelectItem key={reportReason.value} value={reportReason.value}>
+                  <SelectItem key={reportReason.value} value={reportReason.value} className="text-white hover:bg-zinc-700">
                     {reportReason.label}
                   </SelectItem>
                 ))}
@@ -142,11 +142,11 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
               placeholder="Provide any additional details that might help us understand the issue..."
               value={additionalInfo}
               onChange={(e) => setAdditionalInfo(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => setOpen(false)} className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700">
               Cancel
             </Button>
             <Button
