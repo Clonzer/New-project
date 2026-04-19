@@ -8,6 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ error: Error | null }>;
+  loginWithGoogle: () => Promise<{ error: Error | null }>;
   register: (email: string, password: string, userData: Partial<User>) => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -113,6 +114,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   }
 
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    return { error };
+  }
+
   async function register(email: string, password: string, userData: Partial<User>) {
     // First, create the auth user
     const { data: authData, error } = await supabase.auth.signUp({
@@ -136,12 +147,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: authData.user.id,
             email: authData.user.email,
             username: userData.username || userData.displayName || authData.user.email?.split('@')[0],
-            display_name: userData.display_name || userData.displayName || userData.username || authData.user.email?.split('@')[0],
+            display_name: userData.displayName || userData.username || authData.user.email?.split('@')[0],
             role: userData.role || 'buyer',
             location: userData.location || null,
-            shop_name: userData.shop_name || userData.shopName || null,
-            shop_mode: userData.shop_mode || userData.shopMode || null,
-            avatar_url: userData.avatar || userData.avatarUrl || null,
+            shop_name: userData.shopName || null,
+            shop_mode: userData.shopMode || null,
+            avatar_url: userData.avatarUrl || null,
           });
 
         if (profileError) {
@@ -187,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     isAuthenticated: !!user,
     login,
+    loginWithGoogle,
     register,
     logout,
     resetPassword,
