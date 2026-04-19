@@ -35,6 +35,7 @@ const PRODUCT_TYPES = [
   { value: "woodworking", label: "Woodworking", description: "Wood-crafted items" },
   { value: "cnc", label: "CNC Machining", description: "Computer numerical control machining" },
   { value: "laser", label: "Laser Cutting", description: "Laser cut designs" },
+  { value: "service", label: "Service", description: "Custom services and labor" },
   { value: "digital", label: "Digital Files", description: "Digital designs and files" },
   { value: "other", label: "Other", description: "Custom product type" },
 ];
