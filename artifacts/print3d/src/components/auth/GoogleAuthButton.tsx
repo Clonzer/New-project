@@ -5,7 +5,7 @@ import { authGoogle } from "@/lib/auth-api";
 import { getApiErrorMessage } from "@/lib/api-error";
 
 type GoogleAuthButtonProps = {
-  role: "buyer" | "seller" | "both";
+  role: "both";
   location?: string;
   onAuthed?: (user: Awaited<ReturnType<typeof authGoogle>>["user"]) => void | Promise<void>;
 };

@@ -36,7 +36,7 @@ const registrationSchema = z
     email: z.string().email("Enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     passwordConfirm: z.string().min(1, "Confirm your password"),
-    role: z.enum(["buyer", "seller", "both"]),
+    role: z.literal("both"),
     location: z.string().optional(),
   })
   .refine((d) => d.password === d.passwordConfirm, {
@@ -70,10 +70,8 @@ function getPasswordStrength(password: string) {
 
 export function RegistrationForm({
   onRegistered,
-  defaultRole = "buyer",
 }: {
   onRegistered: (user: User) => void | Promise<void>;
-  defaultRole?: "buyer" | "seller" | "both";
 }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +90,7 @@ export function RegistrationForm({
       email: "",
       password: "",
       passwordConfirm: "",
-      role: defaultRole,
+      role: "both",
       location: "",
     },
   });
@@ -112,7 +110,7 @@ export function RegistrationForm({
     setSuccess(null);
     setSubmitting(true);
     try {
-      const isSellerish = data.role === "seller" || data.role === "both";
+      const isSellerish = true;
       const emailNorm = data.email.trim().toLowerCase();
       
       // Register with Supabase Auth
@@ -213,7 +211,7 @@ export function RegistrationForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <GoogleAuthButton
-            role={form.watch("role")}
+            role="both"
             location={form.watch("location") || undefined}
             onAuthed={async (user) => {
               setSuccess("Signed in with Google.");
@@ -228,39 +226,6 @@ export function RegistrationForm({
               <span className="bg-background px-3">or continue with email</span>
             </div>
           </div>
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-zinc-300">Account type</FormLabel>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {(
-                    [
-                      { value: "buyer" as const, label: "Buyer", desc: "Order from sellers" },
-                      { value: "seller" as const, label: "Seller", desc: "Run a shop" },
-                      { value: "both" as const, label: "Both", desc: "Buy and sell" },
-                    ] as const
-                  ).map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => field.onChange(opt.value)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        field.value === opt.value
-                          ? "border-primary bg-primary/15 text-white"
-                          : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold">{opt.label}</p>
-                      <p className="text-[11px] opacity-70 mt-0.5">{opt.desc}</p>
-                    </button>
-                  ))}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <FormField

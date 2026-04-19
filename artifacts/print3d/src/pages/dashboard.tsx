@@ -795,7 +795,7 @@ export default function Dashboard() {
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
-  const [defaultTab, setDefaultTab] = useState("purchases");
+  const [defaultTab, setDefaultTab] = useState("overview");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -807,8 +807,8 @@ export default function Dashboard() {
     if (savedTab) {
       setDefaultTab(savedTab);
       localStorage.removeItem('dashboardTab');
-    } else if (user) {
-      setDefaultTab(isSeller(user?.role) ? "overview" : "purchases");
+    } else {
+      setDefaultTab("overview");
     }
 
     if (checkout === "success") {
@@ -1037,7 +1037,7 @@ export default function Dashboard() {
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
                 <Link href="/register">
-                  <NeonButton glowColor="accent" className="rounded-full px-5">Join Now</NeonButton>
+                  <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
                 </Link>
               )}
               {isSellerUser && (

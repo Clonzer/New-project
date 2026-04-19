@@ -367,7 +367,7 @@ export function VendorDashboard() {
                 <p className="text-zinc-400 text-sm">Today's Revenue</p>
                 <p className="text-2xl font-bold text-green-400">${mockAnalytics.revenueByDay[6].amount.toLocaleString()}</p>
               </div>
-              <NeonButton className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-6 py-3 rounded-full">
+              <NeonButton className="bg-gradient-to-r from-primary to-accent text-white px-6 py-3 rounded-full">
                 <TrendingUp className="w-5 h-5 mr-2" />
                 View Analytics
               </NeonButton>
@@ -521,7 +521,7 @@ export function VendorDashboard() {
                               </h4>
                               <div className="bg-zinc-800/30 rounded-lg p-4 space-y-3">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-semibold">
                                     {order.customer.name.charAt(0)}
                                   </div>
                                   <div>
@@ -935,7 +935,7 @@ export function VendorDashboard() {
                       <tr key={order.id} className="hover:bg-zinc-800/30 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-semibold">
                               {order.customer.name.charAt(0)}
                             </div>
                             <p className="text-white font-medium">{order.customer.name}</p>

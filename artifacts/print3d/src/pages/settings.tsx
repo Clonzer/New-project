@@ -463,7 +463,7 @@ export default function Settings() {
                       <textarea
                         value={form.bio}
                         onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
-                        placeholder="Tell buyers and sellers about yourself..."
+                        placeholder="Tell the community about yourself..."
                         rows={4}
                         className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
                       />
@@ -510,8 +510,8 @@ export default function Settings() {
                             <span>Access to seller analytics and insights</span>
                           </div>
                         </div>
-                        <NeonButton
-                          glowColor="primary"
+                        <Button
+                          className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)]"
                           onClick={async () => {
                             try {
                               const response = await fetch("/api/users/convert-to-seller", {
@@ -539,8 +539,7 @@ export default function Settings() {
                           }}
                         >
                           Join Now
-                        </NeonButton>
-                      </div>
+                        </Button>
                     ) : (
                       <>
                         <div>
@@ -975,13 +974,13 @@ export default function Settings() {
                       </p>
                       <p>
                         {paymentEnabled
-                          ? "Buyers will be redirected to Stripe for secure payment before orders are created."
+                          ? "Users will be redirected to Stripe for secure payment before orders are created."
                           : "Add the Stripe environment variables on Render to enable live checkout."}
                       </p>
                     </div>
                     <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-sm text-zinc-300 space-y-2">
                       <p>Provider: Stripe Checkout</p>
-                      <p>Buyer payments are captured before an order enters the seller workflow.</p>
+                      <p>Payments are captured before an order enters the seller workflow.</p>
                       <p>Platform fee: 10% of each order subtotal.</p>
                       <p>FX pricing: {fxSource === "live" ? "Live exchange rates" : "Fallback exchange rates"}{fxUpdatedAt && fxUpdatedAt !== "static" ? ` (updated ${fxUpdatedAt})` : ""}</p>
                     </div>
@@ -1159,7 +1158,7 @@ export default function Settings() {
                         <p className="text-sm font-medium text-white">Current Account</p>
                         <div className="mt-3 p-4 rounded-xl bg-primary/10 border border-primary/25">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
                               {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
                             </div>
                             <div className="flex-1 min-w-0">

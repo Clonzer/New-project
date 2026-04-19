@@ -169,9 +169,9 @@ export function Navbar() {
 
           {!isSeller && (
             <Link href="/register" className="hidden sm:block">
-              <NeonButton glowColor="accent" className="rounded-full px-4 py-2 text-sm font-semibold h-9">
+              <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 py-2 text-sm h-9">
                 Join Now
-              </NeonButton>
+              </Button>
             </Link>
           )}
 
@@ -390,7 +390,7 @@ export function Navbar() {
 
               {!isSeller ? (
                 <Link href="/register" onClick={() => setMenuOpen(false)}>
-                  <NeonButton glowColor="accent" className="w-full rounded-xl mt-2">Join Now</NeonButton>
+                  <Button className="w-full rounded-xl mt-2 bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)]">Join Now</Button>
                 </Link>
               ) : null}
 

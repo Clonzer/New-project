@@ -133,8 +133,8 @@ const FAQS = [
     a: "Stripe requires STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET, while email forms require SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM on Render.",
   },
   {
-    q: "Do buyers need a paid plan?",
-    a: "No. Buyers can browse, message, compare shops, and place orders without subscribing. Pricing is seller-focused.",
+    q: "Do I need a paid plan?",
+    a: "No. You can browse, message, compare shops, and place orders without subscribing. Paid plans are for sellers who want enhanced features.",
   },
 ];
 
@@ -431,7 +431,7 @@ export default function Pricing() {
 
               {!isSeller ? (
                 <p className="mt-5 text-sm text-zinc-500">
-                  Sponsorships are seller tools. Buyer accounts can still message support from this page.
+                  Sponsorships are seller tools. You can still message support from this page.
                 </p>
               ) : null}
             </div>

@@ -167,7 +167,7 @@ export default function Register() {
           description: data.description ?? null,
         },
       });
-      toast({ title: "Seller account ready! 🚀", description: "Your equipment is listed and your shop is live." });
+      toast({ title: "Shop ready! 🚀", description: "Your equipment is listed and your shop is live." });
     } catch (e) {
       toast({ title: "Equipment step failed", description: getApiErrorMessage(e), variant: "destructive" });
     }
@@ -212,7 +212,7 @@ export default function Register() {
               </motion.div>
             )}
 
-            {step === 1 && savedUser && (savedUser.role === "seller" || savedUser.role === "both") && (
+            {step === 1 && savedUser && savedUser.role === "both" && (
               <motion.div
                 key="step-shop"
                 initial={{ opacity: 0, x: 30 }}

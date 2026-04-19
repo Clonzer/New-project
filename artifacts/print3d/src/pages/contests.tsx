@@ -466,16 +466,17 @@ export default function Contests() {
                           <div className="mb-4">
                             <div className="text-xs text-zinc-400 mb-2">Participants</div>
                             <div className="flex -space-x-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Avatar key={i} className="w-8 h-8 border-2 border-zinc-800">
-                                  <AvatarFallback className="bg-gradient-to-br from-primary/50 to-accent/50 text-white text-xs">
-                                    {String.fromCharCode(65 + i)}
-                                  </AvatarFallback>
+                              {leaderboard.slice(0, 5).map((seller, i) => (
+                                <Avatar key={seller.id} className="w-8 h-8 border-2 border-zinc-800">
+                                  <AvatarImage src={seller.avatar} />
+                                  <AvatarFallback>{seller.displayName?.charAt(0) || "S"}</AvatarFallback>
                                 </Avatar>
                               ))}
-                              <div className="w-8 h-8 rounded-full bg-zinc-700 border-2 border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
-                                +
-                              </div>
+                              {leaderboard.length > 5 && (
+                                <div className="w-8 h-8 rounded-full bg-zinc-700 border-2 border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
+                                  +{leaderboard.length - 5}
+                                </div>
+                              )}
                             </div>
                           </div>
 
