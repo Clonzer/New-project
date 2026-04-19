@@ -50,6 +50,7 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
         reporter_id: user.id,
         item_type: itemType,
         item_id: itemId,
+        item_name: itemName || null,
         reason: reason,
         additional_info: additionalInfo || null,
         status: 'pending',
@@ -58,6 +59,27 @@ export function ReportDialog({ itemType, itemId, itemName, className }: ReportDi
 
       if (error) {
         throw error;
+      }
+
+      // Send email notification to admin (using Supabase Edge Function)
+      try {
+        await fetch('/api/notify-admin-report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            itemType,
+            itemId,
+            itemName,
+            reason,
+            additionalInfo,
+            reporterEmail: user.email,
+          }),
+        });
+      } catch (emailError) {
+        console.error('Failed to send admin notification:', emailError);
+        // Don't fail the report submission if email fails
       }
 
       toast({
