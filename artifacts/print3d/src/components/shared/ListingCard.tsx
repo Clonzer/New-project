@@ -1,7 +1,8 @@
 import { Listing } from "@/lib/workspace-api-mock";
 import { Link, useLocation } from "wouter";
-import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare } from "lucide-react";
+import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
@@ -16,13 +17,22 @@ export function ListingCard({
   isOwner,
   onDelete,
   onEdit,
+  isSponsored,
+  sponsorTier,
 }: {
   listing: Listing & { stockQuantity?: number; trackStock?: boolean };
   priceInsight?: ListingPriceInsight;
   isOwner?: boolean;
   onDelete?: (listingId: number) => void;
   onEdit?: (listing: Listing) => void;
+  isSponsored?: boolean;
+  sponsorTier?: "premium" | "gold" | "silver";
 }) {
+  const tierStyles = {
+    premium: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-purple-300",
+    gold: "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50 text-yellow-300",
+    silver: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/50 text-cyan-300",
+  };
   const { toast } = useToast();
   const { formatPrice } = useLocalePreferences();
   const { user } = useAuth();
@@ -63,6 +73,12 @@ export function ListingCard({
           </div>
         )}
         <div className="absolute top-3 right-3 flex items-center gap-2">
+          {isSponsored && (
+            <Badge className={cn("border font-semibold", tierStyles[sponsorTier || "silver"])}>
+              <Sparkles className="w-3 h-3 mr-1" />
+              Sponsored
+            </Badge>
+          )}
           {isLowStock && (
             <Badge className="bg-amber-500/20 border-amber-500/30 text-amber-300">
               <AlertCircle className="w-3 h-3 mr-1" />

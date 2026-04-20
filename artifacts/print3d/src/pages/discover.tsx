@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,7 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,6 +29,31 @@ interface Comment {
   };
   content: string;
   createdAt: string;
+}
+
+// Helper component for user profile links
+function UserAvatarLink({ userId, avatarUrl, displayName, size = "md" }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg" }) {
+  const sizeClasses = { sm: "w-8 h-8", md: "w-12 h-12", lg: "w-16 h-16" };
+  const fallbackClasses = { sm: "text-xs", md: "", lg: "text-lg" };
+  
+  return (
+    <Link href={`/shop/${userId}`}>
+      <Avatar className={`${sizeClasses[size]} cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all`}>
+        <AvatarImage src={avatarUrl ?? undefined} />
+        <AvatarFallback className={fallbackClasses[size]}>{displayName.charAt(0)}</AvatarFallback>
+      </Avatar>
+    </Link>
+  );
+}
+
+function UserNameLink({ userId, displayName, className = "" }: { userId: number; displayName: string; className?: string }) {
+  return (
+    <Link href={`/shop/${userId}`}>
+      <span className={`hover:text-primary transition-colors cursor-pointer ${className}`}>
+        {displayName}
+      </span>
+    </Link>
+  );
 }
 
 interface Reaction {
@@ -368,6 +396,25 @@ export default function Discover() {
   const { data: usersData, isLoading: isLoadingUsers, error: usersError } = useListUsers({ limit: 50 });
   const { data: listingsData, isLoading: isLoadingListings, error: listingsError } = useListListings({ limit: 50 });
 
+  // Mock sponsored listings for Projects tab
+  const sponsoredProjectIds = useMemo(() => {
+    const ids = new Map<number, { tier: SponsorTier; level: number }>();
+    if (listingsData?.listings) {
+      // Premium sponsors
+      if (listingsData.listings[0]) ids.set(listingsData.listings[0].id, { tier: "premium", level: 10 });
+      if (listingsData.listings[2]) ids.set(listingsData.listings[2].id, { tier: "gold", level: 7 });
+      // Silver sponsors
+      if (listingsData.listings[4]) ids.set(listingsData.listings[4].id, { tier: "silver", level: 3 });
+    }
+    return ids;
+  }, [listingsData?.listings]);
+
+  const tierStyles = {
+    premium: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-purple-300",
+    gold: "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50 text-yellow-300",
+    silver: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/50 text-cyan-300",
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -482,13 +529,19 @@ export default function Discover() {
                     >
                       <div className="p-6">
                         <div className="flex items-start gap-4">
-                          <Avatar className="w-12 h-12">
-                            <AvatarImage src={post.user.avatarUrl ?? undefined} />
-                            <AvatarFallback>{post.user.displayName.charAt(0)}</AvatarFallback>
-                          </Avatar>
+                          <UserAvatarLink 
+                            userId={post.userId} 
+                            avatarUrl={post.user.avatarUrl} 
+                            displayName={post.user.displayName}
+                            size="md"
+                          />
                           <div className="flex-grow">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-bold text-white">{post.user.displayName}</h3>
+                              <UserNameLink 
+                                userId={post.userId} 
+                                displayName={post.user.displayName}
+                                className="font-bold text-white"
+                              />
                               {post.user.sellerTags && post.user.sellerTags.length > 0 && (
                                 <div className="flex gap-1">
                                   {post.user.sellerTags.slice(0, 2).map((tag) => (
@@ -610,14 +663,20 @@ export default function Discover() {
                                   <div className="space-y-3">
                                     {post.comments.map((comment) => (
                                       <div key={comment.id} className="flex gap-3">
-                                        <Avatar className="w-8 h-8">
-                                          <AvatarImage src={comment.user.avatarUrl ?? undefined} />
-                                          <AvatarFallback className="text-xs">{comment.user.displayName.charAt(0)}</AvatarFallback>
-                                        </Avatar>
+                                        <UserAvatarLink 
+                                          userId={comment.userId} 
+                                          avatarUrl={comment.user.avatarUrl} 
+                                          displayName={comment.user.displayName}
+                                          size="sm"
+                                        />
                                         <div className="flex-1">
                                           <div className="bg-black/20 rounded-lg px-3 py-2">
                                             <div className="flex items-center gap-2 mb-1">
-                                              <span className="text-sm font-medium text-white">{comment.user.displayName}</span>
+                                              <UserNameLink 
+                                                userId={comment.userId} 
+                                                displayName={comment.user.displayName}
+                                                className="text-sm font-medium text-white"
+                                              />
                                               <span className="text-xs text-zinc-500">
                                                 {new Date(comment.createdAt).toLocaleDateString()}
                                               </span>
@@ -774,7 +833,9 @@ export default function Discover() {
                     {listingsData.listings
                       .filter(listing => listing.title.toLowerCase().includes(search.toLowerCase()) ||
                                          listing.description?.toLowerCase().includes(search.toLowerCase()))
-                      .map((listing) => (
+                      .map((listing) => {
+                        const sponsorInfo = sponsoredProjectIds.get(listing.id);
+                        return (
                         <motion.div
                           key={listing.id}
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -787,6 +848,14 @@ export default function Discover() {
                               alt={listing.title}
                               className="w-full h-48 object-cover rounded-xl"
                             />
+                            {sponsorInfo && (
+                              <div className="absolute top-2 left-2">
+                                <Badge className={cn("border font-semibold", tierStyles[sponsorInfo.tier || "silver"])}>
+                                  <Sparkles className="w-3 h-3 mr-1" />
+                                  Sponsored
+                                </Badge>
+                              </div>
+                            )}
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button size="sm" className="bg-black/50 hover:bg-black/70">
                                 <ExternalLink className="w-4 h-4" />
@@ -810,7 +879,8 @@ export default function Discover() {
                             </div>
                           </div>
                         </motion.div>
-                      ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -885,12 +955,14 @@ export default function Discover() {
                         >
                           <div className="flex items-center gap-4 mb-4">
                             <div className="relative">
-                              <Avatar className="w-16 h-16">
-                                <AvatarImage src={person.avatarUrl ?? undefined} />
-                                <AvatarFallback className="bg-primary/20 text-primary text-lg">
-                                  {person.displayName.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
+                              <Link href={`/shop/${person.id}`}>
+                                <Avatar className="w-16 h-16 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                                  <AvatarImage src={person.avatarUrl ?? undefined} />
+                                  <AvatarFallback className="bg-primary/20 text-primary text-lg">
+                                    {person.displayName.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </Link>
                               {person.isVerified && (
                                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                                   <Star className="w-3 h-3 text-white fill-white" />
@@ -898,7 +970,9 @@ export default function Discover() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-white truncate">{person.displayName}</h3>
+                              <Link href={`/shop/${person.id}`}>
+                                <h3 className="font-bold text-white truncate hover:text-primary transition-colors cursor-pointer">{person.displayName}</h3>
+                              </Link>
                               <p className="text-zinc-400 text-sm truncate">{person.bio?.slice(0, 50) || "3D printing enthusiast"}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 {person.rating && (

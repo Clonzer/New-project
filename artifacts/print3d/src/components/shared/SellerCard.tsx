@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
 import { SellerShop } from "@/lib/workspace-api-mock";
 import { Link } from "wouter";
-import { Star, MapPin, Printer, Package, GitCompareArrows } from "lucide-react";
+import { Star, MapPin, Printer, Package, GitCompareArrows, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 
-export function SellerCard({ seller }: { seller: SellerShop }) {
+export function SellerCard({ 
+  seller, 
+  isSponsored, 
+  sponsorTier 
+}: { 
+  seller: SellerShop; 
+  isSponsored?: boolean;
+  sponsorTier?: "premium" | "gold" | "silver";
+}) {
+  const tierStyles = {
+    premium: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-purple-300",
+    gold: "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50 text-yellow-300",
+    silver: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/50 text-cyan-300",
+  };
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(() => isComparedShop(seller.id));
 
@@ -29,7 +43,15 @@ export function SellerCard({ seller }: { seller: SellerShop }) {
         <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
         <div className="relative z-10">
-          <div className="flex items-start justify-between mb-4">
+          {isSponsored && (
+          <div className="absolute top-3 right-3 z-20">
+            <Badge className={cn("border font-semibold", tierStyles[sponsorTier || "silver"])}>
+              <Sparkles className="w-3 h-3 mr-1" />
+              Sponsored
+            </Badge>
+          </div>
+        )}
+        <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">

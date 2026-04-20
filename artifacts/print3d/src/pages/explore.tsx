@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import { Search, SlidersHorizontal, Sparkles, Store, Package, Zap, Filter } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearch } from "wouter";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { useLocalePreferences } from "@/lib/locale-preferences";
@@ -23,6 +23,7 @@ import { DynamicShopBanner } from "@/components/shop/DynamicShopBanner";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 
 export default function Explore() {
   const rawSearch = useSearch();
@@ -42,18 +43,43 @@ export default function Explore() {
     if (q) setSearchTerm(q);
   }, [rawSearch]);
 
-  const filteredSellers = data?.sellers.filter((s) => {
-    const q = searchTerm.toLowerCase();
-    const allTags = (s as any).sellerTags ?? [];
-    const matchesSearch =
-      s.displayName.toLowerCase().includes(q) ||
-      s.shopName?.toLowerCase().includes(q) ||
-      s.location?.toLowerCase().includes(q) ||
-      allTags.some((tag: string) => tag.toLowerCase().includes(q));
-    const matchesMode = selectedMode === "all" || !(s as any).shopMode || (s as any).shopMode === selectedMode;
-    const matchesTag = selectedTag === "all" || allTags.length === 0 || allTags.includes(selectedTag);
-    return matchesSearch && matchesMode && matchesTag;
-  });
+  // Mock sponsored shop data - in production, this would come from the API
+  const sponsoredShopIds = useMemo(() => {
+    const ids = new Map<string | number, { tier: SponsorTier; level: number }>();
+    if (data?.sellers) {
+      // Premium sponsors (top performers)
+      if (data.sellers[0]) ids.set(data.sellers[0].id, { tier: "premium", level: 10 });
+      if (data.sellers[1]) ids.set(data.sellers[1].id, { tier: "premium", level: 9 });
+      // Gold sponsors
+      if (data.sellers[2]) ids.set(data.sellers[2].id, { tier: "gold", level: 7 });
+      if (data.sellers[4]) ids.set(data.sellers[4].id, { tier: "gold", level: 6 });
+      // Silver sponsors
+      if (data.sellers[6]) ids.set(data.sellers[6].id, { tier: "silver", level: 4 });
+      if (data.sellers[8]) ids.set(data.sellers[8].id, { tier: "silver", level: 3 });
+    }
+    return ids;
+  }, [data?.sellers]);
+
+  const filteredSellers = useMemo(() => {
+    if (!data?.sellers) return [];
+    
+    const filtered = data.sellers.filter((s) => {
+      const q = searchTerm.toLowerCase();
+      const allTags = (s as any).sellerTags ?? [];
+      const matchesSearch =
+        s.displayName.toLowerCase().includes(q) ||
+        s.shopName?.toLowerCase().includes(q) ||
+        s.location?.toLowerCase().includes(q) ||
+        allTags.some((tag: string) => tag.toLowerCase().includes(q));
+      const matchesMode = selectedMode === "all" || !(s as any).shopMode || (s as any).shopMode === selectedMode;
+      const matchesTag = selectedTag === "all" || allTags.length === 0 || allTags.includes(selectedTag);
+      return matchesSearch && matchesMode && matchesTag;
+    });
+    
+    // Enhance with sponsorship data and sort by ranking
+    const enhanced = enhanceWithSponsorship(filtered, sponsoredShopIds);
+    return sortByRanking(enhanced);
+  }, [data?.sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -100,11 +126,18 @@ export default function Explore() {
             ) : data?.sellers.length ? (
               <Carousel className="w-full">
                 <CarouselContent className="-ml-2 md:-ml-4">
-                  {data.sellers.slice(0, 8).map((seller) => (
-                    <CarouselItem key={seller.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                      <SellerCard seller={seller} />
-                    </CarouselItem>
-                  ))}
+                  {data.sellers.slice(0, 8).map((seller) => {
+                    const sponsorInfo = sponsoredShopIds.get(seller.id);
+                    return (
+                      <CarouselItem key={seller.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                        <SellerCard 
+                          seller={seller} 
+                          isSponsored={!!sponsorInfo}
+                          sponsorTier={sponsorInfo?.tier}
+                        />
+                      </CarouselItem>
+                    );
+                  })}
                 </CarouselContent>
                 <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
                 <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
@@ -204,7 +237,12 @@ export default function Explore() {
               </div>
             ) : (
               filteredSellers?.map(seller => (
-                <SellerCard key={seller.id} seller={seller} />
+                <SellerCard 
+                  key={seller.id} 
+                  seller={seller as any} 
+                  isSponsored={(seller as any).isSponsored}
+                  sponsorTier={(seller as any).sponsorTier}
+                />
               ))
             )}
           </div>

@@ -5,9 +5,10 @@ import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearch } from "wouter";
 import { buildListingPriceInsights } from "@/lib/listing-pricing";
+import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 
 const CATEGORIES = ["All", "Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture"];
 
@@ -25,18 +26,48 @@ export default function Listings() {
     if (q) setSearchTerm(q);
   }, [rawSearch]);
 
-  const filteredListings = data?.listings.filter(l => {
+  // Mock sponsored data - in production, this would come from the API
+  const sponsoredListingIds = useMemo(() => {
+    // Simulate some listings being sponsored (first 5 for demo)
+    const ids = new Map<number, { tier: SponsorTier; level: number }>();
+    if (data?.listings) {
+      // Premium sponsors (top 2)
+      if (data.listings[0]) ids.set(data.listings[0].id, { tier: "premium", level: 10 });
+      if (data.listings[1]) ids.set(data.listings[1].id, { tier: "gold", level: 7 });
+      // Gold sponsor
+      if (data.listings[3]) ids.set(data.listings[3].id, { tier: "gold", level: 6 });
+      // Silver sponsors
+      if (data.listings[5]) ids.set(data.listings[5].id, { tier: "silver", level: 3 });
+      if (data.listings[7]) ids.set(data.listings[7].id, { tier: "silver", level: 2 });
+    }
+    return ids;
+  }, [data?.listings]);
+
+  const filteredListings = useMemo(() => {
+    if (!data?.listings) return [];
+    
     const maxPriceNumber = maxPrice.trim() ? parseFloat(maxPrice) : null;
-    const matchesSearch =
-      l.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory =
-      selectedCategory === "All" || l.category.toLowerCase() === selectedCategory.toLowerCase();
-    const matchesPrice = maxPriceNumber == null || l.basePrice <= maxPriceNumber;
-    return matchesSearch && matchesCategory && matchesPrice;
-  });
-  const priceInsights = filteredListings ? buildListingPriceInsights(filteredListings) : new Map();
+    
+    // Filter first
+    const filtered = data.listings.filter(l => {
+      const matchesSearch =
+        l.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        l.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        l.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory =
+        selectedCategory === "All" || l.category.toLowerCase() === selectedCategory.toLowerCase();
+      const matchesPrice = maxPriceNumber == null || l.basePrice <= maxPriceNumber;
+      return matchesSearch && matchesCategory && matchesPrice;
+    });
+    
+    // Enhance with sponsorship data
+    const enhanced = enhanceWithSponsorship(filtered, sponsoredListingIds);
+    
+    // Sort by ranking (sponsors + performance get higher placement)
+    return sortByRanking(enhanced);
+  }, [data?.listings, searchTerm, selectedCategory, maxPrice, sponsoredListingIds]);
+  
+  const priceInsights = filteredListings.length > 0 ? buildListingPriceInsights(filteredListings) : new Map();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -134,7 +165,13 @@ export default function Listings() {
               </div>
             ) : (
               filteredListings?.map(listing => (
-                <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
+                <ListingCard 
+                  key={listing.id} 
+                  listing={listing} 
+                  priceInsight={priceInsights.get(listing.id)}
+                  isSponsored={listing.isSponsored}
+                  sponsorTier={listing.sponsorTier}
+                />
               ))
             )}
           </div>
