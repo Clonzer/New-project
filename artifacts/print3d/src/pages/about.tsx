@@ -90,17 +90,6 @@ export default function About() {
             </motion.div>
           </motion.div>
 
-          {/* Floating Elements */}
-          <motion.div
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="absolute top-20 left-10 w-20 h-20 bg-violet-500/20 rounded-full blur-xl"
-          />
-          <motion.div
-            animate={{ y: [0, 20, 0] }}
-            transition={{ duration: 5, repeat: Infinity }}
-            className="absolute bottom-20 right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-xl"
-          />
         </section>
 
         {/* Mission Section */}

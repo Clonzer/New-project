@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
-import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -177,20 +176,11 @@ export default function Register() {
   const skipPrinter = () => setLocation("/dashboard");
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
-      <AnimatedGradientBg />
+    <div className="min-h-screen flex flex-col bg-black">
       <Navbar />
 
-      <div className="flex-grow flex items-start justify-center p-4 pt-12 relative z-10">
+      <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
-
-          <div className="text-center mb-8">
-            <Link href="/">
-              <span className="font-display font-extrabold text-2xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                SYNTHIX
-              </span>
-            </Link>
-          </div>
 
           <AnimatePresence mode="wait">
 
@@ -200,11 +190,10 @@ export default function Register() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="glass-panel rounded-3xl border border-white/10 p-8 md:p-10"
+                className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
               >
-                <StepDots step={0} total={3} />
-                <h1 className="text-2xl font-bold text-white mb-1 text-center">Create your account</h1>
-                <p className="text-zinc-400 text-sm text-center mb-8">
+                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Create account</h1>
+                <p className="text-zinc-400 text-base text-center mb-8">
                   Already have an account?{" "}
                   <Link href="/login" className="text-primary hover:text-white transition-colors">Sign in</Link>
                 </p>
@@ -218,9 +207,8 @@ export default function Register() {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
-                className="glass-panel rounded-3xl border border-white/10 p-8 md:p-10"
+                className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
               >
-                <StepDots step={1} total={3} />
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
                     <Store className="w-5 h-5 text-primary" />
@@ -297,13 +285,12 @@ export default function Register() {
 
             {step === 2 && savedUser && (
               <motion.div
-                key="step-equip"
+                key="step-printer"
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
               >
-                <div className="glass-panel rounded-3xl border border-white/10 p-8 md:p-10 mb-5">
-                  <StepDots step={2} total={3} />
+                <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16 mb-5">
                   <h2 className="text-xl font-bold text-white mb-1">Register your equipment</h2>
                   <p className="text-zinc-400 text-sm mb-2">Step 3 of 3 — 3D printing is one category; add shop tools, metal fab, or services too.</p>
                   <p className="text-zinc-500 text-xs mb-6">You can add more machines anytime from the dashboard.</p>
@@ -690,7 +677,7 @@ export default function Register() {
             <Link href="/privacy" className="underline hover:text-zinc-400">Privacy Policy</Link>.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -123,10 +123,10 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
             {[
-              { path: "/about", label: "About" },
               { path: "/discover", label: "Discover" },
               { path: "/contests", label: "Contests" },
               { path: "/pricing", label: "Pricing" },
+              { path: "/about", label: "About" },
             ].map((route) => (
               <Link
                 key={route.path}
@@ -164,7 +164,7 @@ export function Navbar() {
 
           {!isSeller && (
             <Link href="/register" className="hidden sm:block">
-              <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 py-2 text-sm h-9">
+              <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] px-4 py-2 text-sm h-9 border border-cyan-400/30">
                 Join Now
               </Button>
             </Link>
@@ -385,7 +385,7 @@ export function Navbar() {
 
               {!isSeller ? (
                 <Link href="/register" onClick={() => setMenuOpen(false)}>
-                  <Button className="w-full rounded-xl mt-2 bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)]">Join Now</Button>
+                  <Button className="w-full rounded-xl mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30">Join Now</Button>
                 </Link>
               ) : null}
 
