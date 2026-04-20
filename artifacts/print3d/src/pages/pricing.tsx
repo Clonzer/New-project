@@ -1,20 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Mail, Megaphone, MessageSquare, Rocket, Star, X, Zap } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, X, Zap } from "lucide-react";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
-import { submitSupportContactForm } from "@/lib/support-api";
 
 const PLANS = [
   {
@@ -93,7 +90,7 @@ const PLANS = [
     iconColor: "text-cyan-300",
     price: { monthly: 0, yearly: 0 },
     platformFee: 0,
-    badge: "Contact Us",
+    badge: "Custom",
     highlight: false,
     description: "Custom commercial setup for studios, teams, and partners that need more than a normal seller plan.",
     features: [
@@ -106,7 +103,7 @@ const PLANS = [
       { text: "Account assignment by owner", included: true },
       { text: "White-glove rollout", included: true },
     ],
-    cta: "Contact Us",
+    cta: "Learn More",
     glow: "primary" as const,
   },
 ] as const;
@@ -115,10 +112,6 @@ const FAQS = [
   {
     q: "How do profile and product sponsorships work?",
     a: "Profile sponsorship boosts your shop across seller-focused placements for 14 days. Product sponsorship boosts one listing across product-focused placements for 14 days. Both are paid through Stripe and activate automatically after successful payment.",
-  },
-  {
-    q: "Can I message Synthix directly from the site?",
-    a: "Yes. Visit the Messages page to start a conversation with the Synthix support team. You can ask about plans, sponsorships, or get help with setup without leaving the platform.",
   },
   {
     q: "How do paid plans help beyond lower fees?",
@@ -144,28 +137,11 @@ export default function Pricing() {
   const { toast } = useToast();
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
-  const [contactForm, setContactForm] = useState({
-    name: user?.displayName ?? "",
-    email: user?.email ?? "",
-    subject: "Enterprise plan and sponsorships",
-    message: "",
-  });
-  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const [isStartingProfileSponsor, setIsStartingProfileSponsor] = useState(false);
   const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
-
-  useEffect(() => {
-    if (!user) return;
-    setContactForm((current) => ({
-      ...current,
-      name: current.name || user.displayName,
-      email: current.email || user.email,
-    }));
-  }, [user]);
 
   useEffect(() => {
     if (!selectedListingId && ownListingsData?.listings?.length) {
@@ -181,27 +157,6 @@ export default function Pricing() {
       })),
     [yearly],
   );
-
-  const submitContact = async () => {
-    try {
-      setIsSubmittingContact(true);
-      await submitSupportContactForm(contactForm);
-      setContactForm((current) => ({ ...current, message: "" }));
-      setShowEnterpriseForm(false);
-      toast({
-        title: "Contact form sent",
-        description: "Your message was sent to the SYNTHIX inbox email addresses.",
-      });
-    } catch (error) {
-      toast({
-        title: "Contact form failed",
-        description: getApiErrorMessage(error),
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingContact(false);
-    }
-  };
 
   const startPlanCheckout = (planId: string) => {
     if (!user) {
@@ -357,9 +312,11 @@ export default function Pricing() {
                   </ul>
 
                   {isEnterprise ? (
-                    <NeonButton glowColor={plan.glow} onClick={() => setShowEnterpriseForm(true)} className="w-full rounded-2xl py-3 font-semibold">
-                      {plan.cta}
-                    </NeonButton>
+                    <Link href="/help" className="w-full">
+                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
+                        {plan.cta}
+                      </NeonButton>
+                    </Link>
                   ) : (
                     <NeonButton glowColor={plan.glow} onClick={() => startPlanCheckout(plan.id)} className="w-full rounded-2xl py-3 font-semibold">
                       {plan.cta}
@@ -429,89 +386,10 @@ export default function Pricing() {
                 </div>
               </div>
 
-              {!isSeller ? (
-                <p className="mt-5 text-sm text-zinc-500">
-                  Sponsorships are seller tools. You can still message support from this page.
-                </p>
-              ) : null}
             </div>
 
           </div>
         </section>
-
-        {showEnterpriseForm ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="glass-panel w-full max-w-2xl rounded-3xl border border-white/10 p-8"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-2xl font-display font-bold text-white">Enterprise Contact</h3>
-                  <p className="text-sm text-zinc-400 mt-1">Tell us about your business needs</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowEnterpriseForm(false)}
-                  className="text-zinc-400 hover:text-white transition-colors p-2"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div id="contact-form" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    value={contactForm.name}
-                    onChange={(event) => setContactForm((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="Your name"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                  />
-                  <Input
-                    value={contactForm.email}
-                    onChange={(event) => setContactForm((current) => ({ ...current, email: event.target.value }))}
-                    placeholder="you@example.com"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                  />
-                </div>
-                <Input
-                  value={contactForm.subject}
-                  onChange={(event) => setContactForm((current) => ({ ...current, subject: event.target.value }))}
-                  placeholder="Subject"
-                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500"
-                />
-                <Textarea
-                  value={contactForm.message}
-                  onChange={(event) => setContactForm((current) => ({ ...current, message: event.target.value }))}
-                  placeholder="Tell us about your enterprise needs, expected volume, and timeline..."
-                  rows={6}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-500 resize-none"
-                />
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <Button
-                  type="button"
-                  onClick={() => void submitContact()}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3"
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  {isSubmittingContact ? "Sending..." : "Send inquiry"}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setShowEnterpriseForm(false)}
-                  variant="outline"
-                  className="px-6 border-white/10 text-white hover:bg-white/10"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        ) : null}
 
         <section className="container mx-auto max-w-3xl px-4 py-20">
           <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>
