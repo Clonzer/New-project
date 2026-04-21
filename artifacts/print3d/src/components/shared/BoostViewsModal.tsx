@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { X, Zap, TrendingUp } from "lucide-react";
+import { X, Zap, TrendingUp, Crown, Star, Sparkles, Check } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export interface BoostViewsModalProps {
   isOpen: boolean;
@@ -10,31 +10,95 @@ export interface BoostViewsModalProps {
   onClose: () => void;
 }
 
+type PlacementTier = "premium" | "gold" | "silver";
+type DurationTier = "week" | "month" | "quarter";
+
 export function BoostViewsModal({ isOpen, shopName, onClose }: BoostViewsModalProps) {
   const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<"week" | "month" | "quarter">("month");
+  const [placementTier, setPlacementTier] = useState<PlacementTier>("gold");
+  const [duration, setDuration] = useState<DurationTier>("month");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const boostTiers = [
-    { id: "week", label: "1 Week", price: 29, views: "~500 extra views", color: "from-blue-600 to-cyan-600" },
-    { id: "month", label: "1 Month", price: 79, views: "~2,500 extra views", color: "from-purple-600 to-blue-600", highlight: true },
-    { id: "quarter", label: "3 Months", price: 199, views: "~10,000 extra views", color: "from-amber-600 to-orange-600" },
+  const placementTiers = [
+    {
+      id: "premium" as const,
+      name: "Premium Placement",
+      icon: Crown,
+      price: { week: 99, month: 299, quarter: 799 },
+      frequency: "Top 3 spots always",
+      reach: "50,000+ views",
+      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-purple-500/20",
+      borderColor: "border-purple-500/50",
+      features: [
+        "Always visible in top 3 results",
+        "Featured on homepage carousel",
+        "Priority in all category pages",
+        "Social media promotion",
+        "Email blast to 10k+ users",
+        "Analytics dashboard",
+      ],
+    },
+    {
+      id: "gold" as const,
+      name: "Gold Placement",
+      icon: Star,
+      price: { week: 49, month: 149, quarter: 399 },
+      frequency: "Every 6 items",
+      reach: "15,000 views",
+      color: "from-yellow-500 to-orange-500",
+      bgColor: "bg-yellow-500/20",
+      borderColor: "border-yellow-500/50",
+      features: [
+        "Appears every 6th item in listings",
+        "Featured in Popular Shops carousel",
+        "Enhanced search ranking",
+        "Newsletter mention",
+        "Analytics dashboard",
+      ],
+    },
+    {
+      id: "silver" as const,
+      name: "Silver Placement",
+      icon: Sparkles,
+      price: { week: 19, month: 59, quarter: 149 },
+      frequency: "Every 10 items",
+      reach: "5,000 views",
+      color: "from-cyan-400 to-blue-500",
+      bgColor: "bg-cyan-500/20",
+      borderColor: "border-cyan-500/50",
+      features: [
+        "Appears every 10th item in listings",
+        "Sponsored badge on profile",
+        "Basic analytics",
+        "Standard support",
+      ],
+    },
   ];
+
+  const durationLabels = {
+    week: "7 days",
+    month: "30 days",
+    quarter: "90 days",
+  };
+
+  const currentTier = placementTiers.find(t => t.id === placementTier)!;
+  const currentPrice = currentTier.price[duration];
 
   const handleBoost = async () => {
     setIsProcessing(true);
     try {
-      // Simulate payment processing - in real app, would connect to Stripe
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // In production, this would create a Stripe checkout session
+      await new Promise(resolve => setTimeout(resolve, 1500));
       toast({
-        title: "Boost activated!",
-        description: `Your shop will get enhanced visibility for ${selectedTier === "week" ? "1 week" : selectedTier === "month" ? "1 month" : "3 months"}.`,
+        title: "🚀 Boost activated!",
+        description: `${currentTier.name} active for ${durationLabels[duration]}. Your shop will appear ${currentTier.frequency.toLowerCase()}.`,
       });
       onClose();
     } catch (error) {
       toast({
-        title: "Boost failed",
-        description: "Something went wrong. Please try again.",
+        title: "Payment failed",
+        description: "Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
@@ -57,50 +121,98 @@ export function BoostViewsModal({ isOpen, shopName, onClose }: BoostViewsModalPr
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-display font-bold text-white">Boost Your Shop</h2>
+            <h2 className="text-2xl font-display font-bold text-white">Promote {shopName}</h2>
           </div>
-          <p className="text-sm text-zinc-400">Get enhanced visibility and attract more buyers to {shopName}.</p>
+          <p className="text-sm text-zinc-400">Pay for higher placement and more frequent visibility across the platform.</p>
         </div>
 
-        <div className="space-y-3 mb-8">
-          {boostTiers.map((tier) => (
-            <button
-              key={tier.id}
-              onClick={() => setSelectedTier(tier.id as typeof selectedTier)}
-              className={`w-full rounded-2xl border-2 p-4 text-left transition-all ${
-                selectedTier === tier.id
-                  ? "border-primary bg-primary/10"
-                  : "border-white/10 bg-white/5 hover:border-white/20"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-white">{tier.label}</p>
-                <p className="text-lg font-bold text-primary">${tier.price}</p>
-              </div>
-              <p className="text-xs text-zinc-400 flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                {tier.views}
-              </p>
-            </button>
-          ))}
+        {/* Placement Tier Selection */}
+        <div className="space-y-3 mb-6">
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Select Placement Tier</p>
+          {placementTiers.map((tier) => {
+            const Icon = tier.icon;
+            const isSelected = placementTier === tier.id;
+            return (
+              <button
+                key={tier.id}
+                onClick={() => setPlacementTier(tier.id)}
+                className={cn(
+                  "w-full rounded-2xl border-2 p-4 text-left transition-all",
+                  isSelected
+                    ? tier.borderColor + " " + tier.bgColor
+                    : "border-white/10 bg-white/5 hover:border-white/20"
+                )}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className={cn("w-4 h-4", isSelected ? "text-white" : "text-zinc-400")} />
+                    <p className={cn("font-semibold", isSelected ? "text-white" : "text-zinc-300")}>
+                      {tier.name}
+                    </p>
+                  </div>
+                  <p className={cn("text-lg font-bold", isSelected ? "text-white" : "text-zinc-400")}>
+                    ${tier.price[duration]}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className={cn(isSelected ? "text-white/80" : "text-zinc-500")}>
+                    {tier.frequency}
+                  </span>
+                  <span className="text-zinc-600">•</span>
+                  <span className={cn(isSelected ? "text-white/80" : "text-zinc-500")}>
+                    {tier.reach}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
+        {/* Duration Selection */}
+        <div className="mb-6">
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Duration</p>
+          <div className="grid grid-cols-3 gap-2">
+            {(["week", "month", "quarter"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDuration(d)}
+                className={cn(
+                  "py-2 px-3 rounded-xl text-sm font-medium transition-all",
+                  duration === d
+                    ? "bg-primary/20 text-primary border border-primary/50"
+                    : "bg-white/5 text-zinc-400 border border-white/10 hover:border-white/20"
+                )}
+              >
+                {durationLabels[d]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Features */}
         <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
-          <p className="text-xs text-zinc-400 mb-3">What's included:</p>
-          <ul className="space-y-2 text-sm text-zinc-300">
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">✓</span>
-              <span>Featured placement in "Sponsored Shops"</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">✓</span>
-              <span>Enhanced search visibility</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">✓</span>
-              <span>Shop analytics for the boost period</span>
-            </li>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+            What's included with {currentTier.name}
+          </p>
+          <ul className="space-y-2">
+            {currentTier.features.map((feature, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                <Check className={cn("w-4 h-4 mt-0.5 shrink-0", currentTier.id === "premium" ? "text-purple-400" : currentTier.id === "gold" ? "text-yellow-400" : "text-cyan-400")} />
+                <span>{feature}</span>
+              </li>
+            ))}
           </ul>
+        </div>
+
+        {/* Price Summary */}
+        <div className="mb-4 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-zinc-300">Total for {durationLabels[duration]}</span>
+            <span className="text-2xl font-bold text-white">${currentPrice}</span>
+          </div>
+          <p className="text-xs text-zinc-500 mt-1">
+            Your shop will appear {currentTier.frequency.toLowerCase()} across all listings
+          </p>
         </div>
 
         <button
@@ -109,10 +221,10 @@ export function BoostViewsModal({ isOpen, shopName, onClose }: BoostViewsModalPr
           className="w-full mb-3"
         >
           <NeonButton
-            glowColor="primary"
+            glowColor={currentTier.id === "premium" ? "accent" : currentTier.id === "gold" ? "primary" : "white"}
             className="w-full rounded-full py-3 font-semibold"
           >
-            {isProcessing ? "Processing..." : `Boost for $${boostTiers.find(t => t.id === selectedTier)?.price}`}
+            {isProcessing ? "Processing..." : `Pay $${currentPrice} & Boost Now`}
           </NeonButton>
         </button>
 

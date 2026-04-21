@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { Megaphone } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
 import { PortfolioManager } from "./PortfolioManager";
+import { BoostViewsModal } from "@/components/shared/BoostViewsModal";
 
 export function Overview({ user, mySales, averageOrderValue, activeEquipmentCount, totalCatalogItems, setShowAddPrinter }) {
   const [, navigate] = useLocation();
+  const [showBoostModal, setShowBoostModal] = useState(false);
 
   return (
     <div>
@@ -46,12 +50,29 @@ export function Overview({ user, mySales, averageOrderValue, activeEquipmentCoun
               <p className="font-semibold text-white">Update shop settings</p>
               <p className="mt-1 text-sm text-zinc-400">Edit branding, shipping defaults, verification, and payments.</p>
             </Link>
+            <button
+              type="button"
+              onClick={() => setShowBoostModal(true)}
+              className="w-full rounded-2xl border border-white/10 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-4 text-left transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-primary group-hover:text-accent transition-colors" />
+                <p className="font-semibold text-white">Promote your shop</p>
+              </div>
+              <p className="mt-1 text-sm text-zinc-400">Pay for higher placement and more frequent visibility across listings.</p>
+            </button>
           </div>
         </div>
       </div>
       <div className="mt-6">
         <PortfolioManager userId={user.id} />
       </div>
+
+      <BoostViewsModal
+        isOpen={showBoostModal}
+        shopName={user?.displayName || "Your Shop"}
+        onClose={() => setShowBoostModal(false)}
+      />
     </div>
   )
 }
