@@ -5,21 +5,19 @@ import { useListListings, useListPrinters, useListReviews, useCreateReview } fro
 import { createClient } from "@supabase/supabase-js";
 import {
   Calendar,
-  GitCompareArrows,
-  Hammer,
-  MapPin,
-  MessageSquare,
-  Printer as PrinterIcon,
-  Star,
   CheckCircle2,
-  Package,
   Globe,
   Instagram,
   Mail,
-  X as TwitterX,
+  MapPin,
   Music,
+  Package,
   PenLine,
+  Wrench,
+  Star,
   X,
+  GitCompareArrows,
+  MessageSquare,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -156,8 +154,8 @@ export default function Shop() {
         <div className="container mx-auto px-4 -mt-24 md:-mt-32 relative z-10">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-end mb-8">
             {/* Avatar */}
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
-              <div className="w-full h-full rounded-xl overflow-hidden bg-zinc-900 border-4 border-zinc-950">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
+              <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-zinc-950">
                 {seller.avatarUrl ? (
                   <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
                 ) : (
@@ -254,7 +252,7 @@ export default function Shop() {
             </div>
             <div className="glass-panel rounded-2xl p-4 border border-white/10">
               <div className="text-2xl font-bold text-white mb-1">{seller.totalPrints || 0}</div>
-              <div className="text-sm text-zinc-400">Total Prints</div>
+              <div className="text-sm text-zinc-400">Orders</div>
             </div>
           </div>
 
@@ -297,7 +295,7 @@ export default function Shop() {
               )}
               {printersData && printersData.length >= 3 && (
                 <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-4 py-2">
-                  <PrinterIcon className="w-4 h-4 text-blue-400" />
+                  <Wrench className="w-4 h-4 text-blue-400" />
                   <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
                 </div>
               )}
@@ -363,7 +361,7 @@ export default function Shop() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
               >
-                <TwitterX className="w-4 h-4 text-zinc-400" />
+                <X className="w-4 h-4 text-zinc-400" />
                 <span className="text-sm text-zinc-300">X</span>
               </a>
             )}
@@ -401,29 +399,25 @@ export default function Shop() {
                     <div className="w-24 h-24 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0">
                       {printer.imageUrl ? (
                         <img src={printer.imageUrl} alt={printer.name} className="w-full h-full object-cover rounded-xl" />
-                      ) : printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? (
-                        <PrinterIcon className="w-10 h-10 text-zinc-500" />
                       ) : (
-                        <Hammer className="w-10 h-10 text-zinc-500" />
+                        <Wrench className="w-10 h-10 text-zinc-500" />
                       )}
                     </div>
                     <div>
                       <div className="flex items-start justify-between mb-2 gap-2 flex-wrap">
                         <h3 className="font-display font-bold text-xl text-white">{printer.name}</h3>
                         <div className="flex flex-wrap gap-1.5 justify-end">
-                          <Badge className="bg-white/10 text-zinc-200 border border-white/15">{categoryLabel(printer.equipmentCategory ?? "printing_3d")}</Badge>
+                          <Badge className="bg-white/10 text-zinc-200 border border-white/15">{categoryLabel(printer.equipmentCategory ?? "equipment")}</Badge>
                           <Badge className="bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30">
-                            {printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory
-                              ? printer.technology
-                              : printer.toolOrServiceType || printer.technology}
+                            {printer.toolOrServiceType || printer.technology}
                           </Badge>
                         </div>
                       </div>
                       <p className="text-zinc-400 text-sm mb-3">{printer.brand} {printer.model}</p>
 
                       <div className="space-y-1 text-sm text-zinc-300">
-                        <p><span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Volume:" : "Capacity:"}</span> {printer.buildVolume || "-"}</p>
-                        <p><span className="text-zinc-500">{printer.equipmentCategory === "printing_3d" || !printer.equipmentCategory ? "Materials:" : "Capabilities:"}</span> {printer.materials.join(", ")}</p>
+                        <p><span className="text-zinc-500">Capacity:</span> {printer.buildVolume || "-"}</p>
+                        <p><span className="text-zinc-500">Capabilities:</span> {printer.materials.join(", ")}</p>
                         {printer.pricePerHour || printer.pricePerGram ? (
                           <p className="text-primary font-medium mt-2">
                             {[
