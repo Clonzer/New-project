@@ -156,8 +156,8 @@ export default function Shop() {
             {/* Avatar */}
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
               <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-zinc-950">
-                {seller.avatarUrl ? (
-                  <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
+                {seller.avatarUrl || seller.avatar_url ? (
+                  <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-white">
                     {seller.displayName.charAt(0)}

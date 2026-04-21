@@ -62,20 +62,21 @@ export default function Explore() {
 
   const filteredSellers = useMemo(() => {
     if (!data?.sellers) return [];
-    
+
     const filtered = data.sellers.filter((s) => {
       const q = searchTerm.toLowerCase();
-      const allTags = (s as any).sellerTags ?? [];
+      const allTags = (s as any).sellerTags ?? (s as any).seller_tags ?? [];
       const matchesSearch =
         s.displayName.toLowerCase().includes(q) ||
         s.shopName?.toLowerCase().includes(q) ||
         s.location?.toLowerCase().includes(q) ||
         allTags.some((tag: string) => tag.toLowerCase().includes(q));
-      const matchesMode = selectedMode === "all" || !(s as any).shopMode || (s as any).shopMode === selectedMode;
+      const shopMode = (s as any).shopMode ?? (s as any).shop_mode ?? "both";
+      const matchesMode = selectedMode === "all" || shopMode === "both" || shopMode === selectedMode;
       const matchesTag = selectedTag === "all" || allTags.length === 0 || allTags.includes(selectedTag);
       return matchesSearch && matchesMode && matchesTag;
     });
-    
+
     // Enhance with sponsorship data and sort by ranking
     const enhanced = enhanceWithSponsorship(filtered, sponsoredShopIds);
     return sortByRanking(enhanced);
