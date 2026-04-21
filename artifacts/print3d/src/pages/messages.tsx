@@ -111,18 +111,33 @@ export default function Messages() {
     };
   }, [activeThreadId]);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const contact = urlParams.get('contact');
+
+    if (contact === 'synthix' && user && usersData?.users) {
+      const ADMIN_EMAIL = "evanhuelin8@gmail.com";
+      const synthixUser = usersData.users.find(u => u.email === ADMIN_EMAIL);
+      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
+        // Start conversation with Synthix team
+        startConversation(synthixUser.id);
+      }
+    }
+  }, [location, user, usersData?.users, threads]);
+
   const contacts = useMemo(() => {
     const allUsers = usersData?.users ?? [];
-    const synthixTeam = allUsers.find(u => u.id === 2); // Synthix team user
+    const ADMIN_EMAIL = "evanhuelin8@gmail.com";
+    const synthixTeam = allUsers.find(u => u.email === ADMIN_EMAIL); // Synthix team user
     const regularContacts = allUsers.filter(
       (candidate) =>
         candidate.id !== user?.id &&
-        candidate.id !== 2 && // Exclude Synthix team from regular contacts
+        candidate.email !== ADMIN_EMAIL && // Exclude Synthix team from regular contacts
         !threads.some((thread) => thread.counterpart?.id === candidate.id),
     );
 
     // Always include Synthix team if not already in a thread
-    const synthixInThread = threads.some(thread => thread.counterpart?.id === 2);
+    const synthixInThread = threads.some(thread => thread.counterpart?.id === synthixTeam?.id);
     const finalContacts = [...regularContacts];
 
     if (synthixTeam && !synthixInThread) {
@@ -143,21 +158,6 @@ export default function Messages() {
       setError(getApiErrorMessage(err));
     }
   };
-
-  // Handle URL parameters for contacting Synthix
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1]);
-    const contact = urlParams.get('contact');
-
-    if (contact && user && usersData?.users) {
-      // Find Synthix team user (ID: 2)
-      const synthixUser = usersData.users.find(u => u.id === 2);
-      if (synthixUser && !threads.some(t => t.counterpart?.id === synthixUser.id)) {
-        // Start conversation with Synthix team
-        startConversation(synthixUser.id);
-      }
-    }
-  }, [location, user, usersData, threads]);
 
   const handleSendMessage = async () => {
     if (!activeThreadId || !newMessage.trim()) return;
@@ -315,7 +315,8 @@ export default function Messages() {
                   <button
                     type="button"
                     onClick={() => {
-                      const synthixUser = usersData?.users?.find(u => u.id === 2);
+                      const ADMIN_EMAIL = "evanhuelin8@gmail.com";
+                      const synthixUser = usersData?.users?.find(u => u.email === ADMIN_EMAIL);
                       if (synthixUser) {
                         void startConversation(synthixUser.id);
                       }

@@ -415,7 +415,7 @@ export default function Settings() {
                               languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
                             }));
                           }}
-                          className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          className="w-full rounded-xl border border-white/10 bg-zinc-800 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                         >
                           {COUNTRY_OPTIONS.map((option) => (
                             <option key={option.code} value={option.code}>
