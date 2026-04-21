@@ -140,34 +140,60 @@ export default function OrderFlow() {
 
     try {
       setIsSubmitting(true);
-      const session = await createCheckoutSession({
-        shippingAddress: data.shippingAddress,
-        successPath: "/dashboard?checkout=success",
-        cancelPath: "/order/new?checkout=cancelled",
-        items: [
-          isCatalogOrder
-            ? {
-                listingId: listing!.id,
-                quantity: data.quantity,
-                notes: data.notes || null,
-              }
-            : {
-                sellerId: seller.id,
-                title: data.title,
-                fileUrl: fileDataUrl,
-                notes: data.notes || null,
-                material: data.material,
-                color: data.color,
-                quantity: data.quantity,
-                unitPrice: data.proposedUnitPrice ?? unitPrice,
-              },
-        ],
-      });
-      window.location.href = session.url;
+
+      if (!isCatalogOrder) {
+        // Custom order: create a request instead of direct checkout
+        const { createClient } = await import("@supabase/supabase-js");
+        const supabase = createClient(
+          (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
+          (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
+        );
+
+        const { error: insertError } = await supabase
+          .from('custom_order_requests')
+          .insert({
+            buyer_id: user.id,
+            seller_id: seller.id,
+            title: data.title,
+            notes: data.notes || null,
+            material: data.material,
+            color: data.color,
+            quantity: data.quantity,
+            file_url: fileDataUrl,
+            shipping_address: data.shippingAddress,
+            proposed_price: data.proposedUnitPrice ?? unitPrice,
+            status: 'pending',
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        toast({
+          title: "Request submitted",
+          description: "Your custom order request has been sent to the seller. They will review it and provide a quote.",
+        });
+        setLocation('/dashboard?custom_order=submitted');
+      } else {
+        // Catalog order: proceed to checkout as before
+        const session = await createCheckoutSession({
+          shippingAddress: data.shippingAddress,
+          successPath: "/dashboard?checkout=success",
+          cancelPath: "/order/new?checkout=cancelled",
+          items: [
+            {
+              listingId: listing!.id,
+              quantity: data.quantity,
+              notes: data.notes || null,
+            },
+          ],
+        });
+        window.location.href = session.url;
+      }
     } catch (error) {
       toast({
-        title: "Checkout failed",
-        description: getApiErrorMessageWithSupport(error, "processing your order"),
+        title: isCatalogOrder ? "Checkout failed" : "Request failed",
+        description: getApiErrorMessageWithSupport(error, isCatalogOrder ? "processing your order" : "submitting your request"),
         variant: "destructive",
       });
       setIsSubmitting(false);

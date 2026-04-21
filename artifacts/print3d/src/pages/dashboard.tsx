@@ -43,6 +43,8 @@ import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
+import CustomOrders from "@/components/dashboard/CustomOrders";
+import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1132,6 +1134,10 @@ export default function Dashboard() {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
+                  <TabsTrigger value="custom-orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <PenLine className="w-4 h-4 mr-2" />
+                    Custom Orders
+                  </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -1157,6 +1163,9 @@ export default function Dashboard() {
 
             <TabsContent value="purchases" className="mt-0">
               <Purchases myPurchases={myPurchases} isSellerUser={isSellerUser} />
+              <div className="mt-8">
+                <BuyerCustomOrders user={user} />
+              </div>
             </TabsContent>
 
             {isSellerUser && (
@@ -1369,6 +1378,12 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+              </TabsContent>
+            )}
+
+            {isSellerUser && (
+              <TabsContent value="custom-orders" className="mt-0">
+                <CustomOrders user={user} />
               </TabsContent>
             )}
           </Tabs>

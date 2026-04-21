@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Star, TrendingUp, Award, Zap, Users, Package } from "lucide-react";
+import { Star, TrendingUp, Award, Zap, Users, Package, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { customFetch } from "@/lib/workspace-api-mock";
 
@@ -19,9 +19,11 @@ interface DynamicShopBannerProps {
   userId: number;
   shopName: string;
   className?: string;
+  isSponsored?: boolean;
+  sponsorTier?: string;
 }
 
-export function DynamicShopBanner({ userId, shopName, className = "" }: DynamicShopBannerProps) {
+export function DynamicShopBanner({ userId, shopName, className = "", isSponsored = false, sponsorTier = "" }: DynamicShopBannerProps) {
   const [stats, setStats] = useState<ShopStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -151,6 +153,24 @@ export function DynamicShopBanner({ userId, shopName, className = "" }: DynamicS
             </div>
           </div>
         </div>
+
+        {/* Sponsored Badge - Middle of banner */}
+        {isSponsored && (
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 blur-lg opacity-50 rounded-full" />
+            <Badge className="relative bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 text-white border-2 border-amber-300 px-4 py-2 flex items-center gap-2 shadow-lg">
+              <Crown className="w-4 h-4 text-amber-100" />
+              <span className="font-bold uppercase tracking-wider text-xs">
+                {sponsorTier === "gold" ? "Gold" : sponsorTier === "silver" ? "Silver" : sponsorTier === "bronze" ? "Bronze" : "Sponsored"}
+              </span>
+            </Badge>
+          </motion.div>
+        )}
       </div>
 
       {/* Performance Badges */}

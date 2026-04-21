@@ -107,14 +107,19 @@ export default function Explore() {
             
             {/* Dynamic Shop Banners for Top Performers */}
             <div className="mb-8">
-              {data?.sellers.slice(0, 3).map((seller) => (
-                <DynamicShopBanner
-                  key={seller.id}
-                  userId={seller.id}
-                  shopName={seller.shopName || seller.displayName}
-                  className="mb-4"
-                />
-              ))}
+              {data?.sellers.slice(0, 3).map((seller) => {
+                const sponsorInfo = sponsoredShopIds.get(seller.id);
+                return (
+                  <DynamicShopBanner
+                    key={seller.id}
+                    userId={seller.id}
+                    shopName={seller.shopName || seller.displayName}
+                    className="mb-4"
+                    isSponsored={!!sponsorInfo}
+                    sponsorTier={sponsorInfo?.tier}
+                  />
+                );
+              })}
             </div>
             
             {isLoading ? (
