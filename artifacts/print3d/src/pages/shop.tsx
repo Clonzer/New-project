@@ -134,241 +134,247 @@ export default function Shop() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
       <Navbar />
 
-      <main className="flex-grow pt-12 pb-24">
-        <div className="container mx-auto px-4">
-          <div className="glass-panel rounded-[2rem] p-8 md:p-12 mb-12 relative overflow-hidden border-t border-white/10">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+      <main className="flex-grow">
+        {/* Full-width Banner */}
+        <div className="relative w-full h-64 md:h-80 overflow-hidden">
+          {seller.bannerUrl ? (
+            <img
+              src={seller.bannerUrl}
+              alt={`${seller.shopName || seller.displayName} banner`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/20 to-zinc-900" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
+        </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
-                <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-background">
-                  {seller.avatarUrl ? (
-                    <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-white">
-                      {seller.displayName.charAt(0)}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex-grow">
-                {seller.bannerUrl ? (
-                  <div className="mb-5 overflow-hidden rounded-[1.5rem] border border-white/10">
-                    <img
-                      src={seller.bannerUrl}
-                      alt={`${seller.shopName || seller.displayName} banner`}
-                      className="h-40 w-full object-cover"
-                    />
-                  </div>
-                ) : null}
-
-                <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                  {seller.shopName || seller.displayName}
-                </h1>
-
-                <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
-                  {seller.location ? (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-primary" /> {seller.location}
-                    </span>
-                  ) : null}
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(seller.joinedAt), "MMM yyyy")}
-                  </span>
-                  <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
-                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {seller.rating?.toFixed(1) || "New"} ({seller.reviewCount})
-                  </span>
-                  {seller.emailVerifiedAt ? (
-                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
-                      Verified maker
-                    </span>
-                  ) : null}
-                  {seller.planTier === "enterprise" ? (
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
-                      Enterprise
-                    </span>
-                  ) : null}
-                </div>
-
-                {seller.shopAnnouncement ? (
-                  <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-white">
-                    {seller.shopAnnouncement}
-                  </div>
-                ) : null}
-
-                <p className="text-zinc-300 max-w-2xl text-lg leading-relaxed">
-                  {seller.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
-                </p>
-
-                {seller.brandStory ? (
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400">
-                    {seller.brandStory}
-                  </p>
-                ) : null}
-
-                {seller.sellerTags?.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {seller.sellerTags.map((tag) => (
-                      <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-
-                {/* Seller Badges */}
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {seller.reviewCount >= 3 && (
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span className="text-sm font-medium text-emerald-400">Trusted Seller</span>
-                    </div>
-                  )}
-                  {printersData && printersData.length >= 3 && (
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-3 py-2">
-                      <PrinterIcon className="w-4 h-4 text-blue-400" />
-                      <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
-                    </div>
-                  )}
-                  {listingsData?.listings && listingsData.listings.length >= 10 && (
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-3 py-2">
-                      <Package className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm font-medium text-purple-400">Pro Catalog</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Equipment Display */}
-                {printersData && printersData.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-semibold text-zinc-400 mb-3 uppercase tracking-wide">Equipment</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {printersData.slice(0, 4).map((printer) => (
-                        <div key={printer.id} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                          {printer.equipment_category === "printing_3d" ? (
-                            <PrinterIcon className="w-4 h-4 text-primary" />
-                          ) : (
-                            <Hammer className="w-4 h-4 text-accent" />
-                          )}
-                          <span className="text-xs text-zinc-300">{printer.name}</span>
-                        </div>
-                      ))}
-                      {printersData.length > 4 && (
-                        <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                          <span className="text-xs text-zinc-400">+{printersData.length - 4} more</span>
-                        </div>
-                      )}
-                    </div>
+        {/* Profile Section - Overlapping Banner */}
+        <div className="container mx-auto px-4 -mt-24 md:-mt-32 relative z-10">
+          <div className="flex flex-col md:flex-row gap-6 items-start md:items-end mb-8">
+            {/* Avatar */}
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
+              <div className="w-full h-full rounded-xl overflow-hidden bg-zinc-900 border-4 border-zinc-950">
+                {seller.avatarUrl ? (
+                  <img src={seller.avatarUrl} alt={seller.displayName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-white">
+                    {seller.displayName.charAt(0)}
                   </div>
                 )}
-
-                {/* Social Media Links */}
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {seller.websiteUrl && (
-                    <a
-                      href={seller.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
-                    >
-                      <Globe className="w-4 h-4 text-zinc-400" />
-                      <span className="text-sm text-zinc-300">Website</span>
-                    </a>
-                  )}
-                  {seller.instagramHandle && (
-                    <a
-                      href={`https://instagram.com/${seller.instagramHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
-                    >
-                      <Instagram className="w-4 h-4 text-zinc-400" />
-                      <span className="text-sm text-zinc-300">Instagram</span>
-                    </a>
-                  )}
-                  {seller.supportEmail && (
-                    <a
-                      href={`mailto:${seller.supportEmail}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-zinc-400" />
-                      <span className="text-sm text-zinc-300">Email</span>
-                    </a>
-                  )}
-                  {seller.tiktokHandle && (
-                    <a
-                      href={`https://tiktok.com/@${seller.tiktokHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
-                    >
-                      <Music className="w-4 h-4 text-zinc-400" />
-                      <span className="text-sm text-zinc-300">TikTok</span>
-                    </a>
-                  )}
-                  {seller.xHandle && (
-                    <a
-                      href={`https://x.com/${seller.xHandle.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
-                    >
-                      <TwitterX className="w-4 h-4 text-zinc-400" />
-                      <span className="text-sm text-zinc-300">X</span>
-                    </a>
-                  )}
-                </div>
               </div>
+            </div>
 
-              <div className="shrink-0 w-full md:w-auto">
-                <Button
-                  variant="outline"
-                  className="w-full py-6 text-lg rounded-xl glass-panel text-white hover:bg-white/10 border-white/20 mb-3"
-                  onClick={() => {
-                    const added = toggleComparedShop({
-                      id: seller.id,
-                      displayName: seller.displayName,
-                      shopName: seller.shopName ?? null,
-                      location: seller.location ?? null,
-                      rating: seller.rating ?? null,
-                      reviewCount: seller.reviewCount,
-                      shopMode: seller.shopMode ?? null,
-                      totalPrints: seller.totalPrints,
-                    });
-                    toast({
-                      title: added ? "Shop added to compare" : "Shop removed from compare",
-                      description: added
-                        ? "Open compare to review this shop against others."
-                        : "This shop is no longer pinned for comparison.",
-                    });
-                  }}
-                >
-                  <GitCompareArrows className="w-5 h-5 mr-2" />
-                  {isCompared ? "Remove from compare" : "Compare shop"}
-                </Button>
-                {seller.shopMode === "open" || seller.shopMode === "both" ? (
-                  <Link href={`/order/new?sellerId=${seller.id}`}>
-                    <NeonButton className="w-full py-6 text-lg rounded-xl mb-3">Request custom work</NeonButton>
-                  </Link>
+            {/* Shop Info */}
+            <div className="flex-grow">
+              <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+                {seller.shopName || seller.displayName}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
+                {seller.location ? (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-primary" /> {seller.location}
+                  </span>
                 ) : null}
-                <Link href="/messages">
-                  <Button variant="outline" className="w-full py-6 text-lg rounded-xl glass-panel text-white hover:bg-white/10 border-white/20">
-                    <MessageSquare className="w-5 h-5 mr-2" /> Contact seller
-                  </Button>
-                </Link>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4 text-accent" /> Joined {format(new Date(seller.joinedAt), "MMM yyyy")}
+                </span>
+                <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
+                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {seller.rating?.toFixed(1) || "New"} ({seller.reviewCount})
+                </span>
+                {seller.emailVerifiedAt ? (
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
+                    Verified maker
+                  </span>
+                ) : null}
+                {seller.planTier === "enterprise" ? (
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200">
+                    Enterprise
+                  </span>
+                ) : null}
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="shrink-0 flex gap-3">
+              <Button
+                variant="outline"
+                className="py-3 px-6 rounded-xl glass-panel text-white hover:bg-white/10 border-white/20"
+                onClick={() => {
+                  const added = toggleComparedShop({
+                    id: seller.id,
+                    displayName: seller.displayName,
+                    shopName: seller.shopName ?? null,
+                    location: seller.location ?? null,
+                    rating: seller.rating ?? null,
+                    reviewCount: seller.reviewCount,
+                    shopMode: seller.shopMode ?? null,
+                    totalPrints: seller.totalPrints,
+                  });
+                  toast({
+                    title: added ? "Shop added to compare" : "Shop removed from compare",
+                    description: added
+                      ? "Open compare to review this shop against others."
+                      : "This shop is no longer pinned for comparison.",
+                  });
+                }}
+              >
+                <GitCompareArrows className="w-5 h-5 mr-2" />
+                {isCompared ? "Remove" : "Compare"}
+              </Button>
+              {seller.shopMode === "open" || seller.shopMode === "both" ? (
+                <Link href={`/order/new?sellerId=${seller.id}`}>
+                  <NeonButton className="py-3 px-6 rounded-xl">Request Custom Work</NeonButton>
+                </Link>
+              ) : null}
+              <Link href="/messages">
+                <Button variant="outline" className="py-3 px-6 rounded-xl glass-panel text-white hover:bg-white/10 border-white/20">
+                  <MessageSquare className="w-5 h-5 mr-2" /> Contact
+                </Button>
+              </Link>
             </div>
           </div>
 
+          {/* Stats Bar */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="glass-panel rounded-2xl p-4 border border-white/10">
+              <div className="text-2xl font-bold text-white mb-1">{listingsData?.listings?.length || 0}</div>
+              <div className="text-sm text-zinc-400">Products</div>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/10">
+              <div className="text-2xl font-bold text-white mb-1">{printersData?.length || 0}</div>
+              <div className="text-sm text-zinc-400">Equipment</div>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/10">
+              <div className="text-2xl font-bold text-white mb-1">{seller.reviewCount || 0}</div>
+              <div className="text-sm text-zinc-400">Reviews</div>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/10">
+              <div className="text-2xl font-bold text-white mb-1">{seller.totalPrints || 0}</div>
+              <div className="text-sm text-zinc-400">Total Prints</div>
+            </div>
+          </div>
+
+          {/* Announcement */}
+          {seller.shopAnnouncement ? (
+            <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/10 px-6 py-4 text-sm text-white">
+              {seller.shopAnnouncement}
+            </div>
+          ) : null}
+
+          {/* Bio and Badges */}
+          <div className="glass-panel rounded-2xl p-6 border border-white/10 mb-8">
+            <p className="text-zinc-300 text-lg leading-relaxed mb-4">
+              {seller.bio || "Fabrication, additive manufacturing, and custom work - message for details."}
+            </p>
+
+            {seller.brandStory ? (
+              <p className="text-sm leading-relaxed text-zinc-400 mb-4">
+                {seller.brandStory}
+              </p>
+            ) : null}
+
+            {seller.sellerTags?.length ? (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {seller.sellerTags.map((tag) => (
+                  <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            {/* Seller Badges */}
+            <div className="flex flex-wrap gap-3">
+              {seller.reviewCount >= 3 && (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-4 py-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-sm font-medium text-emerald-400">Trusted Seller</span>
+                </div>
+              )}
+              {printersData && printersData.length >= 3 && (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-4 py-2">
+                  <PrinterIcon className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
+                </div>
+              )}
+              {listingsData?.listings && listingsData.listings.length >= 10 && (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-4 py-2">
+                  <Package className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-400">Pro Catalog</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Social Media Links */}
+          <div className="flex flex-wrap gap-3 mb-8">
+            {seller.websiteUrl && (
+              <a
+                href={seller.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+              >
+                <Globe className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm text-zinc-300">Website</span>
+              </a>
+            )}
+            {seller.instagramHandle && (
+              <a
+                href={`https://instagram.com/${seller.instagramHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+              >
+                <Instagram className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm text-zinc-300">Instagram</span>
+              </a>
+            )}
+            {seller.supportEmail && (
+              <a
+                href={`mailto:${seller.supportEmail}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+              >
+                <Mail className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm text-zinc-300">Email</span>
+              </a>
+            )}
+            {seller.tiktokHandle && (
+              <a
+                href={`https://tiktok.com/@${seller.tiktokHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+              >
+                <Music className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm text-zinc-300">TikTok</span>
+              </a>
+            )}
+            {seller.xHandle && (
+              <a
+                href={`https://x.com/${seller.xHandle.replace('@', '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-2 transition-colors"
+              >
+                <TwitterX className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm text-zinc-300">X</span>
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Content Tabs - Full Width */}
+        <div className="container mx-auto px-4 pb-24">
           <Tabs defaultValue="models" className="w-full">
-            <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8">
-              <TabsTrigger value="models" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Catalog Models</TabsTrigger>
+            <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8 w-full justify-start">
+              <TabsTrigger value="models" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Products</TabsTrigger>
               <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Equipment</TabsTrigger>
               <TabsTrigger value="portfolio" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Portfolio</TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Reviews</TabsTrigger>

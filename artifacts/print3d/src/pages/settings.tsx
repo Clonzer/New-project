@@ -26,6 +26,7 @@ import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "storefront", label: "Storefront", icon: Store },
+  { id: "appearance", label: "Appearance", icon: Eye },
   { id: "shipping", label: "Shipping", icon: Truck },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
@@ -96,6 +97,11 @@ export default function Settings() {
     processingDaysMax: user?.processingDaysMax != null ? String(user.processingDaysMax) : "7",
     returnPolicy: user?.returnPolicy ?? "",
     customOrderPolicy: user?.customOrderPolicy ?? "",
+    // Color customization
+    primaryColor: user?.primaryColor ?? "#8b5cf6",
+    accentColor: user?.accentColor ?? "#06b6d4",
+    backgroundColor: user?.backgroundColor ?? "#09090b",
+    textColor: user?.textColor ?? "#ffffff",
   });
 
   useEffect(() => {
@@ -116,8 +122,8 @@ export default function Settings() {
       websiteUrl: user.websiteUrl ?? "",
       instagramHandle: user.instagramHandle ?? "",
       supportEmail: user.supportEmail ?? "",
-      tiktokHandle: user.tiktokHandle ?? "",
-      xHandle: user.xHandle ?? "",
+      tiktokHandle: (user as any).tiktokHandle ?? "",
+      xHandle: (user as any).xHandle ?? "",
       shopMode: user.shopMode ?? "open",
       defaultShippingCost: user.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
       shippingRegions: user.shippingRegions ?? "",
@@ -134,6 +140,11 @@ export default function Settings() {
       processingDaysMax: user.processingDaysMax != null ? String(user.processingDaysMax) : "7",
       returnPolicy: user.returnPolicy ?? "",
       customOrderPolicy: user.customOrderPolicy ?? "",
+      // Color customization
+      primaryColor: (user as any).primaryColor ?? "#8b5cf6",
+      accentColor: (user as any).accentColor ?? "#06b6d4",
+      backgroundColor: (user as any).backgroundColor ?? "#09090b",
+      textColor: (user as any).textColor ?? "#ffffff",
     });
   }, [user]);
 
@@ -208,6 +219,11 @@ export default function Settings() {
           processingDaysMax: processingDaysMax != null && Number.isFinite(processingDaysMax) ? processingDaysMax : null,
           returnPolicy: form.returnPolicy.trim() || null,
           customOrderPolicy: form.customOrderPolicy.trim() || null,
+          // Color customization
+          primaryColor: form.primaryColor,
+          accentColor: form.accentColor,
+          backgroundColor: form.backgroundColor,
+          textColor: form.textColor,
         },
       });
       persistLocalePreferences({
@@ -766,6 +782,181 @@ export default function Settings() {
                         </div>
                       </>
                     )}
+                  </div>
+                )}
+
+                {activeSection === "appearance" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Appearance</h2>
+                    <div className="glass-panel rounded-2xl border border-white/10 p-6">
+                      <p className="text-zinc-400 mb-6">
+                        Customize your storefront colors to match your brand identity.
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Primary Color</label>
+                          <div className="flex gap-3">
+                            <input
+                              type="color"
+                              value={form.primaryColor}
+                              onChange={(event) => setForm((current) => ({ ...current, primaryColor: event.target.value }))}
+                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
+                            />
+                            <Input
+                              value={form.primaryColor}
+                              onChange={(event) => setForm((current) => ({ ...current, primaryColor: event.target.value }))}
+                              placeholder="#8b5cf6"
+                              className="bg-black/30 border-white/10 text-white flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Used for buttons, highlights, and key interactive elements</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Accent Color</label>
+                          <div className="flex gap-3">
+                            <input
+                              type="color"
+                              value={form.accentColor}
+                              onChange={(event) => setForm((current) => ({ ...current, accentColor: event.target.value }))}
+                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
+                            />
+                            <Input
+                              value={form.accentColor}
+                              onChange={(event) => setForm((current) => ({ ...current, accentColor: event.target.value }))}
+                              placeholder="#06b6d4"
+                              className="bg-black/30 border-white/10 text-white flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Used for secondary highlights and decorative elements</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Background Color</label>
+                          <div className="flex gap-3">
+                            <input
+                              type="color"
+                              value={form.backgroundColor}
+                              onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))}
+                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
+                            />
+                            <Input
+                              value={form.backgroundColor}
+                              onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))}
+                              placeholder="#09090b"
+                              className="bg-black/30 border-white/10 text-white flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Main background color of your storefront</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm text-zinc-400 mb-1.5">Text Color</label>
+                          <div className="flex gap-3">
+                            <input
+                              type="color"
+                              value={form.textColor}
+                              onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))}
+                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
+                            />
+                            <Input
+                              value={form.textColor}
+                              onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))}
+                              placeholder="#ffffff"
+                              className="bg-black/30 border-white/10 text-white flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-1">Primary text color for headings and body text</p>
+                        </div>
+                      </div>
+
+                      {/* Color Preview */}
+                      <div className="mt-6 pt-6 border-t border-white/10">
+                        <label className="block text-sm text-zinc-400 mb-3">Preview</label>
+                        <div
+                          className="rounded-xl p-6 border"
+                          style={{
+                            backgroundColor: form.backgroundColor,
+                            borderColor: form.primaryColor + '40',
+                            color: form.textColor,
+                          }}
+                        >
+                          <div className="flex items-center gap-4 mb-4">
+                            <div
+                              className="w-16 h-16 rounded-xl"
+                              style={{ backgroundColor: form.primaryColor }}
+                            />
+                            <div>
+                              <h3
+                                className="text-xl font-bold mb-1"
+                                style={{ color: form.textColor }}
+                              >
+                                Your Shop Name
+                              </h3>
+                              <p className="text-sm opacity-70" style={{ color: form.textColor }}>
+                                A sample description of your shop
+                              </p>
+                            </div>
+                          </div>
+                          <div
+                            className="inline-block px-4 py-2 rounded-lg font-medium"
+                            style={{
+                              backgroundColor: form.primaryColor,
+                              color: '#ffffff',
+                            }}
+                          >
+                            Sample Button
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Preset Color Schemes */}
+                      <div className="mt-6 pt-6 border-t border-white/10">
+                        <label className="block text-sm text-zinc-400 mb-3">Preset Color Schemes</label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {[
+                            { name: "Default", primary: "#8b5cf6", accent: "#06b6d4", bg: "#09090b", text: "#ffffff" },
+                            { name: "Ocean", primary: "#0ea5e9", accent: "#22d3ee", bg: "#0c4a6e", text: "#ffffff" },
+                            { name: "Forest", primary: "#10b981", accent: "#34d399", bg: "#064e3b", text: "#ffffff" },
+                            { name: "Sunset", primary: "#f59e0b", accent: "#fbbf24", bg: "#78350f", text: "#ffffff" },
+                            { name: "Rose", primary: "#f43f5e", accent: "#fb7185", bg: "#881337", text: "#ffffff" },
+                            { name: "Slate", primary: "#64748b", accent: "#94a3b8", bg: "#1e293b", text: "#ffffff" },
+                            { name: "Indigo", primary: "#6366f1", accent: "#818cf8", bg: "#312e81", text: "#ffffff" },
+                            { name: "Emerald", primary: "#059669", accent: "#10b981", bg: "#065f46", text: "#ffffff" },
+                          ].map((preset) => (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() =>
+                                setForm((current) => ({
+                                  ...current,
+                                  primaryColor: preset.primary,
+                                  accentColor: preset.accent,
+                                  backgroundColor: preset.bg,
+                                  textColor: preset.text,
+                                }))
+                              }
+                              className="p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+                            >
+                              <div
+                                className="w-full h-8 rounded-lg mb-2"
+                                style={{
+                                  background: `linear-gradient(135deg, ${preset.primary} 0%, ${preset.accent} 100%)`,
+                                }}
+                              />
+                              <p className="text-xs text-zinc-300">{preset.name}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end mt-6">
+                        <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
+                          {updateUser.isPending ? "Saving..." : "Save Appearance"}
+                        </NeonButton>
+                      </div>
+                    </div>
                   </div>
                 )}
 
