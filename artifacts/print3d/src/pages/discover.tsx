@@ -843,11 +843,24 @@ export default function Discover() {
                           className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors group"
                         >
                           <div className="relative mb-4">
-                            <img
-                              src={listing.imageUrls?.[0] || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop"}
-                              alt={listing.title}
-                              className="w-full h-48 object-cover rounded-xl"
-                            />
+                            {listing.imageUrl ? (
+                              <img
+                                src={listing.imageUrl}
+                                alt={listing.title}
+                                className="w-full h-48 object-cover rounded-xl"
+                              />
+                            ) : (
+                              <div className="w-full h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="w-16 h-16 mx-auto mb-2 bg-white/5 rounded-full flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-zinc-500 text-sm">No image available</p>
+                                </div>
+                              </div>
+                            )}
                             {sponsorInfo && (
                               <div className="absolute top-2 left-2">
                                 <Badge className={cn("border font-semibold", tierStyles[sponsorInfo.tier || "silver"])}>
@@ -864,19 +877,14 @@ export default function Discover() {
                           </div>
                           <h3 className="font-bold text-white mb-2 line-clamp-2">{listing.title}</h3>
                           <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description}</p>
-                          <div className="flex items-center justify-between">
-                            <Badge className="bg-primary/20 text-primary border-primary/30">
-                              ${listing.price}
-                            </Badge>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" className="hover:bg-primary/20">
-                                <MessageSquare className="w-4 h-4 mr-1" />
-                                Contact
-                              </Button>
-                              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                                View Details
-                              </Button>
-                            </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="hover:bg-primary/20">
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              Contact
+                            </Button>
+                            <Button size="sm" className="bg-primary hover:bg-primary/90">
+                              View Details
+                            </Button>
                           </div>
                         </motion.div>
                       );
