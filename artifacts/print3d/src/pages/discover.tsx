@@ -421,41 +421,43 @@ export default function Discover() {
 
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-display font-bold text-white mb-8">Discover</h1>
-            <p className="text-white text-lg mb-6">Browse community posts, trending picks, standout projects, and makers to follow.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-2">
+              <h1 className="text-4xl font-display font-bold text-white mb-8">Discover</h1>
+              <p className="text-white text-lg mb-6">Browse community posts, trending picks, standout projects, and makers to follow.</p>
 
-            {/* Tabs */}
-            <div className="flex gap-1 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl w-fit">
-              <Button
-                variant={activeTab === "feed" ? "default" : "ghost"}
-                onClick={() => handleTabChange("feed")}
-                className="rounded-lg"
-              >
-                Feed
-              </Button>
-              <Button
-                variant={activeTab === "trending" ? "default" : "ghost"}
-                onClick={() => handleTabChange("trending")}
-                className="rounded-lg"
-              >
-                Trending
-              </Button>
-              <Button
-                variant={activeTab === "projects" ? "default" : "ghost"}
-                onClick={() => handleTabChange("projects")}
-                className="rounded-lg"
-              >
-                Projects
-              </Button>
-              <Button
-                variant={activeTab === "people" ? "default" : "ghost"}
-                onClick={() => handleTabChange("people")}
-                className="rounded-lg"
-              >
-                People
-              </Button>
-            </div>
+              {/* Tabs */}
+              <div className="flex gap-1 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl w-fit">
+                <Button
+                  variant={activeTab === "feed" ? "default" : "ghost"}
+                  onClick={() => handleTabChange("feed")}
+                  className="rounded-lg"
+                >
+                  Feed
+                </Button>
+                <Button
+                  variant={activeTab === "trending" ? "default" : "ghost"}
+                  onClick={() => handleTabChange("trending")}
+                  className="rounded-lg"
+                >
+                  Trending
+                </Button>
+                <Button
+                  variant={activeTab === "projects" ? "default" : "ghost"}
+                  onClick={() => handleTabChange("projects")}
+                  className="rounded-lg"
+                >
+                  Projects
+                </Button>
+                <Button
+                  variant={activeTab === "people" ? "default" : "ghost"}
+                  onClick={() => handleTabChange("people")}
+                  className="rounded-lg"
+                >
+                  People
+                </Button>
+              </div>
 
             {activeTab === "feed" && (
               <div className="space-y-6">
@@ -1018,6 +1020,69 @@ export default function Discover() {
                 )}
               </div>
             )}
+            </div>
+
+            {/* Right Column - Featured Models */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 space-y-6">
+                <div className="glass-panel rounded-3xl border border-white/10 p-6">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Featured Models
+                  </h2>
+                  <div className="space-y-4">
+                    {listingsData?.listings?.slice(0, 5).map((listing) => (
+                      <Link key={listing.id} href={`/listings/${listing.id}`}>
+                        <div className="group cursor-pointer">
+                          <div className="relative mb-2">
+                            {listing.imageUrl ? (
+                              <img
+                                src={listing.imageUrl}
+                                alt={listing.title}
+                                className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
+                              />
+                            ) : (
+                              <div className="w-full h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="w-12 h-12 mx-auto mb-1 bg-white/5 rounded-full flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
+                          <p className="text-zinc-500 text-xs line-clamp-2">{listing.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-4">
+                    <Link href="/listings">
+                      <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5">
+                        View All Models
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="glass-panel rounded-3xl border border-white/10 p-6">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-accent" />
+                    Trending Tags
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"].map((tag) => (
+                      <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-primary/20 border-white/20 text-zinc-300 text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
