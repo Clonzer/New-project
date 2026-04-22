@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { ReportButton } from "@/components/shared/ReportButton";
+import { useToast } from "@/hooks/use-toast";
 import {
   createMessageThread,
   getMessageThread,
@@ -39,6 +41,7 @@ function formatTimestamp(value?: string | null) {
 export default function Messages() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
+  const { toast } = useToast();
   const { data: usersData } = useListUsers();
   const [threads, setThreads] = useState<MessageThreadSummary[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<number | null>(() => readRequestedThreadId());
@@ -314,11 +317,29 @@ export default function Messages() {
                 <div className="space-y-2">
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       const ADMIN_EMAIL = "evanhuelin8@gmail.com";
                       const synthixUser = usersData?.users?.find(u => u.email === ADMIN_EMAIL);
                       if (synthixUser) {
-                        void startConversation(synthixUser.id);
+                        try {
+                          await startConversation(synthixUser.id);
+                          toast({
+                            title: "Conversation started",
+                            description: "You can now message the Synthix support team.",
+                          });
+                        } catch (err) {
+                          toast({
+                            title: "Failed to start conversation",
+                            description: "Please try again or contact support directly.",
+                            variant: "destructive",
+                          });
+                        }
+                      } else {
+                        toast({
+                          title: "Support unavailable",
+                          description: "The Synthix support team is currently unavailable. Please try again later.",
+                          variant: "destructive",
+                        });
                       }
                     }}
                     className="flex w-full items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-left hover:border-primary/50 hover:bg-primary/20"
@@ -332,11 +353,7 @@ export default function Messages() {
                     </div>
                     <Plus className="h-4 w-4 text-primary" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setLocation('/help')}
-                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left hover:border-yellow-500/40 hover:bg-yellow-500/10"
-                  >
+                  <div className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                     <div>
                       <p className="text-sm font-medium text-white flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
@@ -344,8 +361,13 @@ export default function Messages() {
                       </p>
                       <p className="text-xs text-zinc-500">Report issues or concerns</p>
                     </div>
-                    <Plus className="h-4 w-4 text-zinc-400" />
-                  </button>
+                    <ReportButton
+                      itemType="message"
+                      itemId={activeThreadId?.toString() || "general"}
+                      itemName="Message Thread"
+                      className="text-zinc-400 hover:text-red-400"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
