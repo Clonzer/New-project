@@ -14,6 +14,7 @@ import {
   Star, 
   Zap, 
   ArrowRight, 
+  ArrowLeft,
   CheckCircle2,
   Sparkles,
   Crown,
@@ -124,8 +125,17 @@ export default function SponsorshipPurchase() {
         {/* Hero Section */}
         <section className="relative pt-24 pb-16 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-background" />
-          
+
           <div className="container mx-auto px-4 relative z-10">
+            <div className="mb-6">
+              <Link href="/dashboard">
+                <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+            </div>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
