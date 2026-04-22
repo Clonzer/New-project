@@ -36,6 +36,7 @@ import EditListing from "@/pages/edit-listing";
 import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import StorefrontEdit from "@/pages/storefront-edit";
+import ServiceOrder from "@/pages/service-order";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 import About from "@/pages/about";
@@ -92,6 +93,10 @@ function StorefrontEditPage() {
   return <ProtectedRoute children={<StorefrontEdit />} />;
 }
 
+function ServiceOrderPage() {
+  return <ProtectedRoute children={<ServiceOrder />} />;
+}
+
 function ScrollToTop() {
   const [location] = useLocation();
   
@@ -133,6 +138,7 @@ function Router() {
       <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/sponsorship/purchase" component={SponsorshipPurchase} />
+      <Route path="/service-order" component={ServiceOrderPage} />
       <Route path="/storefront/edit" component={StorefrontEditPage} />
       <Route path="/create-listing" component={CreateListingPage} />
       <Route path="/listings/:id/edit" component={EditListingPage} />
