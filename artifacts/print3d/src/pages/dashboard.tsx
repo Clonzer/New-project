@@ -845,6 +845,7 @@ export default function Dashboard() {
   const listingParams = { sellerId: user?.id, userId: user?.id };
   const printerParams = { userId: user?.id };
   const writtenReviewParams = { reviewerId: user?.id };
+  const receivedReviewParams = { revieweeId: user?.id };
   const { data: myPurchases, refetch: refetchPurchases } = useListOrders(purchaseParams, {
     query: { enabled: !!user, queryKey: getListOrdersQueryKey(purchaseParams) },
   });
@@ -862,6 +863,9 @@ export default function Dashboard() {
   });
   const { data: myReviews } = useListReviews(writtenReviewParams, {
     query: { enabled: !!user, queryKey: getListReviewsQueryKey(writtenReviewParams) },
+  });
+  const { data: reviewsReceived } = useListReviews(receivedReviewParams, {
+    query: { enabled: !!user && isSeller(user?.role), queryKey: getListReviewsQueryKey(receivedReviewParams) },
   });
 
   const updateStatus = useUpdateOrderStatus();
@@ -1181,7 +1185,7 @@ export default function Dashboard() {
 
             {isSellerUser && (
               <TabsContent value="reviews" className="mt-0">
-                <Reviews myReviews={myReviews} />
+                <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
               </TabsContent>
             )}
 
