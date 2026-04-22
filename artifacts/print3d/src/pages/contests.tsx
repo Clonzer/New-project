@@ -481,14 +481,15 @@ export default function Contests() {
                           </div>
 
                           <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => setSelectedContest(contest)}
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              View Details
-                            </Button>
+                            <Link href={`/contests/${contest.id}`} className="flex-1">
+                              <Button
+                                variant="outline"
+                                className="w-full"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </Button>
+                            </Link>
                           </div>
                         </CardContent>
                       </Card>

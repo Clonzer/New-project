@@ -13,6 +13,7 @@ import Explore from "@/pages/explore";
 import ExploreAll from "@/pages/explore-all";
 import ExploreModels from "@/pages/explore-models";
 import Contests from "@/pages/contests";
+import ContestDetail from "@/pages/contest-detail";
 import Listings from "@/pages/listings";
 import Shop from "@/pages/shop";
 import OrderFlow from "@/pages/order-flow";
@@ -114,6 +115,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/contests" component={Contests} />
+      <Route path="/contests/:contestId" component={ContestDetail} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:id" component={ListingDetail} />
       <Route path="/shop/:id" component={Shop} />
