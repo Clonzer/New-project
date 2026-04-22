@@ -26,9 +26,9 @@ export default function SearchPage() {
     return all.filter(
       (s) =>
         s.displayName.toLowerCase().includes(q) ||
-        (s.shopName?.toLowerCase().includes(q) ?? false) ||
-        (s.username.toLowerCase().includes(q) ?? false) ||
-        (s.location?.toLowerCase().includes(q) ?? false),
+        (s.shopName?.toLowerCase().includes(q) || false) ||
+        (s.username?.toLowerCase().includes(q) || false) ||
+        (s.location?.toLowerCase().includes(q) || false),
     );
   }, [sellersData, q]);
 
@@ -38,9 +38,9 @@ export default function SearchPage() {
     return all.filter(
       (l) =>
         l.title.toLowerCase().includes(q) ||
-        l.category.toLowerCase().includes(q) ||
-        l.tags.some((t) => t.toLowerCase().includes(q)) ||
-        l.sellerName.toLowerCase().includes(q),
+        (l.category?.toLowerCase().includes(q) || false) ||
+        (l.tags?.some((t) => t.toLowerCase().includes(q)) || false) ||
+        (l.sellerName?.toLowerCase().includes(q) || false),
     );
   }, [listingsData, q]);
 
