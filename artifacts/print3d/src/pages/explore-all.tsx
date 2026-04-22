@@ -21,7 +21,7 @@ function transformSeller(seller: any) {
     ...seller,
     displayName: seller.store_name || seller.display_name || seller.displayName,
     shopName: seller.store_name || seller.shopName,
-    avatarUrl: seller.avatar_url || seller.avatarUrl,
+    avatarUrl: seller.avatar_url || seller.avatarUrl || seller.avatar || seller.profile_image_url,
     location: seller.location,
     rating: seller.rating || 0,
     reviewCount: seller.review_count || seller.reviewCount || 0,
