@@ -13,7 +13,7 @@ import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
   Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
-  ShoppingBag,
+  ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -1190,6 +1190,18 @@ export default function Dashboard() {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
+                  <TabsTrigger value="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Messages
+                  </TabsTrigger>
+                  <TabsTrigger value="promotions" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <Megaphone className="w-4 h-4 mr-2" />
+                    Promotions
+                  </TabsTrigger>
+                  <TabsTrigger value="finance" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <Wallet className="w-4 h-4 mr-2" />
+                    Finance
+                  </TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -1432,6 +1444,158 @@ export default function Dashboard() {
                             <Plus className="w-4 h-4 mr-2" /> Create Listing
                           </NeonButton>
                         </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* Messages Tab */}
+            {isSellerUser && (
+              <TabsContent value="messages" className="mt-0">
+                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10 bg-white/5">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-primary" />
+                      Messages
+                    </h2>
+                    <p className="text-sm text-zinc-500 mt-1">Communicate with your buyers and customers.</p>
+                  </div>
+                  <div className="p-6">
+                    <div className="text-center py-12">
+                      <MessageSquare className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                      <p className="text-zinc-400 mb-2">No messages yet</p>
+                      <p className="text-sm text-zinc-500">Messages from buyers will appear here.</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* Promotions Tab */}
+            {isSellerUser && (
+              <TabsContent value="promotions" className="mt-0">
+                <div className="space-y-8">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Megaphone className="w-5 h-5 text-primary" />
+                        Promotions & Marketing
+                      </h2>
+                      <p className="text-sm text-zinc-500 mt-1">Manage your sponsorships and promotional campaigns.</p>
+                    </div>
+                    <div className="p-6">
+                      <SponsoredShopsInjection 
+                        maxShops={3} 
+                        showHeader={false}
+                        className="mb-6"
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Link href="/sponsorship/purchase">
+                          <div className="glass-panel rounded-2xl border border-white/10 p-6 hover:border-primary/30 transition-colors cursor-pointer">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                                <Trophy className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-white">Buy Sponsorship</h3>
+                                <p className="text-xs text-zinc-400">Get featured on homepage</p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-zinc-500">Increase your shop visibility with sponsored placements.</p>
+                          </div>
+                        </Link>
+                        <Link href="/contests">
+                          <div className="glass-panel rounded-2xl border border-white/10 p-6 hover:border-primary/30 transition-colors cursor-pointer">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
+                                <Sparkles className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-white">Join Contests</h3>
+                                <p className="text-xs text-zinc-400">Win prizes and badges</p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-zinc-500">Participate in contests to win rewards and gain recognition.</p>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* Finance Tab */}
+            {isSellerUser && (
+              <TabsContent value="finance" className="mt-0">
+                <div className="space-y-8">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-primary" />
+                        Financial Overview
+                      </h2>
+                      <p className="text-sm text-zinc-500 mt-1">Track your earnings, payments, and transaction history.</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-emerald-500/5">
+                          <div className="flex items-center gap-2 mb-2">
+                            <DollarSign className="w-5 h-5 text-emerald-400" />
+                            <span className="text-sm text-zinc-400">Total Revenue</span>
+                          </div>
+                          <p className="text-2xl font-bold text-emerald-400">${totalRevenue.toFixed(2)}</p>
+                        </div>
+                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-yellow-500/5">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-5 h-5 text-yellow-400" />
+                            <span className="text-sm text-zinc-400">Pending</span>
+                          </div>
+                          <p className="text-2xl font-bold text-yellow-400">${pendingRevenue.toFixed(2)}</p>
+                        </div>
+                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-red-500/5">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Receipt className="w-5 h-5 text-red-400" />
+                            <span className="text-sm text-zinc-400">Fees Paid</span>
+                          </div>
+                          <p className="text-2xl font-bold text-red-400">${totalFeesPaid.toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-white/10 pt-6">
+                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          Recent Transactions
+                        </h3>
+                        {mySales?.orders && mySales.orders.length > 0 ? (
+                          <div className="space-y-3">
+                            {mySales.orders.slice(0, 5).map((order) => (
+                              <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <Package className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-white">Order #{order.id}</p>
+                                    <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-medium text-emerald-400">+${(order.totalPrice - order.platformFee).toFixed(2)}</p>
+                                  <p className="text-xs text-zinc-500">Fee: ${order.platformFee.toFixed(2)}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Receipt className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                            <p className="text-zinc-400">No transactions yet</p>
+                            <p className="text-sm text-zinc-500 mt-1">Your sales will appear here.</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

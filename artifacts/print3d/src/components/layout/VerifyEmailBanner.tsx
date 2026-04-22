@@ -7,7 +7,7 @@ export function VerifyEmailBanner() {
   const { user } = useAuth();
   const [dismissed, setDismissed] = useState(false);
 
-  if (!user || user.emailVerifiedAt || dismissed) {
+  if (!user || user.isVerified || dismissed) {
     return null;
   }
 

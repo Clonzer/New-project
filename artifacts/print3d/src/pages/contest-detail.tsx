@@ -29,6 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { getContestById, listContestEntries, enterContest } from "@/lib/contest-api";
 
 interface Contest {
   id: string;
@@ -79,150 +80,77 @@ export default function ContestDetail() {
       try {
         setIsLoading(true);
 
-        // Mock contest data (in production, fetch from API)
-        const mockContests: Contest[] = [
-          {
-            id: "most-sales-monthly",
-            title: "Most Sales - Monthly",
-            description: "Seller with the highest total sales count this month wins Pro Membership and homepage feature. Compete with other sellers to showcase your sales performance and grow your business.",
-            category: "Sales",
-            reward: "Pro Membership (6 months) + Homepage Feature",
-            status: "active",
-            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
-            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString(),
-            maxParticipants: 999,
-            judgingCriteria: ["Total Sales Count", "Revenue Generated", "Customer Satisfaction"],
-            requirements: ["Minimum 5 sales", "4.0+ star rating"],
-            badgeAwarded: "Top Seller"
-          },
-          {
-            id: "most-products-sold",
-            title: "Most Products Sold",
-            description: "Seller with the most individual products sold wins sponsorship package. Showcase your product variety and customer reach.",
-            category: "Sales",
-            reward: "Sponsorship Package + Verified Seller Badge",
-            status: "active",
-            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
-            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString(),
-            maxParticipants: 999,
-            judgingCriteria: ["Products Sold Count", "Variety of Products", "Repeat Customers"],
-            requirements: ["Minimum 10 products sold", "Active listings"],
-            badgeAwarded: "Product Champion"
-          },
-          {
-            id: "most-jobs-completed",
-            title: "Most Jobs Completed",
-            description: "Maker with the most custom job completions wins Pro Membership. Demonstrate your reliability and quality in custom work.",
-            category: "Custom Jobs",
-            reward: "Pro Membership (3 months) + Priority Badge",
-            status: "active",
-            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
-            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString(),
-            maxParticipants: 500,
-            judgingCriteria: ["Jobs Completed Count", "On-Time Delivery", "Customer Rating"],
-            requirements: ["Minimum 5 jobs completed", "4.5+ star rating"],
-            badgeAwarded: "Job Master"
+        // Fetch real contest data from API
+        if (contestId) {
+          const contestResult = await getContestById(contestId);
+          if (contestResult.success && contestResult.contest) {
+            const c = contestResult.contest;
+            setContest({
+              id: c.id,
+              title: c.title,
+              description: c.description,
+              category: c.category,
+              reward: c.prize,
+              status: c.status,
+              startDate: c.start_date,
+              endDate: c.end_date,
+              maxParticipants: c.max_participants,
+              judgingCriteria: c.rules || ["Quality", "Creativity", "Technical Skill"],
+              requirements: c.rules || [],
+              badgeAwarded: c.badge_awarded
+            });
+
+            // Fetch contest entries
+            const entriesResult = await listContestEntries(c.id);
+            if (entriesResult.success && entriesResult.entries) {
+              const transformedEntries: ContestEntry[] = entriesResult.entries.map((e: any) => ({
+                id: e.id,
+                contestId: e.contest_id,
+                userId: e.user_id,
+                title: e.title,
+                description: e.description,
+                images: e.images || [],
+                files: e.files || [],
+                submittedAt: e.submitted_at,
+                votes: e.votes || 0,
+                averageScore: e.average_score || 0,
+                status: e.status,
+                user: {
+                  id: e.user?.id || e.user_id,
+                  displayName: e.user?.display_name || "Unknown",
+                  avatar: e.user?.avatar_url || e.user?.avatar,
+                  shopName: e.user?.shop_name || e.user?.shopName
+                }
+              }));
+              setEntries(transformedEntries.sort((a, b) => b.votes - a.votes));
+
+              // Check if current user has entered
+              if (user) {
+                setHasEntered(transformedEntries.some(e => e.userId === user.id));
+              }
+            } else {
+              setEntries([]);
+            }
+          } else {
+            setContest(null);
           }
-        ];
-
-        const foundContest = mockContests.find(c => c.id === contestId) || mockContests[0];
-        setContest(foundContest);
-
-        // Mock entries (in production, fetch from API)
-        const mockEntries: ContestEntry[] = [
-          {
-            id: "1",
-            contestId: foundContest.id,
-            userId: 1,
-            title: "Mechanical Keyboard Case",
-            description: "Custom 3D printed mechanical keyboard case with integrated RGB lighting",
-            images: ["https://images.unsplash.com/photo-1598628469345-be0a2a2e5463?w=400&h=300&fit=crop"],
-            files: [],
-            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            votes: 23,
-            averageScore: 4.7,
-            status: "approved",
-            user: {
-              id: 1,
-              displayName: "John Maker",
-              avatar: "https://api.pravatar.cc/150?u=john",
-              shopName: "Maker's Workshop"
-            }
-          },
-          {
-            id: "2",
-            contestId: foundContest.id,
-            userId: 2,
-            title: "Articulated Dragon",
-            description: "Fully articulated dragon model with 3D printed joints and detailed scales",
-            images: ["https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400&h=300&fit=crop"],
-            files: [],
-            submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            votes: 18,
-            averageScore: 4.5,
-            status: "approved",
-            user: {
-              id: 2,
-              displayName: "Sarah Creator",
-              avatar: "https://api.pravatar.cc/150?u=sarah",
-              shopName: "Creative Designs"
-            }
-          },
-          {
-            id: "3",
-            contestId: foundContest.id,
-            userId: 3,
-            title: "Custom Phone Stand",
-            description: "Adjustable phone stand with modular design",
-            images: ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop"],
-            files: [],
-            submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            votes: 15,
-            averageScore: 4.3,
-            status: "approved",
-            user: {
-              id: 3,
-              displayName: "Mike Fabricator",
-              avatar: "https://api.pravatar.cc/150?u=mike",
-              shopName: "Mike's Makerspace"
-            }
-          },
-          {
-            id: "4",
-            contestId: foundContest.id,
-            userId: 4,
-            title: "3D Printed Jewelry",
-            description: "Elegant 3D printed jewelry collection",
-            images: ["https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop"],
-            files: [],
-            submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            votes: 12,
-            averageScore: 4.2,
-            status: "approved",
-            user: {
-              id: 4,
-              displayName: "Emma Designer",
-              avatar: "https://api.pravatar.cc/150?u=emma",
-              shopName: "Emma's Designs"
-            }
-          }
-        ];
-
-        setEntries(mockEntries.sort((a, b) => b.votes - a.votes));
-
-        // Check if user has entered (mock)
-        setHasEntered(false);
+        }
       } catch (error) {
         console.error("Failed to fetch contest data:", error);
+        toast({
+          title: "Error loading contest",
+          description: "Failed to load contest data. Please try again.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchContestData();
-  }, [contestId]);
+  }, [contestId, user, toast]);
 
-  const handleEnterContest = () => {
+  const handleEnterContest = async () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -241,12 +169,37 @@ export default function ContestDetail() {
       return;
     }
 
-    // In production, this would call an API to enter the contest
-    toast({
-      title: "Contest entered!",
-      description: "You have successfully entered the contest. Good luck!",
-    });
-    setHasEntered(true);
+    if (!contest) {
+      toast({
+        title: "Error",
+        description: "Contest information not loaded.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await enterContest(contest.id, user.id);
+      if (result.success) {
+        toast({
+          title: "Contest entered!",
+          description: "You have successfully entered the contest. Good luck!",
+        });
+        setHasEntered(true);
+      } else {
+        toast({
+          title: "Failed to enter",
+          description: result.message || "Could not enter contest. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to enter contest. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusColor = (status: Contest["status"]) => {

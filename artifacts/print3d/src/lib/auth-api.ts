@@ -82,19 +82,51 @@ export async function authResetPassword(email: string, code: string, newPassword
 }
 
 export async function authRequestEmailVerification() {
+  // Get current user to check verification status and get email
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('No authenticated user found');
+  }
+
+  const email = user.email || '';
+  const alreadyVerified = !!user.email_confirmed_at;
+
+  // If already verified, return early with that info
+  if (alreadyVerified) {
+    return { ok: true, alreadyVerified: true, email };
+  }
+
+  // Resend verification email using the correct method for email verification
   const { error } = await supabase.auth.resend({
     type: 'signup',
+    email: email,
+    options: {
+      emailRedirectTo: `${window.location.origin}/settings?section=security`,
+    },
   });
+
   if (error) throw error;
-  return { ok: true };
+
+  return { ok: true, alreadyVerified: false, email };
 }
 
 export async function authConfirmEmailVerification(code: string) {
+  // For email confirmation via OTP/token from the verification email
   const { error } = await supabase.auth.verifyOtp({
-    token: code,
-    type: 'signup',
+    token_hash: code,
+    type: 'email',
   });
-  if (error) throw error;
+
+  if (error) {
+    // Fallback to signup type if email type fails
+    const { error: fallbackError } = await supabase.auth.verifyOtp({
+      token_hash: code,
+      type: 'signup',
+    });
+    if (fallbackError) throw fallbackError;
+  }
+
   return { ok: true };
 }
 

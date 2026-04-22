@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
-import { Truck, Globe, Package, MapPin, Plus, Trash2, X } from "lucide-react";
+import { Truck, Globe, Package, MapPin, Plus, Trash2, X, Clock, Store, Weight, RotateCcw, Shield } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -75,6 +75,18 @@ interface ShippingProfile {
   freeShippingThreshold: number;
   enabled: boolean;
   shippingRegions: string[];
+  // Additional shipping options
+  processingTime: string;
+  localPickupEnabled: boolean;
+  localPickupAddress: string;
+  returnsAccepted: boolean;
+  returnPeriod: number;
+  returnShippingPaidBy: "buyer" | "seller";
+  handlingTime: number;
+  defaultWeight: number;
+  defaultDimensions: { length: number; width: number; height: number };
+  insuranceRequired: boolean;
+  signatureRequired: boolean;
 }
 
 export function ShippingProfiles() {
@@ -92,6 +104,17 @@ export function ShippingProfiles() {
       freeShippingThreshold: user?.freeShippingThreshold || 50,
       enabled: true,
       shippingRegions: user?.sellingRegions || ["US", "CA", "GB"],
+      processingTime: "3-5",
+      localPickupEnabled: false,
+      localPickupAddress: "",
+      returnsAccepted: true,
+      returnPeriod: 30,
+      returnShippingPaidBy: "buyer",
+      handlingTime: 1,
+      defaultWeight: 1,
+      defaultDimensions: { length: 10, width: 8, height: 6 },
+      insuranceRequired: false,
+      signatureRequired: false,
     },
   ]);
   const [isEditing, setIsEditing] = useState(false);
@@ -141,6 +164,18 @@ export function ShippingProfiles() {
       freeShippingThreshold: 50,
       enabled: true,
       shippingRegions: ["US", "CA"],
+      // Default values for new options
+      processingTime: "3-5",
+      localPickupEnabled: false,
+      localPickupAddress: "",
+      returnsAccepted: true,
+      returnPeriod: 30,
+      returnShippingPaidBy: "buyer",
+      handlingTime: 1,
+      defaultWeight: 1,
+      defaultDimensions: { length: 10, width: 8, height: 6 },
+      insuranceRequired: false,
+      signatureRequired: false,
     };
     setProfiles([...profiles, newProfile]);
     setEditingProfile(newProfile);
@@ -252,6 +287,38 @@ export function ShippingProfiles() {
                   <span className="text-zinc-400">Shipping to:</span>
                   <span className="text-white font-semibold">{profile.shippingRegions.length} regions</span>
                 </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-zinc-400" />
+                  <span className="text-zinc-400">Processing:</span>
+                  <span className="text-white font-semibold">{profile.processingTime || "3-5"} days</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Weight className="w-4 h-4 text-zinc-400" />
+                  <span className="text-zinc-400">Default Weight:</span>
+                  <span className="text-white font-semibold">{profile.defaultWeight || 1} kg</span>
+                </div>
+                {profile.localPickupEnabled && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Store className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-400">Local pickup enabled</span>
+                  </div>
+                )}
+                {profile.returnsAccepted !== false && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <RotateCcw className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400">Returns: {profile.returnPeriod || 30} days</span>
+                  </div>
+                )}
+                {(profile.insuranceRequired || profile.signatureRequired) && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Shield className="w-4 h-4 text-amber-400" />
+                    <span className="text-amber-400">
+                      {profile.insuranceRequired && "Insurance"}
+                      {profile.insuranceRequired && profile.signatureRequired && " + "}
+                      {profile.signatureRequired && "Signature"}
+                    </span>
+                  </div>
+                )}
               </div>
               <Button
                 variant="outline"
@@ -266,74 +333,97 @@ export function ShippingProfiles() {
       </div>
 
       <Dialog open={isEditing && editingProfile !== null} onOpenChange={setIsEditing}>
-        <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Shipping Profile</DialogTitle>
-            <DialogDescription className="text-zinc-400">Configure shipping costs and regions</DialogDescription>
+            <DialogTitle>{editingProfile?.id === "default" ? "Edit" : "Create"} Shipping Profile</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Configure all shipping options for this profile
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-zinc-300 block mb-1.5">Profile Name</label>
-              <Input
-                value={editingProfile?.name || ""}
-                onChange={(e) => handleUpdateProfile("name", e.target.value)}
-                className="bg-black/30 border-white/10 text-white"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+
+          <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Package className="w-4 h-4 text-primary" />
+                Profile Information
+              </h3>
               <div>
-                <label className="text-sm text-zinc-300 block mb-1.5">Domestic Cost ($)</label>
+                <label className="text-sm text-zinc-300 block mb-1.5">Profile Name</label>
                 <Input
-                  type="number"
-                  step="0.01"
-                  value={editingProfile?.domesticCost || 0}
-                  onChange={(e) => handleUpdateProfile("domesticCost", parseFloat(e.target.value))}
-                  className="bg-black/30 border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-zinc-300 block mb-1.5">Europe Cost ($)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={editingProfile?.europeCost || 0}
-                  onChange={(e) => handleUpdateProfile("europeCost", parseFloat(e.target.value))}
-                  className="bg-black/30 border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-zinc-300 block mb-1.5">North America Cost ($)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={editingProfile?.northAmericaCost || 0}
-                  onChange={(e) => handleUpdateProfile("northAmericaCost", parseFloat(e.target.value))}
-                  className="bg-black/30 border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-zinc-300 block mb-1.5">International Cost ($)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={editingProfile?.internationalCost || 0}
-                  onChange={(e) => handleUpdateProfile("internationalCost", parseFloat(e.target.value))}
+                  value={editingProfile?.name || ""}
+                  onChange={(e) => handleUpdateProfile("name", e.target.value)}
                   className="bg-black/30 border-white/10 text-white"
                 />
               </div>
             </div>
-            <div>
-              <label className="text-sm text-zinc-300 block mb-1.5">Free Shipping Threshold ($)</label>
-              <Input
-                type="number"
-                step="0.01"
-                value={editingProfile?.freeShippingThreshold || 0}
-                onChange={(e) => handleUpdateProfile("freeShippingThreshold", parseFloat(e.target.value))}
-                className="bg-black/30 border-white/10 text-white"
-              />
+
+            {/* Shipping Costs */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary" />
+                Shipping Costs by Region
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Domestic Cost ($)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editingProfile?.domesticCost || 0}
+                    onChange={(e) => handleUpdateProfile("domesticCost", parseFloat(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Europe Cost ($)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editingProfile?.europeCost || 0}
+                    onChange={(e) => handleUpdateProfile("europeCost", parseFloat(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">North America Cost ($)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editingProfile?.northAmericaCost || 0}
+                    onChange={(e) => handleUpdateProfile("northAmericaCost", parseFloat(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">International Cost ($)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editingProfile?.internationalCost || 0}
+                    onChange={(e) => handleUpdateProfile("internationalCost", parseFloat(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-zinc-300 block mb-1.5">Free Shipping Threshold ($)</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={editingProfile?.freeShippingThreshold || 0}
+                  onChange={(e) => handleUpdateProfile("freeShippingThreshold", parseFloat(e.target.value))}
+                  className="bg-black/30 border-white/10 text-white"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-sm text-zinc-300 block mb-2">Shipping Regions</label>
+
+            {/* Shipping Regions */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-primary" />
+                Shipping Regions
+              </h3>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -380,7 +470,188 @@ export function ShippingProfiles() {
                 })}
               </div>
             </div>
-            <div className="flex gap-3">
+
+            {/* Processing & Handling */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" />
+                Processing & Handling
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Processing Time</label>
+                  <select
+                    value={editingProfile?.processingTime || "3-5"}
+                    onChange={(e) => handleUpdateProfile("processingTime", e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 text-white rounded-lg h-10 px-3"
+                  >
+                    <option value="1">1 business day</option>
+                    <option value="1-2">1-2 business days</option>
+                    <option value="2-3">2-3 business days</option>
+                    <option value="3-5">3-5 business days</option>
+                    <option value="5-7">5-7 business days</option>
+                    <option value="7-10">7-10 business days</option>
+                    <option value="10-14">10-14 business days</option>
+                    <option value="14+">2-3 weeks</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Handling Time (days)</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={14}
+                    value={editingProfile?.handlingTime || 1}
+                    onChange={(e) => handleUpdateProfile("handlingTime", parseInt(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Package Defaults */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Weight className="w-4 h-4 text-primary" />
+                Default Package Settings
+              </h3>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Weight (kg)</label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={editingProfile?.defaultWeight || 1}
+                    onChange={(e) => handleUpdateProfile("defaultWeight", parseFloat(e.target.value))}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Length (cm)</label>
+                  <Input
+                    type="number"
+                    value={editingProfile?.defaultDimensions?.length || 10}
+                    onChange={(e) => handleUpdateProfile("defaultDimensions", { ...editingProfile?.defaultDimensions, length: parseFloat(e.target.value) })}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Width (cm)</label>
+                  <Input
+                    type="number"
+                    value={editingProfile?.defaultDimensions?.width || 8}
+                    onChange={(e) => handleUpdateProfile("defaultDimensions", { ...editingProfile?.defaultDimensions, width: parseFloat(e.target.value) })}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Height (cm)</label>
+                  <Input
+                    type="number"
+                    value={editingProfile?.defaultDimensions?.height || 6}
+                    onChange={(e) => handleUpdateProfile("defaultDimensions", { ...editingProfile?.defaultDimensions, height: parseFloat(e.target.value) })}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Local Pickup */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Store className="w-4 h-4 text-primary" />
+                Local Pickup
+              </h3>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                <span className="text-sm text-zinc-300">Enable local pickup</span>
+                <Switch
+                  checked={editingProfile?.localPickupEnabled || false}
+                  onCheckedChange={(checked) => handleUpdateProfile("localPickupEnabled", checked)}
+                />
+              </div>
+              {editingProfile?.localPickupEnabled && (
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Pickup Address</label>
+                  <Input
+                    value={editingProfile?.localPickupAddress || ""}
+                    onChange={(e) => handleUpdateProfile("localPickupAddress", e.target.value)}
+                    placeholder="123 Main St, City, Country"
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Shipping Options */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Shield className="w-4 h-4 text-primary" />
+                Shipping Options
+              </h3>
+              <div className="space-y-2">
+                <label className="flex items-center justify-between p-3 rounded-xl bg-white/5 cursor-pointer">
+                  <span className="text-sm text-zinc-300">Require insurance</span>
+                  <input
+                    type="checkbox"
+                    checked={editingProfile?.insuranceRequired || false}
+                    onChange={(e) => handleUpdateProfile("insuranceRequired", e.target.checked)}
+                    className="w-5 h-5 rounded border-white/20 bg-black/30 text-primary"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-3 rounded-xl bg-white/5 cursor-pointer">
+                  <span className="text-sm text-zinc-300">Require signature on delivery</span>
+                  <input
+                    type="checkbox"
+                    checked={editingProfile?.signatureRequired || false}
+                    onChange={(e) => handleUpdateProfile("signatureRequired", e.target.checked)}
+                    className="w-5 h-5 rounded border-white/20 bg-black/30 text-primary"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Returns */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <RotateCcw className="w-4 h-4 text-primary" />
+                Return Policy
+              </h3>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                <span className="text-sm text-zinc-300">Accept returns</span>
+                <Switch
+                  checked={editingProfile?.returnsAccepted !== false}
+                  onCheckedChange={(checked) => handleUpdateProfile("returnsAccepted", checked)}
+                />
+              </div>
+              {editingProfile?.returnsAccepted !== false && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Return Period (days)</label>
+                    <Input
+                      type="number"
+                      min={7}
+                      max={90}
+                      value={editingProfile?.returnPeriod || 30}
+                      onChange={(e) => handleUpdateProfile("returnPeriod", parseInt(e.target.value))}
+                      className="bg-black/30 border-white/10 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Return shipping paid by</label>
+                    <select
+                      value={editingProfile?.returnShippingPaidBy || "buyer"}
+                      onChange={(e) => handleUpdateProfile("returnShippingPaidBy", e.target.value)}
+                      className="w-full bg-black/30 border border-white/10 text-white rounded-lg h-10 px-3"
+                    >
+                      <option value="buyer">Buyer</option>
+                      <option value="seller">Seller</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-white/10">
               <Button onClick={() => setIsEditing(false)} variant="outline">
                 Cancel
               </Button>

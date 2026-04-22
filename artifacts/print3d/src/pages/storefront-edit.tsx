@@ -28,7 +28,13 @@ import {
   Sparkles,
   Camera,
   Upload,
-  X
+  X,
+  Layout,
+  Type,
+  Grid,
+  List,
+  Sun,
+  Moon
 } from "lucide-react";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -175,6 +181,14 @@ export default function StorefrontEdit() {
     instagramHandle: "",
     supportEmail: "",
     sellerTags: [] as string[],
+    // Appearance settings
+    theme: "dark",
+    layoutStyle: "grid",
+    fontStyle: "modern",
+    showRatings: true,
+    showSales: true,
+    showBanner: true,
+    compactView: false,
   });
 
   useEffect(() => {
@@ -192,6 +206,14 @@ export default function StorefrontEdit() {
         instagramHandle: user.instagramHandle || "",
         supportEmail: user.supportEmail || "",
         sellerTags: user.sellerTags || [],
+        // Appearance settings from user profile or defaults
+        theme: (user as any).theme || "dark",
+        layoutStyle: (user as any).layoutStyle || "grid",
+        fontStyle: (user as any).fontStyle || "modern",
+        showRatings: (user as any).showRatings ?? true,
+        showSales: (user as any).showSales ?? true,
+        showBanner: (user as any).showBanner ?? true,
+        compactView: (user as any).compactView ?? false,
       });
     }
   }, [user]);
@@ -352,7 +374,7 @@ export default function StorefrontEdit() {
             {/* Editor */}
             <div className="lg:col-span-2 space-y-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="bg-black/40 border border-white/10 p-1 rounded-xl mb-6">
+                <TabsList className="bg-black/40 border border-white/10 p-1 rounded-xl mb-6 flex flex-wrap h-auto">
                   <TabsTrigger value="general" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">
                     <Palette className="w-4 h-4 mr-2" />
                     General
@@ -360,6 +382,10 @@ export default function StorefrontEdit() {
                   <TabsTrigger value="branding" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">
                     <ImageIcon className="w-4 h-4 mr-2" />
                     Branding
+                  </TabsTrigger>
+                  <TabsTrigger value="appearance" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <Layout className="w-4 h-4 mr-2" />
+                    Appearance
                   </TabsTrigger>
                   <TabsTrigger value="tags" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">
                     <Tag className="w-4 h-4 mr-2" />
@@ -578,6 +604,138 @@ export default function StorefrontEdit() {
                           placeholder="support@yourshop.com"
                           className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
                         />
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="appearance" className="space-y-6 mt-0">
+                  <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <Layout className="w-5 h-5 text-primary" />
+                      Store Appearance
+                    </h3>
+                    <p className="text-sm text-zinc-400">
+                      Customize how your shop looks to customers. Choose layout styles, themes, and display options.
+                    </p>
+
+                    {/* Theme Selection */}
+                    <div className="space-y-3">
+                      <label className="text-sm text-zinc-400">Shop Theme</label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {[
+                          { id: "dark", name: "Dark", icon: Moon, color: "from-zinc-900 to-black" },
+                          { id: "light", name: "Light", icon: Sun, color: "from-zinc-100 to-white" },
+                          { id: "purple", name: "Purple", icon: Palette, color: "from-purple-900 to-purple-950" },
+                          { id: "blue", name: "Ocean", icon: Palette, color: "from-blue-900 to-slate-900" },
+                        ].map((theme) => (
+                          <button
+                            key={theme.id}
+                            onClick={() => handleChange("theme", theme.id)}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              form.theme === theme.id
+                                ? "border-primary bg-primary/10"
+                                : "border-white/10 hover:border-white/30"
+                            }`}
+                          >
+                            <div className={`w-full h-12 rounded-lg bg-gradient-to-br ${theme.color} mb-2`} />
+                            <span className={`text-sm font-medium ${form.theme === theme.id ? "text-primary" : "text-zinc-300"}`}>
+                              {theme.name}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Layout Style */}
+                    <div className="space-y-3">
+                      <label className="text-sm text-zinc-400">Product Layout Style</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => handleChange("layoutStyle", "grid")}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            form.layoutStyle === "grid" || !form.layoutStyle
+                              ? "border-primary bg-primary/10"
+                              : "border-white/10 hover:border-white/30"
+                          }`}
+                        >
+                          <Grid className="w-8 h-8 mx-auto mb-2 text-zinc-400" />
+                          <span className={`text-sm font-medium ${form.layoutStyle === "grid" || !form.layoutStyle ? "text-primary" : "text-zinc-300"}`}>
+                            Grid View
+                          </span>
+                          <p className="text-xs text-zinc-500 mt-1">Products in a grid layout</p>
+                        </button>
+                        <button
+                          onClick={() => handleChange("layoutStyle", "list")}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            form.layoutStyle === "list"
+                              ? "border-primary bg-primary/10"
+                              : "border-white/10 hover:border-white/30"
+                          }`}
+                        >
+                          <List className="w-8 h-8 mx-auto mb-2 text-zinc-400" />
+                          <span className={`text-sm font-medium ${form.layoutStyle === "list" ? "text-primary" : "text-zinc-300"}`}>
+                            List View
+                          </span>
+                          <p className="text-xs text-zinc-500 mt-1">Products in a detailed list</p>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Display Options */}
+                    <div className="space-y-3">
+                      <label className="text-sm text-zinc-400">Display Options</label>
+                      <div className="space-y-2">
+                        {[
+                          { id: "showRatings", label: "Show ratings on products", default: true },
+                          { id: "showSales", label: "Show sales count", default: true },
+                          { id: "showBanner", label: "Show shop banner", default: true },
+                          { id: "compactView", label: "Compact product cards", default: false },
+                        ].map((option) => (
+                          <label key={option.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
+                            <span className="text-sm text-zinc-300">{option.label}</span>
+                            <input
+                              type="checkbox"
+                              checked={form[option.id] ?? option.default}
+                              onChange={(e) => handleChange(option.id, e.target.checked)}
+                              className="w-5 h-5 rounded border-white/20 bg-black/30 text-primary focus:ring-primary"
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <Type className="w-5 h-5 text-primary" />
+                      Typography
+                    </h3>
+                    <div className="space-y-3">
+                      <label className="text-sm text-zinc-400">Font Style</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { id: "modern", name: "Modern", sample: "Aa" },
+                          { id: "classic", name: "Classic", sample: "Aa" },
+                          { id: "minimal", name: "Minimal", sample: "Aa" },
+                        ].map((font) => (
+                          <button
+                            key={font.id}
+                            onClick={() => handleChange("fontStyle", font.id)}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              form.fontStyle === font.id || (!form.fontStyle && font.id === "modern")
+                                ? "border-primary bg-primary/10"
+                                : "border-white/10 hover:border-white/30"
+                            }`}
+                          >
+                            <span className={`text-2xl font-bold ${font.id === "classic" ? "font-serif" : font.id === "minimal" ? "font-light" : ""}`}>
+                              {font.sample}
+                            </span>
+                            <span className={`block text-sm mt-1 ${form.fontStyle === font.id || (!form.fontStyle && font.id === "modern") ? "text-primary" : "text-zinc-400"}`}>
+                              {font.name}
+                            </span>
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>

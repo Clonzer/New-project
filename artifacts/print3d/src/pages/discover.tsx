@@ -424,39 +424,49 @@ export default function Discover() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2">
-              <h1 className="text-4xl font-display font-bold text-white mb-8">Discover</h1>
-              <p className="text-white text-lg mb-6">Browse community posts, trending picks, standout projects, and makers to follow.</p>
 
               {/* Tabs */}
-              <div className="flex gap-1 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl w-fit">
-                <Button
-                  variant={activeTab === "feed" ? "default" : "ghost"}
+              <div className="flex gap-2 mb-8 bg-black/60 border border-white/10 p-2 rounded-2xl w-fit">
+                <button
                   onClick={() => handleTabChange("feed")}
-                  className="rounded-lg"
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "feed"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
                 >
                   Feed
-                </Button>
-                <Button
-                  variant={activeTab === "trending" ? "default" : "ghost"}
+                </button>
+                <button
                   onClick={() => handleTabChange("trending")}
-                  className="rounded-lg"
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "trending"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
                 >
                   Trending
-                </Button>
-                <Button
-                  variant={activeTab === "projects" ? "default" : "ghost"}
+                </button>
+                <button
                   onClick={() => handleTabChange("projects")}
-                  className="rounded-lg"
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "projects"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
                 >
                   Projects
-                </Button>
-                <Button
-                  variant={activeTab === "people" ? "default" : "ghost"}
+                </button>
+                <button
                   onClick={() => handleTabChange("people")}
-                  className="rounded-lg"
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "people"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
                 >
                   People
-                </Button>
+                </button>
               </div>
 
             {activeTab === "feed" && (
@@ -599,7 +609,11 @@ export default function Discover() {
                               <div className="flex items-center gap-2">
                                 <Popover open={showEmojiPicker === post.id} onOpenChange={(open) => setShowEmojiPicker(open ? post.id : null)}>
                                   <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-primary">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-zinc-400 hover:text-primary"
+                                    >
                                       <Smile className="w-4 h-4 mr-2" />
                                       React
                                     </Button>
@@ -620,7 +634,6 @@ export default function Discover() {
                                     </div>
                                   </PopoverContent>
                                 </Popover>
-
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -845,9 +858,9 @@ export default function Discover() {
                           className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors group"
                         >
                           <div className="relative mb-4">
-                            {listing.imageUrl ? (
+                            {listing.imageUrl || listing.image_url ? (
                               <img
-                                src={listing.imageUrl}
+                                src={listing.imageUrl || listing.image_url}
                                 alt={listing.title}
                                 className="w-full h-48 object-cover rounded-xl"
                               />
@@ -1035,9 +1048,9 @@ export default function Discover() {
                       <Link key={listing.id} href={`/listings/${listing.id}`}>
                         <div className="group cursor-pointer">
                           <div className="relative mb-2">
-                            {listing.imageUrl ? (
+                            {listing.imageUrl || listing.image_url ? (
                               <img
-                                src={listing.imageUrl}
+                                src={listing.imageUrl || listing.image_url}
                                 alt={listing.title}
                                 className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
                               />
