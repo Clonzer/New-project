@@ -425,12 +425,32 @@ export default function Contests() {
                     >
                       <Card className="bg-zinc-800 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
                         <div className="relative">
-                          <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <div className="text-6xl font-display font-bold bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent">
-                              {contest.title.split(' ').map((word: string) => word.charAt(0)).join('').slice(0, 3).toUpperCase()}
+                          <div className="h-48 bg-gradient-to-br from-primary/30 via-purple-500/20 to-accent/30 relative overflow-hidden">
+                            {/* Animated background pattern */}
+                            <div className="absolute inset-0 opacity-20">
+                              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.3),transparent_50%)]"></div>
+                              <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_50%,rgba(6,182,212,0.3),transparent_50%)]"></div>
+                            </div>
+                            {/* Decorative elements */}
+                            <div className="absolute top-4 left-4">
+                              <Trophy className="w-8 h-8 text-primary/60" />
+                            </div>
+                            <div className="absolute bottom-4 right-4">
+                              <Sparkles className="w-6 h-6 text-accent/60" />
+                            </div>
+                            {/* Contest initials */}
+                            <div className="relative z-10 flex items-center justify-center h-full">
+                              <div className="text-center">
+                                <div className="text-5xl font-display font-bold bg-gradient-to-r from-primary via-purple-400 to-accent bg-clip-text text-transparent drop-shadow-lg">
+                                  {contest.title.split(' ').map((word: string) => word.charAt(0)).join('').slice(0, 3).toUpperCase()}
+                                </div>
+                                <div className="text-xs text-zinc-400 mt-2 uppercase tracking-widest">
+                                  {contest.category}
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)}`}>
+                          <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)} z-20`}>
                             <div className="flex items-center gap-1">
                               {getStatusIcon(contest.status)}
                               {contest.status.charAt(0).toUpperCase() + contest.status.slice(1)}
