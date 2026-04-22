@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, DollarSign, FileText, MessageSquare, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Clock, DollarSign, FileText, MessageSquare, CheckCircle2, XCircle, AlertCircle, Plus } from "lucide-react";
 
 export default function CustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
@@ -150,9 +151,17 @@ export default function CustomOrders({ user }: { user: any }) {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Custom Order Requests</h2>
-        <Button onClick={fetchRequests} variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5">
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/service-order">
+            <NeonButton glowColor="primary" className="rounded-xl">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Service Request
+            </NeonButton>
+          </Link>
+          <Button onClick={fetchRequests} variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5">
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {requests.length === 0 ? (

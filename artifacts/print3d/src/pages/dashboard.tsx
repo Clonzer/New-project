@@ -1118,6 +1118,10 @@ export default function Dashboard() {
                     <Store className="w-4 h-4 mr-2" />
                     My Listings
                   </TabsTrigger>
+                  <TabsTrigger value="services" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <PenLine className="w-4 h-4 mr-2" />
+                    Services & Custom Orders
+                  </TabsTrigger>
                   <TabsTrigger value="printers" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <PrinterIcon className="w-4 h-4 mr-2" />
                     My Equipment
@@ -1159,14 +1163,9 @@ export default function Dashboard() {
                 <BuyerCustomOrders user={user} />
               </div>
               {isSellerUser && (
-                <>
-                  <div className="mt-8">
-                    <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
-                  </div>
-                  <div className="mt-8">
-                    <CustomOrders user={user} />
-                  </div>
-                </>
+                <div className="mt-8">
+                  <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+                </div>
               )}
             </TabsContent>
 
@@ -1182,6 +1181,12 @@ export default function Dashboard() {
                   myListings={myListings}
                   handleDeleteListing={handleDeleteListing}
                 />
+              </TabsContent>
+            )}
+
+            {isSellerUser && (
+              <TabsContent value="services" className="mt-0">
+                <CustomOrders user={user} />
               </TabsContent>
             )}
 
