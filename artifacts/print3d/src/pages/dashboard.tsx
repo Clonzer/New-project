@@ -914,6 +914,16 @@ export default function Dashboard() {
     }
   };
 
+  const handleUpdateEquipmentStatus = async (printerId: string, status: string) => {
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { equipmentStatus: status } });
+      toast({ title: "Equipment status updated", description: `Equipment marked as ${status}` });
+      refetchPrinters();
+    } catch {
+      toast({ title: "Failed to update equipment status", variant: "destructive" });
+    }
+  };
+
   const handleCreateEquipmentGroup = async (data: { name: string; description?: string; category: string }) => {
     try {
       await createEquipmentGroup.mutateAsync({ data });
@@ -1205,6 +1215,7 @@ export default function Dashboard() {
                   togglePrinter={togglePrinter}
                   deletingPrinterId={deletingPrinterId}
                   removePrinter={removePrinter}
+                  handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
                 />
               </TabsContent>
             )}

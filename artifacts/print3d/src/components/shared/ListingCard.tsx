@@ -1,6 +1,6 @@
 import { Listing } from "@/lib/workspace-api-mock";
 import { Link, useLocation } from "wouter";
-import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare, Sparkles } from "lucide-react";
+import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare, Sparkles, Wrench } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ReportButton } from "@/components/shared/ReportButton";
@@ -19,6 +19,7 @@ export function ListingCard({
   onEdit,
   isSponsored,
   sponsorTier,
+  equipmentStatus,
 }: {
   listing: Listing & { stockQuantity?: number; trackStock?: boolean };
   priceInsight?: ListingPriceInsight;
@@ -27,6 +28,7 @@ export function ListingCard({
   onEdit?: (listing: Listing) => void;
   isSponsored?: boolean;
   sponsorTier?: "premium" | "gold" | "silver";
+  equipmentStatus?: "operational" | "maintenance" | "out-of-service" | "busy";
 }) {
   const tierStyles = {
     premium: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-purple-300",
@@ -41,12 +43,29 @@ export function ListingCard({
   const isOutOfStock = listing.trackStock && listing.stockQuantity === 0;
   const isLowStock = listing.trackStock && listing.stockQuantity && listing.stockQuantity <= 5 && listing.stockQuantity > 0;
   const isServiceListing = listing.listingType === "service" || listing.listing_type === "service";
+  const isEquipmentDown = equipmentStatus && equipmentStatus !== "operational";
   const priceInsightClassName =
     priceInsight?.tone === "good"
       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
       : priceInsight?.tone === "premium"
         ? "bg-amber-500/15 text-amber-200 border-amber-500/30"
         : "bg-sky-500/15 text-sky-200 border-sky-500/30";
+
+  const getEquipmentStatusBadge = () => {
+    if (!equipmentStatus || equipmentStatus === "operational") return null;
+    const statusConfig = {
+      "maintenance": { label: "Equipment Maintenance", className: "bg-amber-500/20 border-amber-500/30 text-amber-300" },
+      "out-of-service": { label: "Equipment Out of Service", className: "bg-red-500/20 border-red-500/30 text-red-300" },
+      "busy": { label: "Equipment Busy", className: "bg-blue-500/20 border-blue-500/30 text-blue-300" },
+    };
+    const config = statusConfig[equipmentStatus];
+    return (
+      <Badge className={config.className}>
+        <Wrench className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
+  };
 
   return (
     <Link href={`/listings/${listing.id}`} className="block">
@@ -79,6 +98,7 @@ export function ListingCard({
               Sponsored
             </Badge>
           )}
+          {getEquipmentStatusBadge()}
           {isLowStock && (
             <Badge className="bg-amber-500/20 border-amber-500/30 text-amber-300">
               <AlertCircle className="w-3 h-3 mr-1" />

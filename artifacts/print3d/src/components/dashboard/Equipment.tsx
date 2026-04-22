@@ -19,7 +19,8 @@ export function Equipment({
   togglingPrinterId,
   togglePrinter,
   deletingPrinterId,
-  removePrinter
+  removePrinter,
+  handleUpdateEquipmentStatus
 }) {
   return (
     <div className="space-y-8">
@@ -113,7 +114,8 @@ export function Equipment({
                       </Badge>
                       <select
                         className="text-xs bg-black/30 border border-white/10 text-zinc-300 rounded px-2 py-1"
-                        defaultValue="operational"
+                        value={printer.equipment_status || "operational"}
+                        onChange={(e) => handleUpdateEquipmentStatus && handleUpdateEquipmentStatus(printer.id, e.target.value)}
                       >
                         <option value="operational">Operational</option>
                         <option value="maintenance">Maintenance</option>
