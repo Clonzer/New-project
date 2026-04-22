@@ -833,7 +833,7 @@ export default function Discover() {
                 ) : (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {listingsData.listings
-                      .filter(listing => listing.title.toLowerCase().includes(search.toLowerCase()) ||
+                      .filter(listing => listing.title?.toLowerCase().includes(search.toLowerCase()) ||
                                          listing.description?.toLowerCase().includes(search.toLowerCase()))
                       .map((listing) => {
                         const sponsorInfo = sponsoredProjectIds.get(listing.id);
@@ -878,7 +878,7 @@ export default function Discover() {
                             </div>
                           </div>
                           <h3 className="font-bold text-white mb-2 line-clamp-2">{listing.title}</h3>
-                          <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description}</p>
+                          <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description || ""}</p>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm" className="hover:bg-primary/20">
                               <MessageSquare className="w-4 h-4 mr-1" />
@@ -954,8 +954,8 @@ export default function Discover() {
                     {usersData?.users
                       ?.filter((u: { role: string; }) => u.role === "seller" || u.role === "both")
                       ?.filter((u: { displayName: string; bio?: string; sellerTags?: string[]; }) => u.displayName?.toLowerCase().includes(search.toLowerCase()) ||
-                                  u.bio?.toLowerCase().includes(search.toLowerCase()) ||
-                                  u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())))
+                                  (u.bio?.toLowerCase().includes(search.toLowerCase()) || false) ||
+                                  (u.sellerTags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase())) || false))
                       .map((person) => (
                         <motion.div
                           key={person.id}
@@ -985,7 +985,7 @@ export default function Discover() {
                               </Link>
                               <p className="text-zinc-400 text-sm truncate">{person.bio?.slice(0, 50) || "3D printing enthusiast"}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                {person.rating && (
+                                {person.rating !== undefined && person.rating !== null && (
                                   <div className="flex items-center gap-1">
                                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                                     <span className="text-xs text-zinc-500">{person.rating.toFixed(1)}</span>
@@ -1054,7 +1054,7 @@ export default function Discover() {
                             )}
                           </div>
                           <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
-                          <p className="text-zinc-500 text-xs line-clamp-2">{listing.description}</p>
+                          <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
                         </div>
                       </Link>
                     ))}
