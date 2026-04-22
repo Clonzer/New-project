@@ -1104,7 +1104,7 @@ export default function Dashboard() {
               ) : null}
               <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                 <Package className="w-4 h-4 mr-2" />
-                My Orders
+                Orders
               </TabsTrigger>
               {isSellerUser && (
                 <TabsTrigger value="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
@@ -1114,10 +1114,6 @@ export default function Dashboard() {
               )}
               {isSellerUser && (
                 <>
-                  <TabsTrigger value="sales" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Manage Sales
-                  </TabsTrigger>
                   <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Store className="w-4 h-4 mr-2" />
                     My Listings
@@ -1133,10 +1129,6 @@ export default function Dashboard() {
                   <TabsTrigger value="analytics" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
-                  </TabsTrigger>
-                  <TabsTrigger value="custom-orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <PenLine className="w-4 h-4 mr-2" />
-                    Custom Orders
                   </TabsTrigger>
                 </>
               )}
@@ -1166,6 +1158,16 @@ export default function Dashboard() {
               <div className="mt-8">
                 <BuyerCustomOrders user={user} />
               </div>
+              {isSellerUser && (
+                <>
+                  <div className="mt-8">
+                    <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+                  </div>
+                  <div className="mt-8">
+                    <CustomOrders user={user} />
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             {isSellerUser && (
@@ -1175,16 +1177,10 @@ export default function Dashboard() {
             )}
 
             {isSellerUser && (
-              <TabsContent value="sales" className="mt-0">
-                <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
-              </TabsContent>
-            )}
-
-            {isSellerUser && (
               <TabsContent value="listings" className="mt-0">
-                <Listings 
-                  myListings={myListings} 
-                  handleDeleteListing={handleDeleteListing} 
+                <Listings
+                  myListings={myListings}
+                  handleDeleteListing={handleDeleteListing}
                 />
               </TabsContent>
             )}
@@ -1378,12 +1374,6 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
-            )}
-
-            {isSellerUser && (
-              <TabsContent value="custom-orders" className="mt-0">
-                <CustomOrders user={user} />
               </TabsContent>
             )}
           </Tabs>
