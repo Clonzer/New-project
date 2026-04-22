@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, DollarSign, FileText, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
-
-const supabase = createClient(
-  (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
-  (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
-);
 
 export default function BuyerCustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
