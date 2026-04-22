@@ -13,6 +13,7 @@ import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
   Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
+  ShoppingBag,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -798,6 +799,7 @@ export default function Dashboard() {
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
   const [defaultTab, setDefaultTab] = useState("overview");
+  const [dashboardView, setDashboardView] = useState<"purchases" | "store">("purchases");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -805,6 +807,11 @@ export default function Dashboard() {
     const plan = params.get("plan");
     const sponsorship = params.get("sponsorship");
     const savedTab = localStorage.getItem('dashboardTab');
+    const viewParam = params.get("view") as "purchases" | "store" | null;
+
+    if (viewParam) {
+      setDashboardView(viewParam);
+    }
 
     if (savedTab) {
       setDefaultTab(savedTab);
@@ -1049,6 +1056,34 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
               </div>
+
+              {/* View Toggle for users with both roles */}
+              {user?.role === "both" && (
+                <div className="flex items-center bg-black/60 border border-white/10 rounded-full p-1">
+                  <button
+                    onClick={() => setDashboardView("purchases")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      dashboardView === "purchases"
+                        ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    My Purchases
+                  </button>
+                  <button
+                    onClick={() => setDashboardView("store")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      dashboardView === "store"
+                        ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <Store className="w-4 h-4" />
+                    My Store
+                  </button>
+                </div>
+              )}
             </div>
             <div className="flex gap-3 flex-wrap">
               {!isSellerUser && (
@@ -1079,8 +1114,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Seller Stats */}
-          {isSellerUser && (
+          {/* Seller Stats - hidden when in purchases view for both role users */}
+          {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               {[
                 { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-300", panel: "bg-emerald-500/8 border-emerald-400/15" },
@@ -1102,31 +1137,38 @@ export default function Dashboard() {
             </div>
           )}
 
-          <Tabs defaultValue={defaultTab} className="w-full">
+          <Tabs defaultValue={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab} className="w-full">
             <TabsList className="bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 flex flex-wrap h-auto w-full gap-2">
-              {isSellerUser && (
+              {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Overview
                 </TabsTrigger>
               )}
-              {user.isOwner ? (
+              {user.isOwner && (user?.role !== "both" || dashboardView === "store") ? (
                 <TabsTrigger value="admin" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <Settings className="w-4 h-4 mr-2" />
                   Admin
                 </TabsTrigger>
               ) : null}
-              <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                <Package className="w-4 h-4 mr-2" />
-                Orders
-              </TabsTrigger>
-              {isSellerUser && (
+
+              {/* Purchases tab - shown for all, or when in purchases view for both role */}
+              {(!isSellerUser || user?.role !== "both" || dashboardView === "purchases") && (
+                <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <Package className="w-4 h-4 mr-2" />
+                  Orders
+                </TabsTrigger>
+              )}
+
+              {/* Seller tabs - shown when NOT in purchases view */}
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <TabsTrigger value="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   My Reviews
                 </TabsTrigger>
               )}
-              {isSellerUser && (
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <>
                   <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Store className="w-4 h-4 mr-2" />
