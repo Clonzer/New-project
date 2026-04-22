@@ -25,6 +25,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 
+// Transform seller data to ensure avatar field is properly mapped
+function transformSeller(seller: any) {
+  return {
+    ...seller,
+    avatarUrl: seller.avatar_url || seller.avatarUrl || seller.avatar || seller.profile_image_url,
+  };
+}
+
 export default function Explore() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,7 +71,8 @@ export default function Explore() {
   const filteredSellers = useMemo(() => {
     if (!data?.sellers) return [];
 
-    const filtered = data.sellers.filter((s) => {
+    const transformed = data.sellers.map(transformSeller);
+    const filtered = transformed.filter((s) => {
       const q = searchTerm.toLowerCase();
       const allTags = (s as any).sellerTags ?? (s as any).seller_tags ?? [];
       const matchesSearch =

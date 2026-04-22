@@ -73,7 +73,7 @@ export default function Shop() {
             ...data,
             displayName: data.store_name || data.display_name,
             shopName: data.store_name,
-            avatarUrl: data.avatar_url,
+            avatarUrl: data.avatar_url || data.avatar || data.profile_image_url,
             bannerUrl: data.hero_image_url,
             location: data.location,
             rating: data.rating || 0,

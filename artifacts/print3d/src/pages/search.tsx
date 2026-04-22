@@ -13,6 +13,14 @@ function parseQuery(search: string): string {
   return new URLSearchParams(qs).get("q")?.trim() ?? "";
 }
 
+// Transform seller data to ensure avatar field is properly mapped
+function transformSeller(seller: any) {
+  return {
+    ...seller,
+    avatarUrl: seller.avatar_url || seller.avatarUrl || seller.avatar || seller.profile_image_url,
+  };
+}
+
 export default function SearchPage() {
   const search = useSearch();
   const q = parseQuery(search).toLowerCase();
@@ -22,8 +30,9 @@ export default function SearchPage() {
 
   const sellers = useMemo(() => {
     const all = sellersData?.sellers ?? [];
-    if (!q) return all;
-    return all.filter(
+    const transformed = all.map(transformSeller);
+    if (!q) return transformed;
+    return transformed.filter(
       (s) =>
         s.displayName.toLowerCase().includes(q) ||
         (s.shopName?.toLowerCase().includes(q) || false) ||
