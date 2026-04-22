@@ -99,7 +99,7 @@ export default function ServiceOrder() {
     if (!sellerId) return;
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('sellers')
         .select('*')
         .eq('id', sellerId)
         .single();
@@ -225,7 +225,7 @@ export default function ServiceOrder() {
             <h1 className="text-4xl font-bold text-white mb-2">Request Custom Service</h1>
             <p className="text-zinc-400">
               {selectedSeller
-                ? `Request custom services from ${selectedSeller.display_name || selectedSeller.username}`
+                ? `Request custom services from ${selectedSeller.store_name || selectedSeller.display_name || 'seller'}`
                 : "Describe your custom service request and get quotes from sellers"}
             </p>
           </div>
