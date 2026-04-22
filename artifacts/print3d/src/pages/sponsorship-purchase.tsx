@@ -19,8 +19,7 @@ import {
   CheckCircle2,
   Sparkles,
   Crown,
-  TrendingUp,
-  Eye
+  TrendingUp
 } from "lucide-react";
 
 const SPONSORSHIP_TIERS = [
@@ -78,15 +77,8 @@ export default function SponsorshipPurchase() {
   const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [customAmount, setCustomAmount] = useState<string>("");
-  const [isCustom, setIsCustom] = useState(false);
 
-  // Calculate estimated page views based on amount (100 views per $1)
-  const calculateEstimatedViews = (amount: number) => {
-    return Math.floor(amount * 100);
-  };
-
-  const handlePurchase = async (tierId: string, customPrice?: number) => {
+  const handlePurchase = async (tierId: string) => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -124,20 +116,6 @@ export default function SponsorshipPurchase() {
       setIsProcessing(false);
       setSelectedTier(null);
     }
-  };
-
-  const handleCustomPurchase = async () => {
-    const amount = parseFloat(customAmount);
-    if (isNaN(amount) || amount < 1) {
-      toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount (minimum $1).",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    await handlePurchase("custom-sponsorship", amount);
   };
 
   return (
@@ -251,81 +229,6 @@ export default function SponsorshipPurchase() {
                   </Card>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Custom Amount Section */}
-        <section className="pb-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto">
-              <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-accent rounded-xl flex items-center justify-center">
-                      <Eye className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl text-white">Custom Amount</CardTitle>
-                      <CardDescription className="text-zinc-400">
-                        Pay any amount for estimated page views
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <label className="text-sm font-medium text-zinc-300 mb-2 block">
-                      Enter amount ($)
-                    </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      step="0.01"
-                      placeholder="Enter custom amount"
-                      value={customAmount}
-                      onChange={(e) => setCustomAmount(e.target.value)}
-                      className="bg-zinc-900/50 border-zinc-700 text-white text-lg h-12"
-                    />
-                  </div>
-
-                  {customAmount && !isNaN(parseFloat(customAmount)) && parseFloat(customAmount) >= 1 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-700"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-5 h-5 text-primary" />
-                          <span className="text-zinc-400">Estimated page views:</span>
-                        </div>
-                        <span className="text-2xl font-bold text-primary">
-                          {calculateEstimatedViews(parseFloat(customAmount)).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-500 mt-2">
-                        Based on 100 views per $1 spent
-                      </p>
-                    </motion.div>
-                  )}
-
-                  <Button
-                    onClick={handleCustomPurchase}
-                    disabled={isProcessing || !customAmount || isNaN(parseFloat(customAmount)) || parseFloat(customAmount) < 1}
-                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  >
-                    {isProcessing ? (
-                      "Processing..."
-                    ) : (
-                      <>
-                        Purchase Custom Sponsorship
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </section>
