@@ -16,6 +16,7 @@ import Contests from "@/pages/contests";
 import Listings from "@/pages/listings";
 import Shop from "@/pages/shop";
 import OrderFlow from "@/pages/order-flow";
+import ProductOrder from "@/pages/product-order";
 import Dashboard from "@/pages/dashboard";
 import { VendorDashboard } from "@/pages/vendor-dashboard";
 import Register from "@/pages/register";
@@ -60,6 +61,10 @@ function CartPage() {
 
 function OrderFlowPage() {
   return <ProtectedRoute children={<OrderFlow />} />;
+}
+
+function ProductOrderPage() {
+  return <ProtectedRoute children={<ProductOrder />} />;
 }
 
 function SettingsPage() {
@@ -113,6 +118,7 @@ function Router() {
       <Route path="/listings/:id" component={ListingDetail} />
       <Route path="/shop/:id" component={Shop} />
       <Route path="/order/new" component={OrderFlowPage} />
+      <Route path="/product-order" component={ProductOrderPage} />
       <Route path="/cart" component={CartPage} />
       <Route path="/search" component={SearchPage} />
       <Route path="/compare-shops" component={CompareShops} />

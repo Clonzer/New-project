@@ -213,6 +213,13 @@ export default function OrderFlow() {
     }
   }, [setLocation, toast]);
 
+  // Redirect catalog orders to product-order page
+  useEffect(() => {
+    if (isCatalogOrder && listingId) {
+      setLocation(`/product-order?listingId=${listingId}`, { replace: true });
+    }
+  }, [isCatalogOrder, listingId, setLocation]);
+
   if (!listingId && !sellerId) {
     return <div className="text-white p-12 text-center">Invalid order request.</div>;
   }

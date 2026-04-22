@@ -173,7 +173,7 @@ export default function ListingDetail() {
                     Request Job
                   </Button>
                 ) : (
-                  <Link href={`/order/new?listingId=${listing.id}`} className="block">
+                  <Link href={`/product-order?listingId=${listing.id}`} className="block">
                     <Button className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300">
                       Order Now
                     </Button>

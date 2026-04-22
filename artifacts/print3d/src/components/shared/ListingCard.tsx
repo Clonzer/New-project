@@ -210,7 +210,7 @@ export function ListingCard({
               <MessageSquare className="w-4 h-4" /> Request Job
             </button>
           ) : (
-            <Link href={isOutOfStock ? "#" : `/order/new?listingId=${listing.id}`} onClick={(e) => {
+            <Link href={isOutOfStock ? "#" : `/product-order?listingId=${listing.id}`} onClick={(e) => {
               if (isOutOfStock) e.preventDefault();
             }} className="flex-1">
               <button
