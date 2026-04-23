@@ -323,7 +323,7 @@ export function useAuth() {
   };
 }
 
-export function useGetUser(userId: string) {
+export function useGetUser(userId?: string) {
   return {
     data: null,
     isLoading: false,
@@ -354,7 +354,7 @@ export function useUpdateUser() {
   };
 }
 
-export function useGetListing(listingId: number) {
+export function useGetListing(listingId?: number) {
   return {
     data: null,
     isLoading: false,
@@ -466,22 +466,6 @@ export function getGetListingQueryKey(listingId?: number) {
 
 export function getGetUserQueryKey(userId?: string) {
   return ['user', userId];
-}
-
-export function useGetListing(listingId?: number) {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
-}
-
-export function useGetUser(userId?: string) {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
 }
 
 export function useCreateEquipmentGroup() {
