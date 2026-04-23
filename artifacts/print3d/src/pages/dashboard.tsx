@@ -1296,6 +1296,35 @@ export default function Dashboard() {
                 <TabsContent value="messages" className="mt-0">
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                     <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Messages
+                      </h2>
+                      <p className="text-zinc-400 mt-1">Your conversations with sellers</p>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-zinc-500">No messages yet.</p>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="finance" className="mt-0">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-primary" />
+                        Finance
+                      </h2>
+                      <p className="text-zinc-400 mt-1">Spending overview and payment methods</p>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-zinc-500">Finance features coming soon.</p>
+                    </div>
+                  </div>
+                </TabsContent>
+              </>
+            )}
+
             {/* Promotions Tab */}
             {isSellerUser && (
               <TabsContent value="promotions" className="mt-0">
