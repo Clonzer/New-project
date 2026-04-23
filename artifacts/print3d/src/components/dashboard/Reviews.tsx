@@ -1,10 +1,46 @@
 import { format } from "date-fns";
-import { CheckCircle2, Star, User } from "lucide-react";
+import { CheckCircle2, Star, User, FileText, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export function Reviews({ myReviews, reviewsReceived }) {
+interface Review {
+  id: string;
+  reviewerName: string;
+  revieweeName: string;
+  orderId: string;
+  createdAt: string;
+  rating: number;
+  comment?: string;
+}
+
+interface ReviewsData {
+  reviews: Review[];
+}
+
+interface ReviewsProps {
+  myReviews?: ReviewsData;
+  reviewsReceived?: ReviewsData;
+  error?: string | null;
+  onRetry?: () => void;
+}
+
+export function Reviews({ myReviews, reviewsReceived, error, onRetry }: ReviewsProps) {
   return (
     <div className="space-y-6">
       {/* Reviews Received Section */}
+      {error ? (
+        <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden p-12 text-center">
+          <FileText className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Reviews</h3>
+          <p className="text-zinc-400 mb-4">{error}</p>
+          {onRetry && (
+            <Button onClick={onRetry} variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+          )}
+        </div>
+      ) : (
+      <>
       <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
         <div className="p-6 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -76,6 +112,8 @@ export function Reviews({ myReviews, reviewsReceived }) {
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   )
 }

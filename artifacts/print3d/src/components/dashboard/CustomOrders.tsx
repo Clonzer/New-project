@@ -13,6 +13,7 @@ export default function CustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [quotedPrice, setQuotedPrice] = useState("");
   const [quoteMessage, setQuoteMessage] = useState("");
@@ -23,23 +24,36 @@ export default function CustomOrders({ user }: { user: any }) {
   }, [user]);
 
   const fetchRequests = async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('custom_order_requests')
         .select('*')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching requests:', error);
+        if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          setError('Custom orders table not found. Please run the database migration.');
+        } else {
+          setError('Failed to load custom order requests. Please try again.');
+        }
+        setRequests([]);
+        return;
+      }
+
       setRequests(data || []);
     } catch (err) {
-      console.error('Error fetching custom order requests:', err);
-      toast({
-        title: "Failed to load requests",
-        description: "Could not load custom order requests.",
-        variant: "destructive",
-      });
+      console.error('Error in fetchRequests:', err);
+      setError('Failed to load custom order requests. Please try again.');
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -145,6 +159,19 @@ export default function CustomOrders({ user }: { user: any }) {
 
   if (loading) {
     return <div className="text-white p-8">Loading custom order requests...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="glass-panel rounded-2xl border border-white/10 p-12 text-center">
+        <FileText className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Requests</h3>
+        <p className="text-zinc-400 mb-4">{error}</p>
+        <Button onClick={fetchRequests} variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5">
+          Try Again
+        </Button>
+      </div>
+    );
   }
 
   return (

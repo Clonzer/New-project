@@ -10,6 +10,26 @@ import { Truck, Globe, Package, MapPin, Plus, Trash2, X, Clock, Store, Weight, R
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
+// Major shipping providers database
+const SHIPPING_PROVIDERS = [
+  { id: "fedex", name: "FedEx", logo: "📦", services: ["Express", "Ground", "International"] },
+  { id: "ups", name: "UPS", logo: "🚚", services: ["Next Day Air", "Ground", "Worldwide"] },
+  { id: "dhl", name: "DHL", logo: "✈️", services: ["Express", "eCommerce", "Parcel"] },
+  { id: "usps", name: "USPS", logo: "📮", services: ["Priority", "First Class", "Media Mail"] },
+  { id: "royal_mail", name: "Royal Mail", logo: "📮", services: ["Tracked", "Special Delivery"] },
+  { id: "dpd", name: "DPD", logo: "📦", services: ["Classic", "Express"] },
+  { id: "hermes", name: "Hermes/Evri", logo: "📦", services: ["Standard", "Next Day"] },
+  { id: "gls", name: "GLS", logo: "🚛", services: ["BusinessParcel", "Express"] },
+  { id: "tnt", name: "TNT", logo: "🚚", services: ["Express", "Economy"] },
+  { id: "amazon", name: "Amazon Logistics", logo: "📦", services: ["Prime", "Standard"] },
+  { id: "ontrac", name: "OnTrac", logo: "🚚", services: ["Ground", "Overnight"] },
+  { id: "lasership", name: "LaserShip", logo: "🚛", services: ["Standard", "Express"] },
+  { id: "aramex", name: "Aramex", logo: "✈️", services: ["Express", "Domestic"] },
+  { id: "sf_express", name: "SF Express", logo: "📦", services: ["Standard", "Economy"] },
+  { id: "australia_post", name: "Australia Post", logo: "📮", services: ["Express", "Parcel"] },
+  { id: "canada_post", name: "Canada Post", logo: "📮", services: ["Priority", "Xpresspost"] },
+];
+
 const COUNTRY_OPTIONS = [
   { code: "US", name: "United States" },
   { code: "CA", name: "Canada" },
@@ -65,6 +85,16 @@ const COUNTRY_OPTIONS = [
   { code: "IL", name: "Israel" },
 ];
 
+interface ShippingProvider {
+  id: string;
+  name: string;
+  logo: string;
+  services: string[];
+  enabled: boolean;
+  trackingUrl?: string;
+  apiKey?: string;
+}
+
 interface ShippingProfile {
   id: string;
   name: string;
@@ -75,6 +105,8 @@ interface ShippingProfile {
   freeShippingThreshold: number;
   enabled: boolean;
   shippingRegions: string[];
+  // Shipping providers
+  shippingProviders: ShippingProvider[];
   // Additional shipping options
   processingTime: string;
   localPickupEnabled: boolean;
@@ -104,6 +136,10 @@ export function ShippingProfiles() {
       freeShippingThreshold: user?.freeShippingThreshold || 50,
       enabled: true,
       shippingRegions: user?.sellingRegions || ["US", "CA", "GB"],
+      shippingProviders: [
+        { id: "fedex", name: "FedEx", logo: "📦", services: ["Ground", "Express"], enabled: true },
+        { id: "ups", name: "UPS", logo: "🚚", services: ["Ground"], enabled: true },
+      ],
       processingTime: "3-5",
       localPickupEnabled: false,
       localPickupAddress: "",
@@ -117,6 +153,8 @@ export function ShippingProfiles() {
       signatureRequired: false,
     },
   ]);
+  const [providerSearchQuery, setProviderSearchQuery] = useState("");
+  const [isAddingProvider, setIsAddingProvider] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingProfile, setEditingProfile] = useState<ShippingProfile | null>(null);
 
@@ -164,6 +202,7 @@ export function ShippingProfiles() {
       freeShippingThreshold: 50,
       enabled: true,
       shippingRegions: ["US", "CA"],
+      shippingProviders: [],
       // Default values for new options
       processingTime: "3-5",
       localPickupEnabled: false,
@@ -180,6 +219,61 @@ export function ShippingProfiles() {
     setProfiles([...profiles, newProfile]);
     setEditingProfile(newProfile);
     setIsEditing(true);
+  };
+
+  const addProviderToProfile = (providerId: string) => {
+    if (!editingProfile) return;
+    
+    const provider = SHIPPING_PROVIDERS.find(p => p.id === providerId);
+    if (!provider) return;
+    
+    // Check if already added
+    if (editingProfile.shippingProviders.some(p => p.id === providerId)) {
+      toast({
+        title: "Provider already added",
+        description: `${provider.name} is already in this profile.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const newProvider: ShippingProvider = {
+      ...provider,
+      enabled: true,
+    };
+    
+    handleUpdateProfile("shippingProviders", [...editingProfile.shippingProviders, newProvider]);
+    setIsAddingProvider(false);
+    setProviderSearchQuery("");
+    
+    toast({
+      title: "Provider added",
+      description: `${provider.name} has been added to this shipping profile.`,
+    });
+  };
+
+  const removeProviderFromProfile = (providerId: string) => {
+    if (!editingProfile) return;
+    
+    handleUpdateProfile(
+      "shippingProviders", 
+      editingProfile.shippingProviders.filter(p => p.id !== providerId)
+    );
+    
+    toast({
+      title: "Provider removed",
+      description: "Shipping provider has been removed from this profile.",
+    });
+  };
+
+  const toggleProvider = (providerId: string) => {
+    if (!editingProfile) return;
+    
+    const updatedProviders = editingProfile.shippingProviders.map(p => 
+      p.id === providerId ? { ...p, enabled: !p.enabled } : p
+    );
+    
+    handleUpdateProfile("shippingProviders", updatedProviders);
   };
 
   const handleDeleteProfile = (id: string) => {
@@ -317,6 +411,25 @@ export function ShippingProfiles() {
                       {profile.insuranceRequired && profile.signatureRequired && " + "}
                       {profile.signatureRequired && "Signature"}
                     </span>
+                  </div>
+                )}
+                {/* Shipping Providers Display */}
+                {profile.shippingProviders && profile.shippingProviders.length > 0 && (
+                  <div className="pt-2 border-t border-white/10 mt-2">
+                    <p className="text-xs text-zinc-500 mb-2">Shipping Providers:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.shippingProviders
+                        .filter(p => p.enabled)
+                        .map(provider => (
+                          <span 
+                            key={provider.id}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/20 text-xs text-white"
+                          >
+                            <span>{provider.logo}</span>
+                            <span>{provider.name}</span>
+                          </span>
+                        ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -554,6 +667,130 @@ export function ShippingProfiles() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Shipping Providers */}
+            <div className="space-y-4 border-b border-white/10 pb-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-primary" />
+                  Shipping Providers
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddingProvider(true)}
+                  className="border-white/10 text-zinc-400 hover:text-white"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Provider
+                </Button>
+              </div>
+
+              {/* Current Providers */}
+              {editingProfile?.shippingProviders && editingProfile.shippingProviders.length > 0 ? (
+                <div className="space-y-2">
+                  {editingProfile.shippingProviders.map((provider) => (
+                    <div
+                      key={provider.id}
+                      className={`flex items-center justify-between p-3 rounded-xl border ${
+                        provider.enabled 
+                          ? "border-white/10 bg-white/5" 
+                          : "border-white/5 bg-white/[0.02] opacity-60"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{provider.logo}</span>
+                        <div>
+                          <p className="text-sm font-medium text-white">{provider.name}</p>
+                          <p className="text-xs text-zinc-500">
+                            {provider.services.slice(0, 2).join(", ")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={provider.enabled}
+                          onCheckedChange={() => toggleProvider(provider.id)}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeProviderFromProfile(provider.id)}
+                          className="text-red-400 hover:text-red-300 h-8 w-8"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-zinc-500 text-center py-4">
+                  No shipping providers added. Click "Add Provider" to select carriers.
+                </p>
+              )}
+
+              {/* Provider Search / Selector */}
+              {isAddingProvider && (
+                <div className="space-y-3 p-4 rounded-xl border border-white/10 bg-black/30">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-white">Select a shipping provider</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setIsAddingProvider(false);
+                        setProviderSearchQuery("");
+                      }}
+                      className="text-zinc-400 hover:text-white h-8 w-8"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Input
+                    placeholder="Search providers..."
+                    value={providerSearchQuery}
+                    onChange={(e) => setProviderSearchQuery(e.target.value)}
+                    className="bg-black/50 border-white/10 text-white"
+                  />
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {SHIPPING_PROVIDERS.filter(
+                      (p) =>
+                        !editingProfile?.shippingProviders.some((ep) => ep.id === p.id) &&
+                        (providerSearchQuery === "" ||
+                          p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()))
+                    ).map((provider) => (
+                      <button
+                        key={provider.id}
+                        onClick={() => addProviderToProfile(provider.id)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                      >
+                        <span className="text-2xl">{provider.logo}</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white">{provider.name}</p>
+                          <p className="text-xs text-zinc-500">
+                            {provider.services.join(", ")}
+                          </p>
+                        </div>
+                        <Plus className="w-4 h-4 text-zinc-400" />
+                      </button>
+                    ))}
+                    {SHIPPING_PROVIDERS.filter(
+                      (p) =>
+                        !editingProfile?.shippingProviders.some((ep) => ep.id === p.id) &&
+                        (providerSearchQuery === "" ||
+                          p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()))
+                    ).length === 0 && (
+                      <p className="text-sm text-zinc-500 text-center py-4">
+                        {providerSearchQuery 
+                          ? "No providers match your search" 
+                          : "All available providers have been added"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Local Pickup */}

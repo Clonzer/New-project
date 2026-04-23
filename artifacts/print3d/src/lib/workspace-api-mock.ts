@@ -1,6 +1,7 @@
 // Mock for @workspace/api-client-react to enable building on Render
 import { useState, useEffect } from 'react';
 import { listSellers, listListings } from './supabase-api';
+import { supabase } from './supabase';
 
 export type SellerShop = {
   id: string;
@@ -363,26 +364,6 @@ export function useGetListing(listingId: number) {
 
 export function useCreatePrinter() {
   return {
-    mutateAsync: async () => ({}),
-    isPending: false,
-  };
-}
-
-export function useListUsers() {
-  return {
-    data: { users: [] },
-    isLoading: false,
-    error: null,
-  };
-}
-
-export function getGetListingQueryKey(listingId: number) {
-  return ['listing', listingId];
-}
-
-export function getGetUserQueryKey(userId: string) {
-  return ['user', userId];
-}
 
 export function useUpdateListing() {
   return {

@@ -43,6 +43,7 @@ import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
+import { Finance } from "@/components/dashboard/Finance";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
@@ -1310,16 +1311,7 @@ export default function Dashboard() {
 
                 <TabsContent value="finance" className="mt-0">
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Wallet className="w-5 h-5 text-primary" />
-                        Finance
-                      </h2>
-                      <p className="text-zinc-400 mt-1">Spending overview and payment methods</p>
-                    </div>
-                    <div className="p-6">
-                      <p className="text-zinc-500">Finance features coming soon.</p>
-                    </div>
+                    <Finance />
                   </div>
                 </TabsContent>
               </>

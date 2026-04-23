@@ -4,3 +4,6 @@ build
 .env.local
 lib/
 ../lib/
+
+# Allow workspace-api-mock.ts to be tracked
+!src/lib/workspace-api-mock.ts
