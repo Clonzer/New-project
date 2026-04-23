@@ -364,6 +364,10 @@ export function useGetListing(listingId: number) {
 
 export function useCreatePrinter() {
   return {
+    mutateAsync: async () => ({}),
+    isPending: false,
+  };
+}
 
 export function useUpdateListing() {
   return {
