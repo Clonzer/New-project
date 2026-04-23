@@ -1190,6 +1190,12 @@ export default function Dashboard() {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
+                </>
+              )}
+
+              {/* Buyer tabs - shown when in purchases view */}
+              {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
+                <>
                   <TabsTrigger value="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Messages
@@ -1284,195 +1290,12 @@ export default function Dashboard() {
               </TabsContent>
             )}
 
-            {isSellerUser && (
-              <TabsContent value="analytics" className="mt-0">
-                <div className="space-y-8">
-                  {/* Performance Metrics */}
+            {/* Buyer tabs - shown when in purchases view */}
+            {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
+              <>
+                <TabsContent value="messages" className="mt-0">
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                     <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white">Performance Analytics</h2>
-                      <p className="text-sm text-zinc-500 mt-1">Track your shop's performance and growth metrics.</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-primary mb-2">{mySales?.orders.length ?? 0}</div>
-                          <div className="text-sm text-zinc-500">Total Orders</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-emerald-400 mb-2">${totalRevenue.toFixed(2)}</div>
-                          <div className="text-sm text-zinc-500">Revenue</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-sky-400 mb-2">{averageOrderValue > 0 ? `$${averageOrderValue.toFixed(2)}` : 'N/A'}</div>
-                          <div className="text-sm text-zinc-500">Avg Order Value</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-purple-400 mb-2">{myListings?.listings.length ?? 0}</div>
-                          <div className="text-sm text-zinc-500">Active Listings</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Seller Badges */}
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white">Seller Achievements</h2>
-                      <p className="text-sm text-zinc-500 mt-1">Badges earned based on your shop performance.</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex flex-wrap gap-4">
-                        {/* Rising Star Badge */}
-                        {(mySales?.orders.length ?? 0) >= 5 && (
-                          <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl px-4 py-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center">
-                              <TrendingUp className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-yellow-400">Rising Star</div>
-                              <div className="text-xs text-zinc-400">5+ orders completed</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Trusted Seller Badge */}
-                        {(myReviews?.reviews?.length ?? 0) >= 3 && (
-                          <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-green-400 flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-emerald-400">Trusted Seller</div>
-                              <div className="text-xs text-zinc-400">3+ positive reviews</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Equipment Expert Badge */}
-                        {(myPrinters?.printers?.length ?? 0) >= 3 && (
-                          <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl px-4 py-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center">
-                              <PrinterIcon className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-blue-400">Equipment Expert</div>
-                              <div className="text-xs text-zinc-400">3+ registered machines</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Top Earner Badge */}
-                        {totalRevenue >= 500 && (
-                          <div className="flex items-center gap-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-4 py-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-                              <DollarSign className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-purple-400">Top Earner</div>
-                              <div className="text-xs text-zinc-400">$500+ in revenue</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* No badges yet */}
-                        {((mySales?.orders.length ?? 0) < 5 && (myReviews?.reviews?.length ?? 0) < 3 && (myPrinters?.printers?.length ?? 0) < 3 && totalRevenue < 500) && (
-                          <div className="text-center py-8 w-full">
-                            <Trophy className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-                            <p className="text-zinc-500">Complete more orders and build your reputation to earn badges!</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Growth Insights */}
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white">Growth Insights</h2>
-                      <p className="text-sm text-zinc-500 mt-1">Tips to improve your shop performance.</p>
-                    </div>
-                    <div className="p-6 space-y-4">
-                      {myListings?.listings.length === 0 && (
-                        <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                          <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="font-medium text-blue-400">Add Your First Listing</div>
-                            <div className="text-sm text-zinc-400">Start selling by creating your first product listing in the 'My Listings' tab.</div>
-                          </div>
-                        </div>
-                      )}
-                      {(myPrinters?.printers?.length ?? 0) === 0 && (
-                        <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                          <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="font-medium text-yellow-400">Register Equipment</div>
-                            <div className="text-sm text-zinc-400">Add your equipment to build buyer trust and showcase your capabilities.</div>
-                          </div>
-                        </div>
-                      )}
-                      {(mySales?.orders.length ?? 0) > 0 && (myReviews?.reviews?.length ?? 0) === 0 && (
-                        <div className="flex items-start gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                          <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <div className="font-medium text-green-400">Request Reviews</div>
-                            <div className="text-sm text-zinc-400">Ask satisfied customers to leave reviews to build your reputation.</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Analytics Charts */}
-                  <Analytics shopId={user?.id} timeRange="30d" />
-
-                  {/* Sponsored Shops Section */}
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white">Sponsor Your Shop</h2>
-                      <p className="text-sm text-zinc-500 mt-1">Boost your visibility and reach more customers with sponsored placements.</p>
-                    </div>
-                    <div className="p-6">
-                      <SponsoredShopsInjection 
-                        maxShops={3} 
-                        showHeader={false}
-                        className="mb-4"
-                      />
-                      <div className="text-center">
-                        <Link href="/pricing">
-                          <NeonButton glowColor="primary" onClick={() => navigate("/create-listing")}>
-                            <Plus className="w-4 h-4 mr-2" /> Create Listing
-                          </NeonButton>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            )}
-
-            {/* Messages Tab */}
-            {isSellerUser && (
-              <TabsContent value="messages" className="mt-0">
-                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                  <div className="p-6 border-b border-white/10 bg-white/5">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-primary" />
-                      Messages
-                    </h2>
-                    <p className="text-sm text-zinc-500 mt-1">Communicate with your buyers and customers.</p>
-                  </div>
-                  <div className="p-6">
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                      <p className="text-zinc-400 mb-2">No messages yet</p>
-                      <p className="text-sm text-zinc-500">Messages from buyers will appear here.</p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            )}
-
             {/* Promotions Tab */}
             {isSellerUser && (
               <TabsContent value="promotions" className="mt-0">

@@ -19,15 +19,13 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, Truck, User, Eye } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "storefront", label: "Storefront", icon: Store },
-  { id: "appearance", label: "Appearance", icon: Eye },
-  { id: "shipping", label: "Shipping", icon: Truck },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -404,25 +402,32 @@ export default function Settings() {
                     <div className="grid gap-4 lg:grid-cols-3">
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Country</label>
-                        <select
-                          value={form.countryCode}
-                          onChange={(event) => {
-                            const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === event.target.value);
-                            setForm((current) => ({
-                              ...current,
-                              countryCode: event.target.value,
-                              currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
-                              languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
-                            }));
-                          }}
-                          className="w-full rounded-xl border border-white/10 bg-zinc-800 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        >
-                          {COUNTRY_OPTIONS.map((option) => (
-                            <option key={option.code} value={option.code}>
-                              {countryCodeToFlag(option.code)} {option.label}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={form.countryCode}
+                            onChange={(event) => {
+                              const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === event.target.value);
+                              setForm((current) => ({
+                                ...current,
+                                countryCode: event.target.value,
+                                currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
+                                languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
+                              }));
+                            }}
+                            className="w-full appearance-none rounded-xl border border-white/10 bg-black/60 px-4 py-3 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          >
+                            {COUNTRY_OPTIONS.map((option) => (
+                              <option key={option.code} value={option.code} className="bg-zinc-900 text-white">
+                                {countryCodeToFlag(option.code)} {option.label}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                            <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Language</label>
@@ -778,366 +783,6 @@ export default function Settings() {
                         <div className="flex justify-end">
                           <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
                             {updateUser.isPending ? "Saving..." : "Save Storefront"}
-                          </NeonButton>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {activeSection === "appearance" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Appearance</h2>
-                    <div className="glass-panel rounded-2xl border border-white/10 p-6">
-                      <p className="text-zinc-400 mb-6">
-                        Customize your storefront colors to match your brand identity.
-                      </p>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Primary Color</label>
-                          <div className="flex gap-3">
-                            <input
-                              type="color"
-                              value={form.primaryColor}
-                              onChange={(event) => setForm((current) => ({ ...current, primaryColor: event.target.value }))}
-                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
-                            />
-                            <Input
-                              value={form.primaryColor}
-                              onChange={(event) => setForm((current) => ({ ...current, primaryColor: event.target.value }))}
-                              placeholder="#8b5cf6"
-                              className="bg-black/30 border-white/10 text-white flex-1"
-                            />
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-1">Used for buttons, highlights, and key interactive elements</p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Accent Color</label>
-                          <div className="flex gap-3">
-                            <input
-                              type="color"
-                              value={form.accentColor}
-                              onChange={(event) => setForm((current) => ({ ...current, accentColor: event.target.value }))}
-                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
-                            />
-                            <Input
-                              value={form.accentColor}
-                              onChange={(event) => setForm((current) => ({ ...current, accentColor: event.target.value }))}
-                              placeholder="#06b6d4"
-                              className="bg-black/30 border-white/10 text-white flex-1"
-                            />
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-1">Used for secondary highlights and decorative elements</p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Background Color</label>
-                          <div className="flex gap-3">
-                            <input
-                              type="color"
-                              value={form.backgroundColor}
-                              onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))}
-                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
-                            />
-                            <Input
-                              value={form.backgroundColor}
-                              onChange={(event) => setForm((current) => ({ ...current, backgroundColor: event.target.value }))}
-                              placeholder="#09090b"
-                              className="bg-black/30 border-white/10 text-white flex-1"
-                            />
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-1">Main background color of your storefront</p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Text Color</label>
-                          <div className="flex gap-3">
-                            <input
-                              type="color"
-                              value={form.textColor}
-                              onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))}
-                              className="w-12 h-12 rounded-lg border border-white/10 cursor-pointer"
-                            />
-                            <Input
-                              value={form.textColor}
-                              onChange={(event) => setForm((current) => ({ ...current, textColor: event.target.value }))}
-                              placeholder="#ffffff"
-                              className="bg-black/30 border-white/10 text-white flex-1"
-                            />
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-1">Primary text color for headings and body text</p>
-                        </div>
-                      </div>
-
-                      {/* Color Preview */}
-                      <div className="mt-6 pt-6 border-t border-white/10">
-                        <label className="block text-sm text-zinc-400 mb-3">Preview</label>
-                        <div
-                          className="rounded-xl p-6 border"
-                          style={{
-                            backgroundColor: form.backgroundColor,
-                            borderColor: form.primaryColor + '40',
-                            color: form.textColor,
-                          }}
-                        >
-                          <div className="flex items-center gap-4 mb-4">
-                            <div
-                              className="w-16 h-16 rounded-xl"
-                              style={{ backgroundColor: form.primaryColor }}
-                            />
-                            <div>
-                              <h3
-                                className="text-xl font-bold mb-1"
-                                style={{ color: form.textColor }}
-                              >
-                                Your Shop Name
-                              </h3>
-                              <p className="text-sm opacity-70" style={{ color: form.textColor }}>
-                                A sample description of your shop
-                              </p>
-                            </div>
-                          </div>
-                          <div
-                            className="inline-block px-4 py-2 rounded-lg font-medium"
-                            style={{
-                              backgroundColor: form.primaryColor,
-                              color: '#ffffff',
-                            }}
-                          >
-                            Sample Button
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Preset Color Schemes */}
-                      <div className="mt-6 pt-6 border-t border-white/10">
-                        <label className="block text-sm text-zinc-400 mb-3">Preset Color Schemes</label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {[
-                            { name: "Default", primary: "#8b5cf6", accent: "#06b6d4", bg: "#09090b", text: "#ffffff" },
-                            { name: "Ocean", primary: "#0ea5e9", accent: "#22d3ee", bg: "#0c4a6e", text: "#ffffff" },
-                            { name: "Forest", primary: "#10b981", accent: "#34d399", bg: "#064e3b", text: "#ffffff" },
-                            { name: "Sunset", primary: "#f59e0b", accent: "#fbbf24", bg: "#78350f", text: "#ffffff" },
-                            { name: "Rose", primary: "#f43f5e", accent: "#fb7185", bg: "#881337", text: "#ffffff" },
-                            { name: "Slate", primary: "#64748b", accent: "#94a3b8", bg: "#1e293b", text: "#ffffff" },
-                            { name: "Indigo", primary: "#6366f1", accent: "#818cf8", bg: "#312e81", text: "#ffffff" },
-                            { name: "Emerald", primary: "#059669", accent: "#10b981", bg: "#065f46", text: "#ffffff" },
-                          ].map((preset) => (
-                            <button
-                              key={preset.name}
-                              type="button"
-                              onClick={() =>
-                                setForm((current) => ({
-                                  ...current,
-                                  primaryColor: preset.primary,
-                                  accentColor: preset.accent,
-                                  backgroundColor: preset.bg,
-                                  textColor: preset.text,
-                                }))
-                              }
-                              className="p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
-                            >
-                              <div
-                                className="w-full h-8 rounded-lg mb-2"
-                                style={{
-                                  background: `linear-gradient(135deg, ${preset.primary} 0%, ${preset.accent} 100%)`,
-                                }}
-                              />
-                              <p className="text-xs text-zinc-300">{preset.name}</p>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end mt-6">
-                        <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
-                          {updateUser.isPending ? "Saving..." : "Save Appearance"}
-                        </NeonButton>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeSection === "shipping" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Shipping</h2>
-                    {!isSeller ? (
-                      <p className="text-zinc-400">Seller shipping controls appear here once the account is in seller mode.</p>
-                    ) : (
-                      <>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Default shipping for custom jobs ($)</label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min={0}
-                            value={form.defaultShippingCost}
-                            onChange={(event) => setForm((current) => ({ ...current, defaultShippingCost: event.target.value }))}
-                            placeholder="e.g. 8.00"
-                            className="bg-black/30 border-white/10 text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-2">Where you sell</label>
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setForm((current) => ({
-                                  ...current,
-                                  sellingRegions: current.sellingRegions.includes("WORLDWIDE") ? [] : ["WORLDWIDE"],
-                                }))
-                              }
-                              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                                form.sellingRegions.includes("WORLDWIDE")
-                                  ? "border-emerald-400/50 bg-emerald-400/15 text-white"
-                                  : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                              }`}
-                            >
-                              Worldwide
-                            </button>
-                            {COUNTRY_OPTIONS.map((option) => {
-                              const selected = form.sellingRegions.includes(option.code);
-                              return (
-                                <button
-                                  key={option.code}
-                                  type="button"
-                                  onClick={() =>
-                                    setForm((current) => ({
-                                      ...current,
-                                      sellingRegions: current.sellingRegions.includes("WORLDWIDE")
-                                        ? [option.code]
-                                        : selected
-                                          ? current.sellingRegions.filter((value) => value !== option.code)
-                                          : [...current.sellingRegions, option.code],
-                                    }))
-                                  }
-                                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                                    selected
-                                      ? "border-primary/50 bg-primary/15 text-white"
-                                      : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                                  }`}
-                                >
-                                  {countryCodeToFlag(option.code)} {option.code}
-                                  </button>
-                                );
-                              })}
-                          </div>
-                          <p className="mt-2 text-xs text-zinc-500">Checkout uses these regions to decide whether a buyer can place an order with you.</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Domestic shipping ($)</label>
-                            <Input value={form.domesticShippingCost} onChange={(event) => setForm((current) => ({ ...current, domesticShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Europe shipping ($)</label>
-                            <Input value={form.europeShippingCost} onChange={(event) => setForm((current) => ({ ...current, europeShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">North America shipping ($)</label>
-                            <Input value={form.northAmericaShippingCost} onChange={(event) => setForm((current) => ({ ...current, northAmericaShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">International shipping ($)</label>
-                            <Input value={form.internationalShippingCost} onChange={(event) => setForm((current) => ({ ...current, internationalShippingCost: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Free shipping threshold ($)</label>
-                            <Input value={form.freeShippingThreshold} onChange={(event) => setForm((current) => ({ ...current, freeShippingThreshold: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Shipping regions note</label>
-                            <Input value={form.shippingRegions} onChange={(event) => setForm((current) => ({ ...current, shippingRegions: event.target.value }))} placeholder="UK, EU, USA" className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days min</label>
-                            <Input type="number" min={0} value={form.processingDaysMin} onChange={(event) => setForm((current) => ({ ...current, processingDaysMin: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-sm text-zinc-400 mb-1.5">Processing days max</label>
-                            <Input type="number" min={0} value={form.processingDaysMax} onChange={(event) => setForm((current) => ({ ...current, processingDaysMax: event.target.value }))} className="bg-black/30 border-white/10 text-white" />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setForm((current) => ({ ...current, localPickupEnabled: !current.localPickupEnabled }))}
-                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                            form.localPickupEnabled
-                              ? "border-emerald-400/40 bg-emerald-400/10 text-white"
-                              : "border-white/10 bg-white/5 text-zinc-400 hover:text-white"
-                          }`}
-                        >
-                          Local pickup {form.localPickupEnabled ? "enabled" : "disabled"}
-                        </button>
-                        <div className="flex justify-end">
-                          <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
-                            {updateUser.isPending ? "Saving..." : "Save Shipping"}
-                          </NeonButton>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {activeSection === "policies" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Policies & Compliance</h2>
-                    {!isSeller ? (
-                      <p className="text-zinc-400">Seller policy controls appear here once the account is in seller mode.</p>
-                    ) : (
-                      <>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Tax rate (%)</label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min={0}
-                            value={form.taxRate}
-                            onChange={(event) => setForm((current) => ({ ...current, taxRate: event.target.value }))}
-                            className="bg-black/30 border-white/10 text-white"
-                          />
-                          <p className="text-xs text-zinc-500 mt-1">Applied to all orders from this shop</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Shipping policy</label>
-                          <textarea
-                            value={form.shippingPolicy}
-                            onChange={(event) => setForm((current) => ({ ...current, shippingPolicy: event.target.value }))}
-                            rows={3}
-                            placeholder="Explain dispatch times, carriers, tracking, and packaging."
-                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Custom order policy</label>
-                          <textarea
-                            value={form.customOrderPolicy}
-                            onChange={(event) => setForm((current) => ({ ...current, customOrderPolicy: event.target.value }))}
-                            rows={4}
-                            placeholder="Requirements for file prep, quoting, revisions, and communication."
-                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-zinc-400 mb-1.5">Returns and refunds policy</label>
-                          <textarea
-                            value={form.returnPolicy}
-                            onChange={(event) => setForm((current) => ({ ...current, returnPolicy: event.target.value }))}
-                            rows={4}
-                            placeholder="How you handle damaged items, cancellations, and refund windows."
-                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
-                          />
-                        </div>
-                        <div className="flex justify-end">
-                          <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
-                            {updateUser.isPending ? "Saving..." : "Save Policies"}
                           </NeonButton>
                         </div>
                       </>

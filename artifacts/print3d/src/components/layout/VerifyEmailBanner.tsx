@@ -7,7 +7,10 @@ export function VerifyEmailBanner() {
   const { user } = useAuth();
   const [dismissed, setDismissed] = useState(false);
 
-  if (!user || user.isVerified || dismissed) {
+  // Check emailVerifiedAt from Supabase Auth (reliable source) rather than isVerified from DB
+  const isActuallyVerified = !!user.emailVerifiedAt;
+  
+  if (!user || isActuallyVerified || dismissed) {
     return null;
   }
 
