@@ -162,14 +162,6 @@ export function Navbar() {
             />
           </div>
 
-          {!isSeller && (
-            <Link href="/register" className="hidden sm:block">
-              <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] px-4 py-2 text-sm h-9 border border-cyan-400/30">
-                Join Now
-              </Button>
-            </Link>
-          )}
-
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
               <ShoppingCart className="w-5 h-5" />

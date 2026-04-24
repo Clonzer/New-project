@@ -68,12 +68,30 @@ export default function Shop() {
           .eq('id', shopId)
           .single();
         if (data && !error) {
+          // Fetch avatar_url from profiles if missing
+          let avatarUrl = data.avatar_url || data.avatar || data.profile_image_url;
+          
+          if (!avatarUrl && data.user_id) {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('avatar_url')
+                .eq('id', data.user_id)
+                .single();
+              if (profileData?.avatar_url) {
+                avatarUrl = profileData.avatar_url;
+              }
+            } catch {
+              // Ignore errors from profile fetch
+            }
+          }
+          
           // Transform seller data to match expected format
           setSeller({
             ...data,
             displayName: data.store_name || data.display_name,
             shopName: data.store_name,
-            avatarUrl: data.avatar_url || data.avatar || data.profile_image_url,
+            avatarUrl,
             bannerUrl: data.hero_image_url,
             location: data.location,
             rating: data.rating || 0,

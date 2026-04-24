@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useListSellers, useListListings } from "@/lib/workspace-stub";
+import { supabase } from "@/lib/supabase";
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
@@ -62,16 +63,58 @@ export default function Explore() {
       if (data.sellers[2]) ids.set(data.sellers[2].id, { tier: "gold", level: 7 });
       if (data.sellers[4]) ids.set(data.sellers[4].id, { tier: "gold", level: 6 });
       // Silver sponsors
-      if (data.sellers[6]) ids.set(data.sellers[6].id, { tier: "silver", level: 4 });
-      if (data.sellers[8]) ids.set(data.sellers[8].id, { tier: "silver", level: 3 });
+      if (data?.sellers?.[6]) ids.set(data.sellers[6].id, { tier: "silver", level: 4 });
+      if (data?.sellers?.[8]) ids.set(data.sellers[8].id, { tier: "silver", level: 3 });
     }
     return ids;
   }, [data?.sellers]);
 
-  const sellers = useMemo(() => {
-    const base = (data?.sellers ?? []).map(transformSeller);
-    return base;
+  const [sellerAvatars, setSellerAvatars] = useState<Record<number, string>>({});
+
+  // Fetch avatar URLs for sellers that don't have them
+  useEffect(() => {
+    const fetchAvatars = async () => {
+      const sellersNeedingAvatars = (data?.sellers ?? []).filter(
+        (s: any) => !s.avatar_url && !s.avatarUrl && s.user_id
+      );
+      
+      if (sellersNeedingAvatars.length === 0) return;
+      
+      const userIds = sellersNeedingAvatars.map((s: any) => s.user_id).filter(Boolean);
+      if (userIds.length === 0) return;
+      
+      const { data: profilesData, error } = await supabase
+        .from('profiles')
+        .select('id, avatar_url')
+        .in('id', userIds);
+        
+      if (error || !profilesData) return;
+      
+      const avatarMap: Record<number, string> = {};
+      profilesData.forEach((profile: any) => {
+        const seller = sellersNeedingAvatars.find((s: any) => s.user_id === profile.id);
+        if (seller && profile.avatar_url) {
+          avatarMap[seller.id] = profile.avatar_url;
+        }
+      });
+      
+      setSellerAvatars(avatarMap);
+    };
+    
+    fetchAvatars();
   }, [data?.sellers]);
+
+  const sellers = useMemo(() => {
+    const base = (data?.sellers ?? []).map((s: any) => {
+      const transformed = transformSeller(s);
+      // Add fetched avatar if missing
+      if (!transformed.avatarUrl && !transformed.avatar_url && sellerAvatars[s.id]) {
+        return { ...transformed, avatarUrl: sellerAvatars[s.id], avatar_url: sellerAvatars[s.id] };
+      }
+      return transformed;
+    });
+    return base.length ? base : [];
+  }, [data?.sellers, sellerAvatars]);
 
   const filteredSellers = useMemo(() => {
     if (!sellers) return [];
