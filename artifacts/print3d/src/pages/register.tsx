@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Store, ChevronRight, ChevronLeft,
   Printer as PrinterIcon, Cpu, Layers, Package,
-  Hammer, Wrench, PenLine, Sparkles, Plus,
+  Hammer, Wrench, PenLine, Sparkles, Plus, ArrowLeft,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -80,7 +80,8 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  /** 0 = account form, 1 = shop (seller/both), 2 = equipment */
+  /** 'choice' = select login/signup, 'signup' = account form, 'shop' = shop setup, 'equipment' = equipment selection */
+  const [authMode, setAuthMode] = useState<'choice' | 'signup' | 'shop' | 'equipment'>('choice');
   const [step, setStep] = useState(0);
   const [equipCategory, setEquipCategory] = useState<EquipmentCategoryId | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -184,7 +185,44 @@ export default function Register() {
 
           <AnimatePresence mode="wait">
 
-            {step === 0 && (
+            {authMode === 'choice' && (
+              <motion.div
+                key="choice"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
+              >
+                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Welcome to Synthix</h1>
+                <p className="text-zinc-400 text-base text-center mb-8">
+                  Get started by selecting an option below
+                </p>
+                <div className="flex flex-col gap-4">
+                  <Button
+                    onClick={() => setLocation("/login")}
+                    className="w-full h-14 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                  >
+                    Log In
+                  </Button>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-white/10" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-zinc-900/80 px-2 text-zinc-400">or</span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setAuthMode('signup')}
+                    className="w-full h-14 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold text-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30"
+                  >
+                    Sign Up
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {authMode === 'signup' && step === 0 && (
               <motion.div
                 key="step-0"
                 initial={{ opacity: 0, y: 20 }}
@@ -192,6 +230,17 @@ export default function Register() {
                 exit={{ opacity: 0, y: -20 }}
                 className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
               >
+                <div className="flex items-center gap-2 mb-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAuthMode('choice')}
+                    className="text-zinc-400 hover:text-white -ml-3"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-1" />
+                    Back
+                  </Button>
+                </div>
                 <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Create account</h1>
                 <p className="text-zinc-400 text-base text-center mb-8">
                   Already have an account?{" "}
@@ -201,7 +250,7 @@ export default function Register() {
               </motion.div>
             )}
 
-            {step === 1 && savedUser && savedUser.role === "both" && (
+            {authMode === 'signup' && step === 1 && savedUser && savedUser.role === "both" && (
               <motion.div
                 key="step-shop"
                 initial={{ opacity: 0, x: 30 }}
@@ -283,7 +332,7 @@ export default function Register() {
               </motion.div>
             )}
 
-            {step === 2 && savedUser && (
+            {authMode === 'signup' && step === 2 && savedUser && (
               <motion.div
                 key="step-printer"
                 initial={{ opacity: 0, x: 30 }}

@@ -159,9 +159,11 @@ export default function Shop() {
                 {seller.avatarUrl || seller.avatar_url ? (
                   <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl font-display font-bold text-white">
-                    {seller.displayName.charAt(0)}
-                  </div>
+                  <img 
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(seller.displayName || "User")}&background=0D8ABC&color=fff&size=256`} 
+                    alt={seller.displayName} 
+                    className="w-full h-full object-cover" 
+                  />
                 )}
               </div>
             </div>

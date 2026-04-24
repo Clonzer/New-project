@@ -68,11 +68,15 @@ export default function Explore() {
     return ids;
   }, [data?.sellers]);
 
-  const filteredSellers = useMemo(() => {
-    if (!data?.sellers) return [];
+  const sellers = useMemo(() => {
+    const base = (data?.sellers ?? []).map(transformSeller);
+    return base;
+  }, [data?.sellers]);
 
-    const transformed = data.sellers.map(transformSeller);
-    const filtered = transformed.filter((s) => {
+  const filteredSellers = useMemo(() => {
+    if (!sellers) return [];
+
+    const filtered = sellers.filter((s) => {
       const q = searchTerm.toLowerCase();
       const allTags = (s as any).sellerTags ?? (s as any).seller_tags ?? [];
       const matchesSearch =
@@ -89,7 +93,7 @@ export default function Explore() {
     // Enhance with sponsorship data and sort by ranking
     const enhanced = enhanceWithSponsorship(filtered, sponsoredShopIds);
     return sortByRanking(enhanced);
-  }, [data?.sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds]);
+  }, [sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -117,7 +121,7 @@ export default function Explore() {
             
             {/* Dynamic Shop Banners for Top Performers */}
             <div className="mb-8">
-              {data?.sellers.slice(0, 3).map((seller) => {
+              {sellers.slice(0, 5).map((seller) => {
                 const sponsorInfo = sponsoredShopIds.get(seller.id);
                 return (
                   <DynamicShopBanner
@@ -138,10 +142,10 @@ export default function Explore() {
                   <Skeleton key={i} className="h-[280px] rounded-2xl bg-white/10" />
                 ))}
               </div>
-            ) : data?.sellers.length ? (
+            ) : sellers.length ? (
               <Carousel className="w-full">
                 <CarouselContent className="-ml-2 md:-ml-4">
-                  {data.sellers.slice(0, 8).map((seller) => {
+                  {sellers.slice(0, 8).map((seller) => {
                     const sponsorInfo = sponsoredShopIds.get(seller.id);
                     return (
                       <CarouselItem key={seller.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
@@ -251,10 +255,10 @@ export default function Explore() {
                 <p className="text-zinc-500 text-lg">No makers found matching your criteria.</p>
               </div>
             ) : (
-              filteredSellers?.map(seller => (
+              filteredSellers?.map((seller) => (
                 <SellerCard 
                   key={seller.id} 
-                  seller={seller as any} 
+                  seller={seller} 
                   isSponsored={(seller as any).isSponsored}
                   sponsorTier={(seller as any).sponsorTier}
                 />

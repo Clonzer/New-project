@@ -122,7 +122,7 @@ export function getSponsorshipInfo(
 /**
  * Hook-style helper to enhance items with sponsorship data
  */
-export function enhanceWithSponsorship<T extends RankableItem>(
+export function enhanceWithSponsorship<T extends { id: number | string }>(
   items: T[],
   sponsorMap: Map<string | number, { tier: SponsorTier; level: number }>
 ): Array<T & { isSponsored: boolean; sponsorTier: SponsorTier; promotionLevel: number }> {
@@ -133,6 +133,6 @@ export function enhanceWithSponsorship<T extends RankableItem>(
       isSponsored: !!sponsorInfo,
       sponsorTier: sponsorInfo?.tier || null,
       promotionLevel: sponsorInfo?.level || 0,
-    };
+    });
   });
 }

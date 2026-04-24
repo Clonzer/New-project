@@ -336,9 +336,9 @@ export function Navbar() {
               </Link>
             </div>
           ) : (
-            <Link href="/login">
-              <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] hidden sm:flex">
-                Sign In
+            <Link href="/register">
+              <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] px-4 py-2 text-sm h-9 border border-cyan-400/30 hidden sm:flex">
+                Join Now
               </Button>
             </Link>
           )}
@@ -389,15 +389,6 @@ export function Navbar() {
                 </Link>
               ) : null}
 
-              {!user ? (
-                <Link
-                  href="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
-                >
-                  Sign In
-                </Link>
-              ) : null}
             </nav>
           </motion.div>
         ) : null}

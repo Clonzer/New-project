@@ -56,7 +56,7 @@ export function SellerCard({
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">
                   {seller.avatarUrl || seller.avatar_url ? (
-                    <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
+                    <img src={seller.avatarUrl || seller.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.shopName || seller.displayName || "User")}&background=0D8ABC&color=fff&size=128`} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
                       {(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
