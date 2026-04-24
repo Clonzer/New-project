@@ -6,6 +6,7 @@ import * as z from "zod";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Textarea } from "@/components/ui/textarea";
@@ -387,10 +388,10 @@ export default function ServiceOrder() {
                 />
 
                 <div>
-                  <FormLabel className="text-white mb-2 block">
+                  <Label className="text-white mb-2 block">
                     <Upload className="w-4 h-4 inline mr-2" />
                     Attach Files (Optional)
-                  </FormLabel>
+                  </Label>
                   <input
                     ref={fileInputRef}
                     type="file"
