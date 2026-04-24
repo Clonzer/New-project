@@ -331,6 +331,14 @@ export function useGetUser(userId?: string) {
   };
 }
 
+export function useListUsers() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
 export function useListPrinters(userId: string) {
   return {
     data: [],
