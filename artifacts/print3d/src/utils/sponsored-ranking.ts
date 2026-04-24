@@ -133,6 +133,6 @@ export function enhanceWithSponsorship<T extends { id: number | string }>(
       isSponsored: !!sponsorInfo,
       sponsorTier: sponsorInfo?.tier || null,
       promotionLevel: sponsorInfo?.level || 0,
-    });
+    };
   });
 }
