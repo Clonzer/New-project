@@ -19,6 +19,9 @@ import {
   Hammer, Wrench, PenLine, Sparkles, Plus, ArrowLeft, ArrowRight,
   UserPlus, Zap, LogIn,
 } from "lucide-react";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { Logo } from "@/components/shared/Logo";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
   brandsForCategory,
@@ -30,7 +33,6 @@ import {
 } from "@/lib/equipment-catalog";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { useCreatePrinter, useUpdateUser } from "@/lib/workspace-stub";
-import { RegistrationForm } from "@/components/auth/RegistrationForm";
 
 function RegCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -178,10 +180,45 @@ export default function Register() {
   const skipPrinter = () => setLocation("/dashboard");
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
-      <Navbar />
-
-      <main className="flex-grow flex items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(6,182,212,0.15),transparent)]" />
+      
+      {/* Animated Gradient - Bottom Right */}
+      <motion.div
+        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full blur-3xl"
+        style={{
+          background: "linear-gradient(135deg, rgba(6,182,212,0.4) 0%, rgba(236,72,153,0.4) 50%, rgba(99,102,241,0.4) 100%)",
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.6, 0.8, 0.6],
+          rotate: [0, 45, 0],
+        }}
+        transition={{
+          duration: 8,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "loop",
+        }}
+      />
+      <motion.div
+        className="absolute -bottom-48 -right-48 w-[32rem] h-[32rem] rounded-full blur-3xl"
+        style={{
+          background: "radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)",
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.4, 0.6, 0.4],
+        }}
+        transition={{
+          duration: 12,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "loop",
+        }}
+      />
+      <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
 
           <AnimatePresence mode="wait">
