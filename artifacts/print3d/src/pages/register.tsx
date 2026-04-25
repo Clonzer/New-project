@@ -186,7 +186,7 @@ export default function Register() {
       
       {/* Animated Gradient - Bottom Right */}
       <motion.div
-        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full blur-3xl"
+        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
         style={{
           background: "linear-gradient(135deg, rgba(6,182,212,0.4) 0%, rgba(236,72,153,0.4) 50%, rgba(99,102,241,0.4) 100%)",
         }}
@@ -203,7 +203,7 @@ export default function Register() {
         }}
       />
       <motion.div
-        className="absolute -bottom-48 -right-48 w-[32rem] h-[32rem] rounded-full blur-3xl"
+        className="absolute -bottom-48 -right-48 w-[32rem] h-[32rem] rounded-full blur-3xl pointer-events-none"
         style={{
           background: "radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)",
         }}
