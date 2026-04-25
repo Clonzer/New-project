@@ -868,7 +868,7 @@ export default function Register() {
             <Link href="/privacy" className="underline hover:text-zinc-400">Privacy Policy</Link>.
           </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
