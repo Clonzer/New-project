@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 export function SellerCard({ 
   seller, 
@@ -25,6 +26,35 @@ export function SellerCard({
   };
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(() => isComparedShop(seller.id));
+  const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
+
+  // Fetch avatar directly from profiles if not provided
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      // If we already have an avatar, don't fetch
+      if (seller.avatarUrl || seller.avatar_url) return;
+      
+      // Get user_id from seller data (could be user_id or userId)
+      const userId = (seller as any).user_id || (seller as any).userId;
+      if (!userId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', userId)
+          .single();
+        
+        if (data?.avatar_url && !error) {
+          setFetchedAvatarUrl(data.avatar_url);
+        }
+      } catch {
+        // Silently fail - will show fallback initial
+      }
+    };
+
+    fetchAvatar();
+  }, [seller.avatarUrl, seller.avatar_url, (seller as any).user_id, (seller as any).userId]);
 
   useEffect(() => {
     const sync = () => setIsCompared(isComparedShop(seller.id));
@@ -55,13 +85,32 @@ export function SellerCard({
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">
-                  {seller.avatarUrl || seller.avatar_url ? (
-                    <img src={seller.avatarUrl || seller.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.shopName || seller.displayName || "User")}&background=0D8ABC&color=fff&size=128`} alt={seller.displayName || seller.display_name || 'Shop'} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
-                      {(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                  {(() => {
+                    const avatarUrl = seller.avatarUrl || seller.avatar_url || fetchedAvatarUrl;
+                    if (avatarUrl) {
+                      return (
+                        <img 
+                          src={avatarUrl} 
+                          alt={seller.displayName || seller.display_name || 'Shop'} 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // If image fails to load, show fallback
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).parentElement!.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
+                                ${(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
+                              </div>
+                            `;
+                          }}
+                        />
+                      );
+                    }
+                    return (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
+                        {(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
               <div>

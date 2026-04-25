@@ -44,6 +44,7 @@ import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { Finance } from "@/components/dashboard/Finance";
+import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
@@ -1040,6 +1041,9 @@ export default function Dashboard() {
         initialData={editingEquipmentGroup}
       />
 
+      {/* Dashboard Tour - Spotlight highlight tutorial */}
+      <DashboardTour />
+
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">
 
@@ -1112,6 +1116,16 @@ export default function Dashboard() {
                   <Settings className="w-4 h-4 mr-2" /> Settings
                 </Button>
               </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  localStorage.removeItem(`synthix-dashboard-tour-${user?.id}`);
+                  window.location.reload();
+                }}
+                className="glass-panel text-white border-primary/30 hover:bg-primary/10 hover:border-primary/50 rounded-full"
+              >
+                <Sparkles className="w-4 h-4 mr-2 text-primary" /> Start Tour
+              </Button>
             </div>
           </div>
 
@@ -1142,7 +1156,7 @@ export default function Dashboard() {
             <TabsList className="bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 flex flex-wrap h-auto w-full gap-2">
               {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-                <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                <TabsTrigger value="overview" data-tour="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Overview
                 </TabsTrigger>
@@ -1156,7 +1170,7 @@ export default function Dashboard() {
 
               {/* Purchases tab - shown for all, or when in purchases view for both role */}
               {(!isSellerUser || user?.role !== "both" || dashboardView === "purchases") && (
-                <TabsTrigger value="purchases" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                <TabsTrigger value="purchases" data-tour="orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <Package className="w-4 h-4 mr-2" />
                   Orders
                 </TabsTrigger>
@@ -1171,9 +1185,9 @@ export default function Dashboard() {
               )}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <>
-                  <TabsTrigger value="listings" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="listings" data-tour="shop" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Store className="w-4 h-4 mr-2" />
-                    My Listings
+                    My Shop
                   </TabsTrigger>
                   <TabsTrigger value="services" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <PenLine className="w-4 h-4 mr-2" />
@@ -1197,7 +1211,7 @@ export default function Dashboard() {
               {/* Buyer tabs - shown when in purchases view */}
               {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
                 <>
-                  <TabsTrigger value="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="messages" data-tour="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Messages
                   </TabsTrigger>
