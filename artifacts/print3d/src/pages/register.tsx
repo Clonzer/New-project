@@ -82,7 +82,7 @@ export default function Register() {
   const { toast } = useToast();
 
   /** 'choice' = select login/signup, 'signup' = account form, 'shop' = shop setup, 'equipment' = equipment selection */
-  const [authMode, setAuthMode] = useState<'choice' | 'signup' | 'shop' | 'equipment'>('choice');
+  const [authMode, setAuthMode] = useState<'choice' | 'signup' | 'login' | 'shop' | 'equipment'>('signup');
   const [step, setStep] = useState(0);
   const [equipCategory, setEquipCategory] = useState<EquipmentCategoryId | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -302,23 +302,56 @@ export default function Register() {
                 exit={{ opacity: 0, y: -20 }}
                 className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
               >
-                <div className="flex items-center gap-2 mb-6">
+                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Create account</h1>
+                <p className="text-zinc-400 text-base text-center mb-6">
+                  Join Synthix to start buying or selling
+                </p>
+                
+                {/* Login toggle button */}
+                <div className="flex justify-center mb-6">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    onClick={() => setAuthMode('choice')}
-                    className="text-zinc-400 hover:text-white -ml-3"
+                    onClick={() => setAuthMode('login')}
+                    className="border-white/20 text-zinc-400 hover:text-white hover:bg-white/10"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-1" />
-                    Back
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Already have an account? Log in
                   </Button>
                 </div>
-                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Create account</h1>
-                <p className="text-zinc-400 text-base text-center mb-8">
-                  Already have an account?{" "}
-                  <Link href="/login" className="text-primary hover:text-white transition-colors">Sign in</Link>
-                </p>
+                
                 <RegistrationForm onRegistered={onAccountCreated} />
+              </motion.div>
+            )}
+
+            {/* Login Mode */}
+            {authMode === 'login' && (
+              <motion.div
+                key="login"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
+              >
+                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Welcome back</h1>
+                <p className="text-zinc-400 text-base text-center mb-6">
+                  Sign in to your Synthix account
+                </p>
+                
+                {/* Sign up toggle button */}
+                <div className="flex justify-center mb-6">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAuthMode('signup')}
+                    className="border-white/20 text-zinc-400 hover:text-white hover:bg-white/10"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    New here? Create an account
+                  </Button>
+                </div>
+                
+                <LoginForm />
               </motion.div>
             )}
 
