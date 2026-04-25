@@ -1,6 +1,6 @@
 import { NeonButton } from "@/components/ui/neon-button";
 import { ListingCard } from "@/components/shared/ListingCard";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 export function Listings({ myListings, handleDeleteListing }) {
