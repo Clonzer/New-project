@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Store, ChevronRight, ChevronLeft,
   Printer as PrinterIcon, Cpu, Layers, Package,
-  Hammer, Wrench, PenLine, Sparkles, Plus, ArrowLeft,
+  Hammer, Wrench, PenLine, Sparkles, Plus, ArrowLeft, ArrowRight,
   UserPlus, Zap, LogIn,
 } from "lucide-react";
 import {
