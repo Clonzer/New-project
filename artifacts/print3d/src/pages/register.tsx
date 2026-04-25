@@ -17,6 +17,7 @@ import {
   Store, ChevronRight, ChevronLeft,
   Printer as PrinterIcon, Cpu, Layers, Package,
   Hammer, Wrench, PenLine, Sparkles, Plus, ArrowLeft,
+  UserPlus, Zap, LogIn,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -188,37 +189,108 @@ export default function Register() {
             {authMode === 'choice' && (
               <motion.div
                 key="choice"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-lg mx-auto"
               >
-                <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Welcome to Synthix</h1>
-                <p className="text-zinc-400 text-base text-center mb-8">
-                  Get started by selecting an option below
-                </p>
-                <div className="flex flex-col gap-4">
-                  <Button
-                    onClick={() => setLocation("/login")}
-                    className="w-full h-14 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                {/* Logo/Brand */}
+                <div className="text-center mb-10">
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 mb-6"
                   >
-                    Log In
-                  </Button>
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-white/10" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-zinc-900/80 px-2 text-zinc-400">or</span>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={() => setAuthMode('signup')}
-                    className="w-full h-14 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold text-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30"
+                    <Zap className="w-10 h-10 text-primary" />
+                  </motion.div>
+                  <motion.h1
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="text-5xl font-display font-bold text-white mb-3"
                   >
-                    Sign Up
-                  </Button>
+                    Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-zinc-400 text-lg"
+                  >
+                    The future of 3D printing marketplace
+                  </motion.p>
                 </div>
+
+                {/* Cards Grid */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="grid gap-4"
+                >
+                  {/* Sign Up Card */}
+                  <button
+                    onClick={() => setAuthMode('signup')}
+                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 text-left transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:scale-[1.02]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex items-center gap-5">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 group-hover:border-cyan-400/50 transition-colors">
+                        <UserPlus className="h-7 w-7 text-cyan-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors mb-1">
+                          Create Account
+                        </h3>
+                        <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
+                          Join thousands of makers and buyers. Set up your shop or start ordering today.
+                        </p>
+                      </div>
+                      <ArrowRight className="h-6 w-6 text-zinc-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </button>
+
+                  {/* Login Card */}
+                  <button
+                    onClick={() => setLocation("/login")}
+                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 text-left transition-all duration-300 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex items-center gap-5">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/20 group-hover:border-white/40 group-hover:bg-white/15 transition-colors">
+                        <LogIn className="h-7 w-7 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-white mb-1">
+                          Sign In
+                        </h3>
+                        <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
+                          Welcome back! Access your dashboard, orders, and messages.
+                        </p>
+                      </div>
+                      <ArrowRight className="h-6 w-6 text-zinc-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </div>
+                  </button>
+                </motion.div>
+
+                {/* Footer */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                  className="mt-8 text-center text-sm text-zinc-500"
+                >
+                  By continuing, you agree to our{" "}
+                  <Link href="/terms" className="text-zinc-400 hover:text-white underline underline-offset-2">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-zinc-400 hover:text-white underline underline-offset-2">
+                    Privacy Policy
+                  </Link>
+                </motion.p>
               </motion.div>
             )}
 

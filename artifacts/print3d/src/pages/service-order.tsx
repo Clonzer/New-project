@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { Box, Upload, ArrowLeft, FileText, DollarSign, MapPin } from "lucide-react";
+import { Box, Upload, ArrowLeft, FileText, DollarSign, MapPin, MessageSquare, Check } from "lucide-react";
 
 const SERVICE_CATEGORIES = [
   "Woodworking",
@@ -231,6 +231,33 @@ export default function ServiceOrder() {
             </p>
           </div>
 
+          {/* Service Request Info Card - from Make Listing page */}
+          <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 p-6 mb-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Service Request</h3>
+                <p className="text-sm text-zinc-400">Request custom quotes from makers</p>
+              </div>
+            </div>
+            <ul className="grid grid-cols-3 gap-3 text-sm">
+              <li className="flex items-center gap-2 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Custom requirements</span>
+              </li>
+              <li className="flex items-center gap-2 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Multiple quotes</span>
+              </li>
+              <li className="flex items-center gap-2 text-zinc-300">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Negotiable pricing</span>
+              </li>
+            </ul>
+          </div>
+
           <div className="glass-panel rounded-3xl border border-white/10 p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -264,7 +291,7 @@ export default function ServiceOrder() {
                             <SelectValue placeholder="Select a service category" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-zinc-900 border-white/10">
+                        <SelectContent className="bg-zinc-900 border-white/10 max-h-60 overflow-y-auto">
                           {SERVICE_CATEGORIES.map((cat) => (
                             <SelectItem key={cat} value={cat} className="text-white">
                               {cat}
@@ -308,7 +335,7 @@ export default function ServiceOrder() {
                               <SelectValue placeholder="Select material" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-zinc-900 border-white/10">
+                          <SelectContent className="bg-zinc-900 border-white/10 max-h-60 overflow-y-auto">
                             {MATERIALS.map((mat) => (
                               <SelectItem key={mat} value={mat} className="text-white">
                                 {mat}

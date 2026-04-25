@@ -37,6 +37,7 @@ import { useListEquipment, useListEquipmentGroups } from "@/lib/workspace-api-mo
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { PricingCalculator, CarrierSelector, calculateFees } from "@/components/shared/PricingCalculator";
 
 const PRODUCT_TYPES = [
   { value: "3d_printing", label: "3D Printing", description: "Physical 3D printed objects" },
@@ -74,6 +75,8 @@ interface ListingFormData {
   stockType: string;
   basePrice: number;
   shippingCost: number;
+  carrier: string;
+  customCarrier: string;
   estimatedDaysMin: number;
   estimatedDaysMax: number;
   material: string;
@@ -109,6 +112,8 @@ const initialFormData: ListingFormData = {
   stockType: "inventory",
   basePrice: 0,
   shippingCost: 0,
+  carrier: "usps",
+  customCarrier: "",
   estimatedDaysMin: 1,
   estimatedDaysMax: 7,
   material: "",
@@ -220,6 +225,8 @@ export default function NewListingWizard() {
           tags: formData.tags,
           basePrice: formData.basePrice,
           shippingCost: formData.shippingCost,
+          carrier: formData.carrier,
+          customCarrier: formData.customCarrier,
           estimatedDaysMin: formData.estimatedDaysMin,
           estimatedDaysMax: formData.estimatedDaysMax,
           material: formData.material,
@@ -507,30 +514,60 @@ export default function NewListingWizard() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="basePrice">Base Price ($) *</Label>
-                  <Input
-                    id="basePrice"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.basePrice}
-                    onChange={(e) => updateFormData("basePrice", parseFloat(e.target.value) || 0)}
-                    className="mt-1"
-                  />
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="basePrice" className="flex items-center gap-2">
+                        Your Price ($) *
+                        <span className="text-xs text-zinc-500 font-normal">What you want to earn</span>
+                      </Label>
+                      <Input
+                        id="basePrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.basePrice}
+                        onChange={(e) => updateFormData("basePrice", parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                        placeholder="Enter your price"
+                      />
+                    </div>
 
-                <div>
-                  <Label htmlFor="shippingCost">Shipping Cost ($)</Label>
-                  <Input
-                    id="shippingCost"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.shippingCost}
-                    onChange={(e) => updateFormData("shippingCost", parseFloat(e.target.value) || 0)}
-                    className="mt-1"
-                  />
+                    <div>
+                      <Label htmlFor="shippingCost">Shipping Cost ($)</Label>
+                      <Input
+                        id="shippingCost"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.shippingCost}
+                        onChange={(e) => updateFormData("shippingCost", parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                        placeholder="Actual shipping cost"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block">Shipping Carrier</Label>
+                      <CarrierSelector 
+                        value={formData.carrier} 
+                        onChange={(carrier) => updateFormData("carrier", carrier)}
+                        customCarrier={formData.customCarrier}
+                        onCustomCarrierChange={(name) => updateFormData("customCarrier", name)}
+                        allowCustom={true}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Price Breakdown</Label>
+                    <PricingCalculator 
+                      basePrice={formData.basePrice}
+                      shippingCost={formData.shippingCost}
+                      carrier={formData.carrier}
+                      showDetails={true}
+                    />
+                  </div>
                 </div>
 
                 <div>
