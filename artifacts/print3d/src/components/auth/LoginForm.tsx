@@ -26,13 +26,17 @@ export function LoginForm({
   onSuccess?: () => void;
   submitLabel?: string;
 }) {
-  const { login } = useAuth();
+  const { login, sendLoginCode, verifyLoginCode } = useAuth();
   const prefilledEmail =
     typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("email")?.trim() ?? "";
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [showCodeLogin, setShowCodeLogin] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeEmail, setCodeEmail] = useState(prefilledEmail);
+  const [loginCode, setLoginCode] = useState("");
   const [recoveryState, setRecoveryState] = useState({
     email: prefilledEmail,
     code: "",
@@ -188,8 +192,112 @@ export function LoginForm({
           >
             Forgot your password?
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowCodeLogin(true);
+              setCodeEmail(form.getValues("identifier") || "");
+            }}
+            className="w-full text-sm text-zinc-400 hover:text-white transition-colors"
+          >
+            Sign in with email code
+          </button>
         </form>
       </Form>
+
+      {/* Email Code Login */}
+      {showCodeLogin ? (
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+          <div>
+            <p className="text-sm font-medium text-white">Sign in with email code</p>
+            <p className="mt-1 text-xs text-zinc-400">
+              {codeSent ? "Enter the code sent to your email" : "Enter your email to receive a sign-in code"}
+            </p>
+          </div>
+          {!codeSent ? (
+            <>
+              <Input
+                value={codeEmail}
+                onChange={(event) => setCodeEmail(event.target.value)}
+                placeholder="Your email address"
+                className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+              />
+              <NeonButton
+                glowColor="primary"
+                className="w-full rounded-xl py-3"
+                onClick={async () => {
+                  if (!codeEmail) {
+                    setError("Please enter your email");
+                    return;
+                  }
+                  setSubmitting(true);
+                  const { error } = await sendLoginCode(codeEmail.trim());
+                  if (error) {
+                    setError(error.message);
+                  } else {
+                    setCodeSent(true);
+                    setError(null);
+                  }
+                  setSubmitting(false);
+                }}
+                disabled={submitting}
+              >
+                {submitting ? "Sending..." : "Send code"}
+              </NeonButton>
+            </>
+          ) : (
+            <>
+              <Input
+                value={loginCode}
+                onChange={(event) => setLoginCode(event.target.value)}
+                placeholder="6-digit code"
+                className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
+              />
+              <NeonButton
+                glowColor="primary"
+                className="w-full rounded-xl py-3"
+                onClick={async () => {
+                  setSubmitting(true);
+                  const { error, data } = await verifyLoginCode(codeEmail.trim(), loginCode.trim());
+                  if (error) {
+                    setError(error.message);
+                  } else if (data?.user) {
+                    localStorage.setItem('showTutorial', 'true');
+                    onSuccess?.();
+                  }
+                  setSubmitting(false);
+                }}
+                disabled={submitting || loginCode.length < 6}
+              >
+                {submitting ? "Verifying..." : "Sign in"}
+              </NeonButton>
+              <button
+                type="button"
+                onClick={() => {
+                  setCodeSent(false);
+                  setLoginCode("");
+                }}
+                className="w-full text-sm text-zinc-400 hover:text-white transition-colors"
+              >
+                Didn't receive it? Send again
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setShowCodeLogin(false);
+              setCodeSent(false);
+              setCodeEmail("");
+              setLoginCode("");
+            }}
+            className="w-full text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+          >
+            Back to password login
+          </button>
+        </div>
+      ) : null}
 
       {showRecovery ? (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">

@@ -8,6 +8,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ error: Error | null }>;
+  sendLoginCode: (email: string) => Promise<{ error: Error | null }>;
+  verifyLoginCode: (email: string, token: string) => Promise<{ error: Error | null; data?: any }>;
   loginWithGoogle: () => Promise<{ error: Error | null }>;
   register: (email: string, password: string, userData: Partial<User>) => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
@@ -114,6 +116,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   }
 
+  async function sendLoginCode(email: string) {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false, // Only allow existing users
+      },
+    });
+    return { error };
+  }
+
+  async function verifyLoginCode(email: string, token: string) {
+    const { error, data } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+    return { error, data };
+  }
+
   async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -198,6 +219,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     isAuthenticated: !!user,
     login,
+    sendLoginCode,
+    verifyLoginCode,
     loginWithGoogle,
     register,
     logout,
