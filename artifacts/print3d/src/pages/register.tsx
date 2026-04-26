@@ -182,7 +182,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(6,182,212,0.15),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(6,182,212,0.15),transparent)] pointer-events-none" />
       
       {/* Animated Gradient - Bottom Right */}
       <motion.div
