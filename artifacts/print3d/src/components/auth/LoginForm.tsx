@@ -49,7 +49,7 @@ export function LoginForm({
   const shouldSuggestSignup = !!error && /account|not found|incorrect/i.test(error);
   const { loginWithGoogle } = useAuth();
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: { identifier: string; password: string }) => {
     setError(null);
     setSubmitting(true);
     try {
