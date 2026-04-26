@@ -43,7 +43,6 @@ import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
-import { Finance } from "@/components/dashboard/Finance";
 import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
@@ -1219,9 +1218,17 @@ export default function Dashboard() {
                     <Megaphone className="w-4 h-4 mr-2" />
                     Promotions
                   </TabsTrigger>
-                  <TabsTrigger value="finance" data-tour="finance" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="wallet" data-tour="wallet" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Wallet className="w-4 h-4 mr-2" />
-                    Finance
+                    Wallet
+                  </TabsTrigger>
+                  <TabsTrigger value="transactions" data-tour="transactions" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Transactions
+                  </TabsTrigger>
+                  <TabsTrigger value="payments" data-tour="payments" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Payment Methods
                   </TabsTrigger>
                 </>
               )}
@@ -1323,9 +1330,101 @@ export default function Dashboard() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="finance" className="mt-0">
+                {/* Wallet Tab */}
+                <TabsContent value="wallet" className="mt-0">
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <Finance />
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-semibold text-white">Wallet & Balance</h2>
+                      <p className="text-zinc-400 mt-1">View your available balance and earnings</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 rounded-2xl border border-emerald-500/20">
+                          <p className="text-sm text-emerald-400 mb-1">Available Balance</p>
+                          <p className="text-3xl font-bold text-white">$0.00</p>
+                        </div>
+                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                          <p className="text-sm text-zinc-400 mb-1">Pending Earnings</p>
+                          <p className="text-3xl font-bold text-white">$0.00</p>
+                        </div>
+                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                          <p className="text-sm text-zinc-400 mb-1">Total Earnings</p>
+                          <p className="text-3xl font-bold text-white">$0.00</p>
+                        </div>
+                      </div>
+                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                        <h3 className="text-lg font-semibold text-white mb-4">Payout Settings</h3>
+                        <p className="text-zinc-400">Connect your bank account to receive payouts automatically every week.</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Transactions Tab */}
+                <TabsContent value="transactions" className="mt-0">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-semibold text-white">Transaction History</h2>
+                      <p className="text-zinc-400 mt-1">View all your sales, purchases, and payouts</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        {mySales.orders.length > 0 ? (
+                          mySales.orders.map((order) => (
+                            <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${order.type === 'sale' ? 'bg-emerald-500/20' : 'bg-zinc-700'}`}>
+                                  {order.type === 'sale' ? <TrendingUp className="w-5 h-5 text-emerald-400" /> : <Package className="w-5 h-5 text-zinc-400" />}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-white">Order #{order.id}</p>
+                                  <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                              <p className={`text-sm font-medium ${order.type === 'sale' ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                                {order.type === 'sale' ? '+' : '-'}${(order.totalPrice - order.platformFee).toFixed(2)}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-12">
+                            <Receipt className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                            <p className="text-zinc-400">No transactions yet</p>
+                            <p className="text-sm text-zinc-500 mt-2">Your sales and purchases will appear here</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Payment Methods Tab */}
+                <TabsContent value="payments" className="mt-0">
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-semibold text-white">Payment Methods</h2>
+                      <p className="text-zinc-400 mt-1">Manage your cards and payout accounts</p>
+                    </div>
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-8 bg-gradient-to-r from-zinc-600 to-zinc-700 rounded-md flex items-center justify-center">
+                              <CreditCard className="w-6 h-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-white">Visa ending in 4242</p>
+                              <p className="text-xs text-zinc-500">Expires 12/25</p>
+                            </div>
+                          </div>
+                          <button className="text-sm text-zinc-400 hover:text-white transition-colors">Edit</button>
+                        </div>
+                        <button className="w-full py-4 border-2 border-dashed border-white/20 rounded-xl text-zinc-400 hover:text-white hover:border-white/40 transition-all flex items-center justify-center gap-2">
+                          <CreditCard className="w-5 h-5" />
+                          Add Payment Method
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </TabsContent>
               </>

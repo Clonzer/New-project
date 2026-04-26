@@ -79,9 +79,21 @@ const tourSteps: TourStep[] = [
     position: "bottom",
   },
   {
-    target: "[data-tour='finance']",
-    title: "Finance",
-    description: "View payouts, transaction history, and earnings. Track your income.",
+    target: "[data-tour='wallet']",
+    title: "Wallet",
+    description: "Check your balance. See available funds, pending earnings, and payouts.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='transactions']",
+    title: "Transactions",
+    description: "Review all sales, purchases, and payouts. Track every transaction.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='payments']",
+    title: "Payment Methods",
+    description: "Add and manage cards. Connect bank accounts for payouts.",
     position: "bottom",
   },
   {
