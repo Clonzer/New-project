@@ -54,19 +54,18 @@ export function LoginForm({
   const { loginWithGoogle } = useAuth();
 
   const onSubmit = async (data: { identifier: string; password: string }) => {
-    setError(null);
     setSubmitting(true);
+    setError(null);
+
     try {
-      const { error, data: loginData } = await login(data.identifier.trim(), data.password);
+      const { error } = await login(data.identifier.trim(), data.password);
       if (error) {
         setError(error.message);
         return;
       }
-      if (loginData?.user) {
-        // Store flag to show tutorial on dashboard
-        localStorage.setItem('showTutorial', 'true');
-        onSuccess?.();
-      }
+      // Store flag to show tutorial on dashboard
+      localStorage.setItem('showTutorial', 'true');
+      onSuccess?.();
     } catch (e) {
       setError(getApiErrorMessage(e));
     } finally {
