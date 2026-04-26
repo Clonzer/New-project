@@ -13,33 +13,57 @@ interface TourStep {
 
 const tourSteps: TourStep[] = [
   {
+    target: "[data-tour='welcome']",
+    title: "Welcome to Synthix!",
+    description: "Your 3D printing marketplace dashboard. Here's where you'll manage your maker business - track sales, handle orders, and grow your shop. Let's explore the key features!",
+    position: "bottom",
+  },
+  {
     target: "[data-tour='overview']",
-    title: "Overview",
-    description: "Track your sales, orders, and key metrics at a glance. This is your command center for everything happening in your shop.",
+    title: "Overview Dashboard",
+    description: "Track your key metrics at a glance: total sales, active orders, revenue, and performance charts. The Overview shows your business health and recent activity. Perfect for a quick daily check-in!",
     position: "bottom",
   },
   {
     target: "[data-tour='orders']",
-    title: "Orders",
-    description: "Manage all your orders here. View pending orders, track shipping, and see your complete order history.",
+    title: "Orders Management",
+    description: "Your order hub! View pending orders that need attention, track shipping status, manage returns, and see your complete order history. Click on any order to see full details and update status.",
     position: "bottom",
   },
   {
     target: "[data-tour='shop']",
     title: "My Shop",
-    description: "Manage your listings, services, equipment, and shipping profiles. Everything you need to run your maker business.",
+    description: "Manage everything you sell: 3D printing services, equipment rentals, digital files, and physical products. Add new listings, edit prices, manage inventory, and set up shipping profiles. This is your storefront control center!",
     position: "bottom",
   },
   {
     target: "[data-tour='portfolio']",
-    title: "Portfolio",
-    description: "Showcase your best work. Upload photos of completed projects to attract more buyers.",
+    title: "Portfolio Gallery",
+    description: "Showcase your best 3D prints and completed projects. Upload high-quality photos to build trust with potential buyers and demonstrate your printing capabilities. A strong portfolio attracts more customers!",
     position: "bottom",
   },
   {
     target: "[data-tour='messages']",
-    title: "Messages",
-    description: "Communicate with buyers and sellers. Keep all your conversations in one place.",
+    title: "Messages Center",
+    description: "Communicate with buyers and sellers in real-time. Discuss custom print jobs, negotiate prices, share file specifications, and build relationships. All conversations stay organized here.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='analytics']",
+    title: "Analytics & Insights",
+    description: "Deep dive into your business data: best-selling products, customer demographics, revenue trends, and printing service popularity. Use these insights to optimize your offerings and maximize earnings.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='settings']",
+    title: "Account Settings",
+    description: "Manage your profile, payment methods, notification preferences, and shop settings. Keep your information up-to-date so buyers can trust your business.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='help']",
+    title: "Need Help?",
+    description: "Access tutorials, FAQs, contact support, or restart this tour anytime. We're here to help you succeed as a maker on Synthix! Click the Help button whenever you need assistance.",
     position: "bottom",
   },
 ];
@@ -56,6 +80,18 @@ export function DashboardTour() {
   useEffect(() => {
     if (!user) return;
     
+    // Check if we should show tutorial (after login/register)
+    const showTutorial = localStorage.getItem('showTutorial');
+    if (showTutorial === 'true') {
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+        // Clear the flag so it only shows once
+        localStorage.removeItem('showTutorial');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+    
+    // Also check if user has never seen the tour
     const hasSeenTour = localStorage.getItem(`synthix-dashboard-tour-${user.id}`);
     if (!hasSeenTour) {
       const timer = setTimeout(() => setIsOpen(true), 1500);
@@ -103,18 +139,37 @@ export function DashboardTour() {
     };
   }, [updateTargetPosition]);
 
-  const handleClose = () => {
-    if (user) {
-      localStorage.setItem(`synthix-dashboard-tour-${user.id}`, "true");
-    }
+  const closeTour = useCallback(() => {
     setIsOpen(false);
     setCurrentStep(0);
+    if (user) {
+      localStorage.setItem(`synthix-dashboard-tour-${user.id}`, 'true');
+    }
+  }, [user]);
+
+  const restartTour = useCallback(() => {
+    setCurrentStep(0);
+    setIsOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      (window as any).restartDashboardTour = restartTour;
+    }
+    return () => {
+      delete (window as any).restartDashboardTour;
+    };
+  }, [user, restartTour]);
+
+  const handleClose = () => {
+    closeTour();
   };
 
   const handleNext = () => {
     if (currentStep < tourSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      closeTour();
       handleClose();
     }
   };
@@ -268,6 +323,11 @@ export function DashboardTour() {
         >
           Skip tour
         </button>
+
+        {/* Restart hint */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-zinc-600">
+          You can restart the tour anytime from the help menu
+        </div>
       </motion.div>
     </AnimatePresence>
   );

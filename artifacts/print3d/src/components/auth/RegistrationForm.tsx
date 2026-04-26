@@ -19,7 +19,6 @@ import { useAuth } from "@/contexts/supabase-auth-context";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 import { createMessageThread } from "@/lib/messages-api";
@@ -161,6 +160,9 @@ export function RegistrationForm({
       };
       
       setSuccess("Account created. You're signed in.");
+      
+      // Set flag to show tutorial for new users
+      localStorage.setItem('showTutorial', 'true');
 
       // Auto-create message thread with admin
       try {
@@ -210,23 +212,6 @@ export function RegistrationForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <GoogleAuthButton
-            role="both"
-            location={form.watch("location") || undefined}
-            onAuthed={async (user) => {
-              setSuccess("Signed in with Google.");
-              await onRegistered(user);
-            }}
-          />
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-              <span className="bg-background px-3">or continue with email</span>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <FormField
               control={form.control}

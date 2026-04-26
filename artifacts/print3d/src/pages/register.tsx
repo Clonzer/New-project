@@ -83,6 +83,10 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
+  const handleLoginSuccess = () => {
+    setLocation('/dashboard');
+  };
+
   /** 'choice' = select login/signup, 'signup' = account form, 'shop' = shop setup, 'equipment' = equipment selection */
   const [authMode, setAuthMode] = useState<'choice' | 'signup' | 'login' | 'shop' | 'equipment'>('signup');
   const [step, setStep] = useState(0);
@@ -388,7 +392,7 @@ export default function Register() {
                   </Button>
                 </div>
                 
-                <LoginForm />
+                <LoginForm onSuccess={handleLoginSuccess} />
               </motion.div>
             )}
 
