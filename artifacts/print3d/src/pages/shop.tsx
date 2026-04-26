@@ -22,6 +22,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
+import { SEOMeta, StructuredData, generateVendorSchema, generateBreadcrumbSchema } from "@/components/seo";
 
 const supabase = createClient(
   (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
@@ -68,30 +69,35 @@ export default function Shop() {
           .eq('id', shopId)
           .single();
         if (data && !error) {
-          // Fetch avatar_url from profiles if missing
-          let avatarUrl = data.avatar_url || data.avatar || data.profile_image_url;
+          // Get user_id - could be in id field or user_id field
+          const userId = data.user_id || data.id;
           
-          if (!avatarUrl && data.user_id) {
+          // Fetch avatar_url from profiles table (same as auth context)
+          let avatarUrl = data.avatar_url || data.avatar || data.profile_image_url || null;
+          
+          if (userId) {
             try {
               const { data: profileData } = await supabase
                 .from('profiles')
                 .select('avatar_url')
-                .eq('id', data.user_id)
+                .eq('id', userId)
                 .single();
               if (profileData?.avatar_url) {
                 avatarUrl = profileData.avatar_url;
               }
             } catch {
-              // Ignore errors from profile fetch
+              // Ignore errors from profile fetch - use fallback
             }
           }
           
           // Transform seller data to match expected format
           setSeller({
             ...data,
-            displayName: data.store_name || data.display_name,
-            shopName: data.store_name,
+            user_id: userId, // ensure we have the user_id
+            displayName: data.store_name || data.display_name || data.username,
+            shopName: data.store_name || data.username,
             avatarUrl,
+            accepting_orders: data.accepting_orders !== false, // default to true if not set
             bannerUrl: data.hero_image_url,
             location: data.location,
             rating: data.rating || 0,
@@ -146,12 +152,83 @@ export default function Shop() {
   }
 
   if (!seller) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Shop not found.</div>;
+    return (
+      <>
+        <SEOMeta
+          title="Shop Not Found | Synthix"
+          description="The vendor shop you're looking for doesn't exist or has been removed."
+          noIndex={true}
+        />
+        <div className="min-h-screen flex items-center justify-center text-white">Shop not found.</div>
+      </>
+    );
   }
 
+  // SEO data for vendor shop
+  const shopName = seller.shopName || seller.displayName || "Maker Shop";
+  const seoTitle = `${shopName} - 3D Printing & Laser Cutting Services | Synthix Marketplace`;
+  const seoDescription = seller.bio ? 
+    `${seller.bio.slice(0, 160)}${seller.bio.length > 160 ? '...' : ''}` : 
+    `Visit ${shopName} on Synthix for custom 3D printing, laser cutting, and maker services. Browse their portfolio and services.`;
+  const canonicalUrl = `https://synthix.com/shop/${id}`;
+  const bannerUrl = seller.bannerUrl || "https://synthix.com/default-shop-banner.jpg";
+  const logoUrl = seller.logoUrl || seller.avatarUrl || "https://synthix.com/default-shop-logo.jpg";
+  
+  // Generate structured data for vendor
+  const vendorSchema = generateVendorSchema({
+    name: shopName,
+    description: seller.bio || `${shopName} offers 3D printing and maker services on Synthix`,
+    image: bannerUrl,
+    url: canonicalUrl,
+    email: seller.email,
+    rating: seller.averageRating ? {
+      value: seller.averageRating,
+      count: seller.reviewCount || 0,
+    } : undefined,
+    services: seller.services || ["3D Printing", "Laser Cutting", "Custom Fabrication"],
+  });
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "https://synthix.com" },
+    { name: "Shops", url: "https://synthix.com/discover" },
+    { name: shopName, url: canonicalUrl },
+  ]);
+
   return (
+    <>
+      <SEOMeta
+        title={seoTitle}
+        description={seoDescription}
+        canonical={canonicalUrl}
+        image={bannerUrl}
+        type="profile"
+        keywords={[
+          "3D printing service",
+          "laser cutting",
+          "custom fabrication",
+          shopName,
+          "maker services",
+          "3D printing shop",
+          seller.location || "",
+        ].filter(Boolean)}
+        author={shopName}
+      />
+      <StructuredData schema={[vendorSchema, breadcrumbSchema]} />
+      
     <div className="min-h-screen flex flex-col bg-zinc-950">
       <Navbar />
+
+      {/* Not Accepting Orders Banner */}
+      {seller.accepting_orders === false && (
+        <div className="bg-red-500/20 border-b border-red-500/30 py-3">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-2 text-red-400">
+              <XCircle className="w-5 h-5" />
+              <span className="font-medium">This shop is currently not accepting orders</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-grow">
         {/* Full-width Banner */}
@@ -606,5 +683,6 @@ export default function Shop() {
 
       <Footer />
     </div>
+    </>
   );
 }

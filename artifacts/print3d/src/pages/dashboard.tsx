@@ -801,6 +801,55 @@ export default function Dashboard() {
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
   const [defaultTab, setDefaultTab] = useState("overview");
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">("purchases");
+  const [acceptingOrders, setAcceptingOrders] = useState(true);
+
+  // Fetch accepting orders status from database
+  useEffect(() => {
+    const fetchAcceptingStatus = async () => {
+      if (!user?.id || !isSellerUser) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('sellers')
+          .select('accepting_orders')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data && !error) {
+          setAcceptingOrders(data.accepting_orders !== false);
+        }
+      } catch {
+        // Default to true if fetch fails
+        setAcceptingOrders(true);
+      }
+    };
+    
+    fetchAcceptingStatus();
+  }, [user?.id, isSellerUser]);
+
+  // Save accepting orders status to database
+  const toggleAcceptingOrders = async () => {
+    const newValue = !acceptingOrders;
+    setAcceptingOrders(newValue);
+    
+    if (user?.id) {
+      try {
+        await supabase
+          .from('sellers')
+          .update({ accepting_orders: newValue, updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+        
+        toast({
+          title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
+          description: newValue 
+            ? "Your shop is now visible and customers can place orders."
+            : "Your shop and products are now hidden from browse/search.",
+        });
+      } catch {
+        // Silent fail - UI already updated
+      }
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1060,6 +1109,28 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
               </div>
+
+              {/* Accepting Orders Toggle for Sellers */}
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+                <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 py-2">
+                  <span className="text-sm text-zinc-400">Accepting Orders</span>
+                  <button
+                    onClick={toggleAcceptingOrders}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      acceptingOrders ? "bg-emerald-500" : "bg-zinc-600"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        acceptingOrders ? "translate-x-6" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
+                    {acceptingOrders ? "Open" : "Closed"}
+                  </span>
+                </div>
+              )}
 
               {/* View Toggle for users with both roles */}
               {user?.role === "both" && (

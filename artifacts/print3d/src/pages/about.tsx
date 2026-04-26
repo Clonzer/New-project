@@ -1,6 +1,7 @@
 import React from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { 
   Rocket, 
@@ -64,11 +65,23 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-      <Navbar />
-      
-      <main className="flex-grow">
-        {/* Hero Section */}
+    <>
+      <SEOMeta
+        title="About Synthix | 3D Printing & Laser Cutting Marketplace"
+        description="Learn about Synthix, the premier marketplace connecting makers with customers seeking 3D printing, laser cutting, and custom fabrication services."
+        canonical="https://synthix.com/about"
+        type="article"
+        keywords={["about synthix", "3D printing marketplace", "maker marketplace", "custom fabrication", "laser cutting services"]}
+      />
+      <MarketplaceStructuredData />
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+        <Navbar />
+        
+        <main className="flex-grow">
+          {/* Hero Section */}
+          <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-cyan-600/10 animate-gradient" />
+            
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-cyan-600/10 animate-gradient" />
           
@@ -333,5 +346,6 @@ export default function About() {
 
       <Footer />
     </div>
+    </>
   );
 }

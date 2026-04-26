@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { Button } from "@/components/ui/button";
+import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -219,13 +220,18 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      <Navbar />
+    <>
+      <SEOMeta
+        title="Pricing & Plans | Synthix Marketplace Fees"
+        description="Transparent pricing for vendors on Synthix. View our commission rates, listing fees, and sponsorship options. Start selling your 3D printing services today."
+        canonical="https://synthix.com/pricing"
+        type="website"
+        keywords={["synthix pricing", "marketplace fees", "vendor fees", "3D printing business", "commission rates"]}
+      />
+      <MarketplaceStructuredData />
 
-      <main className="flex-grow">
-        <section className="relative overflow-hidden pb-16 pt-24 text-center">
-          <AnimatedGradientBg />
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_40%)]" />
+      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+        <Navbar />
           <div className="container relative z-10 mx-auto px-4">
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm font-semibold text-primary backdrop-blur-sm">
@@ -416,5 +422,6 @@ export default function Pricing() {
 
       <Footer />
     </div>
+    </>
   );
 }

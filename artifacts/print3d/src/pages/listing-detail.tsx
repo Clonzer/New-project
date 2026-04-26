@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
 import { useGetListing, useListListings } from "@/lib/workspace-stub";
 import { BuyerPriceDisplay } from "@/components/shared/PricingCalculator";
+import { SEOMeta, StructuredData, generateProductSchema, generateBreadcrumbSchema } from "@/components/seo";
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -81,7 +82,70 @@ export default function ListingDetail() {
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   };
 
+  // SEO data
+  const seoTitle = `${listing.title} - ${isServiceListing ? '3D Printing Service' : '3D Printed Product'} by ${listing.seller?.storefrontName || listing.seller?.username || 'Maker'} | Synthix`;
+  const seoDescription = listing.description ? 
+    `${listing.description.slice(0, 160)}${listing.description.length > 160 ? '...' : ''}` : 
+    `Custom ${isServiceListing ? '3D printing service' : '3D printed product'} by ${listing.seller?.storefrontName || 'a verified maker'} on Synthix marketplace.`;
+  const canonicalUrl = `https://synthix.com/listings/${id}`;
+  const imageUrls = images.map((img: string) => img.startsWith('http') ? img : `https://synthix.com${img}`);
+  
+  // Generate structured data
+  const productSchema = generateProductSchema({
+    name: listing.title,
+    description: listing.description || '',
+    image: imageUrls,
+    price: listing.price || 0,
+    priceCurrency: "USD",
+    availability: listing.availability === "unavailable" ? "OutOfStock" : "InStock",
+    seller: {
+      name: listing.seller?.storefrontName || listing.seller?.username || "Synthix Maker",
+      url: `https://synthix.com/shop/${listing.sellerId}`,
+    },
+    brand: listing.seller?.storefrontName,
+    sku: `SYN-${listing.id}`,
+    mpn: listing.modelFileName || undefined,
+    category: listing.category || "3D Printing",
+    reviews: listing.averageRating ? {
+      rating: listing.averageRating,
+      count: listing.reviewCount || 0,
+    } : undefined,
+    material: listing.material || undefined,
+    dimensions: listing.dimensions ? {
+      width: listing.dimensions.width,
+      height: listing.dimensions.height,
+      depth: listing.dimensions.depth,
+      unit: listing.dimensions.unit || "cm",
+    } : undefined,
+  });
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "https://synthix.com" },
+    { name: "Products", url: "https://synthix.com/listings" },
+    { name: listing.title, url: canonicalUrl },
+  ]);
+
   return (
+    <>
+      <SEOMeta
+        title={seoTitle}
+        description={seoDescription}
+        canonical={canonicalUrl}
+        image={imageUrls[0] || "https://synthix.com/og-image.jpg"}
+        type="product"
+        keywords={[
+          "3D printing",
+          listing.category || "",
+          listing.material || "",
+          "custom fabrication",
+          "maker services",
+          listing.seller?.storefrontName || "",
+          isServiceListing ? "3D printing service" : "3D printed product",
+        ].filter(Boolean)}
+        author={listing.seller?.storefrontName || listing.seller?.username}
+      />
+      <StructuredData schema={[productSchema, breadcrumbSchema]} />
+      
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -361,5 +425,6 @@ export default function ListingDetail() {
       </main>
       <Footer />
     </div>
+    </>
   );
 }

@@ -1,0 +1,37 @@
+User-agent: *
+Allow: /
+
+# Disallow private/dashboard pages
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /messages
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-flow
+Disallow: /compare-shops
+Disallow: /vendor-dashboard
+Disallow: /create-listing
+Disallow: /edit-listing
+Disallow: /storefront-edit
+Disallow: /custom-order-payment
+Disallow: /service-order
+Disallow: /product-order
+Disallow: /sponsorship-purchase
+Disallow: /login
+Disallow: /register
+Disallow: /notifications
+Disallow: /analytics
+Disallow: /api/
+
+# Disallow search/filter pages with parameters
+Disallow: /search?
+Disallow: /listings?
+Disallow: /discover?
+Disallow: /explore?
+
+# Crawl-delay for rate limiting (optional)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://synthix.com/sitemap.xml

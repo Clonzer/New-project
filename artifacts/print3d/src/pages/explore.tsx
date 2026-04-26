@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Input } from "@/components/ui/input";
+import { SEOMeta, MarketplaceStructuredData, StructuredData, generateBreadcrumbSchema } from "@/components/seo";
 import {
   Carousel,
   CarouselContent,
@@ -35,6 +36,13 @@ function transformSeller(seller: any) {
 }
 
 export default function Explore() {
+  const canonicalUrl = "https://synthix.com/explore";
+  
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "https://synthix.com" },
+    { name: "Explore", url: canonicalUrl },
+  ]);
+  
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMode, setSelectedMode] = useState<"all" | "catalog" | "open" | "both">("all");
@@ -139,6 +147,17 @@ export default function Explore() {
   }, [sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds]);
 
   return (
+    <>
+      <SEOMeta
+        title="Explore 3D Printing Shops & Makers | Synthix"
+        description="Discover top-rated makers offering 3D printing, laser cutting, and custom fabrication. Browse portfolios, compare services, and find the perfect maker for your project."
+        canonical={canonicalUrl}
+        type="website"
+        keywords={["explore makers", "3D printing shops", "laser cutting services", "custom fabrication", "maker marketplace", "vendor discovery"]}
+      />
+      <StructuredData schema={[breadcrumbSchema]} />
+      <MarketplaceStructuredData />
+      
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
@@ -319,5 +338,6 @@ export default function Explore() {
 
       <Footer />
     </div>
+    </>
   );
 }

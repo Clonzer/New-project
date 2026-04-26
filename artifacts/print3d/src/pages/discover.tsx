@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
+import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
 import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
@@ -113,6 +114,13 @@ const trackEvent = (event: string, payload: Record<string, unknown> = {}) => {
 };
 
 export default function Discover() {
+  const canonicalUrl = "https://synthix.com/discover";
+  
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "https://synthix.com" },
+    { name: "Discover", url: canonicalUrl },
+  ]);
+
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>(() => {
@@ -419,6 +427,16 @@ export default function Discover() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
+      <SEOMeta
+        title="Discover Top Makers & 3D Printing Services | Synthix"
+        description="Browse skilled makers offering 3D printing, laser cutting, and custom fabrication services. Find the perfect vendor for your project needs."
+        canonical={canonicalUrl}
+        type="website"
+        keywords={["discover makers", "3D printing services", "laser cutting", "custom fabrication", "vendor marketplace"]}
+      />
+      <StructuredData schema={[breadcrumbSchema]} />
+      <MarketplaceStructuredData />
+      
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1102,5 +1120,6 @@ export default function Discover() {
 
       <Footer />
     </div>
+    </>
   );
 }

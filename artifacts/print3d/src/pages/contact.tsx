@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,14 +51,26 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <>
+      <SEOMeta
+        title="Contact Us | Synthix Support & Maker Services"
+        description="Get in touch with Synthix for support, vendor inquiries, or partnership opportunities. We're here to help makers and customers succeed."
+        canonical="https://synthix.com/contact"
+        type="website"
+        keywords={["contact synthix", "support", "help", "customer service", "vendor support"]}
+      />
+      <MarketplaceStructuredData />
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+        <Navbar />
 
-      <main className="flex-grow">
-        <section className="relative overflow-hidden pb-16 pt-24 text-center">
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.15),transparent_40%)]" />
-          <div className="container relative z-10 mx-auto px-4">
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <main className="flex-grow">
+          <section className="relative overflow-hidden pb-16 pt-24 text-center">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.15),transparent_40%)]" />
+            <div className="container relative z-10 mx-auto px-4">
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                <div className="inline-flex items-center gap-2 mb-4">
+                  <Mail className="w-6 h-6 text-primary" />
+                  <span className="text-sm font-semibold text-primary uppercase tracking-[0.18em]">Contact Us</span>
               <div className="inline-flex items-center gap-2 mb-4">
                 <Mail className="w-6 h-6 text-primary" />
                 <span className="text-sm font-semibold text-primary uppercase tracking-[0.18em]">Contact Us</span>
@@ -153,5 +166,6 @@ export default function Contact() {
 
       <Footer />
     </div>
+    </>
   );
 }

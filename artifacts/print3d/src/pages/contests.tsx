@@ -21,6 +21,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SEOMeta, MarketplaceStructuredData, StructuredData, generateBreadcrumbSchema } from "@/components/seo";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -347,16 +348,19 @@ export default function Contests() {
       case "upcoming": return contest.status === "upcoming";
       default: return true;
     }
-  });
-
-  const getWinnerEntries = () => {
-    return entries
-      .filter(entry => entry.status === "winner")
-      .sort((a, b) => b.averageScore - a.averageScore);
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
+      <SEOMeta
+        title="Maker Contests & Design Challenges | Synthix"
+        description="Join exciting 3D printing and design contests. Showcase your skills, win prizes, and get featured in the Synthix maker community."
+        canonical={canonicalUrl}
+        type="website"
+        keywords={["3D printing contest", "design challenge", "maker competition", "3D model contest", "synthix contests"]}
+      />
+      <StructuredData schema={[breadcrumbSchema]} />
+      <MarketplaceStructuredData />
+      
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
       <main className="flex-grow">
         <section className="container mx-auto px-4 pb-24">
@@ -842,5 +846,6 @@ export default function Contests() {
       </main>
       <Footer />
     </div>
+    </>
   );
 }

@@ -35,9 +35,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SiteStats } from "@/components/shared/SiteStats";
+import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 
 export default function Home() {
   return (
+    <>
+      <SEOMeta
+        title="Synthix | 3D Printing & Laser Cutting Marketplace for Makers"
+        description="Connect with skilled makers for custom 3D printing, laser cutting, and fabrication services. Browse thousands of products, services, and equipment rentals from verified vendors."
+        canonical="https://synthix.com"
+        image="https://synthix.com/og-image.jpg"
+        type="website"
+        keywords={[
+          "3D printing marketplace",
+          "laser cutting services",
+          "custom fabrication",
+          "3D printing service",
+          "maker marketplace",
+          "3D printed products",
+          "CNC machining",
+          "woodworking services",
+          "prototyping services",
+        ]}
+      />
+      <MarketplaceStructuredData />
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       {/* Hero gradient applied to entire page */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -502,5 +523,6 @@ export default function Home() {
 
       <Footer />
     </div>
+    </>
   );
 }
