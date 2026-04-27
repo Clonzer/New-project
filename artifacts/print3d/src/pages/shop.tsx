@@ -170,7 +170,7 @@ export default function Shop() {
   const seoDescription = seller.bio ? 
     `${seller.bio.slice(0, 160)}${seller.bio.length > 160 ? '...' : ''}` : 
     `Visit ${shopName} on Synthix for custom 3D printing, laser cutting, and maker services. Browse their portfolio and services.`;
-  const canonicalUrl = `https://synthix.com/shop/${id}`;
+  const canonicalUrl = `https://synthix.com/shop/${shopId}`;
   const bannerUrl = seller.bannerUrl || "https://synthix.com/default-shop-banner.jpg";
   const logoUrl = seller.logoUrl || seller.avatarUrl || "https://synthix.com/default-shop-logo.jpg";
   
