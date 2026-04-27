@@ -16,6 +16,7 @@ import {
   Wrench,
   Star,
   X,
+  XCircle,
   GitCompareArrows,
   MessageSquare,
 } from "lucide-react";
@@ -324,11 +325,15 @@ export default function Shop() {
                 <GitCompareArrows className="w-5 h-5 mr-2" />
                 {isCompared ? "Remove" : "Compare"}
               </Button>
-              {seller.shopMode === "open" || seller.shopMode === "both" ? (
+              {seller.accepting_orders !== false && (seller.shopMode === "open" || seller.shopMode === "both") ? (
                 <Link href={`/order/new?sellerId=${seller.id}`}>
                   <NeonButton className="py-3 px-6 rounded-xl">Request Custom Work</NeonButton>
                 </Link>
-              ) : null}
+              ) : (
+                <Button disabled className="py-3 px-6 rounded-xl bg-zinc-700 text-zinc-400 cursor-not-allowed">
+                  Not Accepting Orders
+                </Button>
+              )}
               <Link href="/messages">
                 <Button variant="outline" className="py-3 px-6 rounded-xl glass-panel text-white hover:bg-white/10 border-white/20">
                   <MessageSquare className="w-5 h-5 mr-2" /> Contact

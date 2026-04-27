@@ -115,14 +115,16 @@ export default function Explore() {
   }, [data?.sellers]);
 
   const sellers = useMemo(() => {
-    const base = (data?.sellers ?? []).map((s: any) => {
-      const transformed = transformSeller(s);
-      // Add fetched avatar if missing
-      if (!transformed.avatarUrl && !transformed.avatar_url && sellerAvatars[s.id]) {
-        return { ...transformed, avatarUrl: sellerAvatars[s.id], avatar_url: sellerAvatars[s.id] };
-      }
-      return transformed;
-    });
+    const base = (data?.sellers ?? [])
+      .filter((s: any) => s.accepting_orders !== false) // Only show sellers accepting orders
+      .map((s: any) => {
+        const transformed = transformSeller(s);
+        // Add fetched avatar if missing
+        if (!transformed.avatarUrl && !transformed.avatar_url && sellerAvatars[s.id]) {
+          return { ...transformed, avatarUrl: sellerAvatars[s.id], avatar_url: sellerAvatars[s.id] };
+        }
+        return transformed;
+      });
     return base.length ? base : [];
   }, [data?.sellers, sellerAvatars]);
 
