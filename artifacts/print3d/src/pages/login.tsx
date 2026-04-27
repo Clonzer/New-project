@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
+import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/contexts/supabase-auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -59,20 +60,39 @@ export default function Login() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Background glow effects */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+      
       <Navbar />
 
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16">
-            <h1 className="text-4xl font-display font-bold text-white mb-2 text-center">Sign in</h1>
-            <p className="text-zinc-400 text-base text-center mb-8">
-              Use your email and password to sign in.
-            </p>
+      <main className="flex-grow flex items-center justify-center p-4 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-xl"
+        >
+          <div className="glass-card border-white/[0.08] rounded-3xl p-10 md:p-14">
+            <div className="text-center mb-8">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary/30"
+              >
+                <span className="text-2xl font-bold text-white">S</span>
+              </motion.div>
+              <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome back</h1>
+              <p className="text-zinc-400">
+                Sign in to your SYNTHIX account
+              </p>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email</Label>
+                <Label htmlFor="email" className="text-zinc-300 text-sm">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -80,12 +100,11 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Password</Label>
+                <Label htmlFor="password" className="text-zinc-300 text-sm">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -93,13 +112,13 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500"
                 />
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-primary/90"
+                size="lg"
+                className="w-full h-12 rounded-xl"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -115,12 +134,12 @@ export default function Login() {
 
             <p className="text-center text-zinc-500 text-sm pt-6">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-primary hover:text-white transition-colors">
+              <Link href="/register" className="text-primary hover:text-white transition-colors font-medium">
                 Create one
               </Link>
             </p>
           </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

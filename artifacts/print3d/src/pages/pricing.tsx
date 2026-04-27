@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, X, Zap, Users, Package, CheckCircle, Award } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, X, Zap, Users, Package, CheckCircle, Award, Sparkles, Shield, ArrowRight } from "lucide-react";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -303,10 +303,12 @@ export default function Pricing() {
                 <motion.div
                   key={plan.id}
                   initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -5 }}
                   transition={{ delay: index * 0.08, duration: 0.45 }}
-                  className={`relative flex flex-col rounded-3xl border p-8 ${
-                    plan.highlight ? "scale-[1.01] border-primary/40 bg-zinc-800 shadow-[0_0_40px_rgba(139,92,246,0.18)]" : "bg-zinc-800 border-white/10"
+                  className={`relative flex flex-col rounded-3xl border p-8 overflow-hidden group ${
+                    plan.highlight 
+                      ? "bg-gradient-to-br from-primary/20 via-zinc-800 to-accent/20 border-primary/40 shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:shadow-[0_0_60px_rgba(139,92,246,0.4)]" 
+                      : "bg-zinc-800 border-white/10 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]"
                   }`}
                 >
                   {plan.badge ? (
@@ -315,48 +317,82 @@ export default function Pricing() {
                     </div>
                   ) : null}
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                      <Icon className={`h-5 w-5 ${plan.iconColor}`} />
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-white/10 to-transparent shadow-lg`}>
+                      <Icon className={`h-6 w-6 ${plan.iconColor}`} />
                     </div>
-                    <h2 className="text-xl font-display font-bold text-white">{plan.name}</h2>
+                    <div>
+                      <h2 className="text-xl font-display font-bold text-white">{plan.name}</h2>
+                      {plan.badge && (
+                        <span className="text-xs font-medium text-primary">{plan.badge}</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="mb-4">
-                    <span className="text-4xl font-display font-extrabold text-white">
-                      {isEnterprise ? "Custom" : plan.activePrice === 0 ? "Free" : `$${plan.activePrice}`}
-                    </span>
-                    {!isEnterprise && plan.activePrice > 0 ? (
-                      <span className="ml-1 text-sm text-zinc-500">/{yearly ? "mo billed yearly" : "mo"}</span>
-                    ) : null}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-display font-extrabold text-white tracking-tight">
+                        {isEnterprise ? "Custom" : plan.activePrice === 0 ? "Free" : `$${plan.activePrice}`}
+                      </span>
+                      {!isEnterprise && plan.activePrice > 0 ? (
+                        <span className="text-sm text-zinc-500">/{yearly ? "mo billed yearly" : "mo"}</span>
+                      ) : null}
+                    </div>
+                    {yearly && plan.activePrice > 0 && !isEnterprise && (
+                      <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        Save ${(plan.price.monthly - plan.price.yearly) * 12}/year
+                      </p>
+                    )}
                   </div>
 
-                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-zinc-200">
-                    <span className="text-lg font-extrabold">{isEnterprise ? "Custom" : `${plan.platformFee}%`}</span>
-                    <span>{isEnterprise ? "terms" : "platform fee"}</span>
+                  <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-gradient-to-r from-primary/20 to-accent/20 px-3 py-1.5 text-sm font-semibold text-white shadow-lg shadow-primary/10">
+                    <Shield className="w-4 h-4 text-primary" />
+                    <span className="text-base font-extrabold">{isEnterprise ? "Custom" : `${plan.platformFee}%`}</span>
+                    <span className="text-zinc-300">{isEnterprise ? "terms" : "platform fee"}</span>
                   </div>
 
                   <p className="mb-6 text-sm leading-relaxed text-zinc-400">{plan.description}</p>
 
-                  <ul className="mb-8 flex-grow space-y-3">
+                  <ul className="mb-6 flex-grow space-y-3">
                     {plan.features.map((feature) => (
-                      <li key={feature.text} className={`flex items-start gap-2.5 text-sm ${feature.included ? "text-zinc-300" : "text-zinc-600"}`}>
-                        {feature.included ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> : <X className="mt-0.5 h-4 w-4 shrink-0 text-zinc-700" />}
-                        {feature.text}
+                      <li key={feature.text} className={`flex items-start gap-3 text-sm ${feature.included ? "text-zinc-200" : "text-zinc-600"}`}>
+                        {feature.included ? (
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 shrink-0 mt-0">
+                            <Check className="h-3 w-3 text-emerald-400" />
+                          </div>
+                        ) : (
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 shrink-0 mt-0">
+                            <X className="h-3 w-3 text-zinc-600" />
+                          </div>
+                        )}
+                        <span className={feature.included ? "" : "line-through"}>{feature.text}</span>
                       </li>
                     ))}
                   </ul>
-
-                  {isEnterprise ? (
-                    <Link href="/help" className="w-full">
-                      <NeonButton glowColor={plan.glow} className="w-full rounded-2xl py-3 font-semibold">
-                        {plan.cta}
-                      </NeonButton>
-                    </Link>
-                  ) : (
-                    <NeonButton glowColor={plan.glow} onClick={() => startPlanCheckout(plan.id)} className="w-full rounded-2xl py-3 font-semibold">
-                      {plan.cta}
-                    </NeonButton>
+                  
+                  {plan.highlight && (
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
                   )}
+
+                  <div className="mt-auto pt-4 border-t border-white/5">
+                    {isEnterprise ? (
+                      <Link href="/help" className="w-full block">
+                        <NeonButton glowColor={plan.glow} className="w-full rounded-xl py-3 font-semibold group">
+                          <span className="flex items-center justify-center gap-2">
+                            {plan.cta}
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                          </span>
+                        </NeonButton>
+                      </Link>
+                    ) : (
+                      <NeonButton glowColor={plan.glow} onClick={() => startPlanCheckout(plan.id)} className="w-full rounded-xl py-3 font-semibold group">
+                        <span className="flex items-center justify-center gap-2">
+                          {plan.cta}
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                      </NeonButton>
+                    )}
+                  </div>
                 </motion.div>
               );
             })}
@@ -366,46 +402,92 @@ export default function Pricing() {
         {/* Sponsorships Section */}
         <section className="container mx-auto px-4 pb-24">
           <div className="mx-auto max-w-6xl">
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-primary/10 text-primary">
-                  <Megaphone className="h-5 w-5" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-primary/5 p-8 md:p-10 relative overflow-hidden"
+            >
+              {/* Background glow effects */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-lg shadow-primary/20">
+                  <Megaphone className="h-7 w-7" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-display font-bold text-white">Sponsorships</h2>
-                  <p className="text-sm text-zinc-400">Pay through Stripe and activate marketplace boosts automatically.</p>
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-white">Sponsorships</h2>
+                  <p className="text-sm text-zinc-400 mt-1">Pay through Stripe and activate marketplace boosts automatically.</p>
+                </div>
+                <div className="md:ml-auto flex items-center gap-2 text-sm text-primary">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Instant activation</span>
                 </div>
               </div>
 
-              <div className="mt-8 grid gap-6 md:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-black/40 to-black/20 p-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Profile sponsorship</p>
-                  <h3 className="mt-2 text-2xl font-display font-bold text-white">$39 / 14 days</h3>
+              <div className="mt-8 grid gap-6 md:grid-cols-2 relative z-10">
+                {/* Profile Sponsorship */}
+                <motion.div
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-black/60 p-6 md:p-8 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 shadow-xl"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30">
+                      <Users className="h-5 w-5 text-violet-400" />
+                    </div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-semibold">Profile sponsorship</p>
+                  </div>
+                  <h3 className="text-3xl font-display font-bold text-white">$39 <span className="text-lg text-zinc-500 font-normal">/ 14 days</span></h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                     Boost your shop on seller-focused surfaces, featured maker carousels, and support-led recommendations.
                   </p>
-                  <ul className="mt-5 space-y-2 text-sm text-zinc-300">
-                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Prioritized shop placements</li>
-                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Better discovery during campaign windows</li>
-                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-emerald-400" /> Renewable without losing existing time</li>
+                  <ul className="mt-5 space-y-3 text-sm text-zinc-300">
+                    <li className="flex items-center gap-3">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
+                        <Check className="h-3 w-3 text-emerald-400" />
+                      </div>
+                      Prioritized shop placements
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
+                        <Check className="h-3 w-3 text-emerald-400" />
+                      </div>
+                      Better discovery during campaigns
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
+                        <Check className="h-3 w-3 text-emerald-400" />
+                      </div>
+                      Renewable without losing time
+                    </li>
                   </ul>
-                  <NeonButton glowColor="primary" onClick={() => void startProfileSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                  <NeonButton glowColor="primary" onClick={() => void startProfileSponsorship()} className="mt-6 w-full rounded-xl py-3.5">
                     {isStartingProfileSponsor ? "Starting checkout..." : "Sponsor my profile"}
                   </NeonButton>
-                </div>
+                </motion.div>
 
-                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-black/40 to-black/20 p-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Product sponsorship</p>
-                  <h3 className="mt-2 text-2xl font-display font-bold text-white">$24 / 14 days</h3>
+                {/* Product Sponsorship */}
+                <motion.div
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-black/60 p-6 md:p-8 backdrop-blur-sm hover:border-accent/30 transition-all duration-300 shadow-xl"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/20 to-accent/20 border border-cyan-500/30">
+                      <Package className="h-5 w-5 text-cyan-400" />
+                    </div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-semibold">Product sponsorship</p>
+                  </div>
+                  <h3 className="text-3xl font-display font-bold text-white">$24 <span className="text-lg text-zinc-500 font-normal">/ 14 days</span></h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                     Push one listing harder across product-focused placements and featured catalog surfaces.
                   </p>
                   <div className="mt-5">
-                    <label className="mb-2 block text-sm text-zinc-400">Choose a listing</label>
+                    <label className="mb-2 block text-sm text-zinc-400 font-medium">Choose a listing</label>
                     <select
                       value={selectedListingId ?? ""}
                       onChange={(event) => setSelectedListingId(Number(event.target.value))}
-                      className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
                     >
                       {!ownListingsData?.listings?.length ? (
                         <option value="">No listings available</option>
@@ -416,38 +498,62 @@ export default function Pricing() {
                       )}
                     </select>
                   </div>
-                  <NeonButton glowColor="accent" onClick={() => void startListingSponsorship()} className="mt-6 w-full rounded-2xl py-3">
+                  <NeonButton glowColor="accent" onClick={() => void startListingSponsorship()} className="mt-6 w-full rounded-xl py-3.5">
                     {isStartingListingSponsor ? "Starting checkout..." : "Sponsor this product"}
                   </NeonButton>
-                </div>
+                </motion.div>
               </div>
-
-            </div>
-
+            </motion.div>
           </div>
         </section>
 
         {/* FAQ Section */}
         <section className="container mx-auto max-w-3xl px-4 pb-24">
-          <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>
-          <div className="space-y-3">
-            {FAQS.map((faq, index) => (
-              <div key={faq.q} className="glass-panel overflow-hidden rounded-2xl border border-white/10">
-                <button
-                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-white/5"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="mb-2 text-center text-3xl md:text-4xl font-display font-bold text-white">Frequently asked</h2>
+            <p className="text-center text-zinc-400 mb-10">Everything you need to know about our pricing</p>
+            <div className="space-y-4">
+              {FAQS.map((faq, index) => (
+                <motion.div
+                  key={faq.q}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`overflow-hidden rounded-2xl border transition-all duration-300 ${openFaq === index ? 'border-primary/30 bg-gradient-to-br from-white/10 to-white/5 shadow-lg shadow-primary/10' : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8'}`}
                 >
-                  <span className="pr-4 font-medium text-white">{faq.q}</span>
-                  {openFaq === index ? <ChevronUp className="h-4 w-4 shrink-0 text-primary" /> : <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />}
-                </button>
-                {openFaq === index ? (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="border-t border-white/5 px-6 pb-4 pt-3 text-sm leading-relaxed text-zinc-400">
-                    {faq.a}
-                  </motion.div>
-                ) : null}
-              </div>
-            ))}
-          </div>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    className="flex w-full items-center justify-between px-6 py-5 text-left"
+                  >
+                    <span className={`pr-4 font-medium transition-colors ${openFaq === index ? 'text-primary' : 'text-white'}`}>{faq.q}</span>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${openFaq === index ? 'bg-primary/20' : 'bg-white/5'}`}>
+                      {openFaq === index ? <ChevronUp className="h-4 w-4 shrink-0 text-primary" /> : <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />}
+                    </div>
+                  </button>
+                  <AnimatePresence>
+                    {openFaq === index && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="border-t border-white/5"
+                      >
+                        <div className="px-6 pb-5 pt-4 text-sm leading-relaxed text-zinc-400">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </section>
       </main>
 

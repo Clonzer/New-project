@@ -82,15 +82,15 @@ export default function About() {
         keywords={["about synthix", "3D printing marketplace", "maker marketplace", "custom fabrication", "laser cutting services"]}
       />
       <MarketplaceStructuredData />
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+      <div className="min-h-screen flex flex-col">
         <Navbar />
         
         <main className="flex-grow">
-          {/* Hero Section - Shortened */}
+          {/* Hero Section */}
           <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.15),transparent_50%)]" />
-            <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 right-10 w-72 h-72 bg-accent/20 rounded-full blur-3xl animate-pulse delay-700" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.12),transparent_50%)]" />
+            <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
+            <div className="absolute bottom-20 right-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse-glow delay-700" />
           
           <div className="container mx-auto px-4 text-center relative z-10">
             <motion.div
@@ -98,10 +98,15 @@ export default function About() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 mb-6 backdrop-blur-sm"
+              >
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">The Future of Making</span>
-              </div>
+                <span className="text-sm font-semibold text-primary">The Future of Making</span>
+              </motion.div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-4">
                 About <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Synthix</span>
               </h1>
@@ -113,7 +118,7 @@ export default function About() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-12 relative border-y border-white/5">
+        <section className="py-16 relative border-y border-white/[0.08] bg-gradient-to-r from-transparent via-white/[0.02] to-transparent">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
@@ -128,11 +133,14 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="text-center"
+                  whileHover={{ y: -4 }}
+                  className="text-center p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-primary/30 transition-all group"
                 >
-                  <stat.icon className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-1">{stat.value}</div>
-                  <div className="text-sm text-zinc-500">{stat.label}</div>
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                    <stat.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="text-3xl md:text-4xl font-display font-bold text-white mb-1">{stat.value}</div>
+                  <div className="text-sm text-zinc-400">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -169,15 +177,25 @@ export default function About() {
                 className="grid grid-cols-2 gap-4"
               >
                 {[
-                  { icon: Printer, label: "3D Printing" },
-                  { icon: Cpu, label: "CNC Machining" },
-                  { icon: Layers, label: "Laser Cutting" },
-                  { icon: Wrench, label: "Custom Fab" },
+                  { icon: Printer, label: "3D Printing", color: "from-violet-500 to-purple-500" },
+                  { icon: Cpu, label: "CNC Machining", color: "from-cyan-500 to-blue-500" },
+                  { icon: Layers, label: "Laser Cutting", color: "from-emerald-500 to-teal-500" },
+                  { icon: Wrench, label: "Custom Fab", color: "from-orange-500 to-amber-500" },
                 ].map((item, idx) => (
-                  <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors">
-                    <item.icon className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <motion.div 
+                    key={item.label} 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="group bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl p-5 text-center transition-all cursor-pointer"
+                  >
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow`}>
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
                     <div className="text-sm text-white font-medium">{item.label}</div>
-                  </div>
+                  </motion.div>
                 ))}
               </motion.div>
             </div>
@@ -202,9 +220,14 @@ export default function About() {
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="bg-zinc-900/50 border border-zinc-700 rounded-3xl p-8 md:p-12"
+                className="glass-card border-white/[0.08] hover:border-primary/30 rounded-3xl p-8 md:p-12 transition-all group"
               >
-                <h3 className="text-2xl font-bold text-white mb-6">For Customers</h3>
+                <h3 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  For Customers
+                </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
@@ -254,9 +277,14 @@ export default function About() {
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="bg-zinc-900/50 border border-zinc-700 rounded-3xl p-8 md:p-12"
+                className="glass-card border-white/[0.08] hover:border-accent/30 rounded-3xl p-8 md:p-12 transition-all group"
               >
-                <h3 className="text-2xl font-bold text-white mb-6">For Makers</h3>
+                <h3 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-white" />
+                  </div>
+                  For Makers
+                </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
@@ -374,27 +402,39 @@ export default function About() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="max-w-4xl mx-auto text-center bg-gradient-to-br from-violet-900/30 to-cyan-900/30 border border-zinc-700 rounded-3xl p-12"
+              className="max-w-4xl mx-auto text-center relative"
             >
-              <Lightbulb className="w-16 h-16 text-primary mx-auto mb-6" />
-              <h2 className="text-4xl font-bold text-white mb-6">
-                Ready to Join the Revolution?
-              </h2>
-              <p className="text-xl text-zinc-400 mb-8">
-                Whether you're a maker looking to showcase your skills or a customer 
-                with a vision, Synthix is your platform.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/explore-all">
-                  <Button size="lg" className="bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600 text-white font-semibold">
-                    Explore Now
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="lg" variant="outline" className="border-zinc-600 text-white hover:bg-zinc-800">
-                    Sign Up Free
-                  </Button>
-                </Link>
+              {/* Glow background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/10 to-primary/20 rounded-3xl blur-3xl" />
+              
+              <div className="relative glass-card border-white/[0.08] hover:border-primary/30 rounded-3xl p-12 transition-all">
+                <motion.div 
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/30"
+                >
+                  <Lightbulb className="w-10 h-10 text-white" />
+                </motion.div>
+                <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
+                  Ready to Join the Revolution?
+                </h2>
+                <p className="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">
+                  Whether you're a maker looking to showcase your skills or a customer 
+                  with a vision, Synthix is your platform.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/explore-all">
+                    <Button size="lg" variant="gradient" className="h-14 px-10 rounded-xl group">
+                      Explore Now
+                      <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="lg" variant="outline" className="h-14 px-10 rounded-xl border-2">
+                      Sign Up Free
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </div>

@@ -78,31 +78,38 @@ export default function Home() {
 
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="max-w-3xl text-center mx-auto"
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-4xl text-center mx-auto"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 px-5 py-2 text-sm font-semibold text-cyan-300 backdrop-blur-md shadow-lg shadow-cyan-500/20">
+              <motion.span 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary backdrop-blur-md"
+              >
                 <Sparkles className="w-4 h-4" />
                 Storefront marketplace
-              </span>
-              <h1 className="mt-8 text-5xl md:text-7xl font-display font-extrabold text-white leading-[0.95] tracking-tight">
-                Synthix: Your 3D Printing <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 bg-[length:200%_auto] animate-gradient">Marketplace</span>
+              </motion.span>
+              <h1 className="mt-8 text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-[0.95] tracking-tight">
+                Your 3D Printing{" "}
+                <span className="gradient-text-animated">Marketplace</span>
               </h1>
-              <p className="mt-6 max-w-2xl mx-auto text-xl text-zinc-300 leading-relaxed">
-                Welcome to Synthix, the easiest way to find verified makers, buy ready-to-ship products, and order custom prints.
+              <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-zinc-400 leading-relaxed">
+                Connect with verified makers, buy ready-to-ship products, and order custom prints. The easiest way to bring your ideas to life.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/explore">
-                  <NeonButton glowColor="primary" className="w-full sm:w-auto px-10 py-5 text-base rounded-full">
-                    Browse makers <ChevronRight className="w-5 h-5 ml-1" />
-                  </NeonButton>
+                  <Button size="lg" variant="gradient" className="w-full sm:w-auto px-10 h-14 text-base rounded-xl group">
+                    Browse makers 
+                    <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                  </Button>
                 </Link>
                 <Link href="/listings">
-                  <NeonButton glowColor="white" className="w-full sm:w-auto px-10 py-5 text-base rounded-full">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-10 h-14 text-base rounded-xl border-2">
                     Browse catalog
-                  </NeonButton>
+                  </Button>
                 </Link>
               </div>
             </motion.div>
@@ -121,8 +128,8 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
-                <Sparkles className="w-3 h-3 mr-1" /> Discover
+              <Badge variant="glass" className="mb-4">
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Discover
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Everything</span>

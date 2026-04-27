@@ -78,33 +78,33 @@ export function Navbar() {
   const isSeller = user?.role === "seller" || user?.role === "both";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
-      <div className="container mx-auto px-2 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-black/60 backdrop-blur-xl backdrop-saturate-150">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="font-extrabold text-xl tracking-widest text-white group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] transition-all duration-300">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <span className="font-display font-extrabold text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-all duration-300 bg-gradient-to-r from-white to-white bg-clip-text">
               SYNTHIX
             </span>
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
               Beta
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative flex items-center gap-1 ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
                     isActive("/explore-all") || isActive("/explore") || isActive("/listings")
-                      ? "text-white border border-primary bg-primary/30 shadow-[0_0_15px_rgba(139,92,246,0.4)] ring-2 ring-primary/30"
-                      : "text-muted-foreground hover:text-white"
+                      ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   Explore
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4 opacity-70" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-zinc-900 border-zinc-700">
+              <DropdownMenuContent align="start" className="glass-card border-white/10 rounded-xl mt-2">
                 <DropdownMenuItem asChild>
                   <Link href="/explore-all" className="cursor-pointer">
                     Explore All
@@ -131,10 +131,10 @@ export function Navbar() {
               <Link
                 key={route.path}
                 href={route.path}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                   isActive(route.path)
-                    ? "text-white bg-primary/30 border border-primary shadow-[0_0_15px_rgba(139,92,246,0.4)] ring-2 ring-primary/30"
-                    : "text-muted-foreground hover:text-white hover:bg-white/5"
+                    ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20"
+                    : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {route.label}
@@ -145,7 +145,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <div className="hidden lg:flex relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Search models, shops..."
@@ -158,7 +158,7 @@ export function Navbar() {
                   setHeaderSearch("");
                 }
               }}
-              className="pl-9 pr-4 py-2 bg-black/20 border border-white/10 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 w-64 transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 w-72 transition-all hover:bg-white/[0.05] hover:border-white/15"
             />
           </div>
 
@@ -308,11 +308,13 @@ export function Navbar() {
               <Link href="/dashboard">
                 <div className="flex items-center gap-2 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-accent p-[2px]">
-                    <div className="w-full h-full rounded-full bg-card overflow-hidden">
+                    <div className="w-full h-full rounded-full bg-card overflow-hidden flex items-center justify-center">
                       {user.avatarUrl ? (
                         <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
                       ) : (
-                        <UserIcon className="w-full h-full p-1 text-muted-foreground" />
+                        <span className="font-bold text-white text-sm">
+                          {(user.displayName || user.username || "?").charAt(0).toUpperCase()}
+                        </span>
                       )}
                     </div>
                   </div>

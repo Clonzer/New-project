@@ -253,14 +253,18 @@ export default function Messages() {
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent p-0.5 shrink-0">
-                          <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden">
+                          <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                             {thread.counterpart?.avatarUrl ? (
                               <img
                                 src={thread.counterpart.avatarUrl}
                                 alt={thread.counterpart.displayName}
                                 className="w-full h-full object-cover"
                               />
-                            ) : null}
+                            ) : (
+                              <span className="font-bold text-white text-sm">
+                                {(thread.counterpart?.displayName || "?").charAt(0).toUpperCase()}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="min-w-0 flex-grow">

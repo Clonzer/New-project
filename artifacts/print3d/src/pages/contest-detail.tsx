@@ -61,7 +61,7 @@ const mockEntries: ContestEntry[] = [
     user: {
       id: 101,
       displayName: "DesignPro",
-      avatar: "",
+      avatar_url: "",
       shopName: "Design Studio"
     }
   },
@@ -80,7 +80,7 @@ const mockEntries: ContestEntry[] = [
     user: {
       id: 102,
       displayName: "GreenThumb3D",
-      avatar: "",
+      avatar_url: "",
       shopName: "Garden Prints"
     }
   }
@@ -116,7 +116,9 @@ interface ContestEntry {
   user: {
     id: number;
     displayName: string;
-    avatar: string;
+    avatar?: string;
+    avatar_url?: string;
+    avatarUrl?: string;
     shopName?: string;
   };
 }
@@ -478,8 +480,10 @@ export default function ContestDetail() {
                           {index + 1}
                         </div>
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={entry.user.avatar} alt={entry.user.displayName} />
-                          <AvatarFallback>{entry.user.displayName.charAt(0)}</AvatarFallback>
+                          <AvatarImage src={entry.user.avatar_url || entry.user.avatarUrl || entry.user.avatar} alt={entry.user.displayName} />
+                          <AvatarFallback className="bg-zinc-800 text-zinc-400 font-semibold">
+                            {(entry.user.displayName || "?").charAt(0).toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex-grow min-w-0">
                           <p className="text-sm font-medium text-white truncate">{entry.user.displayName}</p>
@@ -547,8 +551,10 @@ export default function ContestDetail() {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-3">
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src={entry.user.avatar} alt={entry.user.displayName} />
-                          <AvatarFallback>{entry.user.displayName.charAt(0)}</AvatarFallback>
+                          <AvatarImage src={entry.user.avatar_url || entry.user.avatarUrl || entry.user.avatar} alt={entry.user.displayName} />
+                          <AvatarFallback className="bg-zinc-800 text-zinc-400 font-semibold text-sm">
+                            {(entry.user.displayName || "?").charAt(0).toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white truncate">{entry.user.displayName}</p>

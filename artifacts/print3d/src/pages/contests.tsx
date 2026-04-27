@@ -16,7 +16,9 @@ import {
   Eye,
   Crown,
   TrendingUp,
-  Target
+  Target,
+  Flame,
+  Gem
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -66,7 +68,9 @@ interface ContestEntry {
   user: {
     id: number;
     displayName: string;
-    avatar: string;
+    avatar?: string;
+    avatar_url?: string;
+    avatarUrl?: string;
     shopName?: string;
   };
 }
@@ -226,7 +230,7 @@ export default function Contests() {
                 user: {
                   id: 1,
                   displayName: "John Maker",
-                  avatar: "https://api.pravatar.cc/150?u=john",
+                  avatar_url: "https://api.pravatar.cc/150?u=john",
                   shopName: "Maker's Workshop"
                 }
               },
@@ -245,7 +249,7 @@ export default function Contests() {
                 user: {
                   id: 2,
                   displayName: "Sarah Creator",
-                  avatar: "https://api.pravatar.cc/150?u=sarah",
+                  avatar_url: "https://api.pravatar.cc/150?u=sarah",
                   shopName: "Creative Designs"
                 }
               }
@@ -444,20 +448,32 @@ export default function Contests() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid w-full grid-cols-4 bg-zinc-800/50 border border-zinc-700">
-              <TabsTrigger value="active" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-4 bg-zinc-900/80 border border-white/10 p-1.5 rounded-2xl">
+              <TabsTrigger
+                value="active"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+              >
                 <Target className="w-4 h-4 mr-2" />
-                Active Contests
+                Active
               </TabsTrigger>
-              <TabsTrigger value="leaderboard" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <TabsTrigger
+                value="leaderboard"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+              >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Leaderboard
               </TabsTrigger>
-              <TabsTrigger value="completed" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <TabsTrigger
+                value="completed"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+              >
                 <Award className="w-4 h-4 mr-2" />
                 Winners
               </TabsTrigger>
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <TabsTrigger
+                value="upcoming"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+              >
                 <Calendar className="w-4 h-4 mr-2" />
                 Upcoming
               </TabsTrigger>
@@ -468,12 +484,15 @@ export default function Contests() {
               {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="bg-zinc-800/50 border-zinc-700 animate-pulse">
-                      <div className="h-48 bg-zinc-700 rounded-t-lg"></div>
-                      <div className="p-6 space-y-3">
-                        <div className="h-4 bg-zinc-700 rounded w-3/4"></div>
-                        <div className="h-3 bg-zinc-700 rounded w-full"></div>
-                        <div className="h-3 bg-zinc-700 rounded w-2/3"></div>
+                    <Card key={i} className="bg-zinc-900/50 border-white/10 animate-pulse overflow-hidden">
+                      <div className="h-52 bg-zinc-800 rounded-t-xl"></div>
+                      <div className="p-6 space-y-4">
+                        <div className="h-5 bg-zinc-800 rounded w-3/4"></div>
+                        <div className="h-3 bg-zinc-800 rounded w-full"></div>
+                        <div className="h-3 bg-zinc-800 rounded w-2/3"></div>
+                        <div className="pt-4 border-t border-zinc-800">
+                          <div className="h-10 bg-zinc-800 rounded-lg"></div>
+                        </div>
                       </div>
                     </Card>
                   ))}
@@ -486,106 +505,136 @@ export default function Contests() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -4 }}
                     >
-                      <Card className="bg-zinc-800 border-zinc-700 hover:border-primary/50 transition-all overflow-hidden">
+                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-primary/40 transition-all duration-300 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10">
                         <div className="relative">
-                          <div className="h-48 bg-gradient-to-br from-primary/30 via-purple-500/20 to-accent/30 relative overflow-hidden">
-                            {/* Animated background pattern */}
-                            <div className="absolute inset-0 opacity-20">
-                              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.3),transparent_50%)]"></div>
-                              <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_50%,rgba(6,182,212,0.3),transparent_50%)]"></div>
+                          <div className="h-52 bg-gradient-to-br from-primary/40 via-purple-500/30 to-accent/40 relative overflow-hidden">
+                            {/* Animated mesh background */}
+                            <div className="absolute inset-0 opacity-30">
+                              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.4),transparent_50%)]"></div>
+                              <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,rgba(6,182,212,0.4),transparent_50%)]"></div>
+                              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==')] opacity-20"></div>
                             </div>
-                            {/* Decorative elements */}
-                            <div className="absolute top-4 left-4">
-                              <Trophy className="w-8 h-8 text-primary/60" />
-                            </div>
-                            <div className="absolute bottom-4 right-4">
-                              <Sparkles className="w-6 h-6 text-accent/60" />
-                            </div>
-                            {/* Contest initials */}
+                            {/* Floating decorative elements */}
+                            <motion.div
+                              animate={{ y: [0, -8, 0] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                              className="absolute top-4 left-4"
+                            >
+                              <Trophy className="w-8 h-8 text-white/40" />
+                            </motion.div>
+                            <motion.div
+                              animate={{ y: [0, 8, 0] }}
+                              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                              className="absolute bottom-4 right-4"
+                            >
+                              <Sparkles className="w-6 h-6 text-white/40" />
+                            </motion.div>
+                            {/* Contest badge */}
                             <div className="relative z-10 flex items-center justify-center h-full">
                               <div className="text-center">
-                                <div className="text-5xl font-display font-bold bg-gradient-to-r from-primary via-purple-400 to-accent bg-clip-text text-transparent drop-shadow-lg">
-                                  {contest.title.split(' ').map((word: string) => word.charAt(0)).join('').slice(0, 3).toUpperCase()}
+                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-3 shadow-xl">
+                                  <span className="text-3xl font-display font-bold text-white">
+                                    {contest.title.split(' ').map((word: string) => word.charAt(0)).join('').slice(0, 2).toUpperCase()}
+                                  </span>
                                 </div>
-                                <div className="text-xs text-zinc-400 mt-2 uppercase tracking-widest">
+                                <div className="text-xs text-white/70 uppercase tracking-widest font-medium">
                                   {contest.category}
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)} z-20`}>
-                            <div className="flex items-center gap-1">
+                          <Badge className={`absolute top-4 right-4 ${getStatusColor(contest.status)} border-0 shadow-lg`}>
+                            <div className="flex items-center gap-1.5">
                               {getStatusIcon(contest.status)}
-                              {contest.status.charAt(0).toUpperCase() + contest.status.slice(1)}
+                              <span className="capitalize font-medium">{contest.status}</span>
                             </div>
                           </Badge>
                         </div>
 
                         <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-xl font-bold text-white mb-2">{contest.title}</h3>
-                              <Badge variant="secondary" className="text-xs">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1 min-w-0 pr-4">
+                              <h3 className="text-lg font-bold text-white mb-1 truncate group-hover:text-primary transition-colors">{contest.title}</h3>
+                              <Badge variant="secondary" className="text-xs bg-white/5 text-zinc-400 border-0">
                                 {contest.category}
                               </Badge>
                             </div>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-primary">{contest.reward}</div>
-                              <div className="text-xs text-zinc-400">Prize Pool</div>
+                            <div className="text-right shrink-0">
+                              <div className="text-lg font-bold text-primary">{contest.reward}</div>
+                              <div className="text-xs text-zinc-500">Prize</div>
                             </div>
                           </div>
 
-                          <p className="text-sm text-zinc-400 mb-4 line-clamp-2">{contest.description}</p>
+                          <p className="text-sm text-zinc-400 mb-4 line-clamp-2 leading-relaxed">{contest.description}</p>
 
-                          <div className="space-y-3 mb-4">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Ends in</span>
-                              <span className="text-white">
-                                {Math.ceil((new Date(contest.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
+                          {/* Progress bar */}
+                          <div className="mb-4">
+                            <div className="flex justify-between text-xs mb-2">
+                              <span className="text-zinc-500">Time Remaining</span>
+                              <span className="text-white font-medium">
+                                {Math.max(0, Math.ceil((new Date(contest.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days
                               </span>
                             </div>
+                            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.max(0, Math.min(100, ((Date.now() - new Date(contest.startDate).getTime()) / (new Date(contest.endDate).getTime() - new Date(contest.startDate).getTime())) * 100))}%` }}
+                                transition={{ duration: 1, delay: 0.3 }}
+                                className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                              />
+                            </div>
                           </div>
 
-                          <div className="mb-4">
-                            <div className="text-xs text-zinc-400 mb-2">Participants</div>
+                          <div className="flex items-center justify-between mb-4">
                             <div className="flex -space-x-2">
-                              {leaderboard.slice(0, 5).map((seller, i) => (
-                                <Avatar key={seller.id} className="w-8 h-8 border-2 border-zinc-800">
-                                  <AvatarImage src={seller.avatar} />
-                                  <AvatarFallback>{seller.displayName?.charAt(0) || "S"}</AvatarFallback>
-                                </Avatar>
-                              ))}
-                              {leaderboard.length > 5 && (
-                                <div className="w-8 h-8 rounded-full bg-zinc-700 border-2 border-zinc-800 flex items-center justify-center text-xs text-zinc-400">
-                                  +{leaderboard.length - 5}
+                              {leaderboard.slice(0, 4).map((seller, i) => {
+                                const avatarUrl = seller.avatar_url || seller.avatarUrl || seller.avatar;
+                                const initials = (seller.displayName || seller.shopName || "S").charAt(0).toUpperCase();
+                                return (
+                                  <Avatar key={seller.id} className="w-7 h-7 border-2 border-zinc-900">
+                                    <AvatarImage src={avatarUrl} />
+                                    <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xs font-semibold">{initials}</AvatarFallback>
+                                  </Avatar>
+                                );
+                              })}
+                              {leaderboard.length > 4 && (
+                                <div className="w-7 h-7 rounded-full bg-zinc-800 border-2 border-zinc-900 flex items-center justify-center text-xs text-zinc-500">
+                                  +{leaderboard.length - 4}
                                 </div>
                               )}
                             </div>
+                            <span className="text-xs text-zinc-500">{leaderboard.length} participants</span>
                           </div>
 
-                          <div className="flex gap-2">
-                            <Link href={`/contests/${contest.id}`} className="flex-1">
-                              <Button
-                                variant="outline"
-                                className="w-full"
-                              >
-                                <Eye className="w-4 h-4 mr-2" />
-                                View Details
-                              </Button>
-                            </Link>
-                          </div>
+                          <Link href={`/contests/${contest.id}`} className="block">
+                            <Button
+                              variant="outline"
+                              className="w-full bg-white/5 border-white/10 hover:bg-primary/20 hover:border-primary/30 hover:text-primary transition-all group/btn"
+                            >
+                              <Eye className="w-4 h-4 mr-2 transition-transform group-hover/btn:scale-110" />
+                              View Details
+                              <ArrowRight className="w-4 h-4 ml-2 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all" />
+                            </Button>
+                          </Link>
                         </CardContent>
                       </Card>
                     </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                  <p className="text-zinc-400">No active contests at the moment.</p>
-                  <p className="text-zinc-500 text-sm mt-2">Check back soon for new opportunities!</p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-16 px-4"
+                >
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-zinc-900 border border-white/10 mb-6">
+                    <Target className="w-10 h-10 text-zinc-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">No Active Contests</h3>
+                  <p className="text-zinc-400 max-w-md mx-auto">There are no active contests at the moment. Check the upcoming tab to see what's coming next!</p>
+                </motion.div>
               )}
             </TabsContent>
 
@@ -597,73 +646,88 @@ export default function Contests() {
                     <h2 className="text-2xl font-bold text-white mb-2">Performance Leaderboard</h2>
                     <p className="text-zinc-400">Track seller performance across key metrics</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={selectedMetric === "total_sales" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedMetric("total_sales")}
-                      className={selectedMetric === "total_sales" ? "bg-primary" : ""}
-                    >
-                      Most Sales
-                    </Button>
-                    <Button
-                      variant={selectedMetric === "products_sold" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedMetric("products_sold")}
-                      className={selectedMetric === "products_sold" ? "bg-primary" : ""}
-                    >
-                      Products Sold
-                    </Button>
-                    <Button
-                      variant={selectedMetric === "jobs_completed" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedMetric("jobs_completed")}
-                      className={selectedMetric === "jobs_completed" ? "bg-primary" : ""}
-                    >
-                      Jobs Completed
-                    </Button>
-                    <Button
-                      variant={selectedMetric === "total_revenue" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedMetric("total_revenue")}
-                      className={selectedMetric === "total_revenue" ? "bg-primary" : ""}
-                    >
-                      Revenue
-                    </Button>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: "total_sales", label: "Most Sales", icon: Trophy },
+                      { key: "products_sold", label: "Products", icon: Award },
+                      { key: "jobs_completed", label: "Jobs", icon: CheckCircle },
+                      { key: "total_revenue", label: "Revenue", icon: Gem },
+                    ].map(({ key, label, icon: Icon }) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedMetric(key)}
+                        className={`rounded-xl border-white/10 transition-all ${
+                          selectedMetric === key
+                            ? "bg-gradient-to-r from-primary to-primary/80 text-white border-primary shadow-lg shadow-primary/25"
+                            : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5 mr-1.5" />
+                        {label}
+                      </Button>
+                    ))}
                   </div>
                 </div>
 
-                <Card className="bg-zinc-800/50 border-zinc-700">
+                <Card className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border-white/10 overflow-hidden">
                   <CardContent className="p-0">
-                    <div className="divide-y divide-zinc-700">
+                    <div className="divide-y divide-white/5">
                       {leaderboard.length > 0 ? (
                         leaderboard.map((seller, index) => (
-                          <div key={seller.id} className="flex items-center gap-4 p-4 hover:bg-zinc-700/50 transition-colors">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-700 text-white font-bold">
-                              {index + 1}
+                          <motion.div
+                            key={seller.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={`flex items-center gap-4 p-4 hover:bg-white/5 transition-all group ${index < 3 ? 'bg-gradient-to-r from-yellow-500/5 to-transparent' : ''}`}
+                          >
+                            {/* Rank Badge */}
+                            <div className={`flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm ${
+                              index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-black shadow-lg shadow-yellow-500/20' :
+                              index === 1 ? 'bg-gradient-to-br from-zinc-300 to-zinc-400 text-black shadow-lg' :
+                              index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white shadow-lg' :
+                              'bg-zinc-800 text-zinc-400 border border-white/10'
+                            }`}>
+                              {index < 3 ? <Crown className="w-4 h-4" /> : index + 1}
                             </div>
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={seller.avatar} />
-                              <AvatarFallback>{seller.displayName?.charAt(0) || "S"}</AvatarFallback>
+
+                            {/* Avatar */}
+                            <Avatar className={`w-12 h-12 border-2 ${index < 3 ? 'border-yellow-500/30' : 'border-white/10'}`}>
+                              <AvatarImage src={seller.avatar_url || seller.avatarUrl || seller.avatar} />
+                              <AvatarFallback className="bg-zinc-800 text-zinc-400 font-semibold text-lg">
+                                {(seller.displayName || seller.shopName || "S").charAt(0).toUpperCase()}
+                              </AvatarFallback>
                             </Avatar>
-                            <div className="flex-grow">
-                              <p className="font-medium text-white">{seller.displayName || seller.shopName}</p>
-                              <p className="text-sm text-zinc-400">{seller.shopName || "Shop"}</p>
+
+                            {/* Info */}
+                            <div className="flex-grow min-w-0">
+                              <p className="font-semibold text-white truncate group-hover:text-primary transition-colors">{seller.displayName || seller.shopName}</p>
+                              <p className="text-sm text-zinc-500">{seller.shopName || "Shop"}</p>
                             </div>
+
+                            {/* Stats */}
                             <div className="text-right">
-                              <p className="font-bold text-primary text-lg">{seller[selectedMetric] || 0}</p>
-                              <p className="text-xs text-zinc-400 capitalize">{selectedMetric.replace(/_/g, " ")}</p>
+                              <p className="font-bold text-white text-lg">{seller[selectedMetric] || 0}</p>
+                              <p className="text-xs text-zinc-500 capitalize">{selectedMetric.replace(/_/g, " ")}</p>
                             </div>
+
+                            {/* Trend indicator */}
                             {index === 0 && (
-                              <Medal className="w-6 h-6 text-yellow-400" />
+                              <div className="flex items-center gap-1 text-yellow-400">
+                                <Flame className="w-5 h-5" />
+                              </div>
                             )}
-                          </div>
+                          </motion.div>
                         ))
                       ) : (
-                        <div className="text-center py-12">
-                          <TrendingUp className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                          <p className="text-zinc-400">No leaderboard data available yet</p>
-                          <p className="text-zinc-500 text-sm mt-2">Start making sales to appear on the leaderboard!</p>
+                        <div className="text-center py-16 px-4">
+                          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-zinc-900 border border-white/10 mb-6">
+                            <TrendingUp className="w-10 h-10 text-zinc-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-2">Leaderboard Empty</h3>
+                          <p className="text-zinc-400 max-w-md mx-auto">No data available yet. Start competing to climb the ranks!</p>
                         </div>
                       )}
                     </div>
@@ -677,11 +741,17 @@ export default function Contests() {
               <div className="space-y-8">
                 {getWinnerEntries().length > 0 ? (
                   <>
-                    <div className="text-center">
-                      <Crown className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-                      <h2 className="text-2xl font-bold text-white mb-2">Contest Winners</h2>
-                      <p className="text-zinc-400">Celebrating the best makers and their incredible creations</p>
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center py-8 px-4 rounded-3xl bg-gradient-to-br from-yellow-500/10 via-yellow-500/5 to-transparent border border-yellow-500/20"
+                    >
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 mb-4 shadow-xl shadow-yellow-500/20">
+                        <Crown className="w-8 h-8 text-black" />
+                      </div>
+                      <h2 className="text-3xl font-display font-bold text-white mb-2">Contest Winners</h2>
+                      <p className="text-zinc-400 max-w-lg mx-auto">Celebrating the best makers and their incredible creations. These champions have earned their place at the top!</p>
+                    </motion.div>
 
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                       {getWinnerEntries().map((entry, index) => (
@@ -690,55 +760,56 @@ export default function Contests() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
+                          whileHover={{ y: -4 }}
                         >
-                          <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border-yellow-500/30">
+                          <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-yellow-500/20 hover:border-yellow-500/40 transition-all overflow-hidden shadow-xl">
+                            {/* Winner Banner */}
+                            <div className="h-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400" />
+
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                                    <Crown className="w-6 h-6 text-yellow-400" />
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                    index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
+                                    index === 1 ? 'bg-gradient-to-br from-zinc-300 to-zinc-400' :
+                                    'bg-gradient-to-br from-amber-600 to-amber-700'
+                                  }`}>
+                                    <Crown className={`w-6 h-6 ${index === 0 ? 'text-black' : index === 1 ? 'text-black' : 'text-white'}`} />
                                   </div>
                                   <div>
-                                    <h3 className="font-bold text-white">{entry.title}</h3>
-                                    <p className="text-sm text-zinc-400">Winner</p>
+                                    <h3 className="font-bold text-white truncate max-w-[150px]">{entry.title}</h3>
+                                    <p className="text-sm text-yellow-400 font-medium">Winner #{index + 1}</p>
                                   </div>
                                 </div>
                                 <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                                  #{index + 1}
+                                  <Star className="w-3 h-3 mr-1" />
+                                  {entry.averageScore.toFixed(1)}
                                 </Badge>
                               </div>
 
-                              <div className="flex items-center gap-3 mb-4">
-                                <Avatar className="w-8 h-8">
-                                  <AvatarImage src={entry.user.avatar} />
-                                  <AvatarFallback>{entry.user.displayName.charAt(0)}</AvatarFallback>
+                              <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-white/5">
+                                <Avatar className="w-10 h-10 border-2 border-yellow-500/30">
+                                  <AvatarImage src={entry.user.avatar_url || entry.user.avatarUrl || entry.user.avatar} />
+                                  <AvatarFallback className="bg-zinc-800 text-zinc-400 font-semibold">
+                                    {(entry.user.displayName || "?").charAt(0).toUpperCase()}
+                                  </AvatarFallback>
                                 </Avatar>
-                                <div>
-                                  <p className="text-sm font-medium text-white">{entry.user.displayName}</p>
-                                  <p className="text-xs text-zinc-400">{entry.user.shopName}</p>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-white truncate">{entry.user.displayName}</p>
+                                  <p className="text-xs text-zinc-500">{entry.user.shopName}</p>
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-zinc-400">Score</p>
-                                  <p className="text-white font-bold">{entry.averageScore.toFixed(1)}/5.0</p>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="text-center p-3 rounded-xl bg-white/5">
+                                  <p className="text-2xl font-bold text-white">{entry.votes}</p>
+                                  <p className="text-xs text-zinc-500">Total Votes</p>
                                 </div>
-                                <div>
-                                  <p className="text-zinc-400">Votes</p>
-                                  <p className="text-white font-bold">{entry.votes}</p>
+                                <div className="text-center p-3 rounded-xl bg-white/5">
+                                  <p className="text-2xl font-bold text-primary">{entry.averageScore.toFixed(1)}</p>
+                                  <p className="text-xs text-zinc-500">Avg Score</p>
                                 </div>
                               </div>
-
-                              {entry.images.length > 0 && (
-                                <div className="mt-4">
-                                  <img 
-                                    src={entry.images[0]} 
-                                    alt={entry.title}
-                                    className="w-full h-32 object-cover rounded-lg"
-                                  />
-                                </div>
-                              )}
                             </CardContent>
                           </Card>
                         </motion.div>
@@ -746,11 +817,17 @@ export default function Contests() {
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-12">
-                    <Award className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                    <p className="text-zinc-400">No contests have been completed yet.</p>
-                    <p className="text-zinc-500 text-sm mt-2">Be the first to win an upcoming contest!</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-16 px-4"
+                  >
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-zinc-900 border border-white/10 mb-6">
+                      <Award className="w-10 h-10 text-zinc-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">No Winners Yet</h3>
+                    <p className="text-zinc-400 max-w-md mx-auto">Contests are still ongoing. Check back soon to see the champions!</p>
+                  </motion.div>
                 )}
               </div>
             </TabsContent>
@@ -760,11 +837,12 @@ export default function Contests() {
               {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2">
                   {[...Array(2)].map((_, i) => (
-                    <Card key={i} className="bg-zinc-800/50 border-zinc-700 animate-pulse">
-                      <div className="p-6 space-y-3">
-                        <div className="h-4 bg-zinc-700 rounded w-3/4"></div>
-                        <div className="h-3 bg-zinc-700 rounded w-full"></div>
-                        <div className="h-3 bg-zinc-700 rounded w-2/3"></div>
+                    <Card key={i} className="bg-zinc-900/50 border-white/10 animate-pulse overflow-hidden">
+                      <div className="h-32 bg-zinc-800 rounded-t-xl"></div>
+                      <div className="p-6 space-y-4">
+                        <div className="h-5 bg-zinc-800 rounded w-3/4"></div>
+                        <div className="h-3 bg-zinc-800 rounded w-full"></div>
+                        <div className="h-3 bg-zinc-800 rounded w-2/3"></div>
                       </div>
                     </Card>
                   ))}
@@ -777,39 +855,56 @@ export default function Contests() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -4 }}
                     >
-                      <Card className="bg-zinc-800/50 border-zinc-700">
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-4">
-                            <Calendar className="w-5 h-5 text-primary" />
-                            <h3 className="text-xl font-bold text-white">{contest.title}</h3>
+                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-primary/30 transition-all overflow-hidden shadow-xl">
+                        <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.2),transparent_50%)]"></div>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="absolute top-4 right-4 opacity-20"
+                          >
+                            <Sparkles className="w-12 h-12 text-primary" />
+                          </motion.div>
+                          <div className="absolute bottom-4 left-4">
+                            <Badge className="bg-zinc-800/80 text-zinc-300 border-white/10">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              Coming Soon
+                            </Badge>
                           </div>
+                        </div>
 
-                          <p className="text-sm text-zinc-400 mb-4">{contest.description}</p>
+                        <CardContent className="p-6">
+                          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors">{contest.title}</h3>
+                          <p className="text-sm text-zinc-400 mb-4 line-clamp-2">{contest.description}</p>
 
                           <div className="space-y-3 mb-4">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Starts in</span>
-                              <span className="text-white">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-zinc-500 flex items-center gap-1.5">
+                                <Clock className="w-4 h-4" />
+                                Starts in
+                              </span>
+                              <span className="text-white font-medium">
                                 {Math.ceil((new Date(contest.startDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
                               </span>
                             </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Reward</span>
-                              <span className="text-primary font-bold">{contest.reward}</span>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-zinc-500">Reward</span>
+                              <span className="text-primary font-semibold">{contest.reward}</span>
                             </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-zinc-400">Max Participants</span>
-                              <span className="text-white">{contest.maxParticipants}</span>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-zinc-500">Participants</span>
+                              <span className="text-white">Up to {contest.maxParticipants}</span>
                             </div>
                           </div>
 
                           <Button
                             variant="outline"
-                            className="w-full mt-4"
+                            className="w-full bg-white/5 border-white/10 hover:bg-primary/20 hover:border-primary/30 hover:text-primary transition-all group/btn"
                             onClick={() => setSelectedContest(contest)}
                           >
-                            <AlertCircle className="w-4 h-4 mr-2" />
+                            <AlertCircle className="w-4 h-4 mr-2 transition-transform group-hover/btn:scale-110" />
                             Get Notified
                           </Button>
                         </CardContent>
@@ -818,11 +913,17 @@ export default function Contests() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <Calendar className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                  <p className="text-zinc-400">No upcoming contests scheduled.</p>
-                  <p className="text-zinc-500 text-sm mt-2">Check back later for new announcements!</p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-16 px-4"
+                >
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-zinc-900 border border-white/10 mb-6">
+                    <Calendar className="w-10 h-10 text-zinc-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">No Upcoming Contests</h3>
+                  <p className="text-zinc-400 max-w-md mx-auto">Stay tuned! New contests are being planned. Check the active tab to join current competitions.</p>
+                </motion.div>
               )}
             </TabsContent>
           </Tabs>

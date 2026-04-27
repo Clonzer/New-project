@@ -20,7 +20,8 @@ import {
 } from "@/lib/cart-storage";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { useLocalePreferences } from "@/lib/locale-preferences";
-import { Box, ShoppingBag, Trash2 } from "lucide-react";
+import { Box, ShoppingBag, Trash2, ArrowRight, Package, CreditCard, Truck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Cart() {
   const { user } = useAuth();
@@ -126,18 +127,34 @@ export default function Cart() {
       <Navbar />
 
       <main className="flex-grow pt-12 pb-24">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">Your Cart</h1>
-          <p className="text-zinc-400 mb-10">Review catalog items and pay securely with Stripe checkout.</p>
+        <div className="container mx-auto px-4 max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-10"
+          >
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">Your Cart</h1>
+            <p className="text-zinc-400 text-lg">Review items and checkout securely</p>
+          </motion.div>
 
           {!lines.length ? (
-            <div className="glass-panel rounded-3xl border border-white/10 p-16 text-center">
-              <ShoppingBag className="w-14 h-14 text-zinc-600 mx-auto mb-4" />
-              <p className="text-zinc-500 mb-6">Your cart is empty.</p>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card border-white/[0.08] rounded-3xl p-16 text-center"
+            >
+              <div className="w-20 h-20 rounded-2xl bg-zinc-800 flex items-center justify-center mx-auto mb-6">
+                <ShoppingBag className="w-10 h-10 text-zinc-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Your cart is empty</h3>
+              <p className="text-zinc-500 mb-8">Start browsing our catalog to find amazing 3D models</p>
               <Link href="/listings">
-                <NeonButton glowColor="primary">Browse catalog</NeonButton>
+                <Button variant="gradient" size="lg" className="rounded-xl group">
+                  Browse catalog
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </Button>
               </Link>
-            </div>
+            </motion.div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
@@ -146,10 +163,16 @@ export default function Cart() {
                     Some listings are no longer available (IDs: {missingIds.join(", ")}). Remove them before checkout.
                   </div>
                 )}
-                {rows.map(({ line, listing }) => (
-                  <div
+                <AnimatePresence mode="popLayout">
+                {rows.map(({ line, listing }, index) => (
+                  <motion.div
                     key={listing.id}
-                    className="glass-panel rounded-2xl border border-white/10 p-4 flex gap-4"
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass-card border-white/[0.08] hover:border-primary/30 rounded-2xl p-4 flex gap-4 transition-all group"
                   >
                     <div className="w-24 h-24 rounded-xl overflow-hidden bg-black/40 shrink-0">
                       {listing.imageUrl ? (
@@ -194,13 +217,22 @@ export default function Cart() {
                         </Button>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
+                </AnimatePresence>
               </div>
 
-              <div className="glass-panel rounded-3xl border border-white/10 p-6 h-fit sticky top-24">
-                <h2 className="font-display font-bold text-lg text-white mb-4">Summary</h2>
-                <div className="space-y-2 text-sm text-zinc-300 mb-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass-card border-white/[0.08] rounded-3xl p-6 h-fit sticky top-24"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <CreditCard className="w-5 h-5 text-primary" />
+                  <h2 className="font-display font-bold text-lg text-white">Order Summary</h2>
+                </div>
+                <div className="space-y-3 text-sm text-zinc-300 mb-4">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>{formatPrice(subtotal)}</span>
@@ -218,35 +250,49 @@ export default function Cart() {
                   <span>Total</span>
                   <span className="text-primary">{formatPrice(grandTotal)}</span>
                 </div>
-                <div className="mb-4">
-                  <label className="block text-sm text-zinc-400 mb-2">Shipping address</label>
+                <div className="mb-6">
+                  <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2">
+                    <Truck className="w-4 h-4" />
+                    Shipping address
+                  </label>
                   <Textarea
                     rows={4}
                     value={shippingAddress}
                     onChange={(event) => setShippingAddress(event.target.value)}
                     placeholder="Full name, street, city, postcode, country"
-                    className="bg-black/30 border-white/10 text-white resize-none"
+                    className="resize-none"
                   />
                 </div>
-                <NeonButton
-                  glowColor="primary"
-                  className="w-full rounded-xl py-3"
+                <Button
+                  size="lg"
+                  className="w-full h-12 rounded-xl"
                   disabled={!rows.length || isCheckingOut}
                   onClick={() => void checkout()}
                 >
-                  {isCheckingOut ? "Redirecting to payment..." : "Checkout"}
-                </NeonButton>
+                  {isCheckingOut ? (
+                    <>
+                      <span className="animate-pulse">Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5 mr-2" />
+                      Checkout
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant="ghost"
-                  className="w-full mt-2 text-zinc-500 hover:text-white"
+                  size="sm"
+                  className="w-full mt-3 text-zinc-500 hover:text-red-400"
                   onClick={() => {
                     clearCart();
                     syncLines([]);
                   }}
                 >
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Clear cart
                 </Button>
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
