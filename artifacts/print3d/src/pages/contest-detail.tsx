@@ -29,6 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { getContest, listContestEntries } from "@/lib/contest-api";
 // Mock contest data - replace with real API when available
 const mockContest: Contest = {
   id: "1",
@@ -124,7 +125,8 @@ interface ContestEntry {
 }
 
 export default function ContestDetail() {
-  const { contestId } = useParams();
+  const params = useParams<{ id: string }>();
+  const contestId = params?.id;
   const { user } = useAuth();
   const { toast } = useToast();
   const [contest, setContest] = useState<Contest | null>(null);
@@ -139,8 +141,8 @@ export default function ContestDetail() {
 
         // Fetch real contest data from API
         if (contestId) {
-          const contestResult = await getContestById(contestId);
-          if (contestResult.success && contestResult.contest) {
+          const contestResult = await getContest(contestId);
+          if (contestResult?.contest) {
             const c = contestResult.contest;
             setContest({
               id: c.id,
@@ -159,7 +161,7 @@ export default function ContestDetail() {
 
             // Fetch contest entries
             const entriesResult = await listContestEntries(c.id);
-            if (entriesResult.success && entriesResult.entries) {
+            if (entriesResult?.entries) {
               const transformedEntries: ContestEntry[] = entriesResult.entries.map((e: any) => ({
                 id: e.id,
                 contestId: e.contest_id,
@@ -183,7 +185,7 @@ export default function ContestDetail() {
 
               // Check if current user has entered
               if (user) {
-                setHasEntered(transformedEntries.some(e => e.userId === user.id));
+                setHasEntered(transformedEntries.some(e => String(e.userId) === String(user.id)));
               }
             } else {
               setEntries([]);
