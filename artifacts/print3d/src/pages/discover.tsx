@@ -1120,6 +1120,5 @@ export default function Discover() {
 
       <Footer />
     </div>
-    </>
   );
 }

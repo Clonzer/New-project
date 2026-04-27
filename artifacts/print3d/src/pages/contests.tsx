@@ -350,6 +350,12 @@ export default function Contests() {
     }
   });
 
+  const canonicalUrl = "https://synthix.com/contests";
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "https://synthix.com" },
+    { name: "Contests", url: canonicalUrl },
+  ]);
+
   return (
     <>
       <SEOMeta
