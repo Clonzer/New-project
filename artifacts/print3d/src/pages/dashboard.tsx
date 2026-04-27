@@ -1038,10 +1038,10 @@ export default function Dashboard() {
     }
   };
 
-  const totalRevenue = mySales?.orders.filter(o => o.status === "delivered" || o.status === "shipped").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
-  const pendingRevenue = mySales?.orders.filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0) ?? 0;
-  const totalFeesPaid = mySales?.orders.reduce((sum, o) => sum + o.platformFee, 0) ?? 0;
-  const averageOrderValue = mySales?.orders.length ? totalRevenue / mySales.orders.length : 0;
+  const totalRevenue = (mySales?.orders ?? []).filter(o => o.status === "delivered" || o.status === "shipped").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0);
+  const pendingRevenue = (mySales?.orders ?? []).filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0);
+  const totalFeesPaid = (mySales?.orders ?? []).reduce((sum, o) => sum + o.platformFee, 0);
+  const averageOrderValue = (mySales?.orders ?? []).length ? totalRevenue / (mySales?.orders ?? []).length : 0;
   const activeEquipmentCount = myPrinters?.filter((printer) => printer.is_active).length ?? 0;
   const totalCatalogItems = myListings?.listings.length ?? 0;
 

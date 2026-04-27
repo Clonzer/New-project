@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,20 +34,17 @@ interface Comment {
 }
 
 // Helper component for user profile links - Matching Header Style
-function UserAvatarLink({ userId, avatarUrl, displayName, size = "md", userAvatars }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg"; userAvatars?: Record<number, string> }) {
+function UserAvatarLink({ userId, avatarUrl, displayName, size = "md" }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg" }) {
   const sizeClasses = { sm: "w-8 h-8", md: "w-12 h-12", lg: "w-16 h-16" };
   const ringClasses = { sm: "p-[1px]", md: "p-[2px]", lg: "p-[2px]" };
   const textClasses = { sm: "text-xs", md: "text-sm", lg: "text-base" };
-  
-  // Use avatar from profiles table if available, fallback to passed avatarUrl
-  const finalAvatarUrl = userAvatars?.[userId] || avatarUrl;
   
   return (
     <Link href={`/shop/${userId}`}>
       <div className={`${sizeClasses[size]} ${ringClasses[size]} rounded-full bg-gradient-to-br from-primary to-accent cursor-pointer hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all`}>
         <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
-          {finalAvatarUrl ? (
-            <img src={finalAvatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
           ) : (
             <span className={`font-bold text-white ${textClasses[size]}`}>
               {displayName.charAt(0).toUpperCase()}
@@ -413,40 +410,59 @@ export default function Discover() {
     }
   };
 
-  const { data: usersData, isLoading: isLoadingUsers, error: usersError } = useListUsers({ limit: 50 });
-  const { data: listingsData, isLoading: isLoadingListings, error: listingsError } = useListListings({ limit: 50 });
-
-  // Fetch avatar URLs from profiles table
-  const [userAvatars, setUserAvatars] = useState<Record<number, string>>({});
+  // Fetch real users from Supabase with avatars
+  const [usersData, setUsersData] = useState<{ users: any[] }>({ users: [] });
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [listingsData, setListingsData] = useState<{ listings: any[] }>({ listings: [] });
+  const [isLoadingListings, setIsLoadingListings] = useState(true);
 
   useEffect(() => {
-    if (!usersData?.users?.length) return;
-
-    const fetchAvatars = async () => {
-      const userIds = usersData.users.map((u: { id: number }) => u.id);
-      
+    const fetchUsers = async () => {
       const { data: profiles, error } = await supabase
         .from("profiles")
-        .select("id, avatar_url")
-        .in("id", userIds);
+        .select("id, display_name, avatar_url, role")
+        .limit(50);
 
       if (error) {
-        console.error("Error fetching avatars:", error);
+        console.error("Error fetching users:", error);
+        setIsLoadingUsers(false);
         return;
       }
 
-      const avatarMap: Record<number, string> = {};
-      profiles?.forEach((profile: { id: number; avatar_url?: string }) => {
-        if (profile.avatar_url) {
-          avatarMap[profile.id] = profile.avatar_url;
-        }
-      });
+      const users = profiles?.map((profile: any) => ({
+        id: profile.id,
+        displayName: profile.display_name || "User",
+        avatarUrl: profile.avatar_url,
+        role: profile.role,
+        isVerified: profile.role === "seller" || profile.role === "both",
+      })) || [];
 
-      setUserAvatars(avatarMap);
+      setUsersData({ users });
+      setIsLoadingUsers(false);
     };
 
-    fetchAvatars();
-  }, [usersData?.users]);
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      const { data: listings, error } = await supabase
+        .from("listings")
+        .select("id, title, image_url")
+        .limit(50);
+
+      if (error) {
+        console.error("Error fetching listings:", error);
+        setIsLoadingListings(false);
+        return;
+      }
+
+      setListingsData({ listings: listings || [] });
+      setIsLoadingListings(false);
+    };
+
+    fetchListings();
+  }, []);
 
   // Mock sponsored listings for Projects tab
   const sponsoredProjectIds = useMemo(() => {

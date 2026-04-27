@@ -375,9 +375,57 @@ export default function Contests() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
       <Navbar />
       <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative pt-20 pb-12 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent_50%)]" />
+          <div className="absolute top-10 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse delay-500" />
+          
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
+                <Trophy className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Compete & Win</span>
+              </div>
+              <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-4">
+                Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Contests</span>
+              </h1>
+              <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+                Compete with makers worldwide, showcase your skills, and win exclusive rewards.
+              </p>
+            </motion.div>
+            
+            {/* Stats Banner */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
+              {[/* eslint-disable @typescript-eslint/no-use-before-define */
+                { label: "Active Contests", value: "8", icon: Target },
+                { label: "Total Prize Pool", value: "$5,000+", icon: Award },
+                { label: "Entries", value: "1,200+", icon: Users },
+                { label: "Winners", value: "156", icon: Trophy },
+              ].map((stat, idx) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + idx * 0.1 }}
+                  className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center"
+                >
+                  <stat.icon className="w-5 h-5 text-primary mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">{stat.value}</div>
+                  <div className="text-xs text-zinc-500">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="container mx-auto px-4 pb-24">
           {/* Header */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12 pt-12"
@@ -392,7 +440,7 @@ export default function Contests() {
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
               Compete with makers worldwide, showcase your skills, and win exclusive rewards including sponsored features and special badges.
             </p>
-          </motion.div>
+          </motion.div> */}
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">

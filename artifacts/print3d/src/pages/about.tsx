@@ -12,7 +12,15 @@ import {
   Heart, 
   Target, 
   Lightbulb,
-  CheckCircle
+  CheckCircle,
+  Award,
+  ArrowRight,
+  Check,
+  Package,
+  Printer,
+  Cpu,
+  Layers,
+  Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -78,49 +86,101 @@ export default function About() {
         <Navbar />
         
         <main className="flex-grow">
-          {/* Hero Section */}
-          <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-cyan-600/10 animate-gradient" />
+          {/* Hero Section - Shortened */}
+          <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.15),transparent_50%)]" />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-20 right-10 w-72 h-72 bg-accent/20 rounded-full blur-3xl animate-pulse delay-700" />
           
-          <motion.div
-            style={{ opacity, scale }}
-            className="container mx-auto px-4 text-center relative z-10"
-          >
+          <div className="container mx-auto px-4 text-center relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.6 }}
             >
-              <h1 className="text-6xl md:text-8xl font-display font-bold text-white mb-6">
-                About <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Synthix</span>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">The Future of Making</span>
+              </div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-4">
+                About <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Synthix</span>
               </h1>
-              <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto">
-                Empowering creators to bring their ideas to life through the power of community and technology
+              <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto">
+                Where creators meet makers. Turn your digital dreams into physical reality.
               </p>
             </motion.div>
-          </motion.div>
+          </div>
+        </section>
 
+        {/* Stats Section */}
+        <section className="py-12 relative border-y border-white/5">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { label: "Active Makers", value: "2,500+", icon: Users },
+                { label: "Projects Delivered", value: "50K+", icon: Package },
+                { label: "Countries", value: "80+", icon: Globe },
+                { label: "Happy Clients", value: "15K+", icon: Heart },
+              ].map((stat, idx) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="text-center"
+                >
+                  <stat.icon className="w-6 h-6 text-primary mx-auto mb-2" />
+                  <div className="text-3xl md:text-4xl font-bold text-white mb-1">{stat.value}</div>
+                  <div className="text-sm text-zinc-500">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Mission Section */}
-        <section className="py-20 relative">
+        <section className="py-16 relative">
           <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="max-w-4xl mx-auto text-center"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 flex items-center justify-center gap-3">
-                <Target className="w-10 h-10 text-primary" />
-                Our Mission
-              </h2>
-              <p className="text-xl text-zinc-400 leading-relaxed">
-                To democratize manufacturing by connecting creators with skilled makers worldwide. 
-                We believe everyone should have access to the tools and talent needed to bring their 
-                ideas to reality, regardless of their location or resources.
-              </p>
-            </motion.div>
+            <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center gap-3">
+                  <Target className="w-8 h-8 text-primary" />
+                  Our Mission
+                </h2>
+                <p className="text-zinc-400 leading-relaxed mb-4">
+                  To democratize manufacturing by connecting creators with skilled makers worldwide. 
+                  We believe everyone should have access to the tools and talent needed to bring their 
+                  ideas to reality, regardless of their location or resources.
+                </p>
+                <p className="text-zinc-400 leading-relaxed">
+                  From 3D printing to laser cutting, CNC machining to custom fabrication — 
+                  if you can dream it, our makers can build it.
+                </p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="grid grid-cols-2 gap-4"
+              >
+                {[
+                  { icon: Printer, label: "3D Printing" },
+                  { icon: Cpu, label: "CNC Machining" },
+                  { icon: Layers, label: "Laser Cutting" },
+                  { icon: Wrench, label: "Custom Fab" },
+                ].map((item, idx) => (
+                  <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors">
+                    <item.icon className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <div className="text-sm text-white font-medium">{item.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </div>
         </section>
 

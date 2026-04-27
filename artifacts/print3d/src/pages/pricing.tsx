@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, X, Zap } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, X, Zap, Users, Package, CheckCircle, Award } from "lucide-react";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -234,20 +234,46 @@ export default function Pricing() {
         <Navbar />
         <main className="flex-1">
           {/* Hero Section */}
-          <section className="relative overflow-hidden pt-24 pb-16">
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.15),transparent_40%)]" />
-            <div className="container relative z-10 mx-auto px-4 text-center">
-              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-primary backdrop-blur-sm mb-6">
-                  Pricing, promotion, and support
+          <section className="relative pt-20 pb-12 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent_50%)]" />
+            <div className="absolute top-10 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-10 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse delay-500" />
+            
+            <div className="container mx-auto px-4 relative z-10">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">Pricing & Plans</span>
                 </span>
-                <h1 className="mx-auto max-w-4xl text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white leading-tight">
-                  Grow your shop, promote listings, and get support
+                <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-4">
+                  Grow your <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Shop</span>
                 </h1>
-                <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400 leading-relaxed">
+                <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
                   Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
                 </p>
               </motion.div>
+              
+              {/* Stats Banner */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
+                {[
+                  { label: "Active Sellers", value: "2,500+", icon: Users },
+                  { label: "Products Listed", value: "50K+", icon: Package },
+                  { label: "Total Orders", value: "100K+", icon: CheckCircle },
+                  { label: "Commission Paid", value: "$2M+", icon: Award },
+                ].map((stat, idx) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + idx * 0.1 }}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center"
+                  >
+                    <stat.icon className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-white">{stat.value}</div>
+                    <div className="text-xs text-zinc-500">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </section>
 
