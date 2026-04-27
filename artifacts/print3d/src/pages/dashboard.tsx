@@ -1496,6 +1496,13 @@ export default function Dashboard() {
               </>
             )}
 
+            {/* Analytics Tab */}
+            {isSellerUser && (
+              <TabsContent value="analytics" className="mt-0">
+                <Analytics shopId={user?.id} timeRange="30d" />
+              </TabsContent>
+            )}
+
             {/* Promotions Tab */}
             {isSellerUser && (
               <TabsContent value="promotions" className="mt-0">
