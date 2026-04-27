@@ -1114,7 +1114,7 @@ export default function Dashboard() {
 
               {/* Accepting Orders Toggle for Sellers */}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-                <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 py-2">
+                <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
                   <span className="text-sm text-zinc-400">Accepting Orders</span>
                   <Switch
                     checked={acceptingOrders}
@@ -1129,10 +1129,10 @@ export default function Dashboard() {
 
               {/* View Toggle for users with both roles */}
               {user?.role === "both" && (
-                <div className="flex items-center bg-black/60 border border-white/10 rounded-full p-1">
+                <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-10">
                   <button
                     onClick={() => setDashboardView("purchases")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
                       dashboardView === "purchases"
                         ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg"
                         : "text-zinc-400 hover:text-white"
@@ -1143,7 +1143,7 @@ export default function Dashboard() {
                   </button>
                   <button
                     onClick={() => setDashboardView("store")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
                       dashboardView === "store"
                         ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg"
                         : "text-zinc-400 hover:text-white"
@@ -1155,21 +1155,21 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap items-center">
               {!isSellerUser && (
                 <Link href="/register">
-                  <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
+                  <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
                 </Link>
               )}
               {isSellerUser && (
                 <>
                   <Link href="/storefront/edit">
-                    <Button variant="outline" className="glass-panel text-white border-primary/30 hover:bg-primary/10 hover:border-primary/50 rounded-full">
+                    <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 rounded-full px-4">
                       <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
                     </Button>
                   </Link>
                   <Link href="/sponsorship/purchase">
-                    <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-6 py-2">
+                    <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-5">
                       <Trophy className="w-4 h-4 mr-2" />
                       Buy Sponsorship
                     </Button>
@@ -1177,7 +1177,7 @@ export default function Dashboard() {
                 </>
               )}
               <Link href="/settings">
-                <Button variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5 rounded-full">
+                <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 rounded-full px-4">
                   <Settings className="w-4 h-4 mr-2" /> Settings
                 </Button>
               </Link>
@@ -1187,7 +1187,7 @@ export default function Dashboard() {
                   localStorage.removeItem(`synthix-dashboard-tour-${user?.id}`);
                   window.location.reload();
                 }}
-                className="glass-panel text-white border-primary/30 hover:bg-primary/10 hover:border-primary/50 rounded-full"
+                className="h-10 glass-panel text-white border-white/10 hover:bg-primary/10 hover:border-primary/50 rounded-full px-4"
               >
                 <Sparkles className="w-4 h-4 mr-2 text-primary" /> Start Tour
               </Button>
