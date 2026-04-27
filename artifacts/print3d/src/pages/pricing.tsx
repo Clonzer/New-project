@@ -232,6 +232,7 @@ export default function Pricing() {
 
       <div className="min-h-screen flex flex-col relative overflow-x-hidden">
         <Navbar />
+        <main className="flex-1">
           <div className="container relative z-10 mx-auto px-4">
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm font-semibold text-primary backdrop-blur-sm">
@@ -246,7 +247,6 @@ export default function Pricing() {
               </p>
             </motion.div>
           </div>
-        </div>
 
         <section className="container mx-auto px-4 pb-16 -mt-16 relative z-20">
           <div className="mx-auto max-w-6xl mb-8 flex justify-center">
@@ -419,9 +419,9 @@ export default function Pricing() {
           </div>
         </section>
       </main>
+      </div>
 
       <Footer />
-    </div>
     </>
   );
 }
