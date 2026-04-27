@@ -11,7 +11,8 @@ interface TourStep {
   position?: "top" | "bottom" | "left" | "right";
 }
 
-const tourSteps: TourStep[] = [
+// Tour steps for sellers (full maker business features)
+const sellerTourSteps: TourStep[] = [
   {
     target: "[data-tour='welcome']",
     title: "Welcome to Synthix!",
@@ -51,7 +52,7 @@ const tourSteps: TourStep[] = [
   {
     target: "[data-tour='printers']",
     title: "My Equipment",
-    description: "List your 3D printers for rent. Set availability and pricing for others to use.",
+    description: "List your 3D printers and equipment. Set availability for custom jobs.",
     position: "bottom",
   },
   {
@@ -63,7 +64,7 @@ const tourSteps: TourStep[] = [
   {
     target: "[data-tour='messages']",
     title: "Messages",
-    description: "Chat with buyers and sellers. Discuss prints, negotiate, share files.",
+    description: "Chat with buyers. Discuss prints, negotiate, share files.",
     position: "bottom",
   },
   {
@@ -97,9 +98,61 @@ const tourSteps: TourStep[] = [
     position: "bottom",
   },
   {
-    target: "[data-tour='admin']",
-    title: "Admin Panel",
-    description: "Site management tools. For owners to manage platform settings.",
+    target: "[data-tour='help']",
+    title: "Help Center",
+    description: "Get support, view FAQs, or restart this tour. We're here to help!",
+    position: "bottom",
+  },
+];
+
+// Tour steps for buyers (simplified - purchasing focus)
+const buyerTourSteps: TourStep[] = [
+  {
+    target: "[data-tour='welcome']",
+    title: "Welcome to Synthix!",
+    description: "Your 3D printing marketplace dashboard. Track orders, manage purchases, and find the perfect makers.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='overview']",
+    title: "Overview",
+    description: "See your recent orders, saved items, and quick actions. Your personal dashboard.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='orders']",
+    title: "My Orders",
+    description: "Track all your purchases. Check status, contact sellers, and manage returns.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='reviews']",
+    title: "My Reviews",
+    description: "See reviews you've left for sellers and track your reputation.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='messages']",
+    title: "Messages",
+    description: "Chat with sellers. Discuss custom orders, ask questions, share files.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='wallet']",
+    title: "Wallet",
+    description: "Check your balance and manage payment methods for purchases.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='transactions']",
+    title: "Purchase History",
+    description: "Review all your purchases and payments. Track your spending.",
+    position: "bottom",
+  },
+  {
+    target: "[data-tour='payments']",
+    title: "Payment Methods",
+    description: "Add and manage cards for quick checkout.",
     position: "bottom",
   },
   {
@@ -110,12 +163,18 @@ const tourSteps: TourStep[] = [
   },
 ];
 
+// Helper to check if user is a seller
+const isSeller = (role?: string) => role === "seller" || role === "both";
+
 export function DashboardTour() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  
+  // Select appropriate tour steps based on user role
+  const tourSteps = isSeller(user?.role) ? sellerTourSteps : buyerTourSteps;
   const step = tourSteps[currentStep];
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -212,7 +271,6 @@ export function DashboardTour() {
       setCurrentStep(currentStep + 1);
     } else {
       closeTour();
-      handleClose();
     }
   };
 
@@ -321,7 +379,7 @@ export function DashboardTour() {
 
             {/* Progress dots */}
             <div className="flex gap-1.5 mb-4">
-              {tourSteps.map((_, index) => (
+              {tourSteps.map((_: TourStep, index: number) => (
                 <button
                   key={index}
                   onClick={() => handleStepClick(index)}
