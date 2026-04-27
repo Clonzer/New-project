@@ -246,7 +246,7 @@ export default function Pricing() {
               </p>
             </motion.div>
           </div>
-        </section>
+        </div>
 
         <section className="container mx-auto px-4 pb-16 -mt-16 relative z-20">
           <div className="mx-auto max-w-6xl mb-8 flex justify-center">

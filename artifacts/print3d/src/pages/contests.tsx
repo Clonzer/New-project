@@ -348,6 +348,8 @@ export default function Contests() {
       case "upcoming": return contest.status === "upcoming";
       default: return true;
     }
+  });
+
   return (
     <>
       <SEOMeta
