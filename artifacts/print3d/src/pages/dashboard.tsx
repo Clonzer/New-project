@@ -177,9 +177,9 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
             </motion.div>
           ) : !selectedBrand ? (
             <motion.div key="brand" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <button type="button" onClick={() => setSelectedBrand(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
-              </button>
+              <Button type="button" variant="ghost" onClick={() => setSelectedBrand(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to categories
+              </Button>
               <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} - choose a brand first.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {brandsForCategory(equipCategory).map((brand) => (
@@ -207,9 +207,9 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
             </motion.div>
           ) : selectedBrand === "Other" ? (
             <motion.div key="custom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <button type="button" onClick={() => setSelectedBrand(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> {categoryLabel(equipCategory)} brands
-              </button>
+              <Button type="button" variant="ghost" onClick={() => setSelectedBrand(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to brands
+              </Button>
               <p className="text-zinc-400 text-sm mb-4">Enter your custom brand details.</p>
               <div className="space-y-4">
                 <div>
@@ -264,9 +264,9 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
             </motion.div>
           ) : !selected ? (
             <motion.div key="pick" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <button type="button" onClick={() => setEquipCategory(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> All categories
-              </button>
+              <Button type="button" variant="ghost" onClick={() => setEquipCategory(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to all categories
+              </Button>
               <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} — pick a common setup or Other.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {catalogItemsForCategoryAndBrand(equipCategory, selectedBrand).map(p => (
@@ -320,9 +320,9 @@ function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
             </motion.div>
           ) : (
             <motion.div key="details" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-              <button type="button" onClick={() => setSelected(null)} className="flex items-center gap-1 text-zinc-400 hover:text-white text-sm mb-4 transition-colors">
+              <Button type="button" variant="ghost" onClick={() => setSelected(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
                 <ChevronLeft className="w-4 h-4" /> Change model
-              </button>
+              </Button>
 
               <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/25 mb-5">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${selected.gradient} flex items-center justify-center shrink-0`}>

@@ -466,9 +466,9 @@ export default function Register() {
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                      <button type="button" onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors text-sm">
+                      <Button type="button" variant="outline" onClick={() => setLocation("/dashboard")} className="flex items-center gap-2 border-white/10 text-zinc-400 hover:text-white hover:bg-white/5">
                         <ChevronLeft className="w-4 h-4" /> Skip for now
-                      </button>
+                      </Button>
                       <NeonButton type="submit" glowColor="primary" className="flex-grow rounded-xl py-3" disabled={updateUser.isPending}>
                         {updateUser.isPending ? "Saving…" : "Next — add equipment"} <ChevronRight className="w-4 h-4 ml-1 inline" />
                       </NeonButton>
@@ -856,9 +856,9 @@ export default function Register() {
                   </AnimatePresence>
 
                   {!selectedPrinter && (
-                    <button type="button" onClick={skipPrinter} className="w-full mt-4 text-center text-zinc-500 hover:text-zinc-300 transition-colors text-sm py-2">
-                      Skip for now — add equipment later in the dashboard
-                    </button>
+                    <Button type="button" variant="ghost" onClick={skipPrinter} className="w-full mt-4 text-zinc-500 hover:text-zinc-300 hover:bg-white/5">
+                      Skip for now — add equipment later
+                    </Button>
                   )}
                 </div>
               </motion.div>

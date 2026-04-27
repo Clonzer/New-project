@@ -438,12 +438,17 @@ export default function EditListing() {
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
                 {formData.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1 pr-1">
                     {tag}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-red-400"
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 ml-1 hover:bg-red-500/20 hover:text-red-400"
                       onClick={() => removeTag(tag)}
-                    />
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
                   </Badge>
                 ))}
               </div>

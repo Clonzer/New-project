@@ -937,9 +937,14 @@ export default function Discover() {
                   <h3 className="text-xl font-bold text-white mb-4">📈 Popular Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art", "#Functional", "#Gaming"].map((tag) => (
-                      <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-primary/20 border-white/20 text-zinc-300">
+                      <Button
+                        key={tag}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-white/20 text-zinc-300 hover:bg-primary/20 hover:text-white hover:border-primary/50"
+                      >
                         {tag}
-                      </Badge>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1243,9 +1248,14 @@ export default function Discover() {
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"].map((tag) => (
-                      <Badge key={tag} variant="secondary" className="cursor-pointer hover:bg-primary/20 border-white/10 text-zinc-300 text-xs">
+                      <Button
+                        key={tag}
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full text-xs text-zinc-300 hover:bg-primary/20 hover:text-white"
+                      >
                         {tag}
-                      </Badge>
+                      </Button>
                     ))}
                   </div>
                 </div>
