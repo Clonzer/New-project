@@ -525,7 +525,12 @@ export default function Discover() {
                     <div className="grid grid-cols-3 gap-2 md:gap-3">
                       {listingsData?.listings?.slice(0, 6).map((listing, idx) => (
                         <Link key={listing.id} href={`/listings/${listing.id}`}>
-                          <div className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}>
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}
+                          >
                             {listing.imageUrl || listing.image_url ? (
                               <img
                                 src={listing.imageUrl || listing.image_url}
@@ -533,16 +538,12 @@ export default function Discover() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center">
-                                <Printer className="w-6 h-6 text-zinc-500" />
+                              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                                <Printer className="w-6 h-6 text-primary" />
                               </div>
                             )}
-                          </div>
+                          </motion.div>
                         </Link>
-                      ))}
-                      {/* Fallback placeholders if less than 6 listings */}
-                      {[...Array(Math.max(0, 6 - (listingsData?.listings?.length || 0)))].map((_, idx) => (
-                        <div key={`placeholder-${idx}`} className="relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border border-white/5" />
                       ))}
                     </div>
                   </div>
@@ -1187,15 +1188,20 @@ export default function Discover() {
             {/* Right Column - Featured Models */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
-                <div className="glass-panel rounded-3xl border border-white/10 p-6">
-                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary" />
                     Featured Models
                   </h2>
                   <div className="space-y-4">
-                    {listingsData?.listings?.slice(0, 5).map((listing) => (
+                    {listingsData?.listings?.slice(0, 5).map((listing, idx) => (
                       <Link key={listing.id} href={`/listings/${listing.id}`}>
-                        <div className="group cursor-pointer">
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          className="group cursor-pointer"
+                        >
                           <div className="relative mb-2">
                             {listing.imageUrl || listing.image_url ? (
                               <img
@@ -1204,40 +1210,40 @@ export default function Discover() {
                                 className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
                               />
                             ) : (
-                              <div className="w-full h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center">
-                                <div className="text-center">
-                                  <div className="w-12 h-12 mx-auto mb-1 bg-white/5 rounded-full flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                  </div>
-                                </div>
+                              <div className="w-full h-32 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl flex items-center justify-center">
+                                <Printer className="w-8 h-8 text-primary/50" />
                               </div>
                             )}
                           </div>
                           <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
                           <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
-                        </div>
+                        </motion.div>
                       </Link>
                     ))}
+                    {(!listingsData?.listings || listingsData.listings.length === 0) && (
+                      <div className="text-center py-6">
+                        <Printer className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                        <p className="text-zinc-500 text-sm">No models yet</p>
+                      </div>
+                    )}
                   </div>
                   <div className="mt-4">
                     <Link href="/listings">
-                      <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5">
+                      <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
                         View All Models
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl border border-white/10 p-6">
-                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-accent" />
                     Trending Tags
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"].map((tag) => (
-                      <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-primary/20 border-white/20 text-zinc-300 text-xs">
+                      <Badge key={tag} variant="secondary" className="cursor-pointer hover:bg-primary/20 border-white/10 text-zinc-300 text-xs">
                         {tag}
                       </Badge>
                     ))}
