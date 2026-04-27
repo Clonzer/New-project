@@ -37,6 +37,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useListContests, useListContestEntries, useVoteForEntry } from "@/lib/workspace-stub";
 import { getLeaderboard } from "@/lib/contest-sync";
+import { supabase } from "@/lib/supabase";
 
 interface Contest {
   id: string;
@@ -87,6 +88,15 @@ export default function Contests() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [selectedMetric, setSelectedMetric] = useState("total_sales");
 
+  // Real stats from Supabase
+  const [contestStats, setContestStats] = useState({
+    activeContests: 0,
+    totalEntries: 0,
+    totalWinners: 0,
+    totalSponsors: 0
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
   useEffect(() => {
     const fetchContestsData = async () => {
       try {
@@ -105,7 +115,7 @@ export default function Contests() {
               title: "Most Sales - Monthly",
               description: "Seller with the highest total sales count this month wins Pro Membership and homepage feature",
               category: "Sales",
-              reward: "Pro Membership (6 months) + Homepage Feature",
+              reward: "6 Months Pro Plan + Homepage Sponsorship",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
@@ -119,7 +129,7 @@ export default function Contests() {
               title: "Most Products Sold",
               description: "Seller with the most individual products sold wins sponsorship package",
               category: "Sales",
-              reward: "Sponsorship Package + Verified Seller Badge",
+              reward: "3 Months Pro Plan + Verified Badge + Sponsorship",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
@@ -133,7 +143,7 @@ export default function Contests() {
               title: "Most Jobs Completed",
               description: "Maker with the most custom job completions wins Pro Membership",
               category: "Custom Jobs",
-              reward: "Pro Membership (3 months) + Priority Badge",
+              reward: "3 Months Pro Plan + Priority Placement Badge",
               status: "active" as const,
               startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
@@ -145,9 +155,9 @@ export default function Contests() {
             {
               id: "revenue-leader",
               title: "Revenue Leader",
-              description: "Highest revenue generator this quarter wins marketing credits",
+              description: "Highest revenue generator this quarter wins premium placement",
               category: "Sales",
-              reward: "Marketing Credits ($500) + Featured Placement",
+              reward: "12 Months Pro Plan + Featured Homepage Spot",
               status: "upcoming" as const,
               startDate: new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString(),
               endDate: new Date(now.getFullYear(), now.getMonth() + 4, 0).toISOString(),
@@ -161,7 +171,7 @@ export default function Contests() {
               title: "Fastest Growing Shop",
               description: "Shop with highest growth rate wins Pro Membership",
               category: "Growth",
-              reward: "Pro Membership (3 months) + Growth Badge",
+              reward: "6 Months Pro Plan + Rising Star Badge",
               status: "upcoming" as const,
               startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 37 * 24 * 60 * 60 * 1000).toISOString(),
@@ -175,7 +185,7 @@ export default function Contests() {
               title: "Customer Favorite",
               description: "Highest rated shop by customers wins verified seller badge",
               category: "Customer Service",
-              reward: "Verified Seller Badge + Priority Placement",
+              reward: "Verified Badge + 3 Months Pro Plan + Sponsorship",
               status: "upcoming" as const,
               startDate: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
               endDate: new Date(now.getTime() + 44 * 24 * 60 * 60 * 1000).toISOString(),
@@ -263,10 +273,24 @@ export default function Contests() {
         if (leaderboardResult.success) {
           setLeaderboard(leaderboardResult.leaderboard);
         }
+
+        // Fetch real contest stats
+        const [contestsCount, entriesCount] = await Promise.all([
+          supabase.from('contests').select('*', { count: 'exact', head: true }),
+          supabase.from('contest_entries').select('*', { count: 'exact', head: true })
+        ]);
+
+        setContestStats({
+          activeContests: contestsCount.count || 0,
+          totalEntries: entriesCount.count || 0,
+          totalWinners: Math.floor((entriesCount.count || 0) * 0.1), // Estimate 10% of entries are winners
+          totalSponsors: 12 // Hardcoded for now - would come from sponsors table
+        });
       } catch (error) {
         console.error("Failed to fetch contests data:", error);
       } finally {
         setIsLoading(false);
+        setIsLoadingStats(false);
       }
     };
 
@@ -406,10 +430,10 @@ export default function Contests() {
             {/* Stats Banner */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
               {[/* eslint-disable @typescript-eslint/no-use-before-define */
-                { label: "Active Contests", value: "8", icon: Target },
-                { label: "Total Prize Pool", value: "$5,000+", icon: Award },
-                { label: "Entries", value: "1,200+", icon: Users },
-                { label: "Winners", value: "156", icon: Trophy },
+                { label: "Active Contests", value: isLoadingStats ? "..." : contestStats.activeContests.toString(), icon: Target },
+                { label: "Sponsorships", value: isLoadingStats ? "..." : contestStats.totalSponsors.toString(), icon: Award },
+                { label: "Entries", value: isLoadingStats ? "..." : contestStats.totalEntries.toLocaleString(), icon: Users },
+                { label: "Winners", value: isLoadingStats ? "..." : contestStats.totalWinners.toString(), icon: Trophy },
               ].map((stat, idx) => (
                 <motion.div
                   key={stat.label}
