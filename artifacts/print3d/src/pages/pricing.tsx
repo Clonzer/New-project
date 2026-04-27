@@ -230,25 +230,28 @@ export default function Pricing() {
       />
       <MarketplaceStructuredData />
 
-      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
         <Navbar />
         <main className="flex-1">
-          <div className="container relative z-10 mx-auto px-4">
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm font-semibold text-primary backdrop-blur-sm">
-                Pricing, promotion, and support
-              </span>
-              <h1 className="mt-6 text-5xl font-display font-extrabold tracking-tight text-white md:text-6xl">
-                Grow a shop, promote a listing, and talk to Synthix without leaving the site.
-              </h1>
-              <p className="mx-auto mt-5 max-w-3xl text-lg text-zinc-400">
-                Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
-                Both now have real support actions behind them instead of dead-end buttons.
-              </p>
-            </motion.div>
-          </div>
+          {/* Hero Section */}
+          <section className="relative overflow-hidden pt-24 pb-16">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.15),transparent_40%)]" />
+            <div className="container relative z-10 mx-auto px-4 text-center">
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-primary backdrop-blur-sm mb-6">
+                  Pricing, promotion, and support
+                </span>
+                <h1 className="mx-auto max-w-4xl text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white leading-tight">
+                  Grow your shop, promote listings, and get support
+                </h1>
+                <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400 leading-relaxed">
+                  Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
+                </p>
+              </motion.div>
+            </div>
+          </section>
 
-        <section className="container mx-auto px-4 pb-16 -mt-16 relative z-20">
+        <section className="container mx-auto px-4 pb-16 relative z-20">
           <div className="mx-auto max-w-6xl mb-8 flex justify-center">
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-zinc-800/80 px-2 py-1.5 backdrop-blur-sm">
               <button
@@ -334,9 +337,10 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 pb-20">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-7">
+        {/* Sponsorships Section */}
+        <section className="container mx-auto px-4 pb-24">
+          <div className="mx-auto max-w-6xl">
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-primary/10 text-primary">
                   <Megaphone className="h-5 w-5" />
@@ -347,8 +351,8 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+              <div className="mt-8 grid gap-6 md:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-black/40 to-black/20 p-6">
                   <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Profile sponsorship</p>
                   <h3 className="mt-2 text-2xl font-display font-bold text-white">$39 / 14 days</h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-400">
@@ -364,7 +368,7 @@ export default function Pricing() {
                   </NeonButton>
                 </div>
 
-                <div className="rounded-3xl border border-white/10 bg-black/25 p-6">
+                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-black/40 to-black/20 p-6">
                   <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Product sponsorship</p>
                   <h3 className="mt-2 text-2xl font-display font-bold text-white">$24 / 14 days</h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-400">
@@ -397,7 +401,8 @@ export default function Pricing() {
           </div>
         </section>
 
-        <section className="container mx-auto max-w-3xl px-4 py-20">
+        {/* FAQ Section */}
+        <section className="container mx-auto max-w-3xl px-4 pb-24">
           <h2 className="mb-10 text-center text-3xl font-display font-bold text-white">Frequently asked</h2>
           <div className="space-y-3">
             {FAQS.map((faq, index) => (

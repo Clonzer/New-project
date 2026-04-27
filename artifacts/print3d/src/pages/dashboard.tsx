@@ -803,6 +803,10 @@ export default function Dashboard() {
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">("purchases");
   const [acceptingOrders, setAcceptingOrders] = useState(true);
 
+  // Helper function to check if user is a seller
+  function isSeller(role?: string) { return role === "seller" || role === "both"; }
+  const isSellerUser = isSeller(user?.role);
+
   // Fetch accepting orders status from database
   useEffect(() => {
     const fetchAcceptingStatus = async () => {
@@ -932,9 +936,6 @@ export default function Dashboard() {
   const updateEquipmentGroup = useUpdateEquipmentGroup();
   const deleteEquipmentGroup = useDeleteEquipmentGroup();
   const deleteListing = useDeleteListing();
-
-  function isSeller(role?: string) { return role === "seller" || role === "both"; }
-  const isSellerUser = isSeller(user?.role);
 
   const advanceStatus = async (orderId: number, nextStatus: string) => {
     setUpdatingOrderId(orderId);

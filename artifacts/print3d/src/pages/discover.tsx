@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/use-auth";
 import { useListUsers, useListListings } from "@/lib/workspace-api-mock";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,17 +33,28 @@ interface Comment {
   createdAt: string;
 }
 
-// Helper component for user profile links
-function UserAvatarLink({ userId, avatarUrl, displayName, size = "md" }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg" }) {
+// Helper component for user profile links - Matching Header Style
+function UserAvatarLink({ userId, avatarUrl, displayName, size = "md", userAvatars }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg"; userAvatars?: Record<number, string> }) {
   const sizeClasses = { sm: "w-8 h-8", md: "w-12 h-12", lg: "w-16 h-16" };
-  const fallbackClasses = { sm: "text-xs", md: "", lg: "text-lg" };
+  const ringClasses = { sm: "p-[1px]", md: "p-[2px]", lg: "p-[2px]" };
+  const textClasses = { sm: "text-xs", md: "text-sm", lg: "text-base" };
+  
+  // Use avatar from profiles table if available, fallback to passed avatarUrl
+  const finalAvatarUrl = userAvatars?.[userId] || avatarUrl;
   
   return (
     <Link href={`/shop/${userId}`}>
-      <Avatar className={`${sizeClasses[size]} cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all`}>
-        <AvatarImage src={avatarUrl ?? undefined} />
-        <AvatarFallback className={fallbackClasses[size]}>{displayName.charAt(0)}</AvatarFallback>
-      </Avatar>
+      <div className={`${sizeClasses[size]} ${ringClasses[size]} rounded-full bg-gradient-to-br from-primary to-accent cursor-pointer hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all`}>
+        <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+          {finalAvatarUrl ? (
+            <img src={finalAvatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            <span className={`font-bold text-white ${textClasses[size]}`}>
+              {displayName.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </div>
+      </div>
     </Link>
   );
 }
@@ -404,6 +416,38 @@ export default function Discover() {
   const { data: usersData, isLoading: isLoadingUsers, error: usersError } = useListUsers({ limit: 50 });
   const { data: listingsData, isLoading: isLoadingListings, error: listingsError } = useListListings({ limit: 50 });
 
+  // Fetch avatar URLs from profiles table
+  const [userAvatars, setUserAvatars] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    if (!usersData?.users?.length) return;
+
+    const fetchAvatars = async () => {
+      const userIds = usersData.users.map((u: { id: number }) => u.id);
+      
+      const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select("id, avatar_url")
+        .in("id", userIds);
+
+      if (error) {
+        console.error("Error fetching avatars:", error);
+        return;
+      }
+
+      const avatarMap: Record<number, string> = {};
+      profiles?.forEach((profile: { id: number; avatar_url?: string }) => {
+        if (profile.avatar_url) {
+          avatarMap[profile.id] = profile.avatar_url;
+        }
+      });
+
+      setUserAvatars(avatarMap);
+    };
+
+    fetchAvatars();
+  }, [usersData?.users]);
+
   // Mock sponsored listings for Projects tab
   const sponsoredProjectIds = useMemo(() => {
     const ids = new Map<number, { tier: SponsorTier; level: number }>();
@@ -439,6 +483,58 @@ export default function Discover() {
       
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
+          {/* Hero Banner with Featured Products */}
+          <div className="mb-12">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-violet-900/30 via-black to-cyan-900/30 p-8 md:p-12">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.2),transparent_50%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(6,182,212,0.15),transparent_50%)]" />
+              
+              <div className="relative z-10">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                  <div className="flex-1">
+                    <div className="inline-flex items-center gap-2 mb-4">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-semibold text-primary uppercase tracking-[0.15em]">Discover</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white mb-4">
+                      Explore Amazing Creations
+                    </h1>
+                    <p className="text-lg text-zinc-400 max-w-xl">
+                      Connect with talented makers, discover stunning 3D prints, and find the perfect creator for your next project.
+                    </p>
+                  </div>
+                  
+                  {/* Featured Product Images Grid */}
+                  <div className="flex-shrink-0">
+                    <div className="grid grid-cols-3 gap-2 md:gap-3">
+                      {listingsData?.listings?.slice(0, 6).map((listing, idx) => (
+                        <Link key={listing.id} href={`/listings/${listing.id}`}>
+                          <div className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}>
+                            {listing.imageUrl || listing.image_url ? (
+                              <img
+                                src={listing.imageUrl || listing.image_url}
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center">
+                                <Printer className="w-6 h-6 text-zinc-500" />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                      {/* Fallback placeholders if less than 6 listings */}
+                      {[...Array(Math.max(0, 6 - (listingsData?.listings?.length || 0)))].map((_, idx) => (
+                        <div key={`placeholder-${idx}`} className="relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border border-white/5" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2">
@@ -492,10 +588,17 @@ export default function Discover() {
                 {/* Create Post */}
                 <div className="glass-panel rounded-3xl border border-white/10 p-6">
                   <div className="flex gap-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={user?.avatarUrl ?? undefined} />
-                      <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <div className="w-12 h-12 p-[2px] rounded-full bg-gradient-to-br from-primary to-accent">
+                      <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                        {user?.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="font-bold text-white text-sm">
+                            {user?.displayName?.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex-grow">
                       <Input
                         placeholder="Post title (optional)"
@@ -560,9 +663,10 @@ export default function Discover() {
                       <div className="p-6">
                         <div className="flex items-start gap-4">
                           <UserAvatarLink 
-                            userId={post.userId} 
+                            userId={post.user.userId} 
                             avatarUrl={post.user.avatarUrl} 
                             displayName={post.user.displayName}
+                            userAvatars={userAvatars}
                             size="md"
                           />
                           <div className="flex-grow">
@@ -696,12 +800,17 @@ export default function Discover() {
                                   <div className="space-y-3">
                                     {post.comments.map((comment) => (
                                       <div key={comment.id} className="flex gap-3">
-                                        <UserAvatarLink 
-                                          userId={comment.userId} 
-                                          avatarUrl={comment.user.avatarUrl} 
-                                          displayName={comment.user.displayName}
-                                          size="sm"
-                                        />
+                                        <div className="w-8 h-8 p-[1px] rounded-full bg-gradient-to-br from-primary to-accent">
+                                          <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                                            {comment.user.avatarUrl ? (
+                                              <img src={comment.user.avatarUrl} alt={comment.user.displayName} className="w-full h-full object-cover" />
+                                            ) : (
+                                              <span className="font-bold text-white text-xs">
+                                                {comment.user.displayName.charAt(0).toUpperCase()}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
                                         <div className="flex-1">
                                           <div className="bg-black/20 rounded-lg px-3 py-2">
                                             <div className="flex items-center gap-2 mb-1">
@@ -721,10 +830,17 @@ export default function Discover() {
                                     ))}
 
                                     <div className="flex gap-3">
-                                      <Avatar className="w-8 h-8">
-                                        <AvatarImage src={user?.avatarUrl ?? undefined} />
-                                        <AvatarFallback className="text-xs">{user?.displayName?.charAt(0)}</AvatarFallback>
-                                      </Avatar>
+                                      <div className="w-8 h-8 p-[1px] rounded-full bg-gradient-to-br from-primary to-accent">
+                                        <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                                          {user?.avatarUrl ? (
+                                            <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
+                                          ) : (
+                                            <span className="font-bold text-white text-xs">
+                                              {user?.displayName?.charAt(0).toUpperCase()}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
                                       <div className="flex-1 flex gap-2">
                                         <Input
                                           value={newComment}
@@ -996,14 +1112,13 @@ export default function Discover() {
                         >
                           <div className="flex items-center gap-4 mb-4">
                             <div className="relative">
-                              <Link href={`/shop/${person.id}`}>
-                                <Avatar className="w-16 h-16 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
-                                  <AvatarImage src={person.avatarUrl ?? undefined} />
-                                  <AvatarFallback className="bg-primary/20 text-primary text-lg">
-                                    {person.displayName.charAt(0)}
-                                  </AvatarFallback>
-                                </Avatar>
-                              </Link>
+                              <UserAvatarLink 
+                                userId={person.id} 
+                                avatarUrl={person.avatarUrl} 
+                                displayName={person.displayName}
+                                userAvatars={userAvatars}
+                                size="lg"
+                              />
                               {person.isVerified && (
                                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                                   <Star className="w-3 h-3 text-white fill-white" />

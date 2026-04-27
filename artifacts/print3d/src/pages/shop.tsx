@@ -248,17 +248,21 @@ export default function Shop() {
         {/* Profile Section - Overlapping Banner */}
         <div className="container mx-auto px-4 -mt-24 md:-mt-32 relative z-10">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-end mb-8">
-            {/* Avatar */}
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.3)] shrink-0">
-              <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border-4 border-zinc-950">
+            {/* Avatar - Matching Header Style */}
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-[3px] bg-gradient-to-br from-primary to-accent shadow-[0_0_30px_rgba(139,92,246,0.4)] shrink-0">
+              <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden">
                 {seller.avatarUrl || seller.avatar_url ? (
-                  <img src={seller.avatarUrl || seller.avatar_url} alt={seller.displayName} className="w-full h-full object-cover" />
-                ) : (
                   <img 
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(seller.displayName || "User")}&background=0D8ABC&color=fff&size=256`} 
+                    src={seller.avatarUrl || seller.avatar_url} 
                     alt={seller.displayName} 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+                    <span className="text-3xl md:text-4xl font-bold text-white">
+                      {(seller.displayName || "U").charAt(0).toUpperCase()}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -576,14 +580,16 @@ export default function Shop() {
                   <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden">
-                          {review.reviewerAvatarUrl ? (
-                            <img src={review.reviewerAvatarUrl} alt={review.reviewerName} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center font-bold text-white text-sm">
-                              {review.reviewerName.charAt(0)}
-                            </div>
-                          )}
+                        <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-r from-primary to-accent">
+                          <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                            {review.reviewerAvatarUrl ? (
+                              <img src={review.reviewerAvatarUrl} alt={review.reviewerName} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="font-bold text-white text-sm">
+                                {review.reviewerName.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <p className="font-medium text-white">{review.reviewerName}</p>

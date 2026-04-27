@@ -350,6 +350,10 @@ export default function Contests() {
     }
   });
 
+  const getWinnerEntries = () => {
+    return entries.filter(entry => entry.status === "winner");
+  };
+
   const canonicalUrl = "https://synthix.com/contests";
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: "https://synthix.com" },
