@@ -419,9 +419,9 @@ export default function Pricing() {
           </div>
         </section>
       </main>
-      </div>
 
       <Footer />
+      </div>
     </>
   );
 }
