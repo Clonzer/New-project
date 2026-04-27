@@ -32,6 +32,8 @@ function transformSeller(seller: any) {
   return {
     ...seller,
     avatarUrl: seller.avatar_url || seller.avatarUrl || seller.avatar || seller.profile_image_url,
+    // Ensure user_id is available for avatar fetching fallback
+    user_id: seller.user_id || seller.userId || seller.id,
   };
 }
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { SellerShop } from "@/lib/workspace-api-mock";
 import { Link } from "wouter";
 import { Star, MapPin, Printer, Package, GitCompareArrows, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +9,40 @@ import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 
+// Extended seller type that accepts both camelCase and snake_case
+interface ExtendedSeller {
+  id: string | number;
+  displayName?: string;
+  display_name?: string;
+  username?: string;
+  shopName?: string | null;
+  store_name?: string | null;
+  avatarUrl?: string | null;
+  avatar_url?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  shopMode?: 'catalog' | 'custom' | 'both';
+  shop_mode?: 'catalog' | 'custom' | 'both';
+  printerCount?: number;
+  printer_count?: number;
+  listingCount?: number;
+  totalPrints?: number;
+  total_prints?: number;
+  reviewCount?: number;
+  review_count?: number;
+  rating?: number;
+  sellerTags?: string[];
+  seller_tags?: string[];
+  user_id?: string | number;
+  userId?: string | number;
+}
+
 export function SellerCard({ 
   seller, 
   isSponsored, 
   sponsorTier 
 }: { 
-  seller: SellerShop; 
+  seller: ExtendedSeller; 
   isSponsored?: boolean;
   sponsorTier?: "premium" | "gold" | "silver";
 }) {
@@ -25,39 +52,56 @@ export function SellerCard({
     silver: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/50 text-cyan-300",
   };
   const { toast } = useToast();
-  const [isCompared, setIsCompared] = useState(() => isComparedShop(seller.id));
+  const [isCompared, setIsCompared] = useState(() => isComparedShop(Number(seller.id)));
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
 
   // Fetch avatar directly from profiles if not provided
   useEffect(() => {
     const fetchAvatar = async () => {
       // If we already have an avatar, don't fetch
-      if (seller.avatarUrl || seller.avatar_url) return;
+      const existingAvatar = seller.avatarUrl || seller.avatar_url;
+      if (existingAvatar) {
+        console.log('[SellerCard] Avatar already exists for seller:', seller.id, existingAvatar);
+        return;
+      }
       
-      // Get user_id from seller data (could be user_id or userId)
-      const userId = (seller as any).user_id || (seller as any).userId;
-      if (!userId) return;
+      // Get user_id from seller data (could be user_id or userId or id)
+      const userId = seller.user_id || seller.userId || seller.id;
+      if (!userId) {
+        console.log('[SellerCard] No userId found for seller:', seller.id);
+        return;
+      }
 
       try {
+        console.log('[SellerCard] Fetching avatar for user:', userId);
         const { data, error } = await supabase
           .from('profiles')
           .select('avatar_url')
           .eq('id', userId)
           .single();
         
-        if (data?.avatar_url && !error) {
-          setFetchedAvatarUrl(data.avatar_url);
+        if (error) {
+          console.log('[SellerCard] Error fetching avatar:', error);
+          return;
         }
-      } catch {
+        
+        if (data?.avatar_url) {
+          console.log('[SellerCard] Found avatar URL:', data.avatar_url);
+          setFetchedAvatarUrl(data.avatar_url);
+        } else {
+          console.log('[SellerCard] No avatar_url in profile for user:', userId);
+        }
+      } catch (err) {
+        console.log('[SellerCard] Exception fetching avatar:', err);
         // Silently fail - will show fallback initial
       }
     };
 
     fetchAvatar();
-  }, [seller.avatarUrl, seller.avatar_url, (seller as any).user_id, (seller as any).userId]);
+  }, [seller.avatarUrl, seller.avatar_url, seller.user_id, seller.userId, seller.id]);
 
   useEffect(() => {
-    const sync = () => setIsCompared(isComparedShop(seller.id));
+    const sync = () => setIsCompared(isComparedShop(Number(seller.id)));
     sync();
     window.addEventListener("storage", sync);
     window.addEventListener(SHOP_COMPARE_CHANGE_EVENT, sync);
@@ -81,33 +125,39 @@ export function SellerCard({
             </Badge>
           </div>
         )}
-        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-primary to-accent flex-shrink-0 shadow-lg">
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">
                   {(() => {
                     const avatarUrl = seller.avatarUrl || seller.avatar_url || fetchedAvatarUrl;
+                    const displayName = seller.displayName || seller.display_name || 'Shop';
+                    const initials = (seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase();
+                    
                     if (avatarUrl) {
                       return (
                         <img 
                           src={avatarUrl} 
-                          alt={seller.displayName || seller.display_name || 'Shop'} 
+                          alt={displayName} 
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             // If image fails to load, show fallback
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).parentElement!.innerHTML = `
-                              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
-                                ${(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
-                              </div>
-                            `;
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            if (target.parentElement) {
+                              target.parentElement.innerHTML = `
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
+                                  ${initials}
+                                </div>
+                              `;
+                            }
                           }}
                         />
                       );
                     }
                     return (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 text-xl font-bold font-display text-white">
-                        {(seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase()}
+                        {initials}
                       </div>
                     );
                   })()}
@@ -132,7 +182,7 @@ export function SellerCard({
               <span className="text-[10px] text-zinc-500">{seller.reviewCount || 0} reviews</span>
               <ReportButton
                 itemType="profile"
-                itemId={seller.id}
+                itemId={String(seller.id)}
                 itemName={seller.shopName || seller.displayName}
                 className="opacity-60 hover:opacity-100 transition-opacity"
               />
@@ -145,7 +195,7 @@ export function SellerCard({
 
           {(seller.sellerTags || seller.seller_tags)?.length ? (
             <div className="mb-4 flex flex-wrap gap-1.5">
-              {(seller.sellerTags || seller.seller_tags).slice(0, 3).map((tag: string) => (
+              {(seller.sellerTags || seller.seller_tags || []).slice(0, 3).map((tag: string) => (
                 <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
                   {tag}
                 </span>
@@ -202,7 +252,7 @@ export function SellerCard({
               className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10"
               onClick={() => {
                 const added = toggleComparedShop({
-                  id: seller.id,
+                  id: Number(seller.id),
                   displayName: seller.displayName || seller.display_name,
                   shopName: (seller.shopName || seller.store_name) ?? null,
                   location: seller.location ?? null,
