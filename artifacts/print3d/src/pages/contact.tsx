@@ -71,19 +71,17 @@ export default function Contact() {
                 <div className="inline-flex items-center gap-2 mb-4">
                   <Mail className="w-6 h-6 text-primary" />
                   <span className="text-sm font-semibold text-primary uppercase tracking-[0.18em]">Contact Us</span>
-              <div className="inline-flex items-center gap-2 mb-4">
-                <Mail className="w-6 h-6 text-primary" />
-                <span className="text-sm font-semibold text-primary uppercase tracking-[0.18em]">Contact Us</span>
-              </div>
+                </div>
               <h1 className="text-5xl font-display font-extrabold tracking-tight text-white md:text-6xl mb-4">
                 Get in Touch
               </h1>
               <p className="mx-auto max-w-2xl text-lg text-zinc-400">
                 Have questions about SYNTHIX? Need help with your shop or orders? Send us a message and our support team will get back to you.
               </p>
-            </motion.div>
-          </div>
-        </section>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
         <section className="container mx-auto max-w-3xl px-4 pb-24 -mt-8 relative z-20">
           <div className="bg-zinc-800 border border-zinc-700 rounded-3xl p-8 md:p-12">
@@ -162,10 +160,9 @@ export default function Contact() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
 
       <Footer />
-    </div>
-    </>
+    </main>
   );
 }

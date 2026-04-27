@@ -81,9 +81,6 @@ export default function About() {
           {/* Hero Section */}
           <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-cyan-600/10 animate-gradient" />
-            
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-cyan-600/10 animate-gradient" />
           
           <motion.div
             style={{ opacity, scale }}
