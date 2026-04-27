@@ -10,24 +10,24 @@ import { Truck, Globe, Package, MapPin, Plus, Trash2, X, Clock, Store, Weight, R
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-// Major shipping providers database
+// Major shipping providers database with tracking URLs
 const SHIPPING_PROVIDERS = [
-  { id: "fedex", name: "FedEx", logo: "📦", services: ["Express", "Ground", "International"] },
-  { id: "ups", name: "UPS", logo: "🚚", services: ["Next Day Air", "Ground", "Worldwide"] },
-  { id: "dhl", name: "DHL", logo: "✈️", services: ["Express", "eCommerce", "Parcel"] },
-  { id: "usps", name: "USPS", logo: "📮", services: ["Priority", "First Class", "Media Mail"] },
-  { id: "royal_mail", name: "Royal Mail", logo: "📮", services: ["Tracked", "Special Delivery"] },
-  { id: "dpd", name: "DPD", logo: "📦", services: ["Classic", "Express"] },
-  { id: "hermes", name: "Hermes/Evri", logo: "📦", services: ["Standard", "Next Day"] },
-  { id: "gls", name: "GLS", logo: "🚛", services: ["BusinessParcel", "Express"] },
-  { id: "tnt", name: "TNT", logo: "🚚", services: ["Express", "Economy"] },
-  { id: "amazon", name: "Amazon Logistics", logo: "📦", services: ["Prime", "Standard"] },
-  { id: "ontrac", name: "OnTrac", logo: "🚚", services: ["Ground", "Overnight"] },
-  { id: "lasership", name: "LaserShip", logo: "🚛", services: ["Standard", "Express"] },
-  { id: "aramex", name: "Aramex", logo: "✈️", services: ["Express", "Domestic"] },
-  { id: "sf_express", name: "SF Express", logo: "📦", services: ["Standard", "Economy"] },
-  { id: "australia_post", name: "Australia Post", logo: "📮", services: ["Express", "Parcel"] },
-  { id: "canada_post", name: "Canada Post", logo: "📮", services: ["Priority", "Xpresspost"] },
+  { id: "fedex", name: "FedEx", logo: "📦", services: ["Express", "Ground", "International"], trackingUrl: "https://www.fedex.com/apps/fedextrack/?tracknumbers={TRACKING}" },
+  { id: "ups", name: "UPS", logo: "🚚", services: ["Next Day Air", "Ground", "Worldwide"], trackingUrl: "https://www.ups.com/track?tracknum={TRACKING}" },
+  { id: "dhl", name: "DHL", logo: "✈️", services: ["Express", "eCommerce", "Parcel"], trackingUrl: "https://www.dhl.com/en/express/tracking.html?AWB={TRACKING}&brand=DHL" },
+  { id: "usps", name: "USPS", logo: "📮", services: ["Priority", "First Class", "Media Mail"], trackingUrl: "https://tools.usps.com/go/TrackConfirmAction?tLabels={TRACKING}" },
+  { id: "royal_mail", name: "Royal Mail", logo: "📮", services: ["Tracked", "Special Delivery"], trackingUrl: "https://www.royalmail.com/track-your-item#/tracking-results/{TRACKING}" },
+  { id: "dpd", name: "DPD", logo: "📦", services: ["Classic", "Express"], trackingUrl: "https://www.dpd.com/tracking?parcelNumber={TRACKING}" },
+  { id: "hermes", name: "Hermes/Evri", logo: "📦", services: ["Standard", "Next Day"], trackingUrl: "https://www.evri.com/track/parcel/{TRACKING}" },
+  { id: "gls", name: "GLS", logo: "🚛", services: ["BusinessParcel", "Express"], trackingUrl: "https://www.gls-group.com/276-I-PORTAL-WEB/content/GLS/EN03/EN/5004.htm?parcelNo={TRACKING}" },
+  { id: "tnt", name: "TNT", logo: "🚚", services: ["Express", "Economy"], trackingUrl: "https://www.tnt.com/express/en_us/site/tracking.html?searchType=CON&cons={TRACKING}" },
+  { id: "amazon", name: "Amazon Logistics", logo: "📦", services: ["Prime", "Standard"], trackingUrl: "https://track.amazon.com/tracking/{TRACKING}" },
+  { id: "ontrac", name: "OnTrac", logo: "🚚", services: ["Ground", "Overnight"], trackingUrl: "https://www.ontrac.com/tracking/?number={TRACKING}" },
+  { id: "lasership", name: "LaserShip", logo: "🚛", services: ["Standard", "Express"], trackingUrl: "https://www.lasership.com/track/{TRACKING}" },
+  { id: "aramex", name: "Aramex", logo: "✈️", services: ["Express", "Domestic"], trackingUrl: "https://www.aramex.com/track/shipments?ShipmentNumber={TRACKING}" },
+  { id: "sf_express", name: "SF Express", logo: "📦", services: ["Standard", "Economy"], trackingUrl: "http://www.sf-express.com/cn/en/dynamic_function/waybill/#search/bill-number/{TRACKING}" },
+  { id: "australia_post", name: "Australia Post", logo: "📮", services: ["Express", "Parcel"], trackingUrl: "https://auspost.com.au/mypost/track/#/details/{TRACKING}" },
+  { id: "canada_post", name: "Canada Post", logo: "📮", services: ["Priority", "Xpresspost"], trackingUrl: "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={TRACKING}" },
 ];
 
 const COUNTRY_OPTIONS = [
@@ -701,11 +701,16 @@ export function ShippingProfiles() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{provider.logo}</span>
-                        <div>
+                        <div className="flex-1">
                           <p className="text-sm font-medium text-white">{provider.name}</p>
                           <p className="text-xs text-zinc-500">
                             {provider.services.slice(0, 2).join(", ")}
                           </p>
+                          {provider.trackingUrl && (
+                            <p className="text-xs text-zinc-600 mt-0.5 truncate max-w-[200px]">
+                              Tracking configured
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

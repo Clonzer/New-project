@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Package, ArrowRight, Clock, CheckCircle2, Printer as PrinterIcon, Truck, XCircle, AlertCircle } from "lucide-react";
+import { Package, ArrowRight, Clock, CheckCircle2, Printer as PrinterIcon, Truck, XCircle, AlertCircle, ExternalLink, MapPin } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; next?: string; nextLabel?: string }> = {
   pending:   { label: "Pending",   color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock,         next: "accepted",  nextLabel: "Accept Job" },
@@ -74,10 +74,24 @@ export function Purchases({ myPurchases, isSellerUser }) {
                     <StatusBadge status={order.status} />
                   </div>
                 </div>
-                <div className="text-left md:text-right space-y-1 shrink-0">
+                <div className="text-left md:text-right space-y-2 shrink-0">
                   <p className="font-display font-bold text-xl text-primary">${order.totalPrice.toFixed(2)}</p>
                   <p className="text-xs text-zinc-500">incl. ${order.platformFee.toFixed(2)} platform fee</p>
-                  {order.trackingNumber && <p className="text-xs text-accent">Tracking: {order.trackingNumber}</p>}
+                  {order.trackingNumber && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-zinc-400">Tracking: {order.trackingNumber}</p>
+                      <a 
+                        href={order.trackingUrl || `https://www.google.com/search?q=${order.trackingNumber}+tracking`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-accent hover:text-primary transition-colors"
+                      >
+                        <MapPin className="w-3 h-3" />
+                        Track Package
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
