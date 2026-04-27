@@ -1206,7 +1206,7 @@ export default function Dashboard() {
               {[
                 { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-300", panel: "bg-emerald-500/8 border-emerald-400/15" },
                 { label: "Pending Revenue",  value: `$${pendingRevenue.toFixed(2)}`, icon: Clock, color: "text-yellow-300", panel: "bg-yellow-500/8 border-yellow-400/15" },
-                { label: "Total Sales",      value: mySales?.total ?? 0, icon: TrendingUp, color: "text-sky-300", panel: "bg-sky-500/8 border-sky-400/15" },
+                { label: "Total Sales",      value: (mySales?.orders?.length ?? 0), icon: TrendingUp, color: "text-sky-300", panel: "bg-sky-500/8 border-sky-400/15" },
                 { label: "Platform Fees",    value: `$${totalFeesPaid.toFixed(2)}`, icon: Package, color: "text-zinc-200", panel: "bg-white/5 border-white/10" },
               ].map((stat, i) => {
                 const Icon = stat.icon;
@@ -1441,7 +1441,7 @@ export default function Dashboard() {
                     </div>
                     <div className="p-6">
                       <div className="space-y-4">
-                        {mySales.orders.length > 0 ? (
+                        {(mySales?.orders?.length ?? 0) > 0 ? (
                           mySales.orders.map((order) => (
                             <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
                               <div className="flex items-center gap-3">
