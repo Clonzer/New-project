@@ -9,6 +9,7 @@ import {
   useDeleteListing,
 } from "@/lib/workspace-stub";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
@@ -1115,18 +1116,11 @@ export default function Dashboard() {
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 py-2">
                   <span className="text-sm text-zinc-400">Accepting Orders</span>
-                  <button
-                    onClick={toggleAcceptingOrders}
-                    className={`relative w-12 h-6 rounded-full transition-colors ${
-                      acceptingOrders ? "bg-emerald-500" : "bg-zinc-600"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                        acceptingOrders ? "translate-x-6" : "translate-x-0"
-                      }`}
-                    />
-                  </button>
+                  <Switch
+                    checked={acceptingOrders}
+                    onCheckedChange={toggleAcceptingOrders}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
                   <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
                     {acceptingOrders ? "Open" : "Closed"}
                   </span>
