@@ -372,7 +372,7 @@ export function Navbar() {
             </Link>
           )}
 
-          <Button variant="ghost" size="icon" className="md:hidden rounded-full" onClick={() => setMenuOpen((value) => !value)}>
+          <Button variant="ghost" size="icon" className="lg:hidden rounded-full" onClick={() => setMenuOpen((value) => !value)}>
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
@@ -386,7 +386,7 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-white/10 bg-black/80 backdrop-blur-xl overflow-hidden"
+            className="lg:hidden border-t border-white/10 bg-black/80 backdrop-blur-xl overflow-hidden"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {[
