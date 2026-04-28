@@ -15,6 +15,7 @@ import {
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
   Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
   ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt, Briefcase,
+  HelpCircle,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -44,7 +45,6 @@ import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
-import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
@@ -1092,9 +1092,6 @@ export default function Dashboard() {
         initialData={editingEquipmentGroup}
       />
 
-      {/* Dashboard Tour - Spotlight highlight tutorial */}
-      <DashboardTour />
-
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">
 
@@ -1113,41 +1110,48 @@ export default function Dashboard() {
                 <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
               </div>
 
-              {/* Accepting Orders Toggle for Sellers */}
-              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-                <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
-                  <span className="text-sm text-zinc-400">Accepting Orders</span>
-                  <Switch
-                    checked={acceptingOrders}
-                    onCheckedChange={toggleAcceptingOrders}
-                    className="data-[state=checked]:bg-emerald-500"
-                  />
-                  <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
-                    {acceptingOrders ? "Open" : "Closed"}
-                  </span>
-                </div>
-              )}
+              <Link href="/dashboard-help" className="self-start">
+                <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
+                  <HelpCircle className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
 
-              {/* View Toggle for users with both roles */}
-              {user?.role === "both" && (
-                <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-10">
-                  <button
-                    onClick={() => setDashboardView("purchases")}
-                    className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
-                      dashboardView === "purchases"
-                        ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    My Purchases
-                  </button>
-                  <button
-                    onClick={() => setDashboardView("store")}
-                    className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
-                      dashboardView === "store"
-                        ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg"
-                        : "text-zinc-400 hover:text-white"
+            {/* Accepting Orders Toggle for Sellers */}
+            {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+              <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
+                <span className="text-sm text-zinc-400">Accepting Orders</span>
+                <Switch
+                  checked={acceptingOrders}
+                  onCheckedChange={toggleAcceptingOrders}
+                  className="data-[state=checked]:bg-emerald-500"
+                />
+                <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
+                  {acceptingOrders ? "Open" : "Closed"}
+                </span>
+              </div>
+            )}
+
+            {/* View Toggle for users with both roles */}
+            {user?.role === "both" && (
+              <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-10">
+                <button
+                  onClick={() => setDashboardView("purchases")}
+                  className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
+                    dashboardView === "purchases"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  My Purchases
+                </button>
+                <button
+                  onClick={() => setDashboardView("store")}
+                  className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all ${
+                    dashboardView === "store"
+                      ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg"
+                      : "text-zinc-400 hover:text-white"
                     }`}
                   >
                     <Store className="w-4 h-4" />
@@ -1155,23 +1159,24 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
-            </div>
-            <div className="flex gap-3 flex-wrap items-center">
-              {!isSellerUser && (
-                <Link href="/register">
-                  <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
+          </div>
+
+          <div className="flex gap-3 flex-wrap items-center">
+            {!isSellerUser && (
+              <Link href="/register">
+                <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
+              </Link>
+            )}
+            {isSellerUser && (
+              <>
+                <Link href="/storefront/edit">
+                  <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 rounded-full px-4">
+                    <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
+                  </Button>
                 </Link>
-              )}
-              {isSellerUser && (
-                <>
-                  <Link href="/storefront/edit">
-                    <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 rounded-full px-4">
-                      <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
-                    </Button>
-                  </Link>
-                  <Link href="/sponsorship/purchase">
-                    <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-5">
-                      <Trophy className="w-4 h-4 mr-2" />
+                <Link href="/sponsorship/purchase">
+                  <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-full px-5">
+                    <Trophy className="w-4 h-4 mr-2" />
                       Buy Sponsorship
                     </Button>
                   </Link>
@@ -1182,16 +1187,6 @@ export default function Dashboard() {
                   <Settings className="w-4 h-4 mr-2" /> Settings
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  localStorage.removeItem(`synthix-dashboard-tour-${user?.id}`);
-                  window.location.reload();
-                }}
-                className="h-10 glass-panel text-white border-white/10 hover:bg-primary/10 hover:border-primary/50 rounded-full px-4"
-              >
-                <Sparkles className="w-4 h-4 mr-2 text-primary" /> Start Tour
-              </Button>
             </div>
           </div>
 
