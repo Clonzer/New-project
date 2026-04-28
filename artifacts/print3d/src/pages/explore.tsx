@@ -50,6 +50,7 @@ export default function Explore() {
   const [selectedMode, setSelectedMode] = useState<"all" | "catalog" | "open" | "both">("all");
   const [selectedTag, setSelectedTag] = useState("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [acceptingOrdersOnly, setAcceptingOrdersOnly] = useState(false);
   const [boostModalOpen, setBoostModalOpen] = useState(false);
   const [boostingShop, setBoostingShop] = useState<string>("");
   const { formatPrice } = useLocalePreferences();
@@ -141,13 +142,15 @@ export default function Explore() {
       const shopMode = (s as any).shopMode ?? (s as any).shop_mode ?? "both";
       const matchesMode = selectedMode === "all" || shopMode === "both" || shopMode === selectedMode;
       const matchesTag = selectedTag === "all" || allTags.length === 0 || allTags.includes(selectedTag);
-      return matchesSearch && matchesMode && matchesTag;
+      const acceptingOrders = (s as any).accepting_orders !== false;
+      const matchesAcceptingOrders = !acceptingOrdersOnly || acceptingOrders;
+      return matchesSearch && matchesMode && matchesTag && matchesAcceptingOrders;
     });
 
     // Enhance with sponsorship data and sort by ranking
     const enhanced = enhanceWithSponsorship(filtered, sponsoredShopIds);
     return sortByRanking(enhanced);
-  }, [sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds]);
+  }, [sellers, searchTerm, selectedMode, selectedTag, sponsoredShopIds, acceptingOrdersOnly]);
 
   return (
     <>
@@ -251,6 +254,18 @@ export default function Explore() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-zinc-900 border-zinc-700 w-64">
                 <div className="px-2 py-1.5">
+                  <p className="text-xs font-semibold text-zinc-400">Filters</p>
+                </div>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-zinc-800 cursor-pointer"
+                  onClick={() => setAcceptingOrdersOnly(!acceptingOrdersOnly)}
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    <div className={`w-4 h-4 rounded border ${acceptingOrdersOnly ? 'bg-primary border-primary' : 'border-zinc-500'}`} />
+                    <span>Accepting Orders Only</span>
+                  </div>
+                </DropdownMenuItem>
+                <div className="px-2 py-1.5 border-t border-zinc-700 mt-2">
                   <p className="text-xs font-semibold text-zinc-400">Price Range</p>
                 </div>
                 <DropdownMenuItem className="text-white hover:bg-zinc-800">
