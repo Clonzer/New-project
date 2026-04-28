@@ -952,6 +952,7 @@ export default function Discover() {
 
             {activeTab === "projects" && (
               <div className="space-y-6">
+                <div className="flex gap-4 mb-6">
                   <div className="flex-grow relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
                     <Input
@@ -967,12 +968,6 @@ export default function Discover() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {Array.from({ length: 8 }).map((_, i) => (
                       <div key={i} className="animate-pulse rounded-xl bg-zinc-800/50 h-48" />
-                          <div className="flex justify-between">
-                            <Skeleton className="h-8 w-16" />
-                            <Skeleton className="h-8 w-24" />
-                          </div>
-                        </CardContent>
-                      </Card>
                     ))}
                   </div>
                 ) : listingsError ? (
