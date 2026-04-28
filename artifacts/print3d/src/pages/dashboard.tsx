@@ -837,14 +837,17 @@ export default function Dashboard() {
   // Save accepting orders status to database
   const toggleAcceptingOrders = async () => {
     const newValue = !acceptingOrders;
-    setAcceptingOrders(newValue);
     
     if (user?.id) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('sellers')
           .update({ accepting_orders: newValue, updated_at: new Date().toISOString() })
           .eq('user_id', user.id);
+        
+        if (error) throw error;
+        
+        setAcceptingOrders(newValue);
         
         toast({
           title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
@@ -853,7 +856,16 @@ export default function Dashboard() {
             : "Your shop and products are now hidden from browse/search.",
         });
       } catch {
-        // Silent fail - UI already updated
+        toast({ title: "Failed to update status", variant: "destructive" });
+        // Refetch to ensure state is correct
+        const { data } = await supabase
+          .from('sellers')
+          .select('accepting_orders')
+          .eq('user_id', user.id)
+          .single();
+        if (data) {
+          setAcceptingOrders(data.accepting_orders !== false);
+        }
       }
     }
   };

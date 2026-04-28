@@ -116,7 +116,6 @@ export default function Explore() {
 
   const sellers = useMemo(() => {
     const base = (data?.sellers ?? [])
-      .filter((s: any) => s.accepting_orders !== false) // Only show sellers accepting orders
       .map((s: any) => {
         const transformed = transformSeller(s);
         // Add fetched avatar if missing
