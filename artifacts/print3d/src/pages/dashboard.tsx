@@ -1103,19 +1103,15 @@ export default function Dashboard() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
-                    <span className="text-zinc-500">·</span>
-                    <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
-                      Dashboard
-                    </h1>
                   </div>
-                  <p className="text-zinc-400">
-                    Welcome back, <span className="text-white font-medium">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                  <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
+                    Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
                     {user.isOwner ? (
                       <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
                         Owner
                       </span>
                     ) : null}
-                  </p>
+                  </h1>
                   <p className="text-zinc-500 text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
                 </div>
 
