@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { Star, MapPin, Printer, Package, GitCompareArrows, Sparkles } from "lucide-react";
+import { Star, MapPin, Printer, Package, GitCompareArrows, Sparkles, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ interface ExtendedSeller {
   seller_tags?: string[];
   user_id?: string | number;
   userId?: string | number;
+  accepting_orders?: boolean;
 }
 
 export function SellerCard({ 
@@ -189,6 +190,16 @@ export function SellerCard({
             </div>
           </div>
           
+          {/* Not Accepting Orders Disclaimer */}
+          {(seller.accepting_orders === false) && (
+            <div className="mb-3 p-2 rounded-lg bg-red-500/10 border border-red-500/30">
+              <p className="text-xs text-red-400 font-medium flex items-center gap-1.5">
+                <XCircle className="w-3.5 h-3.5" />
+                Currently not accepting orders
+              </p>
+            </div>
+          )}
+
           <p className="text-sm text-zinc-400 line-clamp-2 mb-4">
             {seller.bio || "Fabrication, additive, and custom work — see shop for details."}
           </p>
