@@ -1139,6 +1139,35 @@ export default function Dashboard() {
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">
 
+          {/* Action Buttons Bar */}
+          <div className="flex items-center justify-end gap-3 mb-4">
+            <Link href="/dashboard-help">
+              <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
+                <HelpCircle className="w-5 h-5" />
+              </Button>
+            </Link>
+            {isSellerUser && (
+              <>
+                <Link href="/storefront/edit">
+                  <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] active:bg-primary/20 active:border-primary active:shadow-[0_0_20px_rgba(139,92,246,0.5)] rounded-full px-4 transition-all duration-200">
+                    <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
+                  </Button>
+                </Link>
+                <Link href="/sponsorship/purchase">
+                  <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-5 transition-all duration-200">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Buy Sponsorship
+                  </Button>
+                </Link>
+              </>
+            )}
+            <Link href="/settings">
+              <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-zinc-400 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] active:bg-white/10 active:border-white active:shadow-[0_0_15px_rgba(255,255,255,0.2)] rounded-full px-4 transition-all duration-200">
+                <Settings className="w-4 h-4 mr-2" /> Settings
+              </Button>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="glass-panel rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-6 mb-8">
             <div className="flex flex-col gap-4">
@@ -1159,12 +1188,6 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Link href="/dashboard-help">
-                    <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
-                      <HelpCircle className="w-5 h-5" />
-                    </Button>
-                  </Link>
-
                   {/* Accepting Orders Toggle for Sellers */}
                   {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                     <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
@@ -1213,26 +1236,6 @@ export default function Dashboard() {
                       <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
                     </Link>
                   )}
-                  {isSellerUser && (
-                    <>
-                      <Link href="/storefront/edit">
-                        <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] active:bg-primary/20 active:border-primary active:shadow-[0_0_20px_rgba(139,92,246,0.5)] rounded-full px-4 transition-all duration-200">
-                          <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
-                        </Button>
-                      </Link>
-                      <Link href="/sponsorship/purchase">
-                        <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-5 transition-all duration-200">
-                          <Trophy className="w-4 h-4 mr-2" />
-                            Buy Sponsorship
-                          </Button>
-                      </Link>
-                    </>
-                  )}
-                  <Link href="/settings">
-                    <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-zinc-400 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] active:bg-white/10 active:border-white active:shadow-[0_0_15px_rgba(255,255,255,0.2)] rounded-full px-4 transition-all duration-200">
-                      <Settings className="w-4 h-4 mr-2" /> Settings
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </div>
