@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Filter, Clock, DollarSign, Package, MapPin, Tag, Quote, X, CheckCircle2, Loader2 } from "lucide-react";
+import { Search, Filter, Clock, DollarSign, Package, MapPin, Tag, Quote, X, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { sendNewQuoteNotification } from "@/services/brevo-email";
 
 interface ServiceRequest {
   id: string;
@@ -106,6 +107,7 @@ export function ServiceRequestMarketplace() {
     
     setSubmittingQuote(true);
     try {
+      // Insert the quote
       const { error } = await supabase.from('service_quotes').insert({
         request_id: selectedRequest.id,
         seller_id: user.id,
@@ -117,10 +119,39 @@ export function ServiceRequestMarketplace() {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Quote submitted!", 
-        description: "The buyer will be notified of your quote." 
-      });
+      // Send email notification to buyer
+      const { data: buyerData } = await supabase
+        .from('profiles')
+        .select('email, display_name')
+        .eq('id', selectedRequest.buyer_id)
+        .single();
+
+      if (buyerData?.email) {
+        const emailResult = await sendNewQuoteNotification(
+          buyerData.email,
+          buyerData.display_name || 'Valued Customer',
+          selectedRequest.title,
+          user.display_name || user.email || 'A Maker',
+          parseFloat(quotePrice)
+        );
+
+        if (emailResult.success) {
+          toast({ 
+            title: "Quote submitted!", 
+            description: "The buyer has been notified via email."
+          });
+        } else {
+          toast({ 
+            title: "Quote submitted", 
+            description: "Quote saved but email notification failed."
+          });
+        }
+      } else {
+        toast({ 
+          title: "Quote submitted!", 
+          description: "The buyer will see your quote on their dashboard."
+        });
+      }
       
       setShowQuoteDialog(false);
       setQuotePrice("");
