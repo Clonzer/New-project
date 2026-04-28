@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Briefcase, 
   Upload, 
@@ -21,7 +21,12 @@ import {
   ArrowLeft,
   Loader2,
   Globe,
-  ShoppingBag
+  ShoppingBag,
+  X,
+  Sparkles,
+  Clock,
+  MessageSquare,
+  Users
 } from "lucide-react";
 
 const MATERIALS = [
@@ -43,6 +48,8 @@ export default function CreateServiceRequest() {
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -53,6 +60,41 @@ export default function CreateServiceRequest() {
     notes: "",
     fileUrl: "",
   });
+
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('custom-orders-tutorial-seen');
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+    }
+  }, []);
+
+  const closeTutorial = () => {
+    setShowTutorial(false);
+    localStorage.setItem('custom-orders-tutorial-seen', 'true');
+  };
+
+  const tutorialSteps = [
+    {
+      icon: <Briefcase className="w-12 h-12 text-primary" />,
+      title: "What are Custom Orders?",
+      description: "Custom Orders let you request personalized 3D printing services from makers on Synthix. Describe what you need, and makers will compete with quotes to fulfill your request."
+    },
+    {
+      icon: <Users className="w-12 h-12 text-accent" />,
+      title: "How it Works",
+      description: "1. Post your request with details and budget\n2. Makers submit quotes with pricing and timeline\n3. Review quotes and choose the best maker\n4. Pay securely and track your order"
+    },
+    {
+      icon: <Clock className="w-12 h-12 text-emerald-400" />,
+      title: "Timeline",
+      description: "Most requests receive quotes within 24-48 hours. You can communicate with makers directly through our messaging system to clarify details before accepting a quote."
+    },
+    {
+      icon: <Sparkles className="w-12 h-12 text-amber-400" />,
+      title: "Tips for Success",
+      description: "• Be specific about dimensions and materials\n• Include reference images if possible\n• Set a realistic budget range\n• Respond quickly to maker questions"
+    }
+  ];
 
   const handleSubmit = async () => {
     if (!user?.id) {
@@ -389,6 +431,95 @@ export default function CreateServiceRequest() {
       </main>
       
       <Footer />
+
+      {/* Tutorial Modal */}
+      <AnimatePresence>
+        {showTutorial && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="glass-panel rounded-3xl border border-white/10 p-8 max-w-lg w-full relative"
+            >
+              <button
+                onClick={closeTutorial}
+                className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <span className="text-sm font-semibold text-primary uppercase tracking-wider">Welcome to Custom Orders</span>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  {tutorialSteps.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 h-1 rounded-full transition-colors ${
+                        i === tutorialStep ? 'bg-primary' : 'bg-white/10'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <motion.div
+                key={tutorialStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-center mb-8"
+              >
+                <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                  {tutorialSteps[tutorialStep].icon}
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  {tutorialSteps[tutorialStep].title}
+                </h3>
+                <p className="text-zinc-400 whitespace-pre-line">
+                  {tutorialSteps[tutorialStep].description}
+                </p>
+              </motion.div>
+
+              <div className="flex justify-between">
+                <Button
+                  variant="ghost"
+                  onClick={() => setTutorialStep(Math.max(0, tutorialStep - 1))}
+                  disabled={tutorialStep === 0}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                {tutorialStep < tutorialSteps.length - 1 ? (
+                  <NeonButton
+                    onClick={() => setTutorialStep(tutorialStep + 1)}
+                    glowColor="primary"
+                  >
+                    Next
+                    <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+                  </NeonButton>
+                ) : (
+                  <NeonButton
+                    onClick={closeTutorial}
+                    glowColor="accent"
+                  >
+                    Get Started
+                    <Sparkles className="w-4 h-4 ml-2" />
+                  </NeonButton>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

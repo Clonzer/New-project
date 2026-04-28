@@ -121,43 +121,49 @@ export function Navbar() {
                     Model Catalog
                   </Link>
                 </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
+                    isActive("/discover") || isActive("/about")
+                      ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  Discover
+                  <ChevronDown className={`w-4 h-4 ${isActive("/discover") || isActive("/about") ? "text-white" : "opacity-70"}`} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="glass-card border-white/10 rounded-xl mt-2">
+                <DropdownMenuItem asChild>
+                  <Link href="/discover" className="cursor-pointer">
+                    Discover Feed
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/contests" className="cursor-pointer">
+                    Contests
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
                 <DropdownMenuItem asChild>
-                  <Link href="/create-service-request" className="cursor-pointer text-primary">
-                    Request Custom Order
+                  <Link href="/about" className="cursor-pointer">
+                    About
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
-              href="/dashboard"
+              href="/create-service-request"
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                isActive("/dashboard")
+                isActive("/create-service-request")
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              Dashboard
-            </Link>
-            <Link
-              href="/discover"
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                isActive("/discover")
-                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              Discover
-            </Link>
-            <Link
-              href="/contests"
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                isActive("/contests")
-                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              Contests
+              Custom Orders
             </Link>
             <Link
               href="/pricing"
