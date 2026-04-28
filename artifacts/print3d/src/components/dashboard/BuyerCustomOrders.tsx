@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, DollarSign, FileText, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
+import { Clock, DollarSign, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function BuyerCustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
@@ -95,14 +95,24 @@ export default function BuyerCustomOrders({ user }: { user: any }) {
         </Button>
       </div>
 
+      <div className="mb-6">
+        <Link href="/create-service-request">
+          <NeonButton glowColor="primary" className="rounded-xl">
+            <FileText className="w-4 h-4 mr-2" />
+            Post New Service Request
+          </NeonButton>
+        </Link>
+      </div>
+
       {requests.length === 0 ? (
         <div className="glass-panel rounded-2xl border border-white/10 p-12 text-center">
           <FileText className="w-16 h-16 text-zinc-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">No custom order requests</h3>
-          <p className="text-zinc-400 mb-6">When you request custom work from sellers, it will appear here.</p>
-          <Link href="/order/new">
+          <p className="text-zinc-400 mb-6">Post a service request to the marketplace and receive quotes from makers.</p>
+          <Link href="/create-service-request">
             <NeonButton glowColor="primary" className="rounded-xl">
-              Request Custom Order
+              <FileText className="w-4 h-4 mr-2" />
+              Post Your First Request
             </NeonButton>
           </Link>
         </div>

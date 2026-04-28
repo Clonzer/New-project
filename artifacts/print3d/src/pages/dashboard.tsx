@@ -14,7 +14,7 @@ import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
   Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
-  ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt,
+  ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt, Briefcase,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -48,6 +48,7 @@ import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
+import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1254,9 +1255,13 @@ export default function Dashboard() {
                     <Store className="w-4 h-4 mr-2" />
                     My Shop
                   </TabsTrigger>
+                  <TabsTrigger value="marketplace" data-tour="marketplace" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Service Marketplace
+                  </TabsTrigger>
                   <TabsTrigger value="services" data-tour="services" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <PenLine className="w-4 h-4 mr-2" />
-                    Services & Custom Orders
+                    My Services
                   </TabsTrigger>
                   <TabsTrigger value="printers" data-tour="printers" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <PrinterIcon className="w-4 h-4 mr-2" />
@@ -1343,6 +1348,12 @@ export default function Dashboard() {
                   myListings={myListings}
                   handleDeleteListing={handleDeleteListing}
                 />
+              </TabsContent>
+            )}
+
+            {isSellerUser && (
+              <TabsContent value="marketplace" className="mt-0">
+                <ServiceRequestMarketplace />
               </TabsContent>
             )}
 
