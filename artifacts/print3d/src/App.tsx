@@ -33,6 +33,7 @@ import CompareShops from "@/pages/compare-shops";
 import Help from "@/pages/help";
 import Discover from "@/pages/discover";
 import CreateListing from "@/pages/create-listing";
+import CreateServiceRequest from "@/pages/create-service-request";
 import EditListing from "@/pages/edit-listing";
 import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
@@ -81,6 +82,10 @@ function MessagesPage() {
 
 function CreateListingPage() {
   return <ProtectedRoute children={<CreateListing />} />;
+}
+
+function CreateServiceRequestPage() {
+  return <ProtectedRoute children={<CreateServiceRequest />} />;
 }
 
 function EditListingPage() {
@@ -145,6 +150,7 @@ function Router() {
       <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/sponsorship/purchase" component={SponsorshipPurchase} />
+          <Route path="/create-service-request" component={CreateServiceRequestPage} />
       <Route path="/service-order" component={ServiceOrderPage} />
       <Route path="/storefront/edit" component={StorefrontEditPage} />
       <Route path="/create-listing" component={CreateListingPage} />
