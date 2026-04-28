@@ -1096,26 +1096,27 @@ export default function Dashboard() {
         <div className="container mx-auto px-4">
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
-                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
-                  {user.isOwner ? (
-                    <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
-                      Owner
-                    </span>
-                  ) : null}
-                </h1>
-                <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
-              </div>
+          <div className="glass-panel rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-6 mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
+                    Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                    {user.isOwner ? (
+                      <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
+                        Owner
+                      </span>
+                    ) : null}
+                  </h1>
+                  <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+                </div>
 
-              <Link href="/dashboard-help" className="self-start">
-                <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
-                  <HelpCircle className="w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
+                <Link href="/dashboard-help" className="self-start">
+                  <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
+                    <HelpCircle className="w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
 
             {/* Accepting Orders Toggle for Sellers */}
             {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
