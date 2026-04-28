@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useListOrders } from "@/lib/workspace-stub";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, CreditCard, Receipt, TrendingUp, TrendingDown, DollarSign, Calendar, Download, Plus } from "lucide-react";
+import { Wallet, CreditCard, Receipt, TrendingUp, TrendingDown, DollarSign, Calendar, Download, Plus, Building2, Shield } from "lucide-react";
 import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
 import {
   LineChart,
@@ -419,16 +420,31 @@ export function Finance() {
               </CardTitle>
               <CardDescription>Your available balance for purchases</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="text-center py-6">
                 <p className="text-sm text-zinc-400 mb-2">Available Balance</p>
                 <p className="text-4xl font-bold text-white">$0.00</p>
                 <p className="text-sm text-zinc-500 mt-2">Wallet feature coming soon</p>
               </div>
+              
+              {/* Connect Bank Account Button */}
+              <Link href="/settings?tab=payment-methods">
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Connect Bank Account
+                </Button>
+              </Link>
+              
               <Button className="w-full bg-primary hover:bg-primary/90">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Funds
               </Button>
+              
+              {/* Security Badge */}
+              <div className="flex items-center justify-center gap-2 text-xs text-zinc-500 pt-2 border-t border-white/10">
+                <Shield className="w-3 h-3 text-emerald-400" />
+                <span>Bank-level security powered by Stripe</span>
+              </div>
             </CardContent>
           </Card>
         </div>
