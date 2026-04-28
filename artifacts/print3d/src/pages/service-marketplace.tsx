@@ -1,8 +1,10 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { useAuth } from "@/hooks/use-auth";
+import { NeonButton } from "@/components/ui/neon-button";
+import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Package, Briefcase } from "lucide-react";
+import { Package, Briefcase, Plus } from "lucide-react";
 
 export default function ServiceMarketplace() {
   const { user } = useAuth();
@@ -35,18 +37,26 @@ export default function ServiceMarketplace() {
           >
             {/* Page Header */}
             <div className="glass-panel rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-6 mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-primary" />
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+                      Custom Orders
+                    </h1>
+                    <p className="text-zinc-400">
+                      Browse custom job requests and submit quotes to buyers
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
-                    Service Marketplace
-                  </h1>
-                  <p className="text-zinc-400">
-                    Browse custom job requests and submit quotes to buyers
-                  </p>
-                </div>
+                <Link href="/create-service-request">
+                  <NeonButton glowColor="accent">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Make Request
+                  </NeonButton>
+                </Link>
               </div>
             </div>
 
