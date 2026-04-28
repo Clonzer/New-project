@@ -63,6 +63,59 @@ const PRIORITY_WEIGHTS: Record<EmailPriority, number> = {
   low: 4,
 };
 
+// Low traffic days (0 = Sunday, 1 = Monday, etc.)
+// Tuesday (2) and Wednesday (3) are typically lowest e-commerce days
+const LOW_TRAFFIC_DAYS = [0, 2, 3]; // Sunday, Tuesday, Wednesday
+
+// High traffic threshold - if we've sent this many emails today, it's high traffic
+const HIGH_TRAFFIC_THRESHOLD = 100;
+
+/**
+ * Check if today is a low traffic day
+ * Considers both day of week and current email volume
+ */
+function isLowTrafficDay(): boolean {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  
+  // Check if it's a traditionally low traffic day
+  const isLowTrafficDayOfWeek = LOW_TRAFFIC_DAYS.includes(dayOfWeek);
+  
+  // Check if we've already hit high volume today
+  const isHighVolumeDay = rateLimitState.dailyCount >= HIGH_TRAFFIC_THRESHOLD;
+  
+  return isLowTrafficDayOfWeek && !isHighVolumeDay;
+}
+
+/**
+ * Get next low traffic time (for scheduling filler emails)
+ */
+function getNextLowTrafficTime(): number {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  
+  // If today is low traffic and we haven't hit volume, send now
+  if (isLowTrafficDay()) {
+    return Date.now();
+  }
+  
+  // Find next low traffic day
+  let daysUntilLowTraffic = 1;
+  let nextDay = (dayOfWeek + 1) % 7;
+  
+  while (!LOW_TRAFFIC_DAYS.includes(nextDay) && daysUntilLowTraffic < 7) {
+    daysUntilLowTraffic++;
+    nextDay = (nextDay + 1) % 7;
+  }
+  
+  // Return timestamp of next low traffic day at 9 AM
+  const nextDate = new Date(now);
+  nextDate.setDate(now.getDate() + daysUntilLowTraffic);
+  nextDate.setHours(9, 0, 0, 0);
+  
+  return nextDate.getTime();
+}
+
 /**
  * Check and reset rate limits based on time windows
  */
@@ -149,6 +202,22 @@ async function processQueue(): Promise<void> {
     const nextEmail = rateLimitState.queue.shift();
     
     if (!nextEmail) continue;
+
+    // Check if this is a low-priority email and today is not a low traffic day
+    if (nextEmail.priority === 'low' && !isLowTrafficDay()) {
+      const nextLowTrafficTime = getNextLowTrafficTime();
+      const waitTime = nextLowTrafficTime - Date.now();
+      
+      console.log(`[Email Queue] Low-priority email deferred until low traffic day. Waiting ${Math.ceil(waitTime / (60 * 60 * 1000))} hours...`);
+      
+      // Put it back in the queue
+      rateLimitState.queue.unshift(nextEmail);
+      rateLimitState.isProcessing = false;
+      
+      // Schedule retry for next low traffic day
+      setTimeout(() => processQueue(), waitTime);
+      return;
+    }
 
     try {
       const result = await sendEmailDirect(nextEmail.payload);
