@@ -811,7 +811,7 @@ export default function Dashboard() {
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
   const [defaultTab, setDefaultTab] = useState(isSellerUser ? "overview" : "overview");
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
-  const [acceptingOrders, setAcceptingOrders] = useState(true);
+  const [acceptingOrders, setAcceptingOrders] = useState<boolean | null>(null);
   const [storeSetupComplete, setStoreSetupComplete] = useState<boolean | null>(null);
   const [showStoreSetup, setShowStoreSetup] = useState(false);
 
@@ -867,36 +867,38 @@ export default function Dashboard() {
 
   // Save accepting orders status to database
   const toggleAcceptingOrders = async () => {
+    // Don't toggle if we haven't loaded the initial value yet
+    if (acceptingOrders === null || !user?.id) return;
+    
     const newValue = !acceptingOrders;
     
-    if (user?.id) {
-      try {
-        const { error } = await supabase
-          .from('sellers')
-          .update({ accepting_orders: newValue, updated_at: new Date().toISOString() })
-          .eq('user_id', user.id);
-        
-        if (error) throw error;
-        
-        setAcceptingOrders(newValue);
-        
-        toast({
-          title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
-          description: newValue 
-            ? "Your shop is now visible and customers can place orders."
-            : "Your shop and products are now hidden from browse/search.",
-        });
-      } catch {
-        toast({ title: "Failed to update status", variant: "destructive" });
-        // Refetch to ensure state is correct
-        const { data } = await supabase
-          .from('sellers')
-          .select('accepting_orders')
-          .eq('user_id', user.id)
-          .single();
-        if (data) {
-          setAcceptingOrders(data.accepting_orders !== false);
-        }
+    try {
+      const { error } = await supabase
+        .from('sellers')
+        .update({ accepting_orders: newValue, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setAcceptingOrders(newValue);
+      
+      toast({
+        title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
+        description: newValue 
+          ? "Your shop is now visible and customers can place orders."
+          : "Your shop and products are now hidden from browse/search.",
+      });
+    } catch (err) {
+      console.error("Failed to update accepting orders:", err);
+      toast({ title: "Failed to update status", variant: "destructive" });
+      // Refetch to ensure state is correct
+      const { data } = await supabase
+        .from('sellers')
+        .select('accepting_orders')
+        .eq('user_id', user.id)
+        .single();
+      if (data) {
+        setAcceptingOrders(data.accepting_orders !== false);
       }
     }
   };
@@ -1189,12 +1191,13 @@ export default function Dashboard() {
 
                 <div className="flex items-center gap-3">
                   {/* Accepting Orders Toggle for Sellers */}
-                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && acceptingOrders !== null && (
                     <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
                       <span className="text-sm text-zinc-400">Accepting Orders</span>
                       <Switch
                         checked={acceptingOrders}
                         onCheckedChange={toggleAcceptingOrders}
+                        disabled={acceptingOrders === null}
                         className="data-[state=checked]:bg-emerald-500"
                       />
                       <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
