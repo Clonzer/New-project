@@ -1136,7 +1136,7 @@ export default function Dashboard() {
         initialData={editingEquipmentGroup}
       />
 
-      <main className="flex-grow pt-10 pb-24">
+      <main className="flex-grow pt-4 pb-24">
         <div className="container mx-auto px-4">
 
           {/* Action Buttons Bar */}
@@ -1241,49 +1241,9 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Store Setup Banner - Show if user hasn't completed setup */}
-          {storeSetupComplete === false && !showStoreSetup && (
-            <div className="mb-8">
-              <div className="glass-panel rounded-2xl border border-primary/30 bg-primary/5 p-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                      <Store className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">Set Up Your Store</h3>
-                      <p className="text-zinc-400 text-sm mt-1">
-                        Complete your store setup to start selling on Synthix. It only takes a few minutes!
-                      </p>
-                    </div>
-                  </div>
-                  <NeonButton onClick={() => setShowStoreSetup(true)} glowColor="primary">
-                    Set Up Store
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </NeonButton>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Store Setup Wizard */}
-          {showStoreSetup && (
-            <div className="mb-8">
-              <StoreSetupWizard 
-                onComplete={() => {
-                  setShowStoreSetup(false);
-                  setStoreSetupComplete(true);
-                  toast({
-                    title: "Store setup complete!",
-                    description: "Your store is now live on Synthix"
-                  });
-                }} 
-              />
-            </div>
-          )}
 
           {/* Seller Stats - hidden when in purchases view for both role users */}
-          {isSellerUser && (user?.role !== "both" || dashboardView === "store") && storeSetupComplete && !showStoreSetup && (
+          {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               {[
                 { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-300", panel: "bg-emerald-500/8 border-emerald-400/15" },
