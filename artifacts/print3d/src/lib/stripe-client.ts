@@ -1,7 +1,10 @@
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
 // Initialize Stripe with the publishable key
-export const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+export const stripePromise: Promise<Stripe | null> = publishableKey 
+  ? loadStripe(publishableKey)
+  : Promise.resolve(null);
 
 // Stripe appearance configuration
 export const stripeAppearance = {
