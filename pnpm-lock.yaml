@@ -1,0 +1,101 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@getbrevo/brevo':
+        specifier: ^5.0.4
+        version: 5.0.4
+      '@stripe/react-stripe-js':
+        specifier: ^6.3.0
+        version: 6.3.0(@stripe/stripe-js@9.3.1)
+      '@stripe/stripe-js':
+        specifier: ^9.3.1
+        version: 9.3.1
+    devDependencies:
+      prettier:
+        specifier: ^3.8.1
+        version: 3.8.3
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+
+packages:
+
+  '@getbrevo/brevo@5.0.4':
+    resolution: {integrity: sha512-wN4mHE6O0Pb/d/Dh3E4MAm2zCHbLLUcFF8/wgwTeMPy9KzHBYLu7S/nsJbzd0AWL09MHn8vwue8ULL9YOzluOQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@stripe/react-stripe-js@6.3.0':
+    resolution: {integrity: sha512-N1FTRNCMKySElDz1lAsf/m6Oy5vcl6LRVXcW29t0Y3U3HYOAqCBlk6nuDsR2x7SAuaXkVCjnpCqrNbA/7l74jg==}
+    peerDependencies:
+      '@stripe/stripe-js': '>=9.3.1 <10.0.0'
+      react: '>=16.8.0 <20.0.0'
+      react-dom: '>=16.8.0 <20.0.0'
+
+  '@stripe/stripe-js@9.3.1':
+    resolution: {integrity: sha512-oWpAEENuVg8aw4W2OUAM9WxRDtIV2YTLr2nr6qHT+D8tHPW7bya61ufinPpUespyRNUVXqesnHo+jQdUNsGywA==}
+    engines: {node: '>=12.16'}
+
+  js-tokens@4.0.0:
+    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
+
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
+
+  object-assign@4.1.1:
+    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
+    engines: {node: '>=0.10.0'}
+
+  prettier@3.8.3:
+    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  prop-types@15.8.1:
+    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+snapshots:
+
+  '@getbrevo/brevo@5.0.4': {}
+
+  '@stripe/react-stripe-js@6.3.0(@stripe/stripe-js@9.3.1)':
+    dependencies:
+      '@stripe/stripe-js': 9.3.1
+      prop-types: 15.8.1
+
+  '@stripe/stripe-js@9.3.1': {}
+
+  js-tokens@4.0.0: {}
+
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
+
+  object-assign@4.1.1: {}
+
+  prettier@3.8.3: {}
+
+  prop-types@15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+
+  react-is@16.13.1: {}
+
+  typescript@5.9.3: {}
