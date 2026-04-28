@@ -794,6 +794,11 @@ function EquipmentGroupDialog({
 export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Helper function to check if user is a seller
+  function isSeller(role?: string) { return role === "seller" || role === "both"; }
+  const isSellerUser = isSeller(user?.role);
+
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
   const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
   const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
@@ -801,13 +806,9 @@ export default function Dashboard() {
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
-  const [defaultTab, setDefaultTab] = useState("overview");
-  const [dashboardView, setDashboardView] = useState<"purchases" | "store">("purchases");
+  const [defaultTab, setDefaultTab] = useState(isSellerUser ? "overview" : "overview");
+  const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
   const [acceptingOrders, setAcceptingOrders] = useState(true);
-
-  // Helper function to check if user is a seller
-  function isSeller(role?: string) { return role === "seller" || role === "both"; }
-  const isSellerUser = isSeller(user?.role);
 
   // Fetch accepting orders status from database
   useEffect(() => {
@@ -873,7 +874,7 @@ export default function Dashboard() {
       setDefaultTab(savedTab);
       localStorage.removeItem('dashboardTab');
     } else {
-      setDefaultTab("overview");
+      setDefaultTab(isSellerUser ? "overview" : "overview");
     }
 
     if (checkout === "success") {
@@ -1100,15 +1101,22 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-1">
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1">
-                    Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
+                    <span className="text-zinc-500">·</span>
+                    <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+                      Dashboard
+                    </h1>
+                  </div>
+                  <p className="text-zinc-400">
+                    Welcome back, <span className="text-white font-medium">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
                     {user.isOwner ? (
                       <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
                         Owner
                       </span>
                     ) : null}
-                  </h1>
-                  <p className="text-zinc-400 capitalize">{user.role} account · {user.location || "Location not set"}</p>
+                  </p>
+                  <p className="text-zinc-500 text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
                 </div>
 
                 <Link href="/dashboard-help" className="self-start">
