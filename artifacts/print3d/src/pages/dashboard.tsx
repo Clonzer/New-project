@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 import {
   useListOrders, useListListings, useListPrinters, useUpdateOrderStatus,
   useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
