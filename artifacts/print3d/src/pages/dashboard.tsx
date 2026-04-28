@@ -1140,53 +1140,55 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="glass-panel rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-6 mb-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
+              </div>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex-1">
+                  <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
+                    Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                    {user.isOwner ? (
+                      <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
+                        Owner
+                      </span>
+                    ) : null}
+                  </h1>
+                  <p className="text-zinc-400 text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                  Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
-                  {user.isOwner ? (
-                    <span className="ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 align-middle text-xs uppercase tracking-[0.22em] text-amber-200">
-                      Owner
-                    </span>
-                  ) : null}
-                </h1>
-                <p className="text-zinc-400 text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
-              </div>
 
-              <Link href="/dashboard-help">
-                <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
-                  <HelpCircle className="w-5 h-5" />
-                </Button>
-              </Link>
+                <div className="flex items-center gap-3">
+                  <Link href="/dashboard-help">
+                    <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white">
+                      <HelpCircle className="w-5 h-5" />
+                    </Button>
+                  </Link>
 
-            {/* Accepting Orders Toggle for Sellers */}
-            {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-              <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
-                <span className="text-sm text-zinc-400">Accepting Orders</span>
-                <Switch
-                  checked={acceptingOrders}
-                  onCheckedChange={toggleAcceptingOrders}
-                  className="data-[state=checked]:bg-emerald-500"
-                />
-                <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
-                  {acceptingOrders ? "Open" : "Closed"}
-                </span>
-              </div>
-            )}
+                  {/* Accepting Orders Toggle for Sellers */}
+                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+                    <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-full px-4 h-10">
+                      <span className="text-sm text-zinc-400">Accepting Orders</span>
+                      <Switch
+                        checked={acceptingOrders}
+                        onCheckedChange={toggleAcceptingOrders}
+                        className="data-[state=checked]:bg-emerald-500"
+                      />
+                      <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
+                        {acceptingOrders ? "Open" : "Closed"}
+                      </span>
+                    </div>
+                  )}
 
-            {/* View Toggle for users with both roles */}
-            {user?.role === "both" && (
-              <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-10">
-                <button
-                  onClick={() => setDashboardView("purchases")}
-                  className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all duration-200 ${
-                    dashboardView === "purchases"
-                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                  }`}
+                  {/* View Toggle for users with both roles */}
+                  {user?.role === "both" && (
+                    <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-10">
+                      <button
+                        onClick={() => setDashboardView("purchases")}
+                        className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all duration-200 ${
+                          dashboardView === "purchases"
+                            ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }`}
                 >
                   <ShoppingBag className={`w-4 h-4 ${dashboardView === "purchases" ? "text-white" : ""}`} />
                   My Purchases
@@ -1204,34 +1206,34 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
-          </div>
 
-          <div className="flex gap-3 flex-wrap items-center">
-            {!isSellerUser && (
-              <Link href="/register">
-                <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
-              </Link>
-            )}
-            {isSellerUser && (
-              <>
-                <Link href="/storefront/edit">
-                  <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] active:bg-primary/20 active:border-primary active:shadow-[0_0_20px_rgba(139,92,246,0.5)] rounded-full px-4 transition-all duration-200">
-                    <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
-                  </Button>
-                </Link>
-                <Link href="/sponsorship/purchase">
-                  <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-5 transition-all duration-200">
-                    <Trophy className="w-4 h-4 mr-2" />
-                      Buy Sponsorship
+                  {!isSellerUser && (
+                    <Link href="/register">
+                      <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
+                    </Link>
+                  )}
+                  {isSellerUser && (
+                    <>
+                      <Link href="/storefront/edit">
+                        <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] active:bg-primary/20 active:border-primary active:shadow-[0_0_20px_rgba(139,92,246,0.5)] rounded-full px-4 transition-all duration-200">
+                          <Store className="w-4 h-4 mr-2 text-primary" /> Edit Storefront
+                        </Button>
+                      </Link>
+                      <Link href="/sponsorship/purchase">
+                        <Button className="h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-5 transition-all duration-200">
+                          <Trophy className="w-4 h-4 mr-2" />
+                            Buy Sponsorship
+                          </Button>
+                      </Link>
+                    </>
+                  )}
+                  <Link href="/settings">
+                    <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-zinc-400 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] active:bg-white/10 active:border-white active:shadow-[0_0_15px_rgba(255,255,255,0.2)] rounded-full px-4 transition-all duration-200">
+                      <Settings className="w-4 h-4 mr-2" /> Settings
                     </Button>
                   </Link>
-                </>
-              )}
-              <Link href="/settings">
-                <Button variant="outline" className="h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-zinc-400 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] active:bg-white/10 active:border-white active:shadow-[0_0_15px_rgba(255,255,255,0.2)] rounded-full px-4 transition-all duration-200">
-                  <Settings className="w-4 h-4 mr-2" /> Settings
-                </Button>
-              </Link>
+                </div>
+              </div>
             </div>
           </div>
 
