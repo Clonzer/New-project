@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.env.local
+/lib/
+../lib/
+
+# Allow src/lib/ directory for application code
+!src/lib/

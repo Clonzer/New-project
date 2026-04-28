@@ -1,0 +1,26 @@
+services:
+  # Static Site - React Frontend
+  - type: static
+    name: synthix
+    runtime: node
+    rootDir: artifacts/print3d
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    publishDir: artifacts/print3d/dist
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NPM_CONFIG_FROZEN_LOCKFILE
+        value: "false"
+      - key: VITE_SUPABASE_URL
+        sync: false  # Set this in Render dashboard
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false  # Set this in Render dashboard
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    # SPA routing - all routes serve index.html
+    redirects:
+      - source: /*
+        destination: /index.html
+        type: rewrite

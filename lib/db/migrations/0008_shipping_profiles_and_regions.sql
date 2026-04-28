@@ -1,0 +1,8 @@
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS selling_regions TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+ADD COLUMN IF NOT EXISTS domestic_shipping_cost REAL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS europe_shipping_cost REAL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS north_america_shipping_cost REAL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS international_shipping_cost REAL DEFAULT 0,
+ADD COLUMN IF NOT EXISTS free_shipping_threshold REAL,
+ADD COLUMN IF NOT EXISTS local_pickup_enabled BOOLEAN NOT NULL DEFAULT FALSE;

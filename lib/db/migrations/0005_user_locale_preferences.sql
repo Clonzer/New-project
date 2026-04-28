@@ -1,0 +1,4 @@
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS country_code TEXT,
+ADD COLUMN IF NOT EXISTS language_code TEXT,
+ADD COLUMN IF NOT EXISTS currency_code TEXT;

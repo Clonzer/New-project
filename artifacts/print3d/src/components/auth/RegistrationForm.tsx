@@ -1,0 +1,319 @@
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { NeonButton } from "@/components/ui/neon-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/supabase-auth-context";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@/lib/supabase";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Link } from "wouter";
+import { createMessageThread } from "@/lib/messages-api";
+import { useListUsers } from "@/lib/workspace-api-mock";
+
+const registrationSchema = z
+  .object({
+    displayName: z.string().trim().min(2, "Display name must be at least 2 characters"),
+    email: z.string().email("Enter a valid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    passwordConfirm: z.string().min(1, "Confirm your password"),
+  })
+  .refine((d) => d.password === d.passwordConfirm, {
+    message: "Passwords do not match",
+    path: ["passwordConfirm"],
+  });
+
+export type RegistrationFormValues = z.infer<typeof registrationSchema>;
+
+function getPasswordStrength(password: string) {
+  const checks = [
+    password.length >= 8,
+    /[a-z]/.test(password) && /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+    password.length >= 12,
+  ];
+  const score = checks.filter(Boolean).length;
+
+  if (score <= 1) {
+    return { label: "Weak", color: "bg-red-500", textColor: "text-red-300", width: "20%" };
+  }
+  if (score <= 3) {
+    return { label: "Fair", color: "bg-yellow-500", textColor: "text-yellow-300", width: "60%" };
+  }
+  if (score === 4) {
+    return { label: "Good", color: "bg-sky-500", textColor: "text-sky-300", width: "80%" };
+  }
+  return { label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-300", width: "100%" };
+}
+
+export function RegistrationForm({
+  onRegistered,
+}: {
+  onRegistered: (user: User) => void | Promise<void>;
+}) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const { login, register: supabaseRegister } = useAuth();
+  const { data: usersData } = useListUsers();
+  const ADMIN_EMAIL = "evanhuelin8@gmail.com";
+
+  const form = useForm<RegistrationFormValues>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      displayName: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+    },
+  });
+  const passwordValue = useWatch({ control: form.control, name: "password" }) || "";
+  const passwordStrength = useMemo(() => getPasswordStrength(passwordValue), [passwordValue]);
+  const enteredEmail = form.watch("email")?.trim().toLowerCase() ?? "";
+  const loginHref = enteredEmail ? `/login?email=${encodeURIComponent(enteredEmail)}` : "/login";
+  const shouldSuggestLogin =
+    !!error &&
+    (/email already exists/i.test(error) ||
+      /already have an account/i.test(error) ||
+      /account was created/i.test(error) ||
+      /sign in with your email/i.test(error));
+
+  const onSubmit = async (data: RegistrationFormValues) => {
+    setError(null);
+    setSuccess(null);
+    setSubmitting(true);
+    try {
+      const emailNorm = data.email.trim().toLowerCase();
+      
+      // Register with Supabase Auth - simple buyer account
+      const { error: signUpError } = await supabaseRegister(
+        emailNorm,
+        data.password,
+        {
+          display_name: data.displayName.trim(),
+          role: "buyer",
+        }
+      );
+      
+      if (signUpError) {
+        throw signUpError;
+      }
+      
+      // Auto login after registration
+      const { error: loginError } = await login(emailNorm, data.password);
+      
+      if (loginError) {
+        setError(
+          "Account was created, but automatic sign-in failed. Please sign in with your email and password.",
+        );
+        return;
+      }
+      
+      // Get the user from the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setError("Could not retrieve user session.");
+        return;
+      }
+      
+      // Build user object - simple buyer account
+      const user: User = {
+        id: session.user.id,
+        email: session.user.email || emailNorm,
+        role: "buyer",
+        displayName: data.displayName.trim(),
+        isVerified: false,
+        stripeConnectEnabled: false,
+      };
+      
+      setSuccess("Account created. You're signed in.");
+      
+      // Set flag to show tutorial for new users
+      localStorage.setItem('showTutorial', 'true');
+
+      // Auto-create message thread with admin
+      try {
+        const adminUser = usersData?.users.find((u: any) => u.email === ADMIN_EMAIL);
+        if (adminUser && adminUser.id) {
+          await createMessageThread(adminUser.id, "Welcome to Synthix! Feel free to reach out if you have any questions.");
+        }
+      } catch (threadError) {
+        console.error("Failed to create admin message thread:", threadError);
+        // Don't block registration if thread creation fails
+      }
+
+      await onRegistered(user);
+    } catch (e: any) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="border-red-500/40 bg-red-950/40">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Registration failed</AlertTitle>
+          <AlertDescription className="space-y-2">
+            <p>{error}</p>
+            {shouldSuggestLogin ? (
+              <p>
+                Already have an account?{" "}
+                <Link href={loginHref} className="underline hover:text-white">
+                  Sign in instead
+                </Link>
+              </p>
+            ) : null}
+          </AlertDescription>
+        </Alert>
+      )}
+      {success && !error && (
+        <Alert className="border-emerald-500/30 bg-emerald-950/30">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <AlertTitle className="text-emerald-200">Success</AlertTitle>
+          <AlertDescription className="text-zinc-300">{success}</AlertDescription>
+        </Alert>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <FormField
+            control={form.control}
+            name="displayName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-zinc-300">Display name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Jane Doe"
+                    autoComplete="name"
+                    className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-zinc-300">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    className="bg-black/30 border-white/10 text-white h-12 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-zinc-300">Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl pr-12"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="absolute inset-y-0 right-0 flex min-w-[4.5rem] items-center justify-center gap-1 px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 transition hover:text-white"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span>{showPassword ? "Hide" : "Show"}</span>
+                    </button>
+                  </div>
+                </FormControl>
+                  <div className="mt-2">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: passwordValue ? passwordStrength.width : "0%" }}
+                      />
+                    </div>
+                    <p className={`mt-2 text-xs ${passwordStrength.textColor}`}>
+                      Password strength: {passwordValue ? passwordStrength.label : "Enter a password"}
+                    </p>
+                  </div>
+                  <FormDescription className="text-zinc-500 text-xs">
+                    Use 8+ characters with a mix of upper/lowercase, numbers, and symbols.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="passwordConfirm"
+              render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-zinc-300">Confirm password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={showPasswordConfirm ? "text" : "password"}
+                      autoComplete="new-password"
+                      className="bg-black/30 border-white/10 text-white h-12 rounded-xl pr-12"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordConfirm((current) => !current)}
+                      className="absolute inset-y-0 right-0 flex min-w-[4.5rem] items-center justify-center gap-1 px-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 transition hover:text-white"
+                      aria-label={showPasswordConfirm ? "Hide password confirmation" : "Show password confirmation"}
+                    >
+                      {showPasswordConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span>{showPasswordConfirm ? "Hide" : "Show"}</span>
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              )}
+            />
+          </div>
+
+          <NeonButton type="submit" glowColor="primary" className="w-full rounded-xl py-3" disabled={submitting}>
+            {submitting ? "Creating account…" : "Create account"}
+          </NeonButton>
+        </form>
+      </Form>
+    </div>
+  );
+}
