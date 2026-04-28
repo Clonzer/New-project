@@ -21,6 +21,170 @@ const BREVO_SENDER_EMAIL = getEnvVar('VITE_BREVO_SENDER_EMAIL', 'noreply@synthix
 const BREVO_SENDER_NAME = getEnvVar('VITE_BREVO_SENDER_NAME', 'Synthix');
 const APP_URL = getEnvVar('VITE_APP_URL', 'https://synthixgroup.co.uk');
 
+// Brevo limits: 300/day, 30/hour
+const HOURLY_LIMIT = 30;
+const DAILY_LIMIT = 300;
+
+// Email priority levels
+type EmailPriority = 'critical' | 'high' | 'normal' | 'low';
+
+// Rate limiting state
+interface RateLimitState {
+  hourlyCount: number;
+  dailyCount: number;
+  hourStart: number;
+  dayStart: number;
+  queue: QueuedEmail[];
+  isProcessing: boolean;
+}
+
+interface QueuedEmail {
+  payload: EmailPayload;
+  priority: EmailPriority;
+  resolve: (result: { success: boolean; messageId?: string; error?: string }) => void;
+  reject: (error: any) => void;
+  timestamp: number;
+}
+
+const rateLimitState: RateLimitState = {
+  hourlyCount: 0,
+  dailyCount: 0,
+  hourStart: Date.now(),
+  dayStart: Date.now(),
+  queue: [],
+  isProcessing: false,
+};
+
+// Priority weights (lower = higher priority)
+const PRIORITY_WEIGHTS: Record<EmailPriority, number> = {
+  critical: 1,
+  high: 2,
+  normal: 3,
+  low: 4,
+};
+
+/**
+ * Check and reset rate limits based on time windows
+ */
+function checkRateLimits(): { canSend: boolean; reason?: string; nextAvailable?: number } {
+  const now = Date.now();
+  const hourMs = 60 * 60 * 1000;
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  // Reset hourly counter if hour has passed
+  if (now - rateLimitState.hourStart >= hourMs) {
+    rateLimitState.hourlyCount = 0;
+    rateLimitState.hourStart = now;
+  }
+
+  // Reset daily counter if day has passed
+  if (now - rateLimitState.dayStart >= dayMs) {
+    rateLimitState.dailyCount = 0;
+    rateLimitState.dayStart = now;
+  }
+
+  // Check limits
+  if (rateLimitState.dailyCount >= DAILY_LIMIT) {
+    const nextDay = rateLimitState.dayStart + dayMs;
+    return { 
+      canSend: false, 
+      reason: `Daily limit reached (${DAILY_LIMIT} emails)`,
+      nextAvailable: nextDay 
+    };
+  }
+
+  if (rateLimitState.hourlyCount >= HOURLY_LIMIT) {
+    const nextHour = rateLimitState.hourStart + hourMs;
+    return { 
+      canSend: false, 
+      reason: `Hourly limit reached (${HOURLY_LIMIT} emails)`,
+      nextAvailable: nextHour 
+    };
+  }
+
+  return { canSend: true };
+}
+
+/**
+ * Get current usage stats
+ */
+export function getEmailUsageStats(): {
+  hourlyUsed: number;
+  hourlyRemaining: number;
+  dailyUsed: number;
+  dailyRemaining: number;
+  queueLength: number;
+} {
+  const limits = checkRateLimits();
+  return {
+    hourlyUsed: rateLimitState.hourlyCount,
+    hourlyRemaining: HOURLY_LIMIT - rateLimitState.hourlyCount,
+    dailyUsed: rateLimitState.dailyCount,
+    dailyRemaining: DAILY_LIMIT - rateLimitState.dailyCount,
+    queueLength: rateLimitState.queue.length,
+  };
+}
+
+/**
+ * Process the email queue
+ */
+async function processQueue(): Promise<void> {
+  if (rateLimitState.isProcessing) return;
+  rateLimitState.isProcessing = true;
+
+  while (rateLimitState.queue.length > 0) {
+    const limits = checkRateLimits();
+    
+    if (!limits.canSend) {
+      // Can't send now, wait until next window
+      const waitTime = limits.nextAvailable ? limits.nextAvailable - Date.now() : 60000;
+      console.log(`[Email Queue] Rate limit hit. Waiting ${Math.ceil(waitTime / 60000)} minutes...`);
+      rateLimitState.isProcessing = false;
+      setTimeout(() => processQueue(), Math.min(waitTime, 60000)); // Check every minute max
+      return;
+    }
+
+    // Sort by priority and send highest priority
+    rateLimitState.queue.sort((a, b) => PRIORITY_WEIGHTS[a.priority] - PRIORITY_WEIGHTS[b.priority]);
+    const nextEmail = rateLimitState.queue.shift();
+    
+    if (!nextEmail) continue;
+
+    try {
+      const result = await sendEmailDirect(nextEmail.payload);
+      nextEmail.resolve(result);
+    } catch (error) {
+      nextEmail.reject(error);
+    }
+
+    // Small delay to respect rate limits (2 second gap = 30/hour max)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+
+  rateLimitState.isProcessing = false;
+}
+
+/**
+ * Queue an email for sending with priority
+ */
+export async function queueEmail(
+  payload: EmailPayload, 
+  priority: EmailPriority = 'normal'
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  return new Promise((resolve, reject) => {
+    rateLimitState.queue.push({
+      payload,
+      priority,
+      resolve,
+      reject,
+      timestamp: Date.now(),
+    });
+    
+    // Start processing if not already running
+    processQueue();
+  });
+}
+
 export interface EmailPayload {
   to: { email: string; name?: string }[];
   templateId?: number;
@@ -31,9 +195,9 @@ export interface EmailPayload {
 }
 
 /**
- * Send email via Brevo using Fetch API
+ * Direct email send (internal use only - bypasses rate limiting)
  */
-export async function sendEmail(payload: EmailPayload): Promise<{ success: boolean; messageId?: string; error?: string }> {
+async function sendEmailDirect(payload: EmailPayload): Promise<{ success: boolean; messageId?: string; error?: string }> {
   if (!BREVO_API_KEY) {
     console.warn('Brevo API key not configured');
     return { success: false, error: 'Brevo API key not configured' };
@@ -70,6 +234,10 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
 
     const data = await response.json();
     
+    // Increment counters
+    rateLimitState.hourlyCount++;
+    rateLimitState.dailyCount++;
+    
     return {
       success: true,
       messageId: data.messageId
@@ -84,6 +252,17 @@ export async function sendEmail(payload: EmailPayload): Promise<{ success: boole
 }
 
 /**
+ * Send email via Brevo with rate limiting and queue
+ * Use this for all external email sending
+ */
+export async function sendEmail(
+  payload: EmailPayload, 
+  priority: EmailPriority = 'normal'
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  return queueEmail(payload, priority);
+}
+
+/**
  * Send new quote notification to buyer
  */
 export async function sendNewQuoteNotification(
@@ -93,22 +272,6 @@ export async function sendNewQuoteNotification(
   sellerName: string,
   quotePrice: number
 ): Promise<{ success: boolean; error?: string }> {
-  const templateId = 0; // Template IDs can be configured here
-  
-  if (templateId) {
-    return sendEmail({
-      to: [{ email: buyerEmail, name: buyerName }],
-      templateId,
-      params: {
-        buyerName,
-        requestTitle,
-        sellerName,
-        quotePrice: quotePrice.toFixed(2)
-      }
-    });
-  }
-
-  // Fallback to raw HTML if no template configured
   return sendEmail({
     to: [{ email: buyerEmail, name: buyerName }],
     subject: `New Quote on "${requestTitle}"`,
@@ -130,7 +293,7 @@ export async function sendNewQuoteNotification(
         </a>
       </div>
     `
-  });
+  }, 'normal');  // Normal priority - quotes are important but not critical
 }
 
 /**
@@ -161,7 +324,7 @@ export async function sendQuoteAcceptedNotification(
         </a>
       </div>
     `
-  });
+  }, 'high');  // High priority - seller needs to know they got the job
 }
 
 /**
@@ -195,7 +358,7 @@ export async function sendOrderShippedNotification(
         </a>
       </div>
     `
-  });
+  }, 'high');  // High priority - shipping notification is important
 }
 
 /**
@@ -238,7 +401,7 @@ export async function sendWelcomeEmail(
         </div>
       </div>
     `
-  });
+  }, 'low');  // Low priority - welcome email can be delayed if needed
 }
 
 /**
@@ -268,7 +431,7 @@ export async function sendPasswordResetEmail(
         <p style="color: #71717a; font-size: 13px;">If you didn't request this, please ignore this email or <a href="${APP_URL}/contact" style="color: #6366f1;">contact support</a> if you have concerns.</p>
       </div>
     `
-  });
+  }, 'critical');  // Critical - security emails must go through immediately
 }
 
 /**
@@ -337,7 +500,7 @@ export async function sendSecurityAlertEmail(
         </div>
       </div>
     `
-  });
+  }, 'critical');  // Critical - security alerts are highest priority
 }
 
 /**
@@ -385,7 +548,7 @@ export async function sendOrderStatusUpdate(
         </div>
       </div>
     `
-  });
+  }, 'normal');  // Normal priority for status updates
 }
 
 /**
@@ -422,7 +585,7 @@ export async function sendReviewRequestEmail(
         <p style="color: #71717a; font-size: 13px;">Thank you for using Synthix!</p>
       </div>
     `
-  });
+  }, 'low');  // Low priority - review requests can wait
 }
 
 /**
@@ -463,7 +626,7 @@ export async function sendLowStockAlert(
         </div>
       </div>
     `
-  });
+  }, 'normal');  // Normal priority - stock alerts
 }
 
 /**
@@ -499,7 +662,7 @@ export async function sendVerificationEmail(
         </div>
       </div>
     `
-  });
+  }, 'critical');  // Critical - verification emails must be immediate
 }
 
 /**
