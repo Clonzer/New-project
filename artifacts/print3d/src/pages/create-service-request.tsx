@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,8 @@ import {
   CheckCircle2,
   ArrowLeft,
   Loader2,
-  Globe
+  Globe,
+  ShoppingBag
 } from "lucide-react";
 
 const MATERIALS = [
@@ -121,12 +123,21 @@ export default function CreateServiceRequest() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <button 
-              onClick={() => setLocation("/dashboard")}
-              className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-            </button>
+            <div className="flex items-center gap-4 mb-4">
+              <button 
+                onClick={() => setLocation("/dashboard")}
+                className="flex items-center gap-2 text-zinc-400 hover:text-white"
+              >
+                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+              </button>
+              
+              <Link 
+                href="/service-marketplace"
+                className="flex items-center gap-2 text-zinc-400 hover:text-white ml-auto"
+              >
+                <ShoppingBag className="w-4 h-4" /> Browse Marketplace
+              </Link>
+            </div>
             
             <div className="flex items-center gap-4 mb-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
