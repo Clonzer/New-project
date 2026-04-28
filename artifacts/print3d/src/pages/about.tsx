@@ -32,47 +32,6 @@ export default function About() {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
 
   const [activeFeature, setActiveFeature] = useState(0);
-  
-  // Real stats from Supabase
-  const [stats, setStats] = useState({
-    activeMakers: 0,
-    projectsDelivered: 0,
-    countries: 0,
-    happyClients: 0
-  });
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch real counts from Supabase
-        const [sellersResult, listingsResult] = await Promise.all([
-          supabase.from('sellers').select('*', { count: 'exact', head: true }),
-          supabase.from('listings').select('*', { count: 'exact', head: true })
-        ]);
-
-        setStats({
-          activeMakers: sellersResult.count || 0,
-          projectsDelivered: listingsResult.count || 0,
-          countries: 45, // This would need a separate query for unique countries
-          happyClients: Math.floor((listingsResult.count || 0) * 0.3) // Estimate based on listings
-        });
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
-        // Fallback to default values
-        setStats({
-          activeMakers: 2500,
-          projectsDelivered: 50000,
-          countries: 80,
-          happyClients: 15000
-        });
-      } finally {
-        setIsLoadingStats(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
 
   const features = [
     {
@@ -155,40 +114,6 @@ export default function About() {
                 Where creators meet makers. Turn your digital dreams into physical reality.
               </p>
             </motion.div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 relative border-y border-white/[0.08] bg-gradient-to-r from-transparent via-white/[0.02] to-transparent">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { label: "Active Makers", value: stats.activeMakers.toLocaleString(), icon: Users },
-                { label: "Projects Delivered", value: stats.projectsDelivered.toLocaleString(), icon: Package },
-                { label: "Countries", value: stats.countries.toString(), icon: Globe },
-                { label: "Happy Clients", value: stats.happyClients.toLocaleString(), icon: Heart },
-              ].map((stat, idx) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="text-center p-6 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
-                    <stat.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  {isLoadingStats ? (
-                    <div className="text-3xl md:text-4xl font-display font-bold text-white mb-1 animate-pulse">...</div>
-                  ) : (
-                    <div className="text-3xl md:text-4xl font-display font-bold text-white mb-1">{stat.value}</div>
-                  )}
-                  <div className="text-sm text-zinc-400">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
           </div>
         </section>
 
