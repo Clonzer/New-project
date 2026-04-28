@@ -19,7 +19,7 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, FileText, MessageSquareText, Shield, Store, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 
