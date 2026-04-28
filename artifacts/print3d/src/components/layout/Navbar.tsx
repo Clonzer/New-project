@@ -80,8 +80,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-black/60 backdrop-blur-xl backdrop-saturate-150">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-12">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between overflow-x-auto">
+        <div className="flex items-center gap-6 flex-shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
             <span className="font-display font-extrabold text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-all duration-300 bg-gradient-to-r from-white to-white bg-clip-text">
               SYNTHIX
@@ -91,11 +91,11 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
                     isActive("/explore-all") || isActive("/explore") || isActive("/listings")
                       ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                       : "text-zinc-400 hover:text-white hover:bg-white/5"
@@ -131,7 +131,7 @@ export function Navbar() {
             </DropdownMenu>
             <Link
               href="/dashboard"
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                 isActive("/dashboard")
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
@@ -139,33 +139,45 @@ export function Navbar() {
             >
               Dashboard
             </Link>
-            {[
-              { path: "/discover", label: "Discover" },
-              { path: "/contests", label: "Contests" },
-              { path: "/pricing", label: "Pricing" },
-              { path: "/about", label: "About" },
-            ].map((route) => (
-              <Link
-                key={route.path}
-                href={route.path}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                  isActive(route.path)
-                    ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {route.label}
-              </Link>
-            ))}
+            <Link
+              href="/discover"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/discover")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/contests"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/contests")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Contests
+            </Link>
+            <Link
+              href="/pricing"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/pricing")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Pricing
+            </Link>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden lg:flex relative">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="hidden xl:flex relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search models, shops..."
+              placeholder="Search..."
               value={headerSearch}
               onChange={(e) => setHeaderSearch(e.target.value)}
               onKeyDown={(e) => {
@@ -175,7 +187,7 @@ export function Navbar() {
                   setHeaderSearch("");
                 }
               }}
-              className="pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 w-72 transition-all hover:bg-white/[0.05] hover:border-white/15"
+              className="pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 w-56 transition-all hover:bg-white/[0.05] hover:border-white/15"
             />
           </div>
 
