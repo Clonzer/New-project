@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Briefcase, 
@@ -234,23 +235,25 @@ export default function CreateServiceRequest() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-zinc-300 block mb-2">Material</label>
-                  <select
-                    value={formData.material}
-                    onChange={e => setFormData(prev => ({ ...prev, material: e.target.value }))}
-                    className="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 text-white"
-                  >
-                    {MATERIALS.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
+                  <Select value={formData.material} onValueChange={(value) => setFormData(prev => ({ ...prev, material: value }))}>
+                    <SelectTrigger className="w-full bg-black/30 border-white/10 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MATERIALS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="text-sm text-zinc-300 block mb-2">Color</label>
-                  <select
-                    value={formData.color}
-                    onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                    className="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 text-white"
-                  >
-                    {COLORS.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <Select value={formData.color} onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}>
+                    <SelectTrigger className="w-full bg-black/30 border-white/10 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COLORS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

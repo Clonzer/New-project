@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Printer as PrinterIcon, Package, MapPin, Scale } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -138,16 +139,17 @@ Generated: ${new Date().toLocaleString()}
               <label className="block text-xs uppercase tracking-widest text-zinc-400 mb-2">
                 Carrier
               </label>
-              <select
-                value={carrier}
-                onChange={(e) => setCarrier(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
-              >
-                <option value="usps">USPS</option>
-                <option value="ups">UPS</option>
-                <option value="fedex">FedEx</option>
-                <option value="dhl">DHL</option>
-              </select>
+              <Select value={carrier} onValueChange={setCarrier}>
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="usps">USPS</SelectItem>
+                  <SelectItem value="ups">UPS</SelectItem>
+                  <SelectItem value="fedex">FedEx</SelectItem>
+                  <SelectItem value="dhl">DHL</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
