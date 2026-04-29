@@ -230,21 +230,30 @@ export default function Pricing() {
       />
       <MarketplaceStructuredData />
 
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+        <AnimatedGradientBg className="fixed inset-0" />
         <Navbar />
-        <main className="flex-1">
+        <main className="flex-grow relative z-10">
           {/* Hero Section */}
-          <section className="relative pt-20 pb-12 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent_50%)]" />
-            <div className="absolute top-10 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute top-10 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse delay-500" />
+          <section className="relative pt-24 pb-16 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
             
             <div className="container mx-auto px-4 relative z-10">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.6 }} 
+                className="text-center"
+              >
+                <motion.span 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6"
+                >
                   <Zap className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium text-primary">Pricing & Plans</span>
-                </span>
+                </motion.span>
                 <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-4">
                   Grow your <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Shop</span>
                 </h1>
@@ -257,7 +266,7 @@ export default function Pricing() {
 
         <section className="container mx-auto px-4 pb-16 relative z-20">
           <div className="mx-auto max-w-6xl mb-8 flex justify-center">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-zinc-800/80 px-2 py-1.5 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl px-2 py-1.5">
               <button
                 onClick={() => setYearly(false)}
                 className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${!yearly ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
@@ -285,8 +294,8 @@ export default function Pricing() {
                   transition={{ delay: index * 0.08, duration: 0.45 }}
                   className={`relative flex flex-col rounded-3xl border p-8 overflow-hidden group ${
                     plan.highlight 
-                      ? "bg-gradient-to-br from-primary/20 via-zinc-800 to-accent/20 border-primary/40 shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:shadow-[0_0_60px_rgba(139,92,246,0.4)]" 
-                      : "bg-zinc-800 border-white/10 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]"
+                      ? "glass-panel border-primary/40 shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:shadow-[0_0_60px_rgba(139,92,246,0.4)] bg-gradient-to-br from-primary/10 via-white/5 to-accent/10" 
+                      : "glass-panel border-white/10 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]"
                   }`}
                 >
                   {plan.badge ? (
@@ -384,7 +393,7 @@ export default function Pricing() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-primary/5 p-8 md:p-10 relative overflow-hidden"
+              className="rounded-[2rem] glass-panel border-white/10 p-8 md:p-10 relative overflow-hidden"
             >
               {/* Background glow effects */}
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -408,7 +417,7 @@ export default function Pricing() {
                 {/* Profile Sponsorship */}
                 <motion.div
                   whileHover={{ y: -4, scale: 1.01 }}
-                  className="rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/80 to-black/60 p-6 md:p-8 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 shadow-xl"
+                  className="rounded-3xl glass-panel border-white/10 p-6 md:p-8 hover:border-primary/30 transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30">
@@ -535,7 +544,7 @@ export default function Pricing() {
         </section>
       </main>
 
-      <Footer />
+      <Footer className="relative z-10" />
       </div>
     </>
   );
