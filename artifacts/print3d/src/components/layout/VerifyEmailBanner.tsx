@@ -36,7 +36,7 @@ export function VerifyEmailBanner() {
   const sellerIntent = user.role === "seller" || user.role === "both";
 
   return (
-    <div className="fixed top-16 right-4 z-50 w-80 rounded-xl border border-amber-400/30 bg-amber-500/10 p-3 shadow-lg backdrop-blur-sm">
+    <div className="hidden md:block fixed top-16 right-4 z-50 w-80 rounded-xl border border-amber-400/30 bg-amber-500/10 p-3 shadow-lg backdrop-blur-sm">
       <div className="flex items-start gap-2">
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
         <div className="flex-1">
