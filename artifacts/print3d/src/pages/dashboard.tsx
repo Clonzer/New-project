@@ -48,11 +48,13 @@ import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
+import { UserRankPanel } from "@/components/dashboard/UserRankPanel";
+import { MiniRank } from "@/components/shared/RankBadge";
+import { getRankById, getXpToNextRank, getRankProgress } from "@/lib/rank-system";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
-import { UserRankPanel } from "@/components/dashboard/UserRankPanel";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -813,6 +815,7 @@ export default function Dashboard() {
   const [defaultTab, setDefaultTab] = useState(isSellerUser ? "overview" : "overview");
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
   const [acceptingOrders, setAcceptingOrders] = useState<boolean | null>(null);
+  const [storeVisible, setStoreVisible] = useState<boolean | null>(null);
   const [storeSetupComplete, setStoreSetupComplete] = useState<boolean | null>(null);
   const [showStoreSetup, setShowStoreSetup] = useState(false);
 
@@ -876,9 +879,9 @@ export default function Dashboard() {
     try {
       const { error } = await supabase
         .from('sellers')
-        .update({ accepting_orders: newValue, updated_at: new Date().toISOString() })
+        .update({ accepting_orders: newValue })
         .eq('user_id', user.id);
-      
+        
       if (error) throw error;
       
       setAcceptingOrders(newValue);
@@ -886,21 +889,16 @@ export default function Dashboard() {
       toast({
         title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
         description: newValue 
-          ? "Your shop is now visible and customers can place orders."
-          : "Your shop and products are now hidden from browse/search.",
+          ? "Your store is now open for new orders."
+          : "Your store is temporarily closed for new orders.",
       });
-    } catch (err) {
-      console.error("Failed to update accepting orders:", err);
-      toast({ title: "Failed to update status", variant: "destructive" });
-      // Refetch to ensure state is correct
-      const { data } = await supabase
-        .from('sellers')
-        .select('accepting_orders')
-        .eq('user_id', user.id)
-        .single();
-      if (data) {
-        setAcceptingOrders(data.accepting_orders !== false);
-      }
+    } catch (error) {
+      console.error('Failed to update accepting orders status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update order status. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1187,10 +1185,33 @@ export default function Dashboard() {
                       </span>
                     ) : null}
                   </h1>
-                  <p className="text-zinc-400 text-xs sm:text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-zinc-400 text-xs sm:text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
+                    {/* Rank Badge */}
+                    {user.rankId && user.rankId > 1 && (
+                      <MiniRank rankId={user.rankId} />
+                    )}
+                  </div>
+                  {/* XP Progress Bar */}
+                  {user.totalXp !== undefined && user.rankId && (
+                    <div className="mt-2 max-w-xs">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-zinc-400">{getRankById(user.rankId)?.name || 'Novice'}</span>
+                        <span className="text-zinc-500">
+                          {user.totalXp.toLocaleString()} / {(user.totalXp + getXpToNextRank(user.totalXp)).toLocaleString()} XP
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
+                          style={{ width: `${getRankProgress(user.totalXp)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   {/* Accepting Orders Toggle for Sellers */}
                   {isSellerUser && (user?.role !== "both" || dashboardView === "store") && acceptingOrders !== null && (
                     <div className="flex items-center gap-2 sm:gap-3 bg-black/40 border border-white/10 rounded-full px-3 sm:px-4 h-9 sm:h-10">
@@ -1203,6 +1224,22 @@ export default function Dashboard() {
                       />
                       <span className={`text-[10px] sm:text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
                         {acceptingOrders ? "Open" : "Closed"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Store Visibility Toggle for Sellers */}
+                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && storeVisible !== null && (
+                    <div className="flex items-center gap-2 sm:gap-3 bg-black/40 border border-white/10 rounded-full px-3 sm:px-4 h-9 sm:h-10">
+                      <span className="text-xs sm:text-sm text-zinc-400 whitespace-nowrap">Store Visible</span>
+                      <Switch
+                        checked={storeVisible}
+                        onCheckedChange={toggleStoreVisibility}
+                        disabled={storeVisible === null}
+                        className="data-[state=checked]:bg-primary scale-90 sm:scale-100"
+                      />
+                      <span className={`text-[10px] sm:text-xs font-medium ${storeVisible ? "text-primary" : "text-zinc-500"}`}>
+                        {storeVisible ? "Public" : "Hidden"}
                       </span>
                     </div>
                   )}

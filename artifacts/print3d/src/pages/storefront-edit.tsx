@@ -39,6 +39,7 @@ import {
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 // Shop Preview Component
 function ShopPreview({ form }: { form: any }) {
@@ -692,15 +693,14 @@ export default function StorefrontEdit() {
                           { id: "showBanner", label: "Show shop banner", default: true },
                           { id: "compactView", label: "Compact product cards", default: false },
                         ].map((option) => (
-                          <label key={option.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
+                          <div key={option.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
                             <span className="text-sm text-zinc-300">{option.label}</span>
-                            <input
-                              type="checkbox"
-                              checked={form[option.id] ?? option.default}
-                              onChange={(e) => handleChange(option.id, e.target.checked)}
-                              className="w-5 h-5 rounded border-white/20 bg-black/30 text-primary focus:ring-primary"
+                            <Switch
+                              checked={form[option.id as keyof typeof form] ?? option.default}
+                              onCheckedChange={(checked) => handleChange(option.id, checked)}
+                              className="data-[state=checked]:bg-primary"
                             />
-                          </label>
+                          </div>
                         ))}
                       </div>
                     </div>
