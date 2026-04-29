@@ -108,6 +108,119 @@ This directory contains professional, dark-themed email templates for the Synthi
 
 ---
 
+### 5. `order-shipped.html`
+**Use Case:** Sent to buyers when their order is marked as shipped by the seller.
+
+**Variables:**
+- `{{buyerName}}` - Name of the buyer
+- `{{trackingNumber}}` - Shipping tracking number
+- `{{carrierName}}` - Shipping carrier (USPS, UPS, FedEx, etc.)
+- `{{productName}}` - Name of the product
+- `{{orderNumber}}` - Order number
+- `{{sellerName}}` - Name of the seller
+- `{{deliveryDate}}` - Estimated delivery date
+- `{{deliveryTimeRange}}` - Delivery time window
+- `{{trackingLink}}` - Link to track the package
+
+**Features:**
+- Large tracking number display
+- Carrier badge
+- Product and seller information
+- Estimated delivery date
+- Delivery tips section
+- Track package CTA button
+
+---
+
+### 6. `password-reset.html`
+**Use Case:** Sent when users request a password reset.
+
+**Variables:**
+- `{{userName}}` - Name of the user
+- `{{resetLink}}` - Password reset link
+
+**Features:**
+- Security-themed design (amber/orange)
+- 60-minute expiry notice
+- Security tips section
+- Reset password CTA button
+- Fallback link for email client issues
+- "Didn't request this?" reassurance
+
+---
+
+### 7. `review-request.html`
+**Use Case:** Sent to buyers a few days after delivery to request a review.
+
+**Variables:**
+- `{{buyerName}}` - Name of the buyer
+- `{{sellerName}}` - Name of the seller
+- `{{daysAgo}}` - How many days since delivery
+- `{{productName}}` - Name of the product
+- `{{orderNumber}}` - Order number
+- `{{deliveryDate}}` - Date of delivery
+- `{{sellerInitials}}` - Seller initials for avatar
+- `{{sellerRating}}` - Seller's rating
+- `{{sellerReviews}}` - Number of seller reviews
+- `{{reviewLink}}` - Link to leave a review
+- `{{orderLink}}` - Link to view order
+
+**Features:**
+- Interactive star rating display
+- Product and seller info card
+- Impact message explaining why reviews matter
+- Leave review CTA with gold gradient
+- Secondary view order button
+
+---
+
+### 8. `seller-payout.html`
+**Use Case:** Sent to sellers when their earnings are paid out.
+
+**Variables:**
+- `{{sellerName}}` - Name of the seller
+- `{{payoutAmount}}` - Amount paid out
+- `{{totalSales}}` - Total number of sales
+- `{{totalEarnings}}` - All-time earnings
+- `{{sellerRating}}` - Seller rating
+- `{{payoutId}}` - Payout reference ID
+- `{{startDate}}` - Payout period start
+- `{{endDate}}` - Payout period end
+- `{{orderCount}}` - Number of orders in period
+- `{{grossSales}}` - Gross sales amount
+- `{{feePercentage}}` - Platform fee percentage
+- `{{platformFee}}` - Platform fee amount
+- `{{paymentMethod}}` - Payment method used
+- `{{processedDate}}` - Date payout was processed
+- `{{earningsLink}}` - Link to earnings dashboard
+
+**Features:**
+- Large payout amount display (green gradient)
+- Sales statistics (3-column grid)
+- Detailed breakdown card
+- Payout summary with fees
+- Next steps section
+- Earnings dashboard CTA
+
+---
+
+### 9. `email-verification.html`
+**Use Case:** Sent to new users to verify their email address.
+
+**Variables:**
+- `{{userName}}` - Name of the user
+- `{{verificationLink}}` - Email verification link
+
+**Features:**
+- Cyan-themed design
+- 24-hour expiry notice
+- Benefits showcase (3 items with icons)
+- Verify email CTA button
+- Fallback link
+- Security reassurance
+
+---
+
 ## Design System
 
 All templates follow the Synthix dark theme:
@@ -173,13 +286,13 @@ All templates use template variables (e.g., `{{variableName}}`) that should be r
 
 ## Future Templates to Consider
 
-1. **Password Reset** - For password reset flows
-2. **Order Shipped** - When seller marks order as shipped
-3. **Order Delivered** - When order is delivered
-4. **Review Request** - Ask buyer to leave review after delivery
-5. **Seller Payout** - Notification when funds are transferred
-6. **Account Verification** - Email verification link
-7. **Promotional/Newsletter** - Monthly updates to users
-8. **Abandoned Cart** - Reminder for items left in cart
-9. **Low Stock Alert** - For sellers when items are running low
-10. **Account Security** - Login from new device notifications
+1. **Order Delivered** - When order is delivered (with delivery confirmation)
+2. **Promotional/Newsletter** - Monthly updates to users about new features
+3. **Abandoned Cart** - Reminder for items left in cart
+4. **Low Stock Alert** - For sellers when items are running low
+5. **Account Security** - Login from new device notifications
+6. **Quote Expiring** - Reminder that a quote is about to expire
+7. **New Message** - When someone sends a direct message
+8. **Seller Onboarding** - Step-by-step guide for new sellers
+9. **Payment Failed** - When a payment method needs updating
+10. **Subscription Renewal** - For subscription-based features

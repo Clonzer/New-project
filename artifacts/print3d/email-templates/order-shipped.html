@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Order Has Shipped - Synthix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .shipped-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            color: #e4e4e7;
+        }
+        
+        .greeting {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .message {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .tracking-box {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.1) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .tracking-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .tracking-box h3 {
+            margin: 0 0 10px 0;
+            color: #06b6d4;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .tracking-box p {
+            margin: 0 0 20px 0;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+        
+        .tracking-number {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-family: monospace;
+            font-size: 18px;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .carrier-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+        
+        .order-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .product-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .product-image {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.3) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .product-info h3 {
+            margin: 0 0 8px 0;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .product-info p {
+            margin: 0;
+            color: #71717a;
+            font-size: 13px;
+        }
+        
+        .delivery-estimate {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .delivery-estimate h4 {
+            margin: 0 0 10px 0;
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .delivery-estimate .date {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        
+        .delivery-estimate p {
+            margin: 0;
+            color: #a1a1aa;
+            font-size: 13px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .tips-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #06b6d4;
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tips-box h4 {
+            margin: 0 0 15px 0;
+            color: #06b6d4;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .tips-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #a1a1aa;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        .tips-box li {
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer p {
+            color: #52525b;
+            font-size: 12px;
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .product-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .tracking-number {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo">Synthix</div>
+            <div class="shipped-badge">🚚 Order Shipped!</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">It's on the way, {{buyerName}}!</div>
+            
+            <div class="message">
+                Great news! Your order has been shipped and is now on its way to you. You can track its progress using the tracking number below.
+            </div>
+            
+            <div class="tracking-box">
+                <div class="tracking-icon">📦</div>
+                <h3>Track Your Package</h3>
+                <p>Use this tracking number on {{carrierName}}'s website</p>
+                <div class="tracking-number">{{trackingNumber}}</div>
+                <div class="carrier-badge">{{carrierName}}</div>
+            </div>
+            
+            <div class="order-card">
+                <div class="product-row">
+                    <div class="product-image">🖨️</div>
+                    <div class="product-info">
+                        <h3>{{productName}}</h3>
+                        <p>Order #{{orderNumber}} | Sold by {{sellerName}}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="delivery-estimate">
+                <h4>📅 Estimated Delivery</h4>
+                <div class="date">{{deliveryDate}}</div>
+                <p>{{deliveryTimeRange}}</p>
+            </div>
+            
+            <div class="tips-box">
+                <h4>📋 What to Expect</h4>
+                <ul>
+                    <li>You'll receive delivery updates via email</li>
+                    <li>Someone may need to be present to receive the package</li>
+                    <li>Check your tracking link for real-time updates</li>
+                    <li>Contact us if you have any concerns</li>
+                </ul>
+            </div>
+            
+            <div class="button-container">
+                <a href="{{trackingLink}}" class="cta-button">Track Package</a>
+            </div>
+            
+            <div class="message" style="font-size: 13px; text-align: center; margin-top: 20px;">
+                Once you receive your order, don't forget to leave a review for {{sellerName}}!
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Synthix. All rights reserved.</p>
+            <p>Need help? <a href="mailto:support@synthixgroup.co.uk">Contact Support</a></p>
+        </div>
+    </div>
+</body>
+</html>

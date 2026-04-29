@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Synthix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 50px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .verify-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border-radius: 50%;
+            margin: 20px auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+        }
+        
+        .content {
+            padding: 50px 30px;
+            color: #e4e4e7;
+        }
+        
+        .greeting {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .highlight {
+            color: #06b6d4;
+        }
+        
+        .message {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .verify-box {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.1) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .verify-box h3 {
+            margin: 0 0 15px 0;
+            color: #06b6d4;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .verify-box p {
+            margin: 0 0 25px 0;
+            color: #a1a1aa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 18px 50px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        .cta-button:hover {
+            box-shadow: 0 6px 30px rgba(6, 182, 212, 0.5);
+        }
+        
+        .expiry-notice {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-top: 25px;
+        }
+        
+        .expiry-notice p {
+            margin: 0;
+            color: #71717a;
+            font-size: 13px;
+        }
+        
+        .expiry-notice strong {
+            color: #06b6d4;
+        }
+        
+        .benefits-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .benefits-box h4 {
+            margin: 0 0 20px 0;
+            color: #8b5cf6;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .benefit-text h5 {
+            margin: 0 0 3px 0;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .benefit-text p {
+            margin: 0;
+            color: #71717a;
+            font-size: 12px;
+        }
+        
+        .fallback-link {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+        
+        .fallback-link p {
+            margin: 0 0 10px 0;
+            color: #71717a;
+            font-size: 12px;
+        }
+        
+        .fallback-link a {
+            color: #8b5cf6;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer p {
+            color: #52525b;
+            font-size: 12px;
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .verify-box {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo">Synthix</div>
+            <div class="verify-icon">✉️</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Verify Your Email</div>
+            
+            <div class="message">
+                Hi <span class="highlight">{{userName}}</span>,<br><br>
+                Thanks for signing up! Please verify your email address to unlock all features and start exploring the world of 3D printing.
+            </div>
+            
+            <div class="verify-box">
+                <h3>🔐 One Click Away</h3>
+                <p>Click the button below to verify your email address and activate your account. This link will expire in 24 hours for security.</p>
+                
+                <a href="{{verificationLink}}" class="cta-button">Verify Email Address</a>
+                
+                <div class="expiry-notice">
+                    <p>⏰ Link expires in <strong>24 hours</strong></p>
+                </div>
+            </div>
+            
+            <div class="benefits-box">
+                <h4>✨ What You'll Get</h4>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛒</div>
+                    <div class="benefit-text">
+                        <h5>Buy & Sell</h5>
+                        <p>Access thousands of 3D printed products</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">📋</div>
+                    <div class="benefit-text">
+                        <h5>Custom Orders</h5>
+                        <p>Request custom prints from top sellers</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔔</div>
+                    <div class="benefit-text">
+                        <h5>Order Updates</h5>
+                        <p>Get notified about your orders in real-time</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fallback-link">
+                <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                <a href="{{verificationLink}}">{{verificationLink}}</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Synthix. All rights reserved.</p>
+            <p>Didn't sign up? You can safely ignore this email.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payout Complete - Synthix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .success-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            color: #e4e4e7;
+        }
+        
+        .greeting {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .highlight {
+            color: #10b981;
+        }
+        
+        .message {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .payout-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .payout-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+        }
+        
+        .payout-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a1a1aa;
+            margin-bottom: 10px;
+        }
+        
+        .payout-amount {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        
+        .payout-status {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .details-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .details-card h3 {
+            margin: 0 0 20px 0;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #71717a;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #e4e4e7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .detail-value.amount {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .stats-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .next-steps {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #8b5cf6;
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .next-steps h4 {
+            margin: 0 0 15px 0;
+            color: #8b5cf6;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .next-steps p {
+            margin: 0;
+            color: #a1a1aa;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer p {
+            color: #52525b;
+            font-size: 12px;
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .stats-box {
+                grid-template-columns: 1fr;
+            }
+            
+            .payout-amount {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo">Synthix</div>
+            <div class="success-badge">💰 Payout Complete!</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Congratulations, <span class="highlight">{{sellerName}}</span>!</div>
+            
+            <div class="message">
+                Your earnings have been successfully transferred to your account. Keep up the great work!
+            </div>
+            
+            <div class="payout-box">
+                <div class="payout-icon">💸</div>
+                <div class="payout-label">Amount Paid Out</div>
+                <div class="payout-amount">{{payoutAmount}}</div>
+                <div class="payout-status">✓ Completed</div>
+            </div>
+            
+            <div class="stats-box">
+                <div class="stat-item">
+                    <div class="stat-value">{{totalSales}}</div>
+                    <div class="stat-label">Total Sales</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{totalEarnings}}</div>
+                    <div class="stat-label">All Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{sellerRating}}</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+            </div>
+            
+            <div class="details-card">
+                <h3>📊 Payout Summary</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Payout ID</span>
+                    <span class="detail-value">#{{payoutId}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Period</span>
+                    <span class="detail-value">{{startDate}} - {{endDate}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Orders Fulfilled</span>
+                    <span class="detail-value">{{orderCount}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Gross Sales</span>
+                    <span class="detail-value amount">{{grossSales}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Platform Fee ({{feePercentage}}%)</span>
+                    <span class="detail-value">-{{platformFee}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Net Payout</span>
+                    <span class="detail-value amount">{{payoutAmount}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment Method</span>
+                    <span class="detail-value">{{paymentMethod}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Processed On</span>
+                    <span class="detail-value">{{processedDate}}</span>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h4>🚀 What's Next?</h4>
+                <p>Your funds should appear in your account within 1-3 business days depending on your payment method. Continue creating amazing prints to grow your shop!</p>
+            </div>
+            
+            <div class="button-container">
+                <a href="{{earningsLink}}" class="cta-button">View Earnings Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Synthix. All rights reserved.</p>
+            <p>Questions about your payout? <a href="mailto:support@synthixgroup.co.uk">Contact Support</a></p>
+        </div>
+    </div>
+</body>
+</html>
