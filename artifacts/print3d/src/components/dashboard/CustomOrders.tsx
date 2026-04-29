@@ -179,10 +179,10 @@ export default function CustomOrders({ user }: { user: any }) {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Custom Order Requests</h2>
         <div className="flex gap-2">
-          <Link href="/service-order">
+          <Link href="/service-marketplace">
             <NeonButton glowColor="primary" className="rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
-              Create Service Request
+              Browse Marketplace
             </NeonButton>
           </Link>
           <Button onClick={fetchRequests} variant="outline" className="glass-panel text-white border-white/10 hover:bg-white/5">

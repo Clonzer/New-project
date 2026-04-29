@@ -96,10 +96,10 @@ export default function BuyerCustomOrders({ user }: { user: any }) {
       </div>
 
       <div className="mb-6">
-        <Link href="/create-service-request">
+        <Link href="/service-marketplace">
           <NeonButton glowColor="primary" className="rounded-xl">
             <FileText className="w-4 h-4 mr-2" />
-            Post New Service Request
+            Browse Marketplace
           </NeonButton>
         </Link>
       </div>
@@ -109,10 +109,10 @@ export default function BuyerCustomOrders({ user }: { user: any }) {
           <FileText className="w-16 h-16 text-zinc-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">No custom order requests</h3>
           <p className="text-zinc-400 mb-6">Post a service request to the marketplace and receive quotes from makers.</p>
-          <Link href="/create-service-request">
+          <Link href="/service-marketplace">
             <NeonButton glowColor="primary" className="rounded-xl">
               <FileText className="w-4 h-4 mr-2" />
-              Post Your First Request
+              Browse Marketplace
             </NeonButton>
           </Link>
         </div>
