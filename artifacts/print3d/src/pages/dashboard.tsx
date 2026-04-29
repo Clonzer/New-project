@@ -1207,30 +1207,37 @@ export default function Dashboard() {
                     </div>
                   )}
 
-                    {isSellerUser && (
-                      <TabsContent value="reviews" className="mt-0">
-                        <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
-                      </TabsContent>
-                    )}
-                  My Purchases
-                </button>
-                <button
-                  onClick={() => setDashboardView("store")}
-                  className={`flex items-center gap-2 px-4 h-8 rounded-full text-sm font-medium transition-all duration-200 ${
-                    dashboardView === "store"
-                      ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg shadow-accent/30 ring-2 ring-accent/50 scale-[1.02]"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <Store className={`w-4 h-4 ${dashboardView === "store" ? "text-white" : ""}`} />
-                    My Store
-                  </button>
-                </div>
-              )}
+                  {/* View Toggle for users with both roles */}
+                  {user?.role === "both" && (
+                    <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-9 sm:h-10">
+                      <button
+                        onClick={() => setDashboardView("purchases")}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                          dashboardView === "purchases"
+                            ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        <Package className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "purchases" ? "text-white" : ""}`} />
+                        My Purchases
+                      </button>
+                      <button
+                        onClick={() => setDashboardView("store")}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                          dashboardView === "store"
+                            ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg shadow-accent/30 ring-2 ring-accent/50 scale-[1.02]"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        <Store className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "store" ? "text-white" : ""}`} />
+                        My Store
+                      </button>
+                    </div>
+                  )}
 
                   {!isSellerUser && (
                     <Link href="/register">
-                      <Button className="h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-5">Join Now</Button>
+                      <Button className="h-9 sm:h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 sm:px-5 text-xs sm:text-sm">Join Now</Button>
                     </Link>
                   )}
                 </div>
