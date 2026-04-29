@@ -52,6 +52,7 @@ import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
+import { UserRankPanel } from "@/components/dashboard/UserRankPanel";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1325,6 +1326,10 @@ export default function Dashboard() {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
+                  <TabsTrigger value="rank" data-tour="rank" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Rank
+                  </TabsTrigger>
                 </>
               )}
 
@@ -1536,6 +1541,13 @@ export default function Dashboard() {
             {isSellerUser && (
               <TabsContent value="analytics" className="mt-0">
                 <Analytics shopId={user?.id} timeRange="30d" />
+              </TabsContent>
+            )}
+
+            {/* Rank Tab */}
+            {isSellerUser && (
+              <TabsContent value="rank" className="mt-0">
+                <UserRankPanel />
               </TabsContent>
             )}
 
