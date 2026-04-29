@@ -11,17 +11,21 @@ export function SiteStats() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('sellers').select('*', { count: 'exact', head: true }),
-      supabase.from('listings').select('*', { count: 'exact', head: true })
+      // Count users who have shop_name set (active sellers)
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).not('shop_name', 'is', null),
+      supabase.from('listings').select('*', { count: 'exact', head: true }),
+      // Get active contests count
+      supabase.from('contests').select('*', { count: 'exact', head: true }).eq('status', 'active')
     ])
-      .then(([sellersResult, listingsResult]) => {
+      .then(([sellersResult, listingsResult, contestsResult]) => {
         setStats({
           totalMakers: sellersResult.count || 0,
           projectsCompleted: listingsResult.count || 0,
           totalReviews: 15600,
           satisfactionRate: 98,
           monthlyGrowth: 24,
-          avgResponseTime: 2.5
+          avgResponseTime: 2.5,
+          activeContests: contestsResult.count || 0
         });
         setIsLoading(false);
         setError(null);
