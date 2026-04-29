@@ -136,22 +136,51 @@ export default function CreateServiceRequest() {
     }
   };
 
+  const [uploading, setUploading] = useState(false);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const fileName = `${Date.now()}-${file.name}`;
-    const { data, error } = await supabase.storage
-      .from('custom-order-files')
-      .upload(fileName, file);
-
-    if (error) {
-      toast({ title: "Upload failed", variant: "destructive" });
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Maximum file size is 10MB", variant: "destructive" });
       return;
     }
 
-    setFormData(prev => ({ ...prev, fileUrl: data.path }));
-    toast({ title: "File uploaded" });
+    setUploading(true);
+    const fileName = `${Date.now()}-${file.name}`;
+    
+    try {
+      const { data, error } = await supabase.storage
+        .from('custom-order-files')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error("Upload error:", error);
+        toast({ 
+          title: "Upload failed", 
+          description: error.message || "Please try again or contact support",
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      setFormData(prev => ({ ...prev, fileUrl: data.path }));
+      toast({ title: "File uploaded successfully", description: file.name });
+    } catch (err) {
+      console.error("Upload exception:", err);
+      toast({ 
+        title: "Upload failed", 
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive" 
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -168,10 +197,10 @@ export default function CreateServiceRequest() {
           >
             <div className="flex items-center gap-4 mb-4">
               <button 
-                onClick={() => setLocation("/dashboard")}
+                onClick={() => setLocation("/service-marketplace")}
                 className="flex items-center gap-2 text-zinc-400 hover:text-white"
               >
-                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+                <ArrowLeft className="w-4 h-4" /> Back to Quote Requests
               </button>
               
               <Link 
@@ -319,23 +348,33 @@ export default function CreateServiceRequest() {
 
               <div>
                 <label className="text-sm text-zinc-300 block mb-2">Upload Files (Optional)</label>
-                <div className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
-                  <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
-                  <p className="text-zinc-400 mb-2">Drag files here or click to upload</p>
-                  <p className="text-xs text-zinc-500 mb-4">STL, OBJ, 3MF, or images</p>
+                <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${uploading ? 'border-primary/50 bg-primary/5' : 'border-white/20 hover:border-primary/50'}`}>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
+                      <p className="text-primary mb-2">Uploading...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
+                      <p className="text-zinc-400 mb-2">Drag files here or click to upload</p>
+                      <p className="text-xs text-zinc-500 mb-4">STL, OBJ, 3MF, or images (max 10MB)</p>
+                    </>
+                  )}
                   <input 
                     type="file" 
                     onChange={handleFileUpload}
                     accept=".stl,.obj,.3mf,.png,.jpg,.jpeg,.pdf"
                     className="hidden" 
                     id="file-upload"
+                    disabled={uploading}
                   />
                   <label htmlFor="file-upload">
-                    <Button variant="outline" className="border-white/10" asChild>
-                      <span>Choose File</span>
+                    <Button variant="outline" className="border-white/10" asChild disabled={uploading}>
+                      <span>{uploading ? 'Uploading...' : 'Choose File'}</span>
                     </Button>
                   </label>
-                  {formData.fileUrl && (
+                  {formData.fileUrl && !uploading && (
                     <p className="text-sm text-emerald-400 mt-3 flex items-center justify-center gap-1">
                       <CheckCircle2 className="w-4 h-4" /> File uploaded
                     </p>
