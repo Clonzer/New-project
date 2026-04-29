@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Accepted - Synthix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .success-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            color: #e4e4e7;
+        }
+        
+        .greeting {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .highlight {
+            color: #10b981;
+        }
+        
+        .message {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .congrats-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .congrats-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .congrats-box h3 {
+            margin: 0 0 10px 0;
+            color: #10b981;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .congrats-box p {
+            margin: 0;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+        
+        .job-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .job-header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .job-header h3 {
+            margin: 0 0 10px 0;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .job-header p {
+            margin: 0;
+            color: #71717a;
+            font-size: 14px;
+        }
+        
+        .buyer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .buyer-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .buyer-details h4 {
+            margin: 0 0 5px 0;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .buyer-details p {
+            margin: 0;
+            color: #71717a;
+            font-size: 13px;
+        }
+        
+        .job-details {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-row.highlight-row {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+            margin: 0 -20px;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #71717a;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #e4e4e7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .detail-value.price {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .action-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .action-box h4 {
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .action-box p {
+            margin: 0 0 20px 0;
+            color: #a1a1aa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .deadline {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .tips-box {
+            background: rgba(139, 92, 246, 0.05);
+            border-left: 3px solid #8b5cf6;
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tips-box h4 {
+            margin: 0 0 15px 0;
+            color: #8b5cf6;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .tips-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #a1a1aa;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        .tips-box li {
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer p {
+            color: #52525b;
+            font-size: 12px;
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .job-card {
+                padding: 20px;
+            }
+            
+            .buyer-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo">Synthix</div>
+            <div class="success-badge">🎉 Quote Accepted!</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Great news, <span class="highlight">{{sellerName}}</span>!</div>
+            
+            <div class="message">
+                Your quote was accepted! A buyer has chosen you for their custom 3D printing project. Time to get to work!
+            </div>
+            
+            <div class="congrats-box">
+                <div class="congrats-icon">🚀</div>
+                <h3>New Job Secured!</h3>
+                <p>You're now {{completionPercentage}}% closer to your next seller milestone.</p>
+            </div>
+            
+            <div class="job-card">
+                <div class="job-header">
+                    <h3>{{projectTitle}}</h3>
+                    <p>Service Request #{{requestNumber}}</p>
+                </div>
+                
+                <div class="buyer-info">
+                    <div class="buyer-avatar">{{buyerInitials}}</div>
+                    <div class="buyer-details">
+                        <h4>{{buyerName}}</h4>
+                        <p>Verified Buyer</p>
+                    </div>
+                </div>
+                
+                <div class="job-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Material</span>
+                        <span class="detail-value">{{material}}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Color</span>
+                        <span class="detail-value">{{color}}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Quantity</span>
+                        <span class="detail-value">{{quantity}}</span>
+                    </div>
+                    <div class="detail-row highlight-row">
+                        <span class="detail-label">Your Quote</span>
+                        <span class="detail-value price">{{quotePrice}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-box">
+                <h4>⏰ Time to Print!</h4>
+                <p>The buyer is expecting this order. Make sure to start printing soon and update the order status when shipped.</p>
+                <div class="deadline">Due by: {{dueDate}}</div>
+            </div>
+            
+            <div class="tips-box">
+                <h4>💡 Pro Tips for Success</h4>
+                <ul>
+                    <li>Update order status promptly to keep buyer informed</li>
+                    <li>Take quality photos before shipping</li>
+                    <li>Package securely to prevent damage in transit</li>
+                    <li>Great reviews lead to more orders!</li>
+                </ul>
+            </div>
+            
+            <div class="button-container">
+                <a href="{{orderLink}}" class="cta-button">View Order Details</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Synthix. All rights reserved.</p>
+            <p>Need help? <a href="mailto:support@synthixgroup.co.uk">Contact Support</a></p>
+        </div>
+    </div>
+</body>
+</html>
