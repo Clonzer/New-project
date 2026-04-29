@@ -191,7 +191,9 @@ export default function ContestDetail() {
               setEntries([]);
             }
           } else {
-            setContest(null);
+            // Fallback to mock data if API doesn't return contest
+            setContest(mockContest);
+            setEntries([]);
           }
         }
       } catch (error) {
