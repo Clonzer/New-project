@@ -428,7 +428,6 @@ export default function Settings() {
                           </SelectContent>
                         </Select>
                       </div>
-                      </div>
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Language</label>
                         <select
