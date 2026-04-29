@@ -13,7 +13,7 @@ The Synthix Rank System rewards users with XP for completing actions that contri
 | 4 | Artisan ⚡ | 1,500 | **24h Silver Sponsorship (weekly)** |
 | 5 | Master Maker 🏆 | 4,000 | **48h Gold Sponsorship (weekly)**, Verified badge, Commission discounts |
 | 6 | Legend 👑 | 10,000 | **72h Premium Sponsorship (weekly)**, Priority listing, Exclusive events |
-| 7 | Synthix Icon ⭐ | 25,000 | **Permanent Premium Sponsorship**, Hall of Fame, Direct team access |
+| 7 | Synthix Icon 👑 | 100,000 | **Lifetime Pro Membership** (0% commission forever), Hall of Fame, Direct team access, Custom features |
 
 ## XP Rewards
 

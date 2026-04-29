@@ -85,6 +85,11 @@ export async function awardXp(
       await activateSponsorshipReward(userId, sponsorshipReward);
     }
     
+    // If rank 7 (Synthix Icon), activate lifetime pro membership
+    if (rankUp && newRank === 7) {
+      await activateLifetimeProMembership(userId);
+    }
+    
     return {
       success: true,
       xpAwarded: xpAmount,
@@ -166,6 +171,29 @@ async function activateSponsorshipReward(
     is_active: true,
     source: "rank_reward"
   });
+}
+
+// Activate lifetime pro membership for Synthix Icon rank
+async function activateLifetimeProMembership(userId: string): Promise<void> {
+  // Set a very far future date (100 years) to represent "lifetime"
+  const startDate = new Date();
+  const endDate = new Date(startDate.getTime() + 100 * 365 * 24 * 60 * 60 * 1000);
+  
+  await supabase.from("sponsorships").insert({
+    user_id: userId,
+    tier: "premium",
+    start_date: startDate.toISOString(),
+    end_date: endDate.toISOString(),
+    is_active: true,
+    source: "rank_7_lifetime_pro"
+  });
+  
+  // Also update user profile to mark as lifetime pro
+  await supabase.from("profiles").update({
+    is_pro_member: true,
+    pro_member_since: startDate.toISOString(),
+    pro_member_type: "lifetime"
+  }).eq("id", userId);
 }
 
 // Get user's XP history

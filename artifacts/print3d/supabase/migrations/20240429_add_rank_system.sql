@@ -118,6 +118,22 @@ BEGIN
                    WHERE table_name = 'profiles' AND column_name = 'total_xp') THEN
         ALTER TABLE profiles ADD COLUMN total_xp INTEGER DEFAULT 0;
     END IF;
+    
+    -- Add pro membership columns for lifetime pro members (Rank 7)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'profiles' AND column_name = 'is_pro_member') THEN
+        ALTER TABLE profiles ADD COLUMN is_pro_member BOOLEAN DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'profiles' AND column_name = 'pro_member_since') THEN
+        ALTER TABLE profiles ADD COLUMN pro_member_since TIMESTAMP WITH TIME ZONE;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'profiles' AND column_name = 'pro_member_type') THEN
+        ALTER TABLE profiles ADD COLUMN pro_member_type TEXT DEFAULT 'none' CHECK (pro_member_type IN ('none', 'monthly', 'yearly', 'lifetime'));
+    END IF;
 END $$;
 
 -- Create a function to sync rank to profiles (for public display)

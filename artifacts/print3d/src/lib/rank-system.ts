@@ -79,11 +79,11 @@ export const RANKS: Rank[] = [
   {
     id: 7,
     name: "Synthix Icon",
-    minXp: 25000,
+    minXp: 100000,
     maxXp: Infinity,
-    badgeColor: "from-primary to-accent",
-    icon: "⭐",
-    benefits: ["Permanent Premium Sponsorship", "Hall of Fame", "Direct line to team", "Custom features"]
+    badgeColor: "from-amber-300 via-yellow-500 to-amber-600",
+    icon: "👑",
+    benefits: ["Lifetime Pro Membership", "Hall of Fame", "Direct line to team", "Custom features", "0% Commission Forever"]
   }
 ];
 
