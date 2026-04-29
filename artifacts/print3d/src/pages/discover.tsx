@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ListingCard } from "@/components/shared/ListingCard";
 
 interface Comment {
   id: number;
@@ -991,62 +992,13 @@ export default function Discover() {
                     {listingsData.listings
                       .filter(listing => listing.title?.toLowerCase().includes(search.toLowerCase()) ||
                                          listing.description?.toLowerCase().includes(search.toLowerCase()))
-                      .map((listing) => {
-                        const sponsorInfo = sponsoredProjectIds.get(listing.id);
-                        return (
-                        <motion.div
-                          key={listing.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="glass-panel rounded-3xl border border-white/10 p-6 hover:border-primary/30 transition-colors group"
-                        >
-                          <div className="relative mb-4">
-                            {listing.imageUrl || listing.image_url ? (
-                              <img
-                                src={listing.imageUrl || listing.image_url}
-                                alt={listing.title}
-                                className="w-full h-48 object-cover rounded-xl"
-                              />
-                            ) : (
-                              <div className="w-full h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center">
-                                <div className="text-center">
-                                  <div className="w-16 h-16 mx-auto mb-2 bg-white/5 rounded-full flex items-center justify-center">
-                                    <svg className="w-8 h-8 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                  </div>
-                                  <p className="text-zinc-500 text-sm">No image available</p>
-                                </div>
-                              </div>
-                            )}
-                            {sponsorInfo && (
-                              <div className="absolute top-2 left-2">
-                                <Badge className={cn("border font-semibold", tierStyles[sponsorInfo.tier || "silver"])}>
-                                  <Sparkles className="w-3 h-3 mr-1" />
-                                  Sponsored
-                                </Badge>
-                              </div>
-                            )}
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="sm" className="bg-black/50 hover:bg-black/70">
-                                <ExternalLink className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          <h3 className="font-bold text-white mb-2 line-clamp-2">{listing.title}</h3>
-                          <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{listing.description || ""}</p>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="hover:bg-primary/20">
-                              <MessageSquare className="w-4 h-4 mr-1" />
-                              Contact
-                            </Button>
-                            <Button size="sm" className="bg-primary hover:bg-primary/90">
-                              View Details
-                            </Button>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
+                      .map((listing) => (
+                        <ListingCard 
+                          key={listing.id} 
+                          listing={listing} 
+                          sponsorInfo={sponsoredProjectIds.get(listing.id)}
+                        />
+                      ))}
                   </div>
                 )}
               </div>
