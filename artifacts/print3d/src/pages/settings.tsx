@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
@@ -401,32 +402,32 @@ export default function Settings() {
                     <div className="grid gap-4 lg:grid-cols-3">
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Country</label>
-                        <div className="relative">
-                          <select
-                            value={form.countryCode}
-                            onChange={(event) => {
-                              const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === event.target.value);
-                              setForm((current) => ({
-                                ...current,
-                                countryCode: event.target.value,
-                                currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
-                                languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
-                              }));
-                            }}
-                            className="w-full appearance-none rounded-xl border border-white/10 bg-black/60 px-4 py-3 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          >
+                        <Select
+                          value={form.countryCode}
+                          onValueChange={(value) => {
+                            const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === value);
+                            setForm((current) => ({
+                              ...current,
+                              countryCode: value,
+                              currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
+                              languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
+                            }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full bg-black/60 border-white/10 text-white">
+                            <SelectValue>
+                              {countryCodeToFlag(form.countryCode)} {COUNTRY_OPTIONS.find(o => o.code === form.countryCode)?.label}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
                             {COUNTRY_OPTIONS.map((option) => (
-                              <option key={option.code} value={option.code} className="bg-zinc-900 text-white">
+                              <SelectItem key={option.code} value={option.code}>
                                 {countryCodeToFlag(option.code)} {option.label}
-                              </option>
+                              </SelectItem>
                             ))}
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-                            <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </div>
-                        </div>
+                          </SelectContent>
+                        </Select>
+                      </div>
                       </div>
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Language</label>
