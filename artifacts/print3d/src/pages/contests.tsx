@@ -88,14 +88,6 @@ export default function Contests() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [selectedMetric, setSelectedMetric] = useState("total_sales");
 
-  // Real stats from Supabase
-  const [contestStats, setContestStats] = useState({
-    activeContests: 0,
-    totalEntries: 0,
-    totalWinners: 0,
-    totalSponsors: 0
-  });
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
     const fetchContestsData = async () => {
@@ -275,22 +267,14 @@ export default function Contests() {
         }
 
         // Fetch real contest stats
-        const [contestsCount, entriesCount] = await Promise.all([
+        await Promise.all([
           supabase.from('contests').select('*', { count: 'exact', head: true }),
           supabase.from('contest_entries').select('*', { count: 'exact', head: true })
         ]);
-
-        setContestStats({
-          activeContests: contestsCount.count || 0,
-          totalEntries: entriesCount.count || 0,
-          totalWinners: Math.floor((entriesCount.count || 0) * 0.1), // Estimate 10% of entries are winners
-          totalSponsors: 12 // Hardcoded for now - would come from sponsors table
-        });
       } catch (error) {
         console.error("Failed to fetch contests data:", error);
       } finally {
         setIsLoading(false);
-        setIsLoadingStats(false);
       }
     };
 
@@ -427,27 +411,6 @@ export default function Contests() {
               </p>
             </motion.div>
             
-            {/* Stats Banner */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
-              {[/* eslint-disable @typescript-eslint/no-use-before-define */
-                { label: "Active Contests", value: isLoadingStats ? "..." : contestStats.activeContests.toString(), icon: Target },
-                { label: "Sponsorships", value: isLoadingStats ? "..." : contestStats.totalSponsors.toString(), icon: Award },
-                { label: "Entries", value: isLoadingStats ? "..." : contestStats.totalEntries.toLocaleString(), icon: Users },
-                { label: "Winners", value: isLoadingStats ? "..." : contestStats.totalWinners.toString(), icon: Trophy },
-              ].map((stat, idx) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + idx * 0.1 }}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center"
-                >
-                  <stat.icon className="w-5 h-5 text-primary mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-zinc-500">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
           </div>
         </section>
 
