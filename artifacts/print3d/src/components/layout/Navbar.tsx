@@ -156,9 +156,9 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
-              href="/create-service-request"
+              href="/service-marketplace"
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                isActive("/create-service-request")
+                isActive("/service-marketplace")
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
