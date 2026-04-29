@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Package, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight } from "lucide-react";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
