@@ -724,7 +724,7 @@ export default function EditListing() {
                   </Label>
                   {isUploading && (
                     <div className="mt-2">
-                      <Progress value={uploadProgress} className="w-full" />
+                      <Progress value={uploadProgress} striped animated className="w-full" />
                       <p className="text-xs text-zinc-400 mt-1">
                         Uploading... {Math.round(uploadProgress)}%
                       </p>

@@ -51,6 +51,7 @@ import CustomOrders from "@/components/dashboard/CustomOrders";
 import { UserRankPanel } from "@/components/dashboard/UserRankPanel";
 import { MiniRank } from "@/components/shared/RankBadge";
 import { getRankById, getXpToNextRank, getRankProgress } from "@/lib/rank-system";
+import { Progress } from "@/components/ui/progress";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
@@ -1201,12 +1202,7 @@ export default function Dashboard() {
                           {user.totalXp.toLocaleString()} / {(user.totalXp + getXpToNextRank(user.totalXp)).toLocaleString()} XP
                         </span>
                       </div>
-                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
-                          style={{ width: `${getRankProgress(user.totalXp)}%` }}
-                        />
-                      </div>
+                      <Progress value={getRankProgress(user.totalXp)} size="sm" />
                     </div>
                   )}
                 </div>

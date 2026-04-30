@@ -136,15 +136,7 @@ export function RankProgressCard({ totalXp, weeklyXp = 0, className }: RankProgr
             <span className="text-zinc-400">Progress to {nextRank.name}</span>
             <span className="text-primary font-semibold">{progress}%</span>
           </div>
-          <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-            <div 
-              className={cn(
-                "h-full bg-gradient-to-r transition-all duration-500",
-                currentRank.badgeColor
-              )}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          <Progress value={progress} size="md" />
           <p className="text-xs text-zinc-500">
             {formatXp(nextRank.minXp - totalXp)} XP needed for next rank
           </p>
