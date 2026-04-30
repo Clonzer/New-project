@@ -46,6 +46,17 @@ ALTER TABLE message_thread_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for idempotent migration)
+DROP POLICY IF EXISTS "Users can view threads they are part of" ON message_threads;
+DROP POLICY IF EXISTS "Users can view thread participants for their threads" ON message_thread_participants;
+DROP POLICY IF EXISTS "Users can add participants to threads they are in" ON message_thread_participants;
+DROP POLICY IF EXISTS "Users can view messages in their threads" ON messages;
+DROP POLICY IF EXISTS "Users can send messages to their threads" ON messages;
+DROP POLICY IF EXISTS "Users can update read status of messages in their threads" ON messages;
+DROP POLICY IF EXISTS "Users can view their own notifications" ON notifications;
+DROP POLICY IF EXISTS "Users can mark their notifications as read" ON notifications;
+DROP POLICY IF EXISTS "Users can delete their notifications" ON notifications;
+
 -- RLS Policies for message_threads
 CREATE POLICY "Users can view threads they are part of"
     ON message_threads
