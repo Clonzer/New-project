@@ -1,100 +1,151 @@
--- Create storage buckets for file uploads
--- This migration sets up the necessary storage buckets and RLS policies
--- Note: Supabase storage is built-in, no extension needed
+-- Storage Buckets Setup
+-- ====================
+-- NOTE: This migration requires elevated permissions for storage.objects policies.
+-- If you get "must be owner of table objects" error, use MANUAL SETUP below.
 
--- Create custom-order-files bucket
+-- =====================================================
+-- PART 1: Create Buckets (Usually works via SQL)
+-- =====================================================
+
+-- Create custom-order-files bucket (10MB limit, private)
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'custom-order-files',
   'custom-order-files',
   false,
-  10485760, -- 10MB limit
+  10485760,
   ARRAY['application/octet-stream', 'model/stl', 'model/obj', 'model/3mf', 'image/png', 'image/jpeg', 'application/pdf']
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Create listings-files bucket for listing uploads
+-- Create listings-files bucket (100MB limit, private)
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'listings-files',
   'listings-files',
   false,
-  104857600, -- 100MB limit
+  104857600,
   ARRAY['application/octet-stream', 'model/stl', 'model/obj', 'model/3mf', 'model/ply', 'application/gcode', 'image/png', 'image/jpeg', 'application/pdf', 'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed']
 )
 ON CONFLICT (id) DO NOTHING;
 
--- RLS Policies for custom-order-files
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- =====================================================
+-- PART 2: RLS Policies (Requires elevated permissions)
+-- =====================================================
+-- 
+-- MANUAL SETUP INSTRUCTIONS (if SQL fails):
+-- ==========================================
+--
+-- 1. Go to Supabase Dashboard → Storage
+-- 2. Click "New bucket" and create:
+--    - Name: custom-order-files
+--    - Public: OFF (private)
+--    - File size limit: 10MB
+--    - Allowed MIME types: (leave empty for all)
+--
+-- 3. Click "New bucket" and create:
+--    - Name: listings-files  
+--    - Public: OFF (private)
+--    - File size limit: 100MB
+--    - Allowed MIME types: (leave empty for all)
+--
+-- 4. For EACH bucket, go to "Policies" tab and add:
+--
+--    POLICY 1: Allow authenticated uploads
+--    - Name: "Allow authenticated uploads"
+--    - Allowed operation: INSERT
+--    - Target roles: authenticated
+--    - Policy definition:
+--      (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
+--
+--    POLICY 2: Allow authenticated reads
+--    - Name: "Allow authenticated reads"
+--    - Allowed operation: SELECT  
+--    - Target roles: authenticated
+--    - Policy definition:
+--      (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
+--
+--    POLICY 3: Allow authenticated deletes
+--    - Name: "Allow authenticated deletes"
+--    - Allowed operation: DELETE
+--    - Target roles: authenticated  
+--    - Policy definition:
+--      (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
+--
+-- 5. For listings-files bucket ONLY, also add:
+--
+--    POLICY 4: Allow public reads
+--    - Name: "Allow public reads"
+--    - Allowed operation: SELECT
+--    - Target roles: anon
+--    - Policy definition: (bucket_id = 'listings-files')
+--
+-- =====================================================
+-- AUTOMATED POLICY CREATION (attempts via SQL)
+-- =====================================================
 
--- Drop existing policies if they exist (for idempotent migration)
-DROP POLICY IF EXISTS "Allow authenticated users to upload custom order files" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to read own custom order files" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to delete own custom order files" ON storage.objects;
+DO $$
+DECLARE
+  has_permission BOOLEAN := false;
+BEGIN
+  -- Check if we have permission to modify storage.objects
+  BEGIN
+    PERFORM 1 FROM storage.objects LIMIT 1;
+    has_permission := true;
+  EXCEPTION WHEN insufficient_privilege THEN
+    RAISE NOTICE 'No permission to access storage.objects. Skipping policy creation.';
+    RAISE NOTICE 'Please create policies manually via Dashboard (see instructions above).';
+  END;
 
--- Allow authenticated users to upload to custom-order-files
-CREATE POLICY "Allow authenticated users to upload custom order files"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (
-  bucket_id = 'custom-order-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- Allow users to read their own files
-CREATE POLICY "Allow users to read own custom order files"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (
-  bucket_id = 'custom-order-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- Allow users to delete their own files
-CREATE POLICY "Allow users to delete own custom order files"
-ON storage.objects FOR DELETE
-TO authenticated
-USING (
-  bucket_id = 'custom-order-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- RLS Policies for listings-files
--- Drop existing policies if they exist (for idempotent migration)
-DROP POLICY IF EXISTS "Allow authenticated users to upload listing files" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to read own listing files" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to delete own listing files" ON storage.objects;
-DROP POLICY IF EXISTS "Allow public read access to listing files" ON storage.objects;
-
--- Allow authenticated users to upload to listings-files
-CREATE POLICY "Allow authenticated users to upload listing files"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (
-  bucket_id = 'listings-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- Allow users to read their own files
-CREATE POLICY "Allow users to read own listing files"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (
-  bucket_id = 'listings-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- Allow users to delete their own files
-CREATE POLICY "Allow users to delete own listing files"
-ON storage.objects FOR DELETE
-TO authenticated
-USING (
-  bucket_id = 'listings-files'
-  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
-);
-
--- Grant public read access for listing files (if needed for public downloads)
-CREATE POLICY "Allow public read access to listing files"
-ON storage.objects FOR SELECT
-TO anon
-USING (bucket_id = 'listings-files');
+  IF has_permission THEN
+    -- Enable RLS
+    ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+    
+    -- Drop existing policies
+    DROP POLICY IF EXISTS "Allow authenticated users to upload custom order files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow users to read own custom order files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow users to delete own custom order files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow authenticated users to upload listing files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow users to read own listing files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow users to delete own listing files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow public read access to listing files" ON storage.objects;
+    
+    -- Create custom-order-files policies
+    CREATE POLICY "Allow authenticated users to upload custom order files"
+      ON storage.objects FOR INSERT TO authenticated
+      WITH CHECK (bucket_id = 'custom-order-files' 
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    CREATE POLICY "Allow users to read own custom order files"
+      ON storage.objects FOR SELECT TO authenticated
+      USING (bucket_id = 'custom-order-files'
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    CREATE POLICY "Allow users to delete own custom order files"
+      ON storage.objects FOR DELETE TO authenticated
+      USING (bucket_id = 'custom-order-files'
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    -- Create listings-files policies
+    CREATE POLICY "Allow authenticated users to upload listing files"
+      ON storage.objects FOR INSERT TO authenticated
+      WITH CHECK (bucket_id = 'listings-files'
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    CREATE POLICY "Allow users to read own listing files"
+      ON storage.objects FOR SELECT TO authenticated
+      USING (bucket_id = 'listings-files'
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    CREATE POLICY "Allow users to delete own listing files"
+      ON storage.objects FOR DELETE TO authenticated
+      USING (bucket_id = 'listings-files'
+        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+    
+    CREATE POLICY "Allow public read access to listing files"
+      ON storage.objects FOR SELECT TO anon
+      USING (bucket_id = 'listings-files');
+    
+    RAISE NOTICE 'Storage policies created successfully via SQL.';
+  END IF;
+END $$;
