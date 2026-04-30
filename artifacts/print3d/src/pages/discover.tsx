@@ -449,7 +449,7 @@ export default function Discover() {
     const fetchListings = async () => {
       const { data: listings, error } = await supabase
         .from("listings")
-        .select("id, title, image_url")
+        .select("*")
         .limit(50);
 
       if (error) {
@@ -971,14 +971,6 @@ export default function Discover() {
                       <div key={i} className="animate-pulse rounded-xl bg-zinc-800/50 h-48" />
                     ))}
                   </div>
-                ) : listingsError ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Search className="w-8 h-8 text-red-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Failed to load projects</h3>
-                    <p className="text-zinc-400">Please try refreshing the page.</p>
-                  </div>
                 ) : !listingsData?.listings?.length ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -996,7 +988,8 @@ export default function Discover() {
                         <ListingCard 
                           key={listing.id} 
                           listing={listing} 
-                          sponsorInfo={sponsoredProjectIds.get(listing.id)}
+                          isSponsored={!!sponsoredProjectIds.get(listing.id)}
+                          sponsorTier={sponsoredProjectIds.get(listing.id)?.tier}
                         />
                       ))}
                   </div>
