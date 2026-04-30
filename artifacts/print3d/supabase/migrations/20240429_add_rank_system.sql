@@ -91,9 +91,12 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_user_xp_updated_at 
-    BEFORE UPDATE ON user_xp 
-    FOR EACH ROW 
+-- Drop existing trigger if it exists (for idempotent migration)
+DROP TRIGGER IF EXISTS update_user_xp_updated_at ON user_xp;
+
+CREATE TRIGGER update_user_xp_updated_at
+    BEFORE UPDATE ON user_xp
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to check if sponsorship is still active
@@ -106,6 +109,9 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing trigger if it exists (for idempotent migration)
+DROP TRIGGER IF EXISTS check_sponsorship_active_trigger ON sponsorships;
 
 -- Add trigger to auto-deactivate expired sponsorships
 CREATE TRIGGER check_sponsorship_active_trigger
@@ -148,14 +154,17 @@ END $$;
 CREATE OR REPLACE FUNCTION sync_user_rank_to_profile()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE profiles 
-    SET rank_id = NEW.current_rank, 
+    UPDATE profiles
+    SET rank_id = NEW.current_rank,
         total_xp = NEW.total_xp,
         updated_at = NOW()
     WHERE id = NEW.user_id;
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing trigger if it exists (for idempotent migration)
+DROP TRIGGER IF EXISTS sync_rank_to_profile ON user_xp;
 
 -- Trigger to sync rank changes to profiles
 CREATE TRIGGER sync_rank_to_profile
