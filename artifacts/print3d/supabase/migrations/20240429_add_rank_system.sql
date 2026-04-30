@@ -47,31 +47,39 @@ ALTER TABLE user_xp ENABLE ROW LEVEL SECURITY;
 ALTER TABLE xp_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sponsorships ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for idempotent migration)
+DROP POLICY IF EXISTS "Users can view own XP data" ON user_xp;
+DROP POLICY IF EXISTS "Users can update own XP data" ON user_xp;
+DROP POLICY IF EXISTS "Users can insert own XP data" ON user_xp;
+DROP POLICY IF EXISTS "Users can view own XP history" ON xp_log;
+DROP POLICY IF EXISTS "Users can insert own XP log entries" ON xp_log;
+DROP POLICY IF EXISTS "Users can view own sponsorships" ON sponsorships;
+
 -- RLS Policies for user_xp
-CREATE POLICY "Users can view own XP data" 
-    ON user_xp FOR SELECT 
+CREATE POLICY "Users can view own XP data"
+    ON user_xp FOR SELECT
     USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own XP data" 
-    ON user_xp FOR UPDATE 
+CREATE POLICY "Users can update own XP data"
+    ON user_xp FOR UPDATE
     USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own XP data" 
-    ON user_xp FOR INSERT 
+CREATE POLICY "Users can insert own XP data"
+    ON user_xp FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
 -- RLS Policies for xp_log
-CREATE POLICY "Users can view own XP history" 
-    ON xp_log FOR SELECT 
+CREATE POLICY "Users can view own XP history"
+    ON xp_log FOR SELECT
     USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own XP log entries" 
-    ON xp_log FOR INSERT 
+CREATE POLICY "Users can insert own XP log entries"
+    ON xp_log FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
 -- RLS Policies for sponsorships
-CREATE POLICY "Users can view own sponsorships" 
-    ON sponsorships FOR SELECT 
+CREATE POLICY "Users can view own sponsorships"
+    ON sponsorships FOR SELECT
     USING (auth.uid() = user_id);
 
 -- Function to automatically update updated_at timestamp
