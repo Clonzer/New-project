@@ -10,6 +10,7 @@ import type { ListingPriceInsight } from "@/lib/listing-pricing";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { MiniRank } from "./RankBadge";
 
 export function ListingCard({
   listing,
@@ -21,7 +22,7 @@ export function ListingCard({
   sponsorTier,
   equipmentStatus,
 }: {
-  listing: Listing & { stockQuantity?: number; trackStock?: boolean };
+  listing: Listing & { stockQuantity?: number; trackStock?: boolean; sellerRankId?: number };
   priceInsight?: ListingPriceInsight;
   isOwner?: boolean;
   onDelete?: (listingId: number) => void;
@@ -154,10 +155,15 @@ export function ListingCard({
         <h3 className="font-display font-semibold text-lg text-white mb-1 line-clamp-1 group-hover:text-primary transition-colors">
           {listing.title}
         </h3>
-        
-        <Link href={`/shop/${listing.sellerId || listing.seller_id}`} className="text-sm text-muted-foreground hover:text-accent transition-colors mb-4 line-clamp-1 block">
-          by {listing.sellerName || listing.seller_name || 'Unknown Shop'}
-        </Link>
+
+        <div className="flex items-center gap-2 mb-4">
+          <Link href={`/shop/${listing.sellerId || listing.seller_id}`} className="text-sm text-muted-foreground hover:text-accent transition-colors line-clamp-1 block">
+            by {listing.sellerName || listing.seller_name || 'Unknown Shop'}
+          </Link>
+          {listing.sellerRankId && listing.sellerRankId > 1 && (
+            <MiniRank rankId={listing.sellerRankId} />
+          )}
+        </div>
 
         {priceInsight ? (
           <div className="mb-4 rounded-xl border p-3">
