@@ -172,6 +172,17 @@ export function getRankBadgeStyles(rankId: number): {
   };
 }
 
+// Get rank by ID
+export function getRankById(rankId: number): Rank | undefined {
+  return RANKS.find(r => r.id === rankId);
+}
+
+// Get rank progress percentage
+export function getRankProgress(totalXp: number): number {
+  const { progress } = calculateRank(totalXp);
+  return progress;
+}
+
 // Check if user qualifies for sponsorship reward
 export function checkSponsorshipReward(
   oldRank: number, 
