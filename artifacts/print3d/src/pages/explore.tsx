@@ -213,24 +213,19 @@ export default function Explore() {
                 ))}
               </div>
             ) : sellers.length ? (
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {sellers.slice(0, 8).map((seller) => {
-                    const sponsorInfo = sponsoredShopIds.get(seller.id);
-                    return (
-                      <CarouselItem key={seller.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                        <SellerCard 
-                          seller={seller} 
-                          isSponsored={!!sponsorInfo}
-                          sponsorTier={sponsorInfo?.tier}
-                        />
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-              </Carousel>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {sellers.slice(0, 8).map((seller) => {
+                  const sponsorInfo = sponsoredShopIds.get(seller.id);
+                  return (
+                    <SellerCard 
+                      key={seller.id}
+                      seller={seller} 
+                      isSponsored={!!sponsorInfo}
+                      sponsorTier={sponsorInfo?.tier}
+                    />
+                  );
+                })}
+              </div>
             ) : (
               <div className="text-center py-12 text-zinc-400">
                 No makers available yet

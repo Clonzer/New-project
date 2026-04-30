@@ -44,7 +44,7 @@ export default function ExploreModels() {
       (selectedCategory === "art" && listing.tags?.includes("art")) ||
       (selectedCategory === "prototypes" && listing.tags?.includes("prototype"));
     const matchesMaterial = selectedMaterial === "all" || listing.material === selectedMaterial;
-    const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
+    const matchesPrice = (listing.basePrice || listing.base_price || 0) >= priceRange[0] && (listing.basePrice || listing.base_price || 0) <= priceRange[1];
     return matchesSearch && matchesCategory && matchesMaterial && matchesPrice;
   });
 
@@ -70,23 +70,17 @@ export default function ExploreModels() {
                 ))}
               </div>
             ) : listingsData?.listings.length ? (
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {listingsData.listings.slice(0, 8).map((listing) => (
-                    <CarouselItem key={listing.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                      <div className="relative">
-                        <ListingCard listing={listing} />
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-white text-xs font-bold flex items-center gap-1">
-                          <Zap className="w-3 h-3" />
-                          Sponsored
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-                <CarouselNext className="right-2 top-1/2 -translate-y-1/2 border-white/15 bg-black/30 text-white hover:bg-white/20 hover:text-white disabled:opacity-40 backdrop-blur-sm" />
-              </Carousel>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {listingsData.listings.slice(0, 8).map((listing) => (
+                  <div key={listing.id} className="relative">
+                    <ListingCard listing={listing} />
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-white text-xs font-bold flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      Sponsored
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="text-center py-12 text-zinc-400">
                 No sponsored models available yet
