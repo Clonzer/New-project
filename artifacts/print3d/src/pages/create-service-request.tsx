@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Briefcase, 
@@ -19,6 +20,7 @@ import {
   Package, 
   FileText, 
   CheckCircle2,
+  Check,
   ArrowLeft,
   Loader2,
   Globe,
@@ -229,10 +231,26 @@ export default function CreateServiceRequest() {
           </motion.div>
 
           {/* Progress */}
-          <div className="flex items-center gap-2 mb-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className={`flex-1 h-2 rounded-full ${i <= step ? 'bg-primary' : 'bg-white/10'}`} />
-            ))}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                    i < step ? 'bg-primary text-white' :
+                    i === step ? 'bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/25' :
+                    'bg-zinc-800 text-zinc-500 border border-zinc-700'
+                  }`}>
+                    {i < step ? <Check className="w-5 h-5" /> : i}
+                  </div>
+                  <span className={`text-sm font-medium ${
+                    i === step ? 'text-white' : 'text-zinc-500'
+                  }`}>
+                    {i === 1 ? 'Details' : i === 2 ? 'Budget' : 'Review'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Progress value={(step / 3) * 100} size="sm" />
           </div>
 
           {/* Step 1: Basic Info */}

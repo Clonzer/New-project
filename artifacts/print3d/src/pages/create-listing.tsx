@@ -391,27 +391,30 @@ export default function CreateListing() {
   };
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center mb-8">
-      {Array.from({ length: totalSteps }, (_, i) => (
-        <div key={i} className="flex items-center">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-              i + 1 <= currentStep
-                ? "bg-primary text-primary-foreground"
-                : "bg-zinc-700 text-zinc-400"
-            }`}
-          >
-            {i + 1 <= currentStep ? <Check className="w-4 h-4" /> : i + 1}
-          </div>
-          {i < totalSteps - 1 && (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        {Array.from({ length: totalSteps }, (_, i) => (
+          <div key={i} className="flex flex-col items-center gap-2 flex-1">
             <div
-              className={`w-12 h-0.5 mx-2 transition-colors ${
-                i + 1 < currentStep ? "bg-primary" : "bg-zinc-700"
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                i + 1 < currentStep
+                  ? "bg-primary text-white"
+                  : i + 1 === currentStep
+                  ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg shadow-primary/25"
+                  : "bg-zinc-800 text-zinc-500 border border-zinc-700"
               }`}
-            />
-          )}
-        </div>
-      ))}
+            >
+              {i + 1 < currentStep ? <Check className="w-5 h-5" /> : i + 1}
+            </div>
+            <span className={`text-xs font-medium text-center ${
+              i + 1 === currentStep ? "text-white" : "text-zinc-500"
+            }`}>
+              {i === 0 ? "Basic" : i === 1 ? "Pricing" : i === 2 ? "Shipping" : i === 3 ? "Equipment" : "Images"}
+            </span>
+          </div>
+        ))}
+      </div>
+      <Progress value={(currentStep / totalSteps) * 100} size="sm" />
     </div>
   );
 
