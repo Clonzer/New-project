@@ -27,6 +27,11 @@ ON CONFLICT (id) DO NOTHING;
 -- RLS Policies for custom-order-files
 ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for idempotent migration)
+DROP POLICY IF EXISTS "Allow authenticated users to upload custom order files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to read own custom order files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to delete own custom order files" ON storage.objects;
+
 -- Allow authenticated users to upload to custom-order-files
 CREATE POLICY "Allow authenticated users to upload custom order files"
 ON storage.objects FOR INSERT
@@ -55,6 +60,12 @@ USING (
 );
 
 -- RLS Policies for listings-files
+-- Drop existing policies if they exist (for idempotent migration)
+DROP POLICY IF EXISTS "Allow authenticated users to upload listing files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to read own listing files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to delete own listing files" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public read access to listing files" ON storage.objects;
+
 -- Allow authenticated users to upload to listings-files
 CREATE POLICY "Allow authenticated users to upload listing files"
 ON storage.objects FOR INSERT
