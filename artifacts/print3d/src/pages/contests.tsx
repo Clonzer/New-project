@@ -87,6 +87,7 @@ export default function Contests() {
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [selectedMetric, setSelectedMetric] = useState("total_sales");
+  const [timeLeft, setTimeLeft] = useState<Record<string, { days: number; hours: number; minutes: number; seconds: number }>>({});
 
 
   useEffect(() => {
@@ -291,6 +292,37 @@ export default function Contests() {
     fetchLeaderboard();
   }, [selectedMetric]);
 
+  // Update countdown timers every second
+  useEffect(() => {
+    const updateCountdowns = () => {
+      const newTimeLeft: Record<string, { days: number; hours: number; minutes: number; seconds: number }> = {};
+      
+      contests.forEach(contest => {
+        const now = Date.now();
+        const end = new Date(contest.endDate).getTime();
+        const diff = end - now;
+        
+        if (diff > 0) {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          newTimeLeft[contest.id] = { days, hours, minutes, seconds };
+        } else {
+          newTimeLeft[contest.id] = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+        }
+      });
+      
+      setTimeLeft(newTimeLeft);
+    };
+
+    updateCountdowns();
+    const interval = setInterval(updateCountdowns, 1000);
+    
+    return () => clearInterval(interval);
+  }, [contests]);
+
   const getStatusColor = (status: Contest["status"]) => {
     switch (status) {
       case "active": return "bg-green-500/20 text-green-400 border-green-500/30";
@@ -299,6 +331,20 @@ export default function Contests() {
       case "upcoming": return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
       default: return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     }
+  };
+
+  const getCountdownUrgencyColor = (days: number) => {
+    if (days <= 1) return "text-red-400";
+    if (days <= 3) return "text-orange-400";
+    if (days <= 7) return "text-yellow-400";
+    return "text-white";
+  };
+
+  const getCountdownBorderColor = (days: number) => {
+    if (days <= 1) return "border-red-500/30 bg-red-500/10";
+    if (days <= 3) return "border-orange-500/30 bg-orange-500/10";
+    if (days <= 7) return "border-yellow-500/30 bg-yellow-500/10";
+    return "border-white/5 bg-zinc-800/50";
   };
 
   const getStatusIcon = (status: Contest["status"]) => {
@@ -556,21 +602,52 @@ export default function Contests() {
 
                           <p className="text-sm text-zinc-400 mb-4 line-clamp-2 leading-relaxed">{contest.description}</p>
 
-                          {/* Progress bar */}
+                          {/* Countdown Timer */}
                           <div className="mb-4">
-                            <div className="flex justify-between text-xs mb-2">
-                              <span className="text-zinc-500">Time Remaining</span>
-                              <span className="text-white font-medium">
-                                {Math.max(0, Math.ceil((new Date(contest.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days
-                              </span>
+                            <div className="flex justify-between text-xs mb-3">
+                              <span className="text-zinc-500 font-medium uppercase tracking-wider">Time Remaining</span>
+                              {contest.status === "active" && (
+                                <span className={`${getCountdownUrgencyColor(timeLeft[contest.id]?.days || 0)} font-medium flex items-center gap-1`}>
+                                  <Flame className="w-3 h-3" />
+                                  Live
+                                </span>
+                              )}
                             </div>
-                            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${Math.max(0, Math.min(100, ((Date.now() - new Date(contest.startDate).getTime()) / (new Date(contest.endDate).getTime() - new Date(contest.startDate).getTime())) * 100))}%` }}
-                                transition={{ duration: 1, delay: 0.3 }}
-                                className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                              />
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                { label: "Days", value: timeLeft[contest.id]?.days || 0 },
+                                { label: "Hours", value: timeLeft[contest.id]?.hours || 0 },
+                                { label: "Mins", value: timeLeft[contest.id]?.minutes || 0 },
+                                { label: "Secs", value: timeLeft[contest.id]?.seconds || 0 },
+                              ].map((unit, idx) => (
+                                <div key={unit.label} className={`${getCountdownBorderColor(timeLeft[contest.id]?.days || 0)} rounded-lg p-2 text-center border transition-all duration-300`}>
+                                  <motion.div
+                                    key={unit.value}
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className={`text-lg font-bold font-mono ${getCountdownUrgencyColor(timeLeft[contest.id]?.days || 0)}`}
+                                  >
+                                    {String(unit.value).padStart(2, '0')}
+                                  </motion.div>
+                                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{unit.label}</div>
+                                </div>
+                              ))}
+                            </div>
+                            {/* Progress Bar */}
+                            <div className="mt-3">
+                              <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${Math.max(0, Math.min(100, ((Date.now() - new Date(contest.startDate).getTime()) / (new Date(contest.endDate).getTime() - new Date(contest.startDate).getTime())) * 100))}%` }}
+                                  transition={{ duration: 1, delay: 0.3 }}
+                                  className={`h-full rounded-full transition-colors duration-300 ${
+                                    (timeLeft[contest.id]?.days || 0) <= 1 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                                    (timeLeft[contest.id]?.days || 0) <= 3 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                                    (timeLeft[contest.id]?.days || 0) <= 7 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                                    'bg-gradient-to-r from-primary to-accent'
+                                  }`}
+                                />
+                              </div>
                             </div>
                           </div>
 
