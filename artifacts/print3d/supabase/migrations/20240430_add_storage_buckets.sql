@@ -35,7 +35,7 @@ ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (
   bucket_id = 'custom-order-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- Allow users to read their own files
@@ -44,7 +44,7 @@ ON storage.objects FOR SELECT
 TO authenticated
 USING (
   bucket_id = 'custom-order-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- Allow users to delete their own files
@@ -53,7 +53,7 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (
   bucket_id = 'custom-order-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- RLS Policies for listings-files
@@ -63,7 +63,7 @@ ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (
   bucket_id = 'listings-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- Allow users to read their own files
@@ -72,7 +72,7 @@ ON storage.objects FOR SELECT
 TO authenticated
 USING (
   bucket_id = 'listings-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- Allow users to delete their own files
@@ -81,7 +81,7 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (
   bucket_id = 'listings-files'
-  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%')
 );
 
 -- Grant public read access for listing files (if needed for public downloads)
