@@ -148,13 +148,19 @@ export default function CreateServiceRequest() {
       return;
     }
 
+    if (!user?.id) {
+      toast({ title: "Authentication required", description: "Please sign in to upload files", variant: "destructive" });
+      return;
+    }
+
     setUploading(true);
     const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `${user.id}/${fileName}`;
     
     try {
       const { data, error } = await supabase.storage
         .from('custom-order-files')
-        .upload(fileName, file, {
+        .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
         });

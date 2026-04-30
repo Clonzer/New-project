@@ -552,13 +552,55 @@ export default function EditListing() {
                 <Label htmlFor="color" className="text-white flex items-center gap-2">
                   Color <span className="text-xs text-zinc-400">(optional)</span>
                 </Label>
-                <Input
-                  id="color"
-                  value={formData.color}
-                  onChange={(e) => updateFormData("color", e.target.value)}
-                  placeholder="Black, White, Natural, etc."
-                  className="mt-1"
-                />
+                <div className="mt-1 space-y-2">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="color"
+                        value={formData.color}
+                        onChange={(e) => updateFormData("color", e.target.value)}
+                        placeholder="Black, White, Natural, etc."
+                        className="bg-zinc-800 border-zinc-700 pr-12"
+                      />
+                      <input
+                        type="color"
+                        value={formData.color?.startsWith('#') ? formData.color : '#000000'}
+                        onChange={(e) => updateFormData("color", e.target.value)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
+                        title="Pick a color"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { name: 'Black', hex: '#000000' },
+                      { name: 'White', hex: '#FFFFFF' },
+                      { name: 'Gray', hex: '#808080' },
+                      { name: 'Red', hex: '#FF0000' },
+                      { name: 'Blue', hex: '#0000FF' },
+                      { name: 'Green', hex: '#008000' },
+                      { name: 'Yellow', hex: '#FFFF00' },
+                      { name: 'Orange', hex: '#FFA500' },
+                      { name: 'Purple', hex: '#800080' },
+                      { name: 'Pink', hex: '#FFC0CB' },
+                      { name: 'Brown', hex: '#A52A2A' },
+                      { name: 'Natural', hex: '#D2B48C' },
+                    ].map((color) => (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => updateFormData("color", color.hex)}
+                        className="w-8 h-8 rounded-full border-2 border-zinc-600 hover:border-primary transition-colors relative group"
+                        style={{ backgroundColor: color.hex }}
+                        title={color.name}
+                      >
+                        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400 opacity-0 group-hover:opacity-100 whitespace-nowrap bg-zinc-900 px-1 rounded">
+                          {color.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
