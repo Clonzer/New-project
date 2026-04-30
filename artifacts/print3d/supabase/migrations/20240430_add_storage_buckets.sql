@@ -1,8 +1,6 @@
 -- Create storage buckets for file uploads
 -- This migration sets up the necessary storage buckets and RLS policies
-
--- Enable storage extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS "storage";
+-- Note: Supabase storage is built-in, no extension needed
 
 -- Create custom-order-files bucket
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
