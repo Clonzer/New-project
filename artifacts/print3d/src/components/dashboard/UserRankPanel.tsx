@@ -305,6 +305,26 @@ export function UserRankPanel() {
         </TabsContent>
 
         <TabsContent value="history">
+          <Card className="bg-zinc-900/30 border-white/10">
+            <CardContent className="p-4">
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-3">
+                  <AnimatePresence>
+                    {xpHistory.length === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-center py-8 text-zinc-500"
+                      >
+                        <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No XP history yet</p>
+                        <p className="text-xs mt-1">Complete activities to earn XP!</p>
+                      </motion.div>
+                    ) : (
+                      xpHistory.map((entry, index) => (
+                        <motion.div
+                          key={entry.id}
+                          initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ delay: index * 0.05 }}
