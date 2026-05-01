@@ -52,11 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Fetch profile and XP data in parallel
+      const [{ data, error }, { data: xpData, error: xpError }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.from('user_xp').select('total_xp, current_rank').eq('user_id', userId).single()
+      ]);
 
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -112,6 +112,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           instagramHandle: (data as any).instagram_handle || (data as any).instagramHandle,
           supportEmail: (data as any).support_email || (data as any).supportEmail,
           sellerTags: (data as any).seller_tags || (data as any).sellerTags,
+          // XP and Rank data
+          totalXp: xpData?.total_xp || 0,
+          rankId: xpData?.current_rank || 1,
         } as User);
       }
     } catch (error) {

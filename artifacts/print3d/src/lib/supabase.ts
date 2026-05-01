@@ -60,4 +60,6 @@ export type User = {
   isSponsored?: boolean;
   isOwner?: boolean;
   planTier?: 'none' | 'basic' | 'pro' | 'enterprise';
+  totalXp?: number;
+  rankId?: number;
 };

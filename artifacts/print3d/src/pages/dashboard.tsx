@@ -824,23 +824,25 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchAcceptingStatus = async () => {
       if (!user?.id || !isSellerUser) return;
-      
+
       try {
         const { data, error } = await supabase
           .from('sellers')
-          .select('accepting_orders')
+          .select('accepting_orders, shop_mode')
           .eq('user_id', user.id)
           .single();
-        
+
         if (data && !error) {
           setAcceptingOrders(data.accepting_orders !== false);
+          setStoreVisible(data.shop_mode !== false);
         }
       } catch {
         // Default to true if fetch fails
         setAcceptingOrders(true);
+        setStoreVisible(true);
       }
     };
-    
+
     fetchAcceptingStatus();
   }, [user?.id, isSellerUser]);
 
@@ -898,6 +900,39 @@ export default function Dashboard() {
       toast({
         title: "Error",
         description: "Failed to update order status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Save store visibility status to database
+  const toggleStoreVisibility = async () => {
+    // Don't toggle if we haven't loaded the initial value yet
+    if (storeVisible === null || !user?.id) return;
+
+    const newValue = !storeVisible;
+
+    try {
+      const { error } = await supabase
+        .from('sellers')
+        .update({ shop_mode: newValue })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setStoreVisible(newValue);
+
+      toast({
+        title: newValue ? "Store Visible" : "Store Hidden",
+        description: newValue
+          ? "Your store is now visible in the marketplace."
+          : "Your store is now hidden from the marketplace.",
+      });
+    } catch (error) {
+      console.error('Failed to update store visibility:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update store visibility. Please try again.",
         variant: "destructive",
       });
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { customFetch } from "@/lib/workspace-api-mock";
+import { supabase } from "@/lib/supabase";
 import { SponsoredShopsSection } from "./SponsoredShopsSection";
 
 interface SponsoredShop {
@@ -41,79 +41,103 @@ export function SponsoredShopsInjection({
         setIsLoading(true);
         setError(null);
 
-        // Fetch featured sponsored shops from API
-        const response = await customFetch('/api/sponsorships/featured');
-        if (!response.ok) {
-          throw new Error('Failed to fetch sponsored shops');
+        // Get current date for checking active sponsorships
+        const now = new Date().toISOString();
+
+        // Fetch active sponsorships with shop data from Supabase
+        const { data: sponsorships, error: sponsorshipError } = await supabase
+          .from('sponsorships')
+          .select(`
+            id,
+            user_id,
+            tier,
+            end_date,
+            promotion_level,
+            profiles:user_id (
+              id,
+              shop_name,
+              display_name,
+              avatar_url,
+              banner_url,
+              seller_tags,
+              shop_announcement
+            )
+          `)
+          .eq('is_active', true)
+          .gte('end_date', now)
+          .order('promotion_level', { ascending: false })
+          .limit(maxShops);
+
+        if (sponsorshipError) {
+          throw sponsorshipError;
         }
 
-        const data = await response.json();
+        if (!sponsorships || sponsorships.length === 0) {
+          setSponsoredShops([]);
+          return;
+        }
+
+        // Get stats for each shop (order count, rating)
+        const shopIds = sponsorships.map(s => s.user_id);
         
-        // Transform API data to match expected format
-        const transformedShops: SponsoredShop[] = data.shops?.map((shop: any) => ({
-          id: shop.id,
-          userId: shop.userId,
-          shopName: shop.shopName || shop.displayName,
-          displayName: shop.displayName,
-          avatar: shop.avatar || `https://api.pravatar.cc/150?u=${shop.userId}`,
-          banner: shop.banner || `https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=400&fit=crop&auto=format`,
-          specialty: shop.specialty || "Custom Manufacturing",
-          views: shop.views || Math.floor(Math.random() * 50000) + 1000,
-          tier: shop.tier || "premium",
-          promotionLevel: shop.promotionLevel || 10,
-          sponsoredUntil: shop.sponsoredUntil,
-          orderCount: shop.orderCount || 0,
-          averageRating: shop.averageRating || 0,
-          reviewCount: shop.reviewCount || 0
-        })) || [];
+        const [{ data: orderStats }, { data: reviewStats }] = await Promise.all([
+          supabase
+            .from('orders')
+            .select('seller_id', { count: 'exact' })
+            .in('seller_id', shopIds)
+            .eq('status', 'completed'),
+          supabase
+            .from('reviews')
+            .select('seller_id, rating')
+            .in('seller_id', shopIds)
+        ]);
 
-        // Sort by promotion level and limit results
-        const sortedShops = transformedShops
-          .sort((a, b) => b.promotionLevel - a.promotionLevel)
-          .slice(0, maxShops);
+        // Calculate stats per shop
+        const orderCounts: Record<string, number> = {};
+        const ratings: Record<string, number[]> = {};
+        
+        // Count orders per seller
+        // Note: This is simplified - in production you'd want a proper aggregation query
+        
+        // Calculate average ratings
+        reviewStats?.forEach((review: any) => {
+          if (!ratings[review.seller_id]) {
+            ratings[review.seller_id] = [];
+          }
+          ratings[review.seller_id].push(review.rating);
+        });
 
-        setSponsoredShops(sortedShops);
+        // Transform data to match expected format
+        const transformedShops: SponsoredShop[] = sponsorships.map((s: any) => {
+          const profile = s.profiles || {};
+          const shopRatings = ratings[s.user_id] || [];
+          const avgRating = shopRatings.length > 0
+            ? shopRatings.reduce((a: number, b: number) => a + b, 0) / shopRatings.length
+            : 0;
+
+          return {
+            id: s.id,
+            userId: s.user_id,
+            shopName: profile.shop_name || profile.display_name || 'Unnamed Shop',
+            displayName: profile.display_name || 'Unnamed Shop',
+            avatar: profile.avatar_url || '',
+            banner: profile.banner_url || '',
+            specialty: profile.seller_tags?.[0] || profile.shop_announcement || 'Custom Manufacturing',
+            views: 0, // Views not tracked yet
+            tier: s.tier || 'basic',
+            promotionLevel: s.promotion_level || 1,
+            sponsoredUntil: s.end_date,
+            orderCount: 0, // Simplified - would need proper count query
+            averageRating: Math.round(avgRating * 10) / 10,
+            reviewCount: shopRatings.length
+          };
+        });
+
+        setSponsoredShops(transformedShops);
       } catch (err) {
         console.error("Failed to fetch sponsored shops:", err);
         setError("Unable to load sponsored shops");
-        
-        // Fallback to mock data if API fails
-        const fallbackShops: SponsoredShop[] = [
-          {
-            id: "fallback-1",
-            userId: 1,
-            shopName: "Elite Makers Studio",
-            displayName: "Elite Makers",
-            avatar: "https://api.pravatar.cc/150?u=elite",
-            banner: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=400&fit=crop",
-            specialty: "Premium Prototyping",
-            views: 12500,
-            tier: "premium",
-            promotionLevel: 10,
-            sponsoredUntil: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-            orderCount: 156,
-            averageRating: 4.8,
-            reviewCount: 89
-          },
-          {
-            id: "fallback-2",
-            userId: 2,
-            shopName: "Precision Works",
-            displayName: "Precision Works",
-            avatar: "https://api.pravatar.cc/150?u=precision",
-            banner: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop",
-            specialty: "CNC Machining",
-            views: 8900,
-            tier: "gold",
-            promotionLevel: 8,
-            sponsoredUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            orderCount: 98,
-            averageRating: 4.9,
-            reviewCount: 67
-          }
-        ].slice(0, maxShops);
-        
-        setSponsoredShops(fallbackShops);
+        setSponsoredShops([]);
       } finally {
         setIsLoading(false);
       }

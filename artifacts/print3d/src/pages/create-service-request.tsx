@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ColorPicker } from "@/components/shared/ColorPicker";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -29,7 +30,11 @@ import {
   Sparkles,
   Clock,
   MessageSquare,
-  Users
+  Users,
+  FileIcon,
+  Box,
+  Image,
+  Trash2
 } from "lucide-react";
 
 const MATERIALS = [
@@ -37,11 +42,6 @@ const MATERIALS = [
   "PLA+", "ASA", "PC", "PVA", "HIPS", "Metal",
   "Wood", "Steel", "Aluminum", "Brass", "Copper",
   "Acrylic", "Carbon Fiber", "Other"
-];
-
-const COLORS = [
-  "Any", "Black", "White", "Gray", "Red", "Blue", "Green", 
-  "Yellow", "Orange", "Purple", "Pink", "Brown", "Clear/Transparent"
 ];
 
 export default function CreateServiceRequest() {
@@ -62,7 +62,10 @@ export default function CreateServiceRequest() {
     proposedPrice: "",
     notes: "",
     fileUrl: "",
+    fileName: "",
+    fileType: "",
   });
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const hasSeenTutorial = localStorage.getItem('custom-orders-tutorial-seen');
@@ -155,6 +158,15 @@ export default function CreateServiceRequest() {
       return;
     }
 
+    // Create preview for image files
+    const isImage = file.type.startsWith('image/');
+    if (isImage) {
+      const previewUrl = URL.createObjectURL(file);
+      setFilePreview(previewUrl);
+    } else {
+      setFilePreview(null);
+    }
+
     setUploading(true);
     const fileName = `${Date.now()}-${file.name}`;
     const filePath = `${user.id}/${fileName}`;
@@ -177,7 +189,12 @@ export default function CreateServiceRequest() {
         return;
       }
 
-      setFormData(prev => ({ ...prev, fileUrl: data.path }));
+      setFormData(prev => ({ 
+        ...prev, 
+        fileUrl: data.path,
+        fileName: file.name,
+        fileType: file.type
+      }));
       toast({ title: "File uploaded successfully", description: file.name });
     } catch (err) {
       console.error("Upload exception:", err);
@@ -189,6 +206,14 @@ export default function CreateServiceRequest() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleRemoveFile = () => {
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview);
+    }
+    setFilePreview(null);
+    setFormData(prev => ({ ...prev, fileUrl: "", fileName: "", fileType: "" }));
   };
 
   return (
@@ -299,14 +324,10 @@ export default function CreateServiceRequest() {
                 </div>
                 <div>
                   <label className="text-sm text-zinc-300 block mb-2">Color</label>
-                  <Select value={formData.color} onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}>
-                    <SelectTrigger className="w-full bg-black/30 border-white/10 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COLORS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <ColorPicker
+                    value={formData.color}
+                    onChange={(value) => setFormData(prev => ({ ...prev, color: value }))}
+                  />
                 </div>
               </div>
 
@@ -372,38 +393,91 @@ export default function CreateServiceRequest() {
 
               <div>
                 <label className="text-sm text-zinc-300 block mb-2">Upload Files (Optional)</label>
-                <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${uploading ? 'border-primary/50 bg-primary/5' : 'border-white/20 hover:border-primary/50'}`}>
-                  {uploading ? (
-                    <>
-                      <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
-                      <p className="text-primary mb-2">Uploading...</p>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
-                      <p className="text-zinc-400 mb-2">Drag files here or click to upload</p>
-                      <p className="text-xs text-zinc-500 mb-4">STL, OBJ, 3MF, or images (max 10MB)</p>
-                    </>
-                  )}
-                  <input 
-                    type="file" 
-                    onChange={handleFileUpload}
-                    accept=".stl,.obj,.3mf,.png,.jpg,.jpeg,.pdf"
-                    className="hidden" 
-                    id="file-upload"
-                    disabled={uploading}
-                  />
-                  <label htmlFor="file-upload">
-                    <Button variant="outline" className="border-white/10" asChild disabled={uploading}>
-                      <span>{uploading ? 'Uploading...' : 'Choose File'}</span>
-                    </Button>
-                  </label>
-                  {formData.fileUrl && !uploading && (
-                    <p className="text-sm text-emerald-400 mt-3 flex items-center justify-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> File uploaded
-                    </p>
-                  )}
-                </div>
+                
+                {/* File Preview Card */}
+                {formData.fileUrl && !uploading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden mb-4"
+                  >
+                    <div className="flex">
+                      {/* Preview/Image Section */}
+                      <div className="w-32 h-32 bg-zinc-800 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        {filePreview ? (
+                          <img
+                            src={filePreview}
+                            alt="File preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : formData.fileType?.startsWith('image/') ? (
+                          <Image className="w-10 h-10 text-zinc-500" />
+                        ) : ['.stl', '.obj', '.3mf'].some(ext => formData.fileName?.toLowerCase().endsWith(ext)) ? (
+                          <Box className="w-10 h-10 text-zinc-500" />
+                        ) : (
+                          <FileIcon className="w-10 h-10 text-zinc-500" />
+                        )}
+                      </div>
+                      
+                      {/* File Info Section */}
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div>
+                          <p className="text-white font-medium truncate">{formData.fileName}</p>
+                          <p className="text-xs text-zinc-500 mt-1">
+                            {formData.fileType?.startsWith('image/') ? 'Image' : 
+                             ['.stl', '.obj', '.3mf'].some(ext => formData.fileName?.toLowerCase().endsWith(ext)) ? '3D Model' : 
+                             'Document'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> Uploaded
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Remove Button */}
+                      <button
+                        onClick={handleRemoveFile}
+                        className="p-4 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                        title="Remove file"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Upload Area */}
+                {!formData.fileUrl && (
+                  <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${uploading ? 'border-primary/50 bg-primary/5' : 'border-white/20 hover:border-primary/50'}`}>
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
+                        <p className="text-primary mb-2">Uploading...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
+                        <p className="text-zinc-400 mb-2">Drag files here or click to upload</p>
+                        <p className="text-xs text-zinc-500 mb-4">STL, OBJ, 3MF, or images (max 10MB)</p>
+                      </>
+                    )}
+                    <input 
+                      type="file" 
+                      onChange={handleFileUpload}
+                      accept=".stl,.obj,.3mf,.png,.jpg,.jpeg,.pdf"
+                      className="hidden" 
+                      id="file-upload"
+                      disabled={uploading}
+                    />
+                    <label htmlFor="file-upload">
+                      <Button variant="outline" className="border-white/10" asChild disabled={uploading}>
+                        <span>{uploading ? 'Uploading...' : 'Choose File'}</span>
+                      </Button>
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between">
@@ -454,6 +528,34 @@ export default function CreateServiceRequest() {
                   <div className="pt-2">
                     <span className="text-zinc-400 block mb-1">Description</span>
                     <p className="text-white text-sm">{formData.description}</p>
+                  </div>
+                )}
+                
+                {/* File Preview in Review */}
+                {formData.fileUrl && (
+                  <div className="pt-3 border-t border-white/10">
+                    <span className="text-zinc-400 block mb-2">Attached File</span>
+                    <div className="flex items-center gap-3 bg-zinc-900/50 rounded-lg p-3">
+                      <div className="w-12 h-12 bg-zinc-800 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {filePreview ? (
+                          <img src={filePreview} alt="Preview" className="w-full h-full object-cover" />
+                        ) : formData.fileType?.startsWith('image/') ? (
+                          <Image className="w-6 h-6 text-zinc-500" />
+                        ) : ['.stl', '.obj', '.3mf'].some(ext => formData.fileName?.toLowerCase().endsWith(ext)) ? (
+                          <Box className="w-6 h-6 text-zinc-500" />
+                        ) : (
+                          <FileIcon className="w-6 h-6 text-zinc-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm truncate">{formData.fileName}</p>
+                        <p className="text-xs text-zinc-500">
+                          {formData.fileType?.startsWith('image/') ? 'Image' : 
+                           ['.stl', '.obj', '.3mf'].some(ext => formData.fileName?.toLowerCase().endsWith(ext)) ? '3D Model' : 
+                           'Document'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

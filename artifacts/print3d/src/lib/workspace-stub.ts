@@ -515,14 +515,51 @@ export function useListSellers(options?: { limit?: number; offset?: number }) {
       setIsLoading(true);
       setError(null);
       try {
+        // Query sellers joined with profiles
         const result = await supabase
-          .from('users')
-          .select('*')
-          .in('role', ['seller', 'both'])
+          .from('sellers')
+          .select(`
+            *,
+            profiles!inner(
+              id,
+              display_name,
+              username,
+              avatar_url,
+              banner_url,
+              location,
+              seller_tags,
+              shop_mode,
+              role
+            )
+          `)
+          .eq('store_setup_complete', true)
           .order('created_at', { ascending: false });
+
         if (result.error) throw result.error;
-        setData({ sellers: result.data || [] });
+
+        // Transform the data to match expected format
+        const transformedSellers = (result.data || []).map((seller: any) => ({
+          id: seller.id,
+          user_id: seller.user_id,
+          displayName: seller.profiles?.display_name || seller.store_name || 'Unnamed Shop',
+          shopName: seller.store_name || seller.profiles?.display_name || 'Unnamed Shop',
+          avatarUrl: seller.profiles?.avatar_url || '',
+          avatar_url: seller.profiles?.avatar_url || '',
+          bannerUrl: seller.profiles?.banner_url || '',
+          banner_url: seller.profiles?.banner_url || '',
+          location: seller.profiles?.location || '',
+          sellerTags: seller.profiles?.seller_tags || [],
+          seller_tags: seller.profiles?.seller_tags || [],
+          shopMode: seller.profiles?.shop_mode || 'both',
+          shop_mode: seller.profiles?.shop_mode || 'both',
+          role: seller.profiles?.role || 'seller',
+          accepting_orders: seller.accepting_orders !== false,
+          store_setup_complete: seller.store_setup_complete === true,
+        }));
+
+        setData({ sellers: transformedSellers });
       } catch (err) {
+        console.error('Error fetching sellers:', err);
         setError(err as Error);
         setData({ sellers: [] });
       } finally {

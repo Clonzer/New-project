@@ -46,6 +46,7 @@ export default function Settings() {
   const [isRequestingVerification, setIsRequestingVerification] = useState(false);
   const [isConfirmingVerification, setIsConfirmingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
   const [customTagDraft, setCustomTagDraft] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [notificationPreferences, setNotificationPreferences] = useState({
@@ -275,6 +276,9 @@ export default function Settings() {
           ? "This account is already verified."
           : `A 6-digit code was sent to ${result.email ?? "your email address"}.`,
       });
+      if (!result.alreadyVerified) {
+        setResendCountdown(60); // Start 60 second countdown
+      }
       await refreshUser();
     } catch (error) {
       toast({
@@ -286,6 +290,15 @@ export default function Settings() {
       setIsRequestingVerification(false);
     }
   };
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
 
   const confirmVerificationCode = async () => {
     try {
@@ -766,27 +779,26 @@ export default function Settings() {
                           <NeonButton
                             glowColor="primary"
                             onClick={() => void sendVerificationCode()}
-                            disabled={isRequestingVerification}
+                            disabled={isRequestingVerification || resendCountdown > 0}
                           >
-                            {isRequestingVerification ? "Sending..." : "Send verification code"}
+                            {isRequestingVerification
+                              ? "Sending..."
+                              : resendCountdown > 0
+                                ? `Resend in ${resendCountdown}s`
+                                : "Send verification code"}
                           </NeonButton>
                         ) : null}
                       </div>
                       {!isVerified ? (
-                        <div className="flex flex-col gap-3 sm:flex-row">
-                          <Input
-                            value={verificationCode}
-                            onChange={(event) => setVerificationCode(event.target.value)}
-                            placeholder="Enter verification code or email"
-                            className="bg-black/30 border-white/10 text-white flex-1"
-                          />
-                          <NeonButton
-                            glowColor="primary"
-                            onClick={() => void confirmVerificationCode()}
-                            disabled={isConfirmingVerification}
-                          >
-                            {isConfirmingVerification ? "Verifying..." : "Verify email"}
-                          </NeonButton>
+                        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                          <p className="text-sm text-zinc-300">
+                            <strong className="text-white">📧 Check your email!</strong><br />
+                            A verification link has been sent to your email address. 
+                            Click the link in the email to verify your account.
+                          </p>
+                          <p className="text-xs text-zinc-500 mt-2">
+                            The link will expire in 1 hour. If you don't see the email, check your spam folder.
+                          </p>
                         </div>
                       ) : null}
                     </div>

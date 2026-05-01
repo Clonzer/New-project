@@ -97,12 +97,13 @@ export async function authRequestEmailVerification() {
     return { ok: true, alreadyVerified: true, email };
   }
 
-  // Resend verification email using the correct method for email verification
-  const { error } = await supabase.auth.resend({
-    type: 'signup',
+  // For unverified users, we need to send a magic link or OTP
+  // Since resend() with type 'signup' doesn't work well for existing users,
+  // we'll use the passwordless email (magic link) approach
+  const { error } = await supabase.auth.signInWithOtp({
     email: email,
     options: {
-      emailRedirectTo: `${window.location.origin}/settings?section=security`,
+      emailRedirectTo: `${window.location.origin}/auth/callback?type=verify`,
     },
   });
 

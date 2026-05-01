@@ -46,6 +46,7 @@ import Contact from "@/pages/contact";
 import ListingDetail from "@/pages/listing-detail";
 import DashboardHelp from "@/pages/dashboard-help";
 import ServiceMarketplace from "@/pages/service-marketplace";
+import AuthCallback from "@/pages/auth-callback";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -151,6 +152,7 @@ function Router() {
       <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/service-marketplace" component={ServiceMarketplace} />
+      <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/sponsorship/purchase" component={SponsorshipPurchase} />
           <Route path="/create-service-request" component={CreateServiceRequestPage} />
       <Route path="/service-order" component={ServiceOrderPage} />

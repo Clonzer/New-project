@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Star, TrendingUp, Zap, Crown, ExternalLink, Check, Loader2 } from "lucide-react";
+import { Star, TrendingUp, Zap, Crown, ExternalLink, Check, Loader2, Store } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
-import { customFetch } from "@/lib/workspace-api-mock";
+import { supabase } from "@/lib/supabase";
 
 interface SponsoredShop {
   id: string;
@@ -18,9 +18,46 @@ interface SponsoredShop {
 
 const fetchSponsoredShops = async (): Promise<SponsoredShop[]> => {
   try {
-    const response = await customFetch('/api/sponsorships/featured?limit=10');
-    const data = await response.json();
-    return data.sponsoredShops || [];
+    const now = new Date().toISOString();
+    
+    const { data: sponsorships, error } = await supabase
+      .from('sponsorships')
+      .select(`
+        id,
+        user_id,
+        tier,
+        promotion_level,
+        profiles:user_id (
+          shop_name,
+          display_name,
+          avatar_url,
+          banner_url,
+          seller_tags
+        )
+      `)
+      .eq('is_active', true)
+      .gte('end_date', now)
+      .order('promotion_level', { ascending: false })
+      .limit(10);
+
+    if (error || !sponsorships) {
+      console.error('Failed to fetch sponsored shops:', error);
+      return [];
+    }
+
+    return sponsorships.map((s: any) => {
+      const profile = s.profiles || {};
+      return {
+        id: s.user_id,
+        name: profile.shop_name || profile.display_name || 'Unnamed Shop',
+        avatar: profile.avatar_url || '',
+        banner: profile.banner_url || '',
+        specialty: profile.seller_tags?.[0] || 'Custom Manufacturing',
+        views: 0,
+        tier: s.tier || 'silver',
+        promotionLevel: s.promotion_level || 1
+      };
+    });
   } catch (error) {
     console.error('Failed to fetch sponsored shops:', error);
     return [];
@@ -181,11 +218,15 @@ export function SponsoredShopsSection() {
                   <div className={`relative h-full rounded-2xl overflow-hidden border ${config.borderColor} bg-zinc-900/50 backdrop-blur-sm`}>
                     {/* Banner Image */}
                     <div className="absolute inset-0">
-                      <img
-                        src={shop.banner}
-                        alt={shop.name}
-                        className="w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity"
-                      />
+                      {shop.banner ? (
+                        <img
+                          src={shop.banner}
+                          alt={shop.name}
+                          className="w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 opacity-60" />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
                     </div>
 
@@ -205,12 +246,16 @@ export function SponsoredShopsSection() {
                       </div>
 
                       <div className="flex items-end gap-4">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20">
-                          <img
-                            src={shop.avatar}
-                            alt={shop.name}
-                            className="w-full h-full object-cover"
-                          />
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20 bg-zinc-800 flex items-center justify-center">
+                          {shop.avatar ? (
+                            <img
+                              src={shop.avatar}
+                              alt={shop.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Store className="w-8 h-8 text-zinc-500" />
+                          )}
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-white mb-1">
