@@ -29,6 +29,17 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- Create discover-media bucket (50MB limit, public) for discover page posts
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'discover-media',
+  'discover-media',
+  true,
+  52428800,
+  ARRAY['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
+)
+ON CONFLICT (id) DO NOTHING;
+
 -- =====================================================
 -- PART 2: RLS Policies (Requires elevated permissions)
 -- =====================================================
@@ -109,6 +120,8 @@ BEGIN
     DROP POLICY IF EXISTS "Allow users to read own listing files" ON storage.objects;
     DROP POLICY IF EXISTS "Allow users to delete own listing files" ON storage.objects;
     DROP POLICY IF EXISTS "Allow public read access to listing files" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow authenticated users to upload discover media" ON storage.objects;
+    DROP POLICY IF EXISTS "Allow users to delete own discover media" ON storage.objects;
     
     -- Create custom-order-files policies
     CREATE POLICY "Allow authenticated users to upload custom order files"
@@ -145,6 +158,17 @@ BEGIN
     CREATE POLICY "Allow public read access to listing files"
       ON storage.objects FOR SELECT TO anon
       USING (bucket_id = 'listings-files');
+    
+    -- Create discover-media policies (bucket is public, so only need upload/delete)
+    CREATE POLICY "Allow authenticated users to upload discover media"
+      ON storage.objects FOR INSERT TO authenticated
+      WITH CHECK (bucket_id = 'discover-media'
+        AND (auth.uid()::text = split_part(name, '/', 2)));
+    
+    CREATE POLICY "Allow users to delete own discover media"
+      ON storage.objects FOR DELETE TO authenticated
+      USING (bucket_id = 'discover-media'
+        AND (auth.uid()::text = split_part(name, '/', 2)));
     
     RAISE NOTICE 'Storage policies created successfully via SQL.';
   END IF;

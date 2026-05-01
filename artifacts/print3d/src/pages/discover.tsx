@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Printer } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
@@ -168,7 +168,10 @@ export default function Discover() {
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newImage, setNewImage] = useState<File | null>(null);
   const [newVideo, setNewVideo] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people" | "trending">("feed");
@@ -342,44 +345,45 @@ export default function Discover() {
     if (!newPost.trim()) return;
 
     try {
+      setIsUploading(true);
       let imageUrl: string | undefined;
       let videoUrl: string | undefined;
 
-      // Upload image if selected
-      if (newImage) {
-        const formData = new FormData();
-        formData.append("file", newImage);
+      // Upload image to Supabase if selected
+      if (newImage && user?.id) {
+        const fileName = `post-${Date.now()}-${newImage.name}`;
+        const filePath = `discover/${user.id}/${fileName}`;
 
-        const response = await fetch("/api/files/upload", {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('discover-media')
+          .upload(filePath, newImage, { cacheControl: '3600', upsert: false });
 
-        if (response.ok) {
-          const result = await response.json();
-          imageUrl = result.url;
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from('discover-media')
+            .getPublicUrl(uploadData.path);
+          imageUrl = publicUrlData.publicUrl;
+        } else {
+          console.error('Image upload error:', uploadError);
         }
       }
 
-      // Upload video if selected
-      if (newVideo) {
-        const formData = new FormData();
-        formData.append("file", newVideo);
+      // Upload video to Supabase if selected
+      if (newVideo && user?.id) {
+        const fileName = `post-${Date.now()}-${newVideo.name}`;
+        const filePath = `discover/${user.id}/${fileName}`;
 
-        const response = await fetch("/api/files/upload", {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('discover-media')
+          .upload(filePath, newVideo, { cacheControl: '3600', upsert: false });
 
-        if (response.ok) {
-          const result = await response.json();
-          videoUrl = result.url;
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from('discover-media')
+            .getPublicUrl(uploadData.path);
+          videoUrl = publicUrlData.publicUrl;
+        } else {
+          console.error('Video upload error:', uploadError);
         }
       }
 
@@ -399,16 +403,62 @@ export default function Discover() {
 
       const updatedPosts = [post, ...posts];
       savePosts(updatedPosts);
+
+      // Clear states
       setNewPost("");
       setNewPostTitle("");
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
       setNewImage(null);
       setNewVideo(null);
+      setImagePreview(null);
+      setVideoPreview(null);
+
       toast({ title: "Post created!", description: "Your post has been shared." });
       trackEvent("discover_post", { postId: post.id });
     } catch (error) {
       console.error("Failed to create post:", error);
       toast({ title: "Failed to create post", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
     }
+  };
+
+  // Handle image selection with preview
+  const handleImageSelect = (file: File | null) => {
+    if (file) {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setNewImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setNewImage(null);
+      setImagePreview(null);
+    }
+  };
+
+  // Handle video selection with preview
+  const handleVideoSelect = (file: File | null) => {
+    if (file) {
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
+      setNewVideo(file);
+      setVideoPreview(URL.createObjectURL(file));
+    } else {
+      setNewVideo(null);
+      setVideoPreview(null);
+    }
+  };
+
+  // Remove selected media
+  const handleRemoveImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setNewImage(null);
+    setImagePreview(null);
+  };
+
+  const handleRemoveVideo = () => {
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setNewVideo(null);
+    setVideoPreview(null);
   };
 
   // Fetch real users from Supabase with avatars
@@ -521,31 +571,28 @@ export default function Discover() {
                     </p>
                   </div>
                   
-                  {/* Featured Product Images Grid */}
+                  {/* Featured Product Images Grid - Only show listings with real photos */}
                   <div className="flex-shrink-0">
                     <div className="grid grid-cols-3 gap-2 md:gap-3">
-                      {listingsData?.listings?.slice(0, 6).map((listing, idx) => (
-                        <Link key={listing.id} href={`/listings/${listing.id}`}>
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}
-                          >
-                            {listing.imageUrl || listing.image_url ? (
+                      {listingsData?.listings
+                        ?.filter((listing) => listing.imageUrl || listing.image_url)
+                        .slice(0, 6)
+                        .map((listing, idx) => (
+                          <Link key={listing.id} href={`/listings/${listing.id}`}>
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: idx * 0.05 }}
+                              className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}
+                            >
                               <img
                                 src={listing.imageUrl || listing.image_url}
                                 alt={listing.title}
                                 className="w-full h-full object-cover"
                               />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                                <Printer className="w-6 h-6 text-primary" />
-                              </div>
-                            )}
-                          </motion.div>
-                        </Link>
-                      ))}
+                            </motion.div>
+                          </Link>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -630,39 +677,85 @@ export default function Discover() {
                         onChange={(e) => setNewPost(e.target.value)}
                         className="min-h-[100px] bg-black/20 border-white/10"
                       />
-                      <div className="flex justify-between items-center mt-4">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" asChild>
-                            <label htmlFor="image-upload" className="cursor-pointer">
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Image
-                              <input
-                                id="image-upload"
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => setNewImage(e.target.files?.[0] || null)}
+
+                      {/* Image/Video Preview */}
+                      {(imagePreview || videoPreview) && (
+                        <div className="mt-4 space-y-3">
+                          {imagePreview && (
+                            <div className="relative inline-block">
+                              <img
+                                src={imagePreview}
+                                alt="Preview"
+                                className="max-h-48 rounded-lg border border-white/10"
                               />
-                            </label>
-                          </Button>
-                          <Button variant="outline" size="sm" asChild>
-                            <label htmlFor="video-upload" className="cursor-pointer">
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Video
-                              <input
-                                id="video-upload"
-                                type="file"
-                                accept="video/*"
-                                className="hidden"
-                                onChange={(e) => setNewVideo(e.target.files?.[0] || null)}
+                              <button
+                                onClick={handleRemoveImage}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                title="Remove image"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )}
+                          {videoPreview && (
+                            <div className="relative inline-block">
+                              <video
+                                src={videoPreview}
+                                controls
+                                className="max-h-48 rounded-lg border border-white/10"
                               />
-                            </label>
-                          </Button>
-                          {newImage && <span className="text-sm text-green-400">Image selected</span>}
-                          {newVideo && <span className="text-sm text-green-400">Video selected</span>}
+                              <button
+                                onClick={handleRemoveVideo}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                title="Remove video"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <NeonButton onClick={handlePost} disabled={!newPost.trim()}>
-                          Post
+                      )}
+
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="flex gap-2 items-center">
+                          {!imagePreview && (
+                            <Button variant="outline" size="sm" asChild disabled={isUploading}>
+                              <label htmlFor="image-upload" className="cursor-pointer">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add Image
+                                <input
+                                  id="image-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleImageSelect(e.target.files?.[0] || null)}
+                                  disabled={isUploading}
+                                />
+                              </label>
+                            </Button>
+                          )}
+                          {!videoPreview && (
+                            <Button variant="outline" size="sm" asChild disabled={isUploading}>
+                              <label htmlFor="video-upload" className="cursor-pointer">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add Video
+                                <input
+                                  id="video-upload"
+                                  type="file"
+                                  accept="video/*"
+                                  className="hidden"
+                                  onChange={(e) => handleVideoSelect(e.target.files?.[0] || null)}
+                                  disabled={isUploading}
+                                />
+                              </label>
+                            </Button>
+                          )}
+                          {isUploading && (
+                            <span className="text-sm text-primary animate-pulse">Uploading...</span>
+                          )}
+                        </div>
+                        <NeonButton onClick={handlePost} disabled={!newPost.trim() || isUploading}>
+                          {isUploading ? "Uploading..." : "Post"}
                         </NeonButton>
                       </div>
                     </div>
@@ -1130,35 +1223,31 @@ export default function Discover() {
                     Featured Models
                   </h2>
                   <div className="space-y-4">
-                    {listingsData?.listings?.slice(0, 5).map((listing, idx) => (
-                      <Link key={listing.id} href={`/listings/${listing.id}`}>
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="group cursor-pointer"
-                        >
-                          <div className="relative mb-2">
-                            {listing.imageUrl || listing.image_url ? (
+                    {listingsData?.listings
+                      ?.filter((listing) => listing.imageUrl || listing.image_url)
+                      .slice(0, 5)
+                      .map((listing, idx) => (
+                        <Link key={listing.id} href={`/listings/${listing.id}`}>
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="group cursor-pointer"
+                          >
+                            <div className="relative mb-2">
                               <img
                                 src={listing.imageUrl || listing.image_url}
                                 alt={listing.title}
                                 className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
                               />
-                            ) : (
-                              <div className="w-full h-32 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl flex items-center justify-center">
-                                <Printer className="w-8 h-8 text-primary/50" />
-                              </div>
-                            )}
-                          </div>
-                          <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
-                          <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
-                        </motion.div>
-                      </Link>
-                    ))}
-                    {(!listingsData?.listings || listingsData.listings.length === 0) && (
+                            </div>
+                            <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
+                            <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
+                          </motion.div>
+                        </Link>
+                      ))}
+                    {(!listingsData?.listings || listingsData.listings.filter((l) => l.imageUrl || l.image_url).length === 0) && (
                       <div className="text-center py-6">
-                        <Printer className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
                         <p className="text-zinc-500 text-sm">No models yet</p>
                       </div>
                     )}

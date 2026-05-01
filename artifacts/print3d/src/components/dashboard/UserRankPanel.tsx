@@ -11,8 +11,10 @@ import { RANKS, formatXp } from "@/lib/rank-system";
 import { getUserXpStats, getXpHistory, XpLogEntry } from "@/lib/xp-tracker";
 import { 
   Trophy, TrendingUp, Award, Clock, Star, 
-  Package, MessageSquare, Palette, Gift, Zap
+  Package, MessageSquare, Palette, Gift, Zap,
+  Lock, CheckCircle2, ChevronRight, Target, Crown, Medal
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 export function UserRankPanel() {
   const { user } = useAuth();
@@ -156,12 +158,21 @@ export function UserRankPanel() {
         </TabsContent>
 
         <TabsContent value="ranks">
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
             {RANKS.map((rank, index) => {
               const isCurrentRank = rank.id === xpStats.currentRank;
               const isUnlocked = rank.id <= xpStats.currentRank;
               const isNextRank = rank.id === xpStats.currentRank + 1;
-              
+              const isLocked = rank.id > xpStats.currentRank;
+
+              // Calculate progress for current rank
+              const currentRankData = RANKS.find(r => r.id === xpStats.currentRank);
+              const nextRankData = RANKS.find(r => r.id === xpStats.currentRank + 1);
+              const progress = nextRankData
+                ? Math.min(100, Math.round(((xpStats.totalXp - (currentRankData?.minXp || 0)) / ((nextRankData?.minXp || 1) - (currentRankData?.minXp || 0))) * 100))
+                : 100;
+              const xpToNext = nextRankData ? nextRankData.minXp - xpStats.totalXp : 0;
+
               return (
                 <motion.div
                   key={rank.id}
@@ -170,52 +181,123 @@ export function UserRankPanel() {
                   transition={{ delay: index * 0.05 }}
                   className={`
                     relative p-4 rounded-xl border transition-all
-                    ${isCurrentRank 
-                      ? 'bg-primary/10 border-primary/50' 
-                      : isUnlocked 
-                        ? 'bg-zinc-900/30 border-zinc-800' 
-                        : 'bg-zinc-950/50 border-zinc-900 opacity-60'
+                    ${isCurrentRank
+                      ? `bg-gradient-to-r ${rank.badgeColor.replace('from-', '').replace('to-', '')} bg-opacity-20 border-white/40 shadow-lg`
+                      : isUnlocked
+                        ? 'bg-zinc-900/50 border-zinc-700 hover:border-zinc-600'
+                        : 'bg-zinc-950/30 border-zinc-800 opacity-60'
                     }
                   `}
                 >
+                  {/* Current Rank Badge */}
                   {isCurrentRank && (
-                    <div className="absolute -top-2 left-4 px-2 py-0.5 bg-primary text-white text-xs rounded-full">
-                      Current Rank
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                     </div>
                   )}
-                  
+
+                  {/* Locked Indicator */}
+                  {isLocked && (
+                    <div className="absolute top-3 right-3 text-zinc-600">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-4">
+                    {/* Rank Icon */}
                     <div className={`
-                      w-12 h-12 rounded-xl flex items-center justify-center text-xl
-                      bg-gradient-to-br ${rank.badgeColor}
+                      w-14 h-14 rounded-xl flex items-center justify-center text-2xl
+                      ${isCurrentRank
+                        ? `bg-gradient-to-br ${rank.badgeColor} shadow-lg`
+                        : isUnlocked
+                          ? `bg-gradient-to-br ${rank.badgeColor} opacity-80`
+                          : 'bg-zinc-800 text-zinc-500 grayscale'
+                      }
                     `}>
                       {rank.icon}
                     </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-bold text-white">{rank.name}</h4>
-                        <span className="text-xs text-zinc-400">
-                          {formatXp(rank.minXp)} - {rank.maxXp === Infinity ? '∞' : formatXp(rank.maxXp)} XP
-                        </span>
+
+                    <div className="flex-1 min-w-0">
+                      {/* Rank Header */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-white text-lg">{rank.name}</span>
+                        {isCurrentRank && (
+                          <span className="text-xs px-2 py-0.5 bg-primary text-white rounded-full font-medium">
+                            Current
+                          </span>
+                        )}
+                        {isNextRank && !isCurrentRank && (
+                          <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary rounded-full font-medium">
+                            Next
+                          </span>
+                        )}
                       </div>
-                      
-                      <ul className="space-y-1">
-                        {rank.benefits.map((benefit, idx) => (
-                          <li key={idx} className="text-xs text-zinc-400 flex items-center gap-1.5">
-                            <Star className="w-3 h-3 text-primary" />
+
+                      {/* XP Range */}
+                      <div className="text-sm text-zinc-400 mb-2 flex items-center gap-1">
+                        <Target className="w-3 h-3" />
+                        {formatXp(rank.minXp)} - {rank.maxXp === Infinity ? '∞' : formatXp(rank.maxXp)} XP
+                      </div>
+
+                      {/* Benefits */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {rank.benefits.slice(0, 3).map((benefit, i) => (
+                          <span
+                            key={i}
+                            className={`text-xs px-2 py-1 rounded-md ${
+                              isCurrentRank || isUnlocked
+                                ? 'bg-white/10 text-zinc-300 border border-white/5'
+                                : 'bg-zinc-900/50 text-zinc-500'
+                            }`}
+                          >
                             {benefit}
-                          </li>
+                          </span>
                         ))}
-                      </ul>
-                    </div>
-                    
-                    {isNextRank && (
-                      <div className="text-xs text-primary font-medium">
-                        Next
                       </div>
-                    )}
+
+                      {/* Progress Bar for Current Rank */}
+                      {isCurrentRank && nextRankData && (
+                        <div className="mt-3 space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-zinc-400">Progress to {nextRankData.name}</span>
+                            <span className="text-primary font-medium">{progress}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2 bg-zinc-800" />
+                          <p className="text-xs text-zinc-500">
+                            {formatXp(xpToNext)} XP needed
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Lock Message for Locked Ranks */}
+                      {isLocked && (
+                        <div className="flex items-center gap-1 mt-2 text-xs text-zinc-500">
+                          <Lock className="w-3 h-3" />
+                          <span>Unlock at {formatXp(rank.minXp)} XP</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rank Number */}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                      isCurrentRank
+                        ? 'bg-white text-black'
+                        : isUnlocked
+                          ? 'bg-zinc-700 text-zinc-300'
+                          : 'bg-zinc-800 text-zinc-600'
+                    }`}>
+                      {rank.id}
+                    </div>
                   </div>
+
+                  {/* Connector Line */}
+                  {index < RANKS.length - 1 && (
+                    <div className={`absolute left-8 -bottom-3 w-0.5 h-5 ${
+                      isUnlocked && rank.id < xpStats.currentRank
+                        ? 'bg-gradient-to-b from-primary/50 to-transparent'
+                        : 'bg-zinc-800'
+                    }`} />
+                  )}
                 </motion.div>
               );
             })}
@@ -223,23 +305,6 @@ export function UserRankPanel() {
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="text-lg">Recent XP Gains</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-3">
-                  <AnimatePresence>
-                    {xpHistory.length === 0 ? (
-                      <p className="text-center text-zinc-500 py-8">
-                        No XP history yet. Start completing actions to earn XP!
-                      </p>
-                    ) : (
-                      xpHistory.map((entry, index) => (
-                        <motion.div
-                          key={entry.id}
-                          initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ delay: index * 0.05 }}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { useListListings, useListPrinters, useListReviews, useCreateReview } from "@/lib/workspace-stub";
 import { createClient } from "@supabase/supabase-js";
 import {
   Calendar,
@@ -29,6 +28,27 @@ const supabase = createClient(
   (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co',
   (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs'
 );
+
+// Transform listing data from snake_case (database) to camelCase (components) - same as explore-all
+function transformListing(listing: any) {
+  return {
+    ...listing,
+    imageUrl: listing.images?.[0] || listing.image_url || listing.imageUrl,
+    title: listing.title,
+    description: listing.description,
+    category: listing.category,
+    basePrice: listing.price || listing.base_price || listing.basePrice || 0,
+    shippingCost: listing.shipping_cost || listing.shippingCost || 0,
+    listingType: listing.listing_type || listing.listingType,
+    sellerId: listing.seller_id || listing.sellerId,
+    sellerName: listing.seller_name || listing.sellerName,
+    estimatedDaysMin: listing.estimated_days_min || listing.estimatedDaysMin,
+    estimatedDaysMax: listing.estimated_days_max || listing.estimatedDaysMax,
+    tags: listing.tags || [],
+    stockQuantity: listing.stock_quantity !== undefined ? listing.stock_quantity : listing.stock,
+    trackStock: listing.track_stock !== undefined ? listing.track_stock : listing.track_stock,
+  };
+}
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/shared/ListingCard";
@@ -51,15 +71,17 @@ export default function Shop() {
   const [isCompared, setIsCompared] = useState(false);
   const [seller, setSeller] = useState<any>(null);
   const [loadingSeller, setLoadingSeller] = useState(true);
+  const [listings, setListings] = useState<any[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
+  const [printersData, setPrintersData] = useState<any>(null);
+  const [loadingPrinters, setLoadingPrinters] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
-  const createReview = useCreateReview();
-
-  const { data: printersData } = useListPrinters({ userId: shopId });
-  const { data: listingsData } = useListListings({ sellerId: shopId });
-  const { data: reviewsData } = useListReviews({ revieweeId: shopId });
-  const priceInsights = listingsData?.listings ? buildListingPriceInsights(listingsData.listings) : new Map();
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const priceInsights = listings.length ? buildListingPriceInsights(listings) : new Map();
 
   useEffect(() => {
     async function fetchSeller() {
@@ -129,6 +151,69 @@ export default function Shop() {
       }
     }
     fetchSeller();
+  }, [shopId]);
+
+  // Fetch listings directly from Supabase - same pattern as explore-all.tsx
+  useEffect(() => {
+    async function fetchListings() {
+      try {
+        setLoadingListings(true);
+        const { data, error } = await supabase
+          .from('listings')
+          .select('*')
+          .eq('seller_id', shopId);
+        if (data && !error) {
+          setListings(data.map(transformListing));
+        }
+      } catch (err) {
+        console.error('Error fetching listings:', err);
+      } finally {
+        setLoadingListings(false);
+      }
+    }
+    fetchListings();
+  }, [shopId]);
+
+  // Fetch printers
+  useEffect(() => {
+    async function fetchPrinters() {
+      try {
+        setLoadingPrinters(true);
+        const { data, error } = await supabase
+          .from('printers')
+          .select('*')
+          .eq('seller_id', shopId);
+        if (data && !error) {
+          setPrintersData(data);
+        }
+      } catch (err) {
+        console.error('Error fetching printers:', err);
+      } finally {
+        setLoadingPrinters(false);
+      }
+    }
+    fetchPrinters();
+  }, [shopId]);
+
+  // Fetch reviews
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        setLoadingReviews(true);
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('reviewee_id', shopId);
+        if (data && !error) {
+          setReviews(data);
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      } finally {
+        setLoadingReviews(false);
+      }
+    }
+    fetchReviews();
   }, [shopId]);
 
   useEffect(() => {
@@ -349,7 +434,7 @@ export default function Shop() {
           {/* Stats Bar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="glass-panel rounded-2xl p-4 border border-white/10">
-              <div className="text-2xl font-bold text-white mb-1">{listingsData?.listings?.length || 0}</div>
+              <div className="text-2xl font-bold text-white mb-1">{listings?.length || 0}</div>
               <div className="text-sm text-zinc-400">Products</div>
             </div>
             <div className="glass-panel rounded-2xl p-4 border border-white/10">
@@ -409,7 +494,7 @@ export default function Shop() {
                   <span className="text-sm font-medium text-blue-400">Equipment Expert</span>
                 </div>
               )}
-              {listingsData?.listings && listingsData.listings.length >= 10 && (
+              {listings?.length >= 10 && (
                 <div className="flex items-center gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl px-4 py-2">
                   <Package className="w-4 h-4 text-purple-400" />
                   <span className="text-sm font-medium text-purple-400">Pro Catalog</span>
@@ -489,13 +574,13 @@ export default function Shop() {
             </TabsList>
 
             <TabsContent value="models" className="mt-0">
-              {listingsData?.listings.length === 0 ? (
+              {listings?.length === 0 ? (
                 <div className="glass-panel p-12 text-center rounded-2xl border border-white/5">
                   <p className="text-zinc-500">This shop doesn't have any catalog models yet.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {listingsData?.listings.map((listing) => (
+                  {listings?.map((listing) => (
                     <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
                   ))}
                 </div>
@@ -585,7 +670,7 @@ export default function Shop() {
                     </NeonButton>
                   </div>
                 )}
-                {reviewsData?.reviews.map((review) => (
+                {reviews?.map((review) => (
                   <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
@@ -614,7 +699,7 @@ export default function Shop() {
                     {review.comment ? <p className="text-zinc-300">{review.comment}</p> : null}
                   </div>
                 ))}
-                {reviewsData?.reviews.length === 0 ? <p className="text-zinc-500">No reviews yet.</p> : null}
+                {reviews?.length === 0 ? <p className="text-zinc-500">No reviews yet.</p> : null}
               </div>
             </TabsContent>
           </Tabs>
@@ -667,11 +752,21 @@ export default function Shop() {
                 onClick={async () => {
                   if (!user) return;
                   try {
-                    await createReview.mutateAsync({
-                      revieweeId: shopId,
-                      rating: reviewRating,
-                      comment: reviewComment,
-                    });
+                    setIsSubmittingReview(true);
+                    const { data, error } = await supabase
+                      .from('reviews')
+                      .insert({
+                        reviewer_id: user.id,
+                        reviewee_id: shopId,
+                        rating: reviewRating,
+                        comment: reviewComment,
+                      })
+                      .select()
+                      .single();
+                    if (error) throw error;
+                    if (data) {
+                      setReviews((prev) => [data, ...prev]);
+                    }
                     toast({
                       title: "Review submitted",
                       description: "Thank you for your feedback!",
@@ -685,11 +780,13 @@ export default function Shop() {
                       description: "Please try again later.",
                       variant: "destructive",
                     });
+                  } finally {
+                    setIsSubmittingReview(false);
                   }
                 }}
-                disabled={createReview.isPending || !reviewComment.trim()}
+                disabled={isSubmittingReview || !reviewComment.trim()}
               >
-                {createReview.isPending ? "Submitting..." : "Submit Review"}
+                {isSubmittingReview ? "Submitting..." : "Submit Review"}
               </NeonButton>
             </div>
           </div>

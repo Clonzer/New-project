@@ -27,6 +27,12 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 VALUES ('listings-files', 'listings-files', false, 104857600,
   ARRAY['application/octet-stream', 'model/stl', 'model/obj', 'model/3mf', 'model/ply', 'application/gcode', 'image/png', 'image/jpeg', 'application/pdf', 'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed'])
 ON CONFLICT (id) DO NOTHING;
+
+-- Create discover-media bucket (50MB, public) for discover page posts
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('discover-media', 'discover-media', true, 52428800,
+  ARRAY['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime'])
+ON CONFLICT (id) DO NOTHING;
 ```
 
 **Or manually:**
@@ -35,6 +41,8 @@ ON CONFLICT (id) DO NOTHING;
 3. Name: `custom-order-files` | Public: **OFF** | Size limit: **10MB**
 4. Click **New bucket** again
 5. Name: `listings-files` | Public: **OFF** | Size limit: **100MB**
+6. Click **New bucket** again
+7. Name: `discover-media` | Public: **ON** | Size limit: **50MB**
 
 ---
 
@@ -77,6 +85,31 @@ ON CONFLICT (id) DO NOTHING;
 **For bucket: `listings-files`**
 
 Repeat the same 3 policies as above, PLUS:
+
+---
+
+**For bucket: `discover-media`**
+
+Since this bucket is public, you only need upload/delete policies:
+
+**Policy 1 - Upload:**
+- Name: `Allow authenticated uploads`
+- Allowed operation: **INSERT**
+- Target roles: **authenticated**
+- Policy definition:
+```
+(auth.uid()::text = split_part(name, '/', 2))
+```
+- Click **Save policy**
+
+**Policy 2 - Delete:**
+- Name: `Allow authenticated deletes`
+- Allowed operation: **DELETE**
+- Target roles: **authenticated**
+- Policy definition: Same as above
+- Click **Save policy**
+
+Note: Public read access is automatic since the bucket is public.
 
 **Policy 4 - Public Read:**
 - Click **New policy**

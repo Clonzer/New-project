@@ -515,47 +515,56 @@ export function useListSellers(options?: { limit?: number; offset?: number }) {
       setIsLoading(true);
       setError(null);
       try {
-        // Query sellers joined with profiles
-        const result = await supabase
+        // Fetch sellers only (no joins to avoid 400 error)
+        const sellersResult = await supabase
           .from('sellers')
-          .select(`
-            *,
-            profiles!inner(
-              id,
-              display_name,
-              username,
-              avatar_url,
-              banner_url,
-              location,
-              seller_tags,
-              shop_mode,
-              role
-            )
-          `)
+          .select('*')
           .eq('store_setup_complete', true)
           .order('created_at', { ascending: false });
 
-        if (result.error) throw result.error;
+        if (sellersResult.error) throw sellersResult.error;
 
-        // Transform the data to match expected format
-        const transformedSellers = (result.data || []).map((seller: any) => ({
-          id: seller.id,
-          user_id: seller.user_id,
-          displayName: seller.profiles?.display_name || seller.store_name || 'Unnamed Shop',
-          shopName: seller.store_name || seller.profiles?.display_name || 'Unnamed Shop',
-          avatarUrl: seller.profiles?.avatar_url || '',
-          avatar_url: seller.profiles?.avatar_url || '',
-          bannerUrl: seller.profiles?.banner_url || '',
-          banner_url: seller.profiles?.banner_url || '',
-          location: seller.profiles?.location || '',
-          sellerTags: seller.profiles?.seller_tags || [],
-          seller_tags: seller.profiles?.seller_tags || [],
-          shopMode: seller.profiles?.shop_mode || 'both',
-          shop_mode: seller.profiles?.shop_mode || 'both',
-          role: seller.profiles?.role || 'seller',
-          accepting_orders: seller.accepting_orders !== false,
-          store_setup_complete: seller.store_setup_complete === true,
-        }));
+        const sellers = sellersResult.data || [];
+        
+        // If we have sellers, fetch their profiles separately
+        const userIds = sellers.map(s => s.user_id).filter(Boolean);
+        let profilesMap = new Map();
+        
+        if (userIds.length > 0) {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', userIds);
+          
+          if (!profilesResult.error && profilesResult.data) {
+            profilesResult.data.forEach((profile: any) => {
+              profilesMap.set(profile.id, profile);
+            });
+          }
+        }
+
+        // Merge sellers with profiles
+        const transformedSellers = sellers.map((seller: any) => {
+          const profile = profilesMap.get(seller.user_id) || {};
+          return {
+            id: seller.id,
+            user_id: seller.user_id,
+            displayName: profile.display_name || seller.store_name || 'Unnamed Shop',
+            shopName: seller.store_name || profile.display_name || 'Unnamed Shop',
+            avatarUrl: profile.avatar_url || '',
+            avatar_url: profile.avatar_url || '',
+            bannerUrl: profile.banner_url || '',
+            banner_url: profile.banner_url || '',
+            location: profile.location || '',
+            sellerTags: profile.seller_tags || [],
+            seller_tags: profile.seller_tags || [],
+            shopMode: profile.shop_mode || 'both',
+            shop_mode: profile.shop_mode || 'both',
+            role: profile.role || 'seller',
+            accepting_orders: seller.accepting_orders !== false,
+            store_setup_complete: seller.store_setup_complete === true,
+          };
+        });
 
         setData({ sellers: transformedSellers });
       } catch (err) {
