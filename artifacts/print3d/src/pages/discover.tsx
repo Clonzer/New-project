@@ -1508,7 +1508,7 @@ export default function Discover() {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {activeTab === "projects" && (
@@ -1531,7 +1531,7 @@ export default function Discover() {
       </div>
     </main>
 
-      <Footer />
-    </div>
-  );
+    <Footer />
+  </div>
+);
 }
