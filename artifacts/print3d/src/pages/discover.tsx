@@ -1510,8 +1510,27 @@ export default function Discover() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        )}
+
+        {activeTab === "projects" && (
+          <div className="space-y-6">
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-display font-bold text-white mb-4">Projects</h2>
+              <p className="text-zinc-400">Browse amazing 3D printing projects from our community.</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "people" && (
+          <div className="space-y-6">
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-display font-bold text-white mb-4">People</h2>
+              <p className="text-zinc-400">Connect with talented makers and creators.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
 
       <Footer />
     </div>
