@@ -590,25 +590,16 @@ export default function Discover() {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Main Content */}
-              <div className="lg:col-span-2">
-                {/* ... */}
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  Feed
-                </button>
+              <div className="flex gap-4 mb-6">
                 <button
-                  onClick={() => handleTabChange("trending")}
+                  onClick={() => handleTabChange("feed")}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    activeTab === "trending"
+                    activeTab === "feed"
                       ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
                       : "text-zinc-400 hover:text-white"
                   }`}
                 >
-                  Trending
+                  Feed
                 </button>
                 <button
                   onClick={() => handleTabChange("projects")}
