@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store } from "lucide-react";
 import { formatPrice } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
@@ -1235,13 +1235,81 @@ export default function Discover() {
             {/* Right Column - Featured Models */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
+                {/* Featured Sellers */}
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+                      <Store className="w-5 h-5 text-primary" />
+                      Featured Shops
+                    </h2>
+                    <Link href="/explore?filter=shops">
+                      <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
+                        View All <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </Link>
+                  </div>
+                  <div className="space-y-4">
+                    {isLoadingUsers ? (
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="animate-pulse">
+                            <div className="h-16 bg-zinc-800/50 rounded-xl" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : !usersData?.users?.filter((u: any) => u.role === "seller" || u.role === "both")?.length ? (
+                      <div className="text-center py-6">
+                        <Store className="w-8 h-8 mx-auto mb-2 text-zinc-600" />
+                        <p className="text-zinc-500 text-sm">No shops yet</p>
+                      </div>
+                    ) : (
+                      usersData?.users
+                        ?.filter((u: any) => u.role === "seller" || u.role === "both")
+                        ?.slice(0, 5)
+                        .map((seller: any, idx: number) => (
+                          <Link key={seller.id} href={`/shops/${seller.id}`}>
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group"
+                            >
+                              <Avatar className="w-12 h-12">
+                                <AvatarImage src={seller.avatar_url} />
+                                <AvatarFallback className="bg-zinc-800 text-zinc-400">
+                                  <Store className="w-5 h-5" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-white text-sm truncate group-hover:text-primary transition-colors">
+                                  {seller.displayName || seller.username || "Unnamed Shop"}
+                                </p>
+                                <p className="text-zinc-500 text-xs truncate">
+                                  {seller.sellerTags?.[0] || "3D Printing"}
+                                </p>
+                              </div>
+                            </motion.div>
+                          </Link>
+                        ))
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    <Link href="/explore?filter=shops">
+                      <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
+                        View All Shops
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Featured Models */}
                 <div className="glass-card border-white/[0.08] rounded-3xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-primary" />
                       Featured Models
                     </h2>
-                    <Link href="/listings">
+                    <Link href="/explore?filter=models">
                       <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
                         View All <ChevronRight className="w-4 h-4" />
                       </button>

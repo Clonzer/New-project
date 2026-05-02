@@ -40,6 +40,7 @@ interface ServiceRequest {
   notes: string;
   fileUrl: string;
   fileName: string;
+  fileType?: string;
   status: "open" | "quoted" | "accepted" | "completed" | "cancelled";
   createdAt: string;
   requesterId: string;
@@ -91,12 +92,23 @@ export default function ServiceRequestDetail() {
 
       if (requestError) throw requestError;
 
-      // Load requester profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("username, avatar_url")
-        .eq("id", requestData.requester_id)
-        .single();
+      // Load requester profile with error handling
+      let requesterName = "Unknown";
+      let requesterAvatar = null;
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("username, avatar_url")
+          .eq("id", requestData.requester_id)
+          .maybeSingle();
+        
+        if (profileData && !profileError) {
+          requesterName = profileData.username || "Unknown";
+          requesterAvatar = profileData.avatar_url;
+        }
+      } catch (profileErr) {
+        console.log("Could not load requester profile:", profileErr);
+      }
 
       const transformedRequest: ServiceRequest = {
         id: requestData.id,
@@ -109,11 +121,12 @@ export default function ServiceRequestDetail() {
         notes: requestData.notes,
         fileUrl: requestData.file_url,
         fileName: requestData.file_name,
+        fileType: requestData.file_type,
         status: requestData.status,
         createdAt: requestData.created_at,
         requesterId: requestData.requester_id,
-        requesterName: profileData?.username || "Unknown",
-        requesterAvatar: profileData?.avatar_url,
+        requesterName,
+        requesterAvatar,
       };
 
       setRequest(transformedRequest);
@@ -352,28 +365,57 @@ export default function ServiceRequestDetail() {
                   </div>
                 )}
 
-                {/* File Attachment */}
+                {/* Model Preview */}
                 {request.fileUrl && (
                   <div>
                     <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Download className="w-4 h-4 text-primary" />
-                      Attached File
+                      <Package className="w-4 h-4 text-primary" />
+                      Model Preview
                     </h3>
-                    <a
-                      href={request.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors group"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-primary" />
+                    <div className="bg-zinc-900/50 rounded-xl overflow-hidden border border-white/10">
+                      {request.fileType?.startsWith('image/') ? (
+                        <img
+                          src={request.fileUrl}
+                          alt={request.fileName || "Model preview"}
+                          className="w-full h-48 object-contain bg-zinc-950"
+                        />
+                      ) : ['.stl', '.obj', '.3mf'].some(ext => request.fileName?.toLowerCase().endsWith(ext)) ? (
+                        <div className="w-full h-48 flex flex-col items-center justify-center bg-zinc-950 p-4">
+                          <Package className="w-16 h-16 text-primary/50 mb-3" />
+                          <p className="text-zinc-400 text-sm text-center">3D Model Preview</p>
+                          <p className="text-zinc-500 text-xs mt-1">Download to view in 3D viewer</p>
+                        </div>
+                      ) : (
+                        <div className="w-full h-32 flex flex-col items-center justify-center bg-zinc-950 p-4">
+                          <FileText className="w-12 h-12 text-zinc-500 mb-2" />
+                          <p className="text-zinc-400 text-sm">File Attachment</p>
+                        </div>
+                      )}
+                      <div className="p-3 bg-zinc-900/50 border-t border-white/10">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-zinc-400 uppercase font-medium">
+                              {request.fileType?.split('/')[1]?.toUpperCase() ||
+                               request.fileName?.split('.').pop()?.toUpperCase() ||
+                               'FILE'}
+                            </span>
+                            <span className="text-zinc-600">•</span>
+                            <span className="text-xs text-zinc-400 truncate max-w-[150px]">
+                              {request.fileName || "Attachment"}
+                            </span>
+                          </div>
+                          <a
+                            href={request.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:text-white flex items-center gap-1 transition-colors"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium truncate">{request.fileName || "Attachment"}</p>
-                        <p className="text-zinc-500 text-sm">Click to download</p>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-zinc-500 group-hover:text-primary" />
-                    </a>
+                    </div>
                   </div>
                 )}
               </CardContent>
