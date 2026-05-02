@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -101,6 +102,14 @@ export function UserRankPanel() {
     );
   }
 
+  // Calculate rank progress at component level for use in both tabs
+  const currentRank = RANKS.find(r => r.id === xpStats.currentRank) || RANKS[0];
+  const nextRank = RANKS.find(r => r.id === xpStats.currentRank + 1);
+  const progress = nextRank
+    ? Math.min(100, Math.round(((xpStats.totalXp - (currentRank?.minXp || 0)) / ((nextRank?.minXp || 1) - (currentRank?.minXp || 0))) * 100))
+    : 100;
+  const xpToNext = nextRank ? nextRank.minXp - xpStats.totalXp : 0;
+
   return (
     <div className="space-y-6">
       {/* Rank Header */}
@@ -125,6 +134,45 @@ export function UserRankPanel() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Progress Summary Card */}
+          <Card className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border-primary/30">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-zinc-400 mb-1">Your Progress</p>
+                  <p className="text-2xl font-bold text-white">
+                    {xpStats.totalXp.toLocaleString()} <span className="text-primary">XP</span>
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-zinc-400 mb-1">Tasks Completed</p>
+                  <p className="text-2xl font-bold text-white">
+                    {XP_TASKS.filter(t => t.progress >= t.total).length}/{XP_TASKS.length}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Overall Progress Bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-zinc-400">Progress to {nextRank?.name || 'Next Rank'}</span>
+                  <span className="text-primary font-semibold">{progress}%</span>
+                </div>
+                <div className="h-2.5 bg-zinc-800/50 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className={`h-full bg-gradient-to-r ${currentRank.badgeColor} rounded-full`}
+                  />
+                </div>
+                <p className="text-xs text-zinc-500 mt-2 text-center">
+                  {xpToNext.toLocaleString()} XP needed to reach {nextRank?.name || 'Next Rank'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Main Rank Card with Large Icon & Animated Progress */}
           <Card className="bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border-white/10 overflow-hidden relative">
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${currentRank.badgeColor} opacity-20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2`} />
@@ -230,8 +278,8 @@ export function UserRankPanel() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats - 3 columns */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Quick Stats - 4 columns */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard
               icon={Clock}
               label="Weekly"
@@ -246,9 +294,15 @@ export function UserRankPanel() {
             />
             <StatCard
               icon={Trophy}
-              label="Total"
+              label="Total XP"
               value={formatXp(xpStats.totalXp)}
               color="text-yellow-400"
+            />
+            <StatCard
+              icon={CheckCircle2}
+              label="Tasks Done"
+              value={`${XP_TASKS.filter(t => t.progress >= t.total).length}/${XP_TASKS.length}`}
+              color="text-primary"
             />
           </div>
 
@@ -286,14 +340,6 @@ export function UserRankPanel() {
               const isUnlocked = rank.id <= xpStats.currentRank;
               const isNextRank = rank.id === xpStats.currentRank + 1;
               const isLocked = rank.id > xpStats.currentRank;
-
-              // Calculate progress for current rank
-              const currentRankData = RANKS.find(r => r.id === xpStats.currentRank);
-              const nextRankData = RANKS.find(r => r.id === xpStats.currentRank + 1);
-              const progress = nextRankData
-                ? Math.min(100, Math.round(((xpStats.totalXp - (currentRankData?.minXp || 0)) / ((nextRankData?.minXp || 1) - (currentRankData?.minXp || 0))) * 100))
-                : 100;
-              const xpToNext = nextRankData ? nextRankData.minXp - xpStats.totalXp : 0;
 
               return (
                 <motion.div
@@ -533,5 +579,3 @@ function XpMethod({
     </div>
   );
 }
-
-import { cn } from "@/lib/utils";

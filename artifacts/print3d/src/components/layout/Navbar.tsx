@@ -115,7 +115,7 @@ export function Navbar() {
                   <ChevronDown className={`w-4 h-4 ${isActive("/discover") || isActive("/about") ? "text-white" : "opacity-70"}`} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="glass-card border-white/10 rounded-xl mt-2">
+              <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-48 z-[9999]">
                 <DropdownMenuItem asChild>
                   <Link href="/discover" className="cursor-pointer">
                     Discover Feed
@@ -187,7 +187,7 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <div className="relative hidden sm:block z-50">
+          <div className="relative hidden sm:block">
             <Button
               variant="ghost"
               size="icon"
@@ -203,7 +203,7 @@ export function Navbar() {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-50"
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[9999]"
                 >
                   <div className="space-y-2">
                     <Link

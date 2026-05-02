@@ -588,47 +588,13 @@ export default function Discover() {
                       Connect with talented makers, discover stunning 3D prints, and find the perfect creator for your next project.
                     </p>
                   </div>
-                  
-                  {/* Featured Product Images Grid - Only show listings with real photos */}
-                  <div className="flex-shrink-0">
-                    <div className="grid grid-cols-3 gap-2 md:gap-3">
-                      {listingsData?.listings
-                        ?.filter((listing) => listing.imageUrl || listing.image_url)
-                        .slice(0, 6)
-                        .map((listing, idx) => (
-                          <Link key={listing.id} href={`/listings/${listing.id}`}>
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: idx * 0.05 }}
-                              className={`relative overflow-hidden rounded-xl aspect-square w-16 h-16 md:w-20 md:h-20 cursor-pointer hover:scale-110 transition-transform ${idx === 0 ? 'ring-2 ring-primary/50' : ''}`}
-                            >
-                              <img
-                                src={listing.imageUrl || listing.image_url}
-                                alt={listing.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </motion.div>
-                          </Link>
-                        ))}
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2">
-
-              {/* Tabs */}
-              <div className="flex gap-2 mb-8 bg-black/60 border border-white/10 p-2 rounded-2xl w-fit">
-                <button
-                  onClick={() => handleTabChange("feed")}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    activeTab === "feed"
-                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Main Content */}
+              <div className="lg:col-span-2">
+                {/* ... */}
                       : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -1319,8 +1285,12 @@ export default function Discover() {
                   {isLoadingListings ? (
                     <div className="space-y-3">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="animate-pulse">
-                          <div className="h-14 bg-zinc-800/50 rounded-xl" />
+                        <div key={i} className="animate-pulse flex items-center gap-3">
+                          <div className="w-12 h-12 bg-zinc-800/50 rounded-lg flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-zinc-800/50 rounded w-3/4 mb-2" />
+                            <div className="h-3 bg-zinc-800/50 rounded w-1/4" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1339,15 +1309,23 @@ export default function Discover() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group cursor-pointer flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors"
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group"
                           >
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-white text-sm mb-1 truncate group-hover:text-primary transition-colors">{listing.title}</h3>
-                              <p className="text-zinc-500 text-xs truncate">{listing.category || "3D Model"}</p>
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+                              <img
+                                src={listing.imageUrl || "/placeholder.svg"}
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                            <p className="text-primary text-sm font-semibold ml-2">
-                              ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-white text-sm truncate group-hover:text-primary transition-colors">
+                                {listing.title}
+                              </p>
+                              <p className="text-primary text-xs font-semibold">
+                                ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
+                              </p>
+                            </div>
                           </motion.div>
                         </Link>
                       ))

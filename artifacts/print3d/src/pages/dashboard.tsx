@@ -1221,37 +1221,6 @@ export default function Dashboard() {
                       </span>
                     ) : null}
                   </h1>
-                  <div className="flex items-center gap-3">
-                    <p className="text-zinc-400 text-xs sm:text-sm capitalize">{user.role} account · {user.location || "Location not set"}</p>
-                  </div>
-                  {/* Rank Display with XP Progress */}
-                  {user.totalXp !== undefined && user.rankId && (
-                    <div className="mt-3 max-w-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {user.rankId > 1 && <MiniRank rankId={user.rankId} />}
-                          <span className="text-sm font-semibold text-white">{getRankById(user.rankId)?.name || 'Novice'}</span>
-                        </div>
-                        <span className="text-xs text-zinc-400">
-                          {user.totalXp.toLocaleString()} XP
-                        </span>
-                      </div>
-                      <div className="relative">
-                        <Progress value={getRankProgress(user.totalXp)} size="sm" />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <span className="text-[10px] font-bold text-white/90 drop-shadow-md">
-                            {getRankProgress(user.totalXp)}%
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-zinc-500 mt-1">
-                        {getXpToNextRank(user.totalXp).toLocaleString()} XP to next rank
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 flex-wrap">
                   {/* Accepting Orders Toggle for Sellers */}
                   {isSellerUser && (user?.role !== "both" || dashboardView === "store") && acceptingOrders !== null && (
                     <div className="flex items-center gap-2 sm:gap-3 bg-black/40 border border-white/10 rounded-full px-3 sm:px-4 h-9 sm:h-10">
