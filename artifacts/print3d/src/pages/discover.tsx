@@ -615,6 +615,16 @@ export default function Discover() {
                   onClick={() => handleTabChange("people")}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     activeTab === "people"
+                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  People
+                </button>
+              </div>
+            </div>
+
             {activeTab === "feed" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column - Feed */}
