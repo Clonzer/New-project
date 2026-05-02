@@ -615,21 +615,74 @@ export default function Discover() {
                   onClick={() => handleTabChange("people")}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     activeTab === "people"
-                      ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
-                      : "text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  People
-                </button>
-              </div>
-
             {activeTab === "feed" && (
-              <div className="space-y-6">
-                {/* Create Post */}
-                <div className="glass-panel rounded-3xl border border-white/10 p-6">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 p-[2px] rounded-full bg-gradient-to-br from-primary to-accent">
-                      <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Feed */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Create Post */}
+                  <div className="glass-panel rounded-3xl border border-white/10 p-6">
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 p-[2px] rounded-full bg-gradient-to-br from-primary to-accent">
+                        <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center">
+                          {user?.avatarUrl ? (
+                            <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-bold text-white text-sm">
+                              {user?.displayName?.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-grow">
+                        <Input
+                          placeholder="Post title (optional)"
+                          value={newPostTitle}
+                          onChange={(e) => setNewPostTitle(e.target.value)}
+                          className="mb-3 bg-black/20 border-white/10"
+                        />
+                        <Textarea
+                          placeholder="Share your latest project or idea..."
+                          value={newPost}
+                          onChange={(e) => setNewPost(e.target.value)}
+                          className="min-h-[100px] bg-black/20 border-white/10"
+                        />
+
+                        {/* Image/Video Preview */}
+                        {(imagePreview || videoPreview) && (
+                          <div className="mt-4 space-y-3">
+                            {imagePreview && (
+                              <div className="relative inline-block">
+                                <img
+                                  src={imagePreview}
+                                  alt="Preview"
+                                  className="max-h-48 rounded-lg border border-white/10"
+                                />
+                                <button
+                                  onClick={handleRemoveImage}
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                  title="Remove image"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
+                            {videoPreview && (
+                              <div className="relative inline-block">
+                                <video
+                                  src={videoPreview}
+                                  controls
+                                  className="max-h-48 rounded-lg border border-white/10"
+                                />
+                                <button
+                                  onClick={handleRemoveVideo}
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                                  title="Remove video"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         {user?.avatarUrl ? (
                           <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
                         ) : (
@@ -1322,6 +1375,100 @@ export default function Discover() {
                       ))
                   )}
                 </div>
+                  <div className="mt-4">
+                    <Link href="/listings">
+                      <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
+                        View All Models
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-accent" />
+                    Trending Tags
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"].map((tag) => (
+                      <Button
+                        key={tag}
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full text-xs text-zinc-300 hover:bg-primary/20 hover:text-white"
+                      >
+                        {tag}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              {/* Right Column - Featured Models Sidebar */}
+              <div className="space-y-6">
+                {/* Featured Models */}
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Featured Models
+                    </h2>
+                    <Link href="/explore?filter=models">
+                      <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
+                        View All <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </Link>
+                  </div>
+                  <div className="space-y-4">
+                    {isLoadingListings ? (
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="animate-pulse flex items-center gap-3">
+                            <div className="w-12 h-12 bg-zinc-800/50 rounded-lg flex-shrink-0" />
+                            <div className="flex-1">
+                              <div className="h-4 bg-zinc-800/50 rounded w-3/4 mb-2" />
+                              <div className="h-3 bg-zinc-800/50 rounded w-1/4" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : !listingsData?.listings?.length ? (
+                      <div className="text-center py-6">
+                        <Package className="w-8 h-8 mx-auto mb-2 text-zinc-600" />
+                        <p className="text-zinc-500 text-sm">No models yet</p>
+                      </div>
+                    ) : (
+                      listingsData.listings
+                        .slice(0, 5)
+                        .map((listing, idx) => (
+                          <Link key={listing.id} href={`/listings/${listing.id}`}>
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group"
+                            >
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+                                <img
+                                  src={listing.imageUrl || "/placeholder.svg"}
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-white text-sm truncate group-hover:text-primary transition-colors">
+                                  {listing.title}
+                                </p>
+                                <p className="text-primary text-xs font-semibold">
+                                  ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
+                                </p>
+                              </div>
+                            </motion.div>
+                          </Link>
+                        ))
+                    )}
+                  </div>
                   <div className="mt-4">
                     <Link href="/listings">
                       <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
