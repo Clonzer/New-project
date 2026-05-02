@@ -151,47 +151,77 @@ export default function Explore() {
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
             </button>
-                    ))}
-                  </div>
-                ) : filteredSellers.length > 0 ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredSellers.map((seller) => (
-                      <SellerCard key={seller.id} seller={seller} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Store className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                    <p className="text-zinc-400">No shops found</p>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="models" className="mt-8">
-                {loadingListings ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    {[...Array(8)].map((_, i) => (
-                      <Skeleton key={i} className="h-64 bg-zinc-800" />
-                    ))}
-                  </div>
-                ) : filteredListings.length > 0 ? (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    {filteredListings.map((listing) => (
-                      <ListingCard key={listing.id} listing={listing} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Package className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                    <p className="text-zinc-400">No models found</p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
           </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5 max-w-4xl mx-auto">
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Sort By</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[
+                    { value: "newest", label: "Newest" },
+                    { value: "rating", label: "Highest Rated" },
+                    { value: "prints", label: "Most Prints" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSortBy(option.value)}
+                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                        sortBy === option.value
+                          ? "border-primary/50 bg-primary/15 text-white"
+                          : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Tabs value="shops" className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-zinc-900 border border-zinc-700">
+              <TabsTrigger value="all" className="data-[state=active]:bg-primary" onClick={() => window.location.href='/explore-all'}>
+                <Grid3x3 className="w-4 h-4 mr-2" />
+                All
+              </TabsTrigger>
+              <TabsTrigger value="shops" className="data-[state=active]:bg-primary">
+                <Store className="w-4 h-4 mr-2" />
+                Shops
+              </TabsTrigger>
+              <TabsTrigger value="models" className="data-[state=active]:bg-primary" onClick={() => window.location.href='/explore-models'}>
+                <Package className="w-4 h-4 mr-2" />
+                Models
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="shops" className="mt-8">
+              {loadingSellers ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {[...Array(6)].map((_, i) => (
+                    <Skeleton key={i} className="h-64 bg-zinc-800" />
+                  ))}
+                </div>
+              ) : sortedSellers.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {sortedSellers.map((seller) => (
+                    <SellerCard key={seller.id} seller={seller} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Store className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
+                  <p className="text-zinc-400">No shops found</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
-        <Footer />
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }
