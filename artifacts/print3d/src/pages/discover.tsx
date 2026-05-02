@@ -1250,7 +1250,6 @@ export default function Discover() {
                   </div>
                 )}
               </div>
-            )}
 
             {/* Right Column - Featured Models */}
             <div className="lg:col-span-1">
