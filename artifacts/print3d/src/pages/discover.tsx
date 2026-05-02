@@ -1251,7 +1251,6 @@ export default function Discover() {
                 )}
               </div>
             )}
-            </div>
 
             {/* Right Column - Featured Models */}
             <div className="lg:col-span-1">
@@ -1509,7 +1508,7 @@ export default function Discover() {
                 </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {activeTab === "projects" && (
