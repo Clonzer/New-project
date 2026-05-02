@@ -1320,9 +1320,7 @@ export default function Discover() {
                     <div className="space-y-3">
                       {[1, 2, 3].map((i) => (
                         <div key={i} className="animate-pulse">
-                          <div className="h-32 bg-zinc-800/50 rounded-xl mb-2" />
-                          <div className="h-4 bg-zinc-800/50 rounded w-3/4 mb-1" />
-                          <div className="h-3 bg-zinc-800/50 rounded w-1/2" />
+                          <div className="h-14 bg-zinc-800/50 rounded-xl" />
                         </div>
                       ))}
                     </div>
@@ -1341,42 +1339,15 @@ export default function Discover() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group cursor-pointer"
+                            className="group cursor-pointer flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors"
                           >
-                            <div className="relative mb-2">
-                              {listing.imageUrl ? (
-                                <img
-                                  src={listing.imageUrl}
-                                  alt={listing.title}
-                                  className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
-                                />
-                              ) : (
-                                <div className="w-full h-32 bg-zinc-800/50 rounded-xl flex items-center justify-center group-hover:bg-zinc-700/50 transition-colors">
-                                  <Package className="w-8 h-8 text-zinc-600" />
-                                </div>
-                              )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-white text-sm mb-1 truncate group-hover:text-primary transition-colors">{listing.title}</h3>
+                              <p className="text-zinc-500 text-xs truncate">{listing.category || "3D Model"}</p>
                             </div>
-                            <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
-                            <p className="text-zinc-500 text-xs line-clamp-2 mb-2">{listing.description || ""}</p>
-                            
-                            {/* Tags */}
-                            {listing.tags && listing.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mb-2">
-                                {listing.tags.slice(0, 3).map((tag, tagIdx) => (
-                                  <Badge key={tagIdx} variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-white/10 text-zinc-400 border-0">
-                                    <Tag className="w-2.5 h-2.5 mr-1" />
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
-                            
-                            {/* Price - same format as explore */}
-                            <div className="flex items-center justify-between">
-                              <p className="text-primary text-sm font-semibold">
-                                {formatPrice(listing.basePrice || listing.base_price || 0)}
-                              </p>
-                            </div>
+                            <p className="text-primary text-sm font-semibold ml-2">
+                              ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
+                            </p>
                           </motion.div>
                         </Link>
                       ))
