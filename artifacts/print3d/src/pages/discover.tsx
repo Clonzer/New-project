@@ -693,6 +693,7 @@ export default function Discover() {
                               </div>
                             )}
                           </div>
+                        )}
                         {user?.avatarUrl ? (
                           <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
                         ) : (
