@@ -131,44 +131,67 @@ BEGIN
     
     CREATE POLICY "Allow users to read own custom order files"
       ON storage.objects FOR SELECT TO authenticated
-      USING (bucket_id = 'custom-order-files'
-        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+      USING (
+        bucket_id = 'custom-order-files'
+        AND split_part(name, '/', 1) = auth.uid()::text
+      );
     
     CREATE POLICY "Allow users to delete own custom order files"
       ON storage.objects FOR DELETE TO authenticated
-      USING (bucket_id = 'custom-order-files'
-        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+      USING (
+        bucket_id = 'custom-order-files'
+        AND split_part(name, '/', 1) = auth.uid()::text
+      );
     
     -- Create listings-files policies
     CREATE POLICY "Allow authenticated users to upload listing files"
       ON storage.objects FOR INSERT TO authenticated
-      WITH CHECK (bucket_id = 'listings-files'
-        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+      WITH CHECK (
+        bucket_id = 'listings-files'
+        AND split_part(name, '/', 1) = auth.uid()::text
+      );
     
     CREATE POLICY "Allow users to read own listing files"
       ON storage.objects FOR SELECT TO authenticated
-      USING (bucket_id = 'listings-files'
-        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+      USING (
+        bucket_id = 'listings-files'
+        AND split_part(name, '/', 1) = auth.uid()::text
+      );
     
     CREATE POLICY "Allow users to delete own listing files"
       ON storage.objects FOR DELETE TO authenticated
-      USING (bucket_id = 'listings-files'
-        AND (auth.uid()::text = split_part(name, '/', 1) OR name LIKE auth.uid()::text || '/%'));
+      USING (
+        bucket_id = 'listings-files'
+        AND split_part(name, '/', 1) = auth.uid()::text
+      );
     
+    -- Public can read but only specific files (not list all)
     CREATE POLICY "Allow public read access to listing files"
       ON storage.objects FOR SELECT TO anon
-      USING (bucket_id = 'listings-files');
+      USING (
+        bucket_id = 'listings-files'
+        AND split_part(name, '/', 1) IS NOT NULL
+      );
     
-    -- Create discover-media policies (bucket is public, so only need upload/delete)
+    -- Create discover-media policies
     CREATE POLICY "Allow authenticated users to upload discover media"
       ON storage.objects FOR INSERT TO authenticated
-      WITH CHECK (bucket_id = 'discover-media'
-        AND (auth.uid()::text = split_part(name, '/', 2)));
+      WITH CHECK (
+        bucket_id = 'discover-media'
+        AND split_part(name, '/', 2) = auth.uid()::text
+      );
     
     CREATE POLICY "Allow users to delete own discover media"
       ON storage.objects FOR DELETE TO authenticated
-      USING (bucket_id = 'discover-media'
-        AND (auth.uid()::text = split_part(name, '/', 2)));
+      USING (
+        bucket_id = 'discover-media'
+        AND split_part(name, '/', 2) = auth.uid()::text
+      );
+    
+    -- Public can read discover-media feed
+    CREATE POLICY "Allow public read discover media"
+      ON storage.objects FOR SELECT TO anon
+      USING (bucket_id = 'discover-media');
     
     RAISE NOTICE 'Storage policies created successfully via SQL.';
   END IF;

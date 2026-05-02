@@ -92,37 +92,16 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
-                    isActive("/explore-all") || isActive("/explore") || isActive("/listings")
-                      ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  Explore
-                  <ChevronDown className={`w-4 h-4 ${isActive("/explore-all") || isActive("/explore") || isActive("/listings") ? "text-white" : "opacity-70"}`} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="glass-card border-white/10 rounded-xl mt-2">
-                <DropdownMenuItem asChild>
-                  <Link href="/explore-all" className="cursor-pointer">
-                    Explore All
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/explore" className="cursor-pointer">
-                    Explore Shops
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/listings" className="cursor-pointer">
-                    Model Catalog
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href="/explore-all"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/explore-all")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Explore
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button

@@ -497,19 +497,36 @@ export default function Discover() {
 
   useEffect(() => {
     const fetchListings = async () => {
-      const { data: listings, error } = await supabase
-        .from("listings")
-        .select("*")
-        .limit(50);
+      try {
+        setIsLoadingListings(true);
+        const { data: listings, error } = await supabase
+          .from("listings")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      if (error) {
-        console.error("Error fetching listings:", error);
+        if (error) {
+          console.error("Error fetching listings:", error);
+          setListingsData({ listings: [] });
+          return;
+        }
+
+        // Transform snake_case to camelCase for consistency
+        const transformedListings = (listings || []).map((listing: any) => ({
+          ...listing,
+          imageUrl: listing.image_url || listing.imageUrl || listing.images?.[0] || null,
+          sellerId: listing.seller_id || listing.sellerId,
+          sellerName: listing.seller_name || listing.sellerName,
+          basePrice: listing.base_price || listing.basePrice || listing.price,
+        }));
+
+        setListingsData({ listings: transformedListings });
+      } catch (err) {
+        console.error("Failed to fetch listings:", err);
+        setListingsData({ listings: [] });
+      } finally {
         setIsLoadingListings(false);
-        return;
       }
-
-      setListingsData({ listings: listings || [] });
-      setIsLoadingListings(false);
     };
 
     fetchListings();
@@ -1223,8 +1240,24 @@ export default function Discover() {
                     Featured Models
                   </h2>
                   <div className="space-y-4">
-                    {listingsData?.listings
-                      ?.filter((listing) => listing.imageUrl || listing.image_url)
+                  {isLoadingListings ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="animate-pulse">
+                          <div className="h-32 bg-zinc-800/50 rounded-xl mb-2" />
+                          <div className="h-4 bg-zinc-800/50 rounded w-3/4 mb-1" />
+                          <div className="h-3 bg-zinc-800/50 rounded w-1/2" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : !listingsData?.listings?.length ? (
+                    <div className="text-center py-6">
+                      <Package className="w-8 h-8 mx-auto mb-2 text-zinc-600" />
+                      <p className="text-zinc-500 text-sm">No models yet</p>
+                      <p className="text-zinc-600 text-xs mt-1">Be the first to list a model!</p>
+                    </div>
+                  ) : (
+                    listingsData.listings
                       .slice(0, 5)
                       .map((listing, idx) => (
                         <Link key={listing.id} href={`/listings/${listing.id}`}>
@@ -1235,23 +1268,28 @@ export default function Discover() {
                             className="group cursor-pointer"
                           >
                             <div className="relative mb-2">
-                              <img
-                                src={listing.imageUrl || listing.image_url}
-                                alt={listing.title}
-                                className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
-                              />
+                              {listing.imageUrl ? (
+                                <img
+                                  src={listing.imageUrl}
+                                  alt={listing.title}
+                                  className="w-full h-32 object-cover rounded-xl group-hover:scale-105 transition-transform"
+                                />
+                              ) : (
+                                <div className="w-full h-32 bg-zinc-800/50 rounded-xl flex items-center justify-center group-hover:bg-zinc-700/50 transition-colors">
+                                  <Package className="w-8 h-8 text-zinc-600" />
+                                </div>
+                              )}
                             </div>
                             <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
                             <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
+                            {listing.basePrice > 0 && (
+                              <p className="text-primary text-xs font-medium mt-1">${listing.basePrice}</p>
+                            )}
                           </motion.div>
                         </Link>
-                      ))}
-                    {(!listingsData?.listings || listingsData.listings.filter((l) => l.imageUrl || l.image_url).length === 0) && (
-                      <div className="text-center py-6">
-                        <p className="text-zinc-500 text-sm">No models yet</p>
-                      </div>
-                    )}
-                  </div>
+                      ))
+                  )}
+                </div>
                   <div className="mt-4">
                     <Link href="/listings">
                       <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
