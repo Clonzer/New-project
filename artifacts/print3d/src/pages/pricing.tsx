@@ -143,6 +143,11 @@ export default function Pricing() {
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
+  const [activeTab, setActiveTab] = useState(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "sponsorships" || hash === "plans") return hash;
+    return "plans"; // Default to plans tab (pricing cards)
+  });
 
   useEffect(() => {
     if (!selectedListingId && ownListingsData?.listings?.length) {

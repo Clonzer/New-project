@@ -150,10 +150,7 @@ export function UserRankPanel() {
                   {/* Animated Progress Bar */}
                   {nextRank && (
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-zinc-400">Progress to {nextRank.name}</span>
-                        <span className="text-primary font-semibold">{progress}%</span>
-                      </div>
+                      <div className="text-xs text-zinc-400 mb-1">Progress to {nextRank.name}</div>
                       <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
@@ -162,12 +159,27 @@ export function UserRankPanel() {
                           className={`absolute inset-y-0 left-0 bg-gradient-to-r ${currentRank.badgeColor} rounded-full`}
                         />
                       </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-zinc-500">{formatXp(xpStats.totalXp)}</span>
-                        <span className="text-zinc-500">{formatXp(xpToNext)} XP needed</span>
+                      <div className="flex justify-between items-center text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary font-bold text-sm">{progress}%</span>
+                          <span className="text-zinc-500">•</span>
+                          <span className="text-zinc-400">{formatXp(xpToNext)} XP to next</span>
+                        </div>
+                        <span className="text-zinc-500">{formatXp(xpStats.totalXp)} total</span>
                       </div>
                     </div>
                   )}
+
+                  {/* View Rank Details Button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-3 w-full border-white/10 text-zinc-400 hover:text-white hover:bg-white/5 bg-white/5"
+                    onClick={() => setActiveTab("ranks")}
+                  >
+                    <Trophy className="w-4 h-4 mr-2" />
+                    View Rank Details
+                  </Button>
                 </div>
               </div>
             </CardContent>

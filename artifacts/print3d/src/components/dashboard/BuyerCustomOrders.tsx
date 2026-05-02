@@ -4,13 +4,44 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, DollarSign, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, DollarSign, FileText, CheckCircle2, AlertCircle, Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function BuyerCustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleDeleteRequest = async (requestId: string) => {
+    if (!confirm("Are you sure you want to delete this service request? This action cannot be undone.")) {
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('custom_order_requests')
+        .delete()
+        .eq('id', requestId)
+        .eq('buyer_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request deleted",
+        description: "Your service request has been deleted successfully",
+      });
+
+      // Refresh the list
+      fetchRequests();
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      toast({
+        title: "Error deleting request",
+        description: "Failed to delete the service request. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     fetchRequests();
@@ -201,6 +232,34 @@ export default function BuyerCustomOrders({ user }: { user: any }) {
                     <div className="text-sm text-zinc-400 text-center">
                       Waiting for seller to quote
                     </div>
+                  )}
+                  
+                  {/* Action buttons for all statuses */}
+                  <Link href={`/service-request/${request.id}`}>
+                    <Button variant="outline" size="sm" className="w-full border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                  </Link>
+                  
+                  {request.status === 'pending' && (
+                    <>
+                      <Link href={`/edit-service-request/${request.id}`}>
+                        <Button variant="outline" size="sm" className="w-full border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                          <Edit3 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
+                        onClick={() => handleDeleteRequest(request.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

@@ -35,10 +35,12 @@ import Discover from "@/pages/discover";
 import CreateListing from "@/pages/create-listing";
 import CreateServiceRequest from "@/pages/create-service-request";
 import EditListing from "@/pages/edit-listing";
+import EditServiceRequest from "@/pages/edit-service-request";
 import Admin from "@/pages/admin";
 import SponsorshipPurchase from "@/pages/sponsorship-purchase";
 import StorefrontEdit from "@/pages/storefront-edit";
 import ServiceOrder from "@/pages/service-order";
+import ServiceRequestDetail from "@/pages/service-request-detail";
 import NotFound from "@/pages/not-found";
 import { PrivacyPage, TermsPage } from "@/pages/legal";
 import About from "@/pages/about";
@@ -152,6 +154,8 @@ function Router() {
       <Route path="/notifications" component={NotificationsPage} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/service-marketplace" component={ServiceMarketplace} />
+      <Route path="/service-request/:id" component={ServiceRequestDetail} />
+      <Route path="/edit-service-request/:id" component={EditServiceRequest} />
       <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/sponsorship/purchase" component={SponsorshipPurchase} />
           <Route path="/create-service-request" component={CreateServiceRequestPage} />

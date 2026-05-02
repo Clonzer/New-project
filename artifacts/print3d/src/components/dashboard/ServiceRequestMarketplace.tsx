@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Filter, Clock, DollarSign, Package, MapPin, Tag, Quote, X, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { Search, Filter, Clock, DollarSign, Package, MapPin, Tag, Quote, X, CheckCircle2, Loader2, Mail, Eye, Trash2, Edit3 } from "lucide-react";
 import { sendNewQuoteNotification } from "@/services/brevo-email";
 
 interface ServiceRequest {
@@ -294,13 +294,23 @@ export function ServiceRequestMarketplace() {
                   <p className="text-xs text-zinc-400">Status: {request.myQuote.status}</p>
                 </div>
               ) : (
-                <Button 
-                  onClick={() => { setSelectedRequest(request); setShowQuoteDialog(true); }}
-                  className="w-full bg-primary hover:bg-primary/90"
-                >
-                  <Quote className="w-4 h-4 mr-2" />
-                  Submit Quote
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    onClick={() => { setSelectedRequest(request); setShowQuoteDialog(true); }}
+                    className="w-full bg-primary hover:bg-primary/90"
+                  >
+                    <Quote className="w-4 h-4 mr-2" />
+                    Submit Quote
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.location.href = `/service-request/${request.id}`}
+                    className="w-full border-white/10 text-zinc-400 hover:text-white hover:bg-white/5"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details & Quotes
+                  </Button>
+                </div>
               )}
             </div>
           ))}

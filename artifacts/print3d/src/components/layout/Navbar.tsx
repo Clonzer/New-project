@@ -187,7 +187,7 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <div className="relative hidden sm:block">
+          <div className="relative hidden sm:block z-50">
             <Button
               variant="ghost"
               size="icon"

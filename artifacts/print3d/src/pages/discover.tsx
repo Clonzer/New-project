@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag } from "lucide-react";
+import { formatPrice } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1235,10 +1236,17 @@ export default function Discover() {
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
                 <div className="glass-card border-white/[0.08] rounded-3xl p-6">
-                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    Featured Models
-                  </h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Featured Models
+                    </h2>
+                    <Link href="/listings">
+                      <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
+                        View All <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </Link>
+                  </div>
                   <div className="space-y-4">
                   {isLoadingListings ? (
                     <div className="space-y-3">
@@ -1281,10 +1289,26 @@ export default function Discover() {
                               )}
                             </div>
                             <h3 className="font-semibold text-white text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{listing.title}</h3>
-                            <p className="text-zinc-500 text-xs line-clamp-2">{listing.description || ""}</p>
-                            {listing.basePrice > 0 && (
-                              <p className="text-primary text-xs font-medium mt-1">${listing.basePrice}</p>
+                            <p className="text-zinc-500 text-xs line-clamp-2 mb-2">{listing.description || ""}</p>
+                            
+                            {/* Tags */}
+                            {listing.tags && listing.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {listing.tags.slice(0, 3).map((tag, tagIdx) => (
+                                  <Badge key={tagIdx} variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-white/10 text-zinc-400 border-0">
+                                    <Tag className="w-2.5 h-2.5 mr-1" />
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
                             )}
+                            
+                            {/* Price - same format as explore */}
+                            <div className="flex items-center justify-between">
+                              <p className="text-primary text-sm font-semibold">
+                                {formatPrice(listing.basePrice || listing.base_price || 0)}
+                              </p>
+                            </div>
                           </motion.div>
                         </Link>
                       ))
