@@ -203,3 +203,13 @@ export function useLocalePreferences() {
     fxUpdatedAt: fxState.updatedAt,
   };
 }
+
+// Standalone formatPrice function for non-hook usage
+export function formatPrice(amountUsd: number, currencyCode: string = "USD", languageCode: string = "en-US"): string {
+  const formatter = new Intl.NumberFormat(languageCode, {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: currencyCode === "JPY" ? 0 : 2,
+  });
+  return formatter.format(amountUsd);
+}
