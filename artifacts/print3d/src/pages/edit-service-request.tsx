@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
-import { ColorPicker } from "@/components/ui/color-picker";
+import { ColorPicker } from "@/components/shared/ColorPicker";
 import { Progress } from "@/components/ui/progress";
 import { NeonButton } from "@/components/ui/neon-button";
 import { 
