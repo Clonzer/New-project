@@ -48,6 +48,7 @@ import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
+import { RankProgress } from "@/components/rank/RankProgress";
 import { Progress } from "@/components/ui/progress";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
@@ -1369,6 +1370,10 @@ export default function Dashboard() {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
+                  <TabsTrigger value="rank" data-tour="rank" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Rank
+                  </TabsTrigger>
                 </>
               )}
 
@@ -1583,6 +1588,12 @@ export default function Dashboard() {
               </TabsContent>
             )}
 
+            {/* Rank Tab */}
+            {user?.id && (
+              <TabsContent value="rank" className="mt-0">
+                <RankProgress userId={user.id} />
+              </TabsContent>
+            )}
 
             {/* Promotions Tab */}
             {isSellerUser && (
