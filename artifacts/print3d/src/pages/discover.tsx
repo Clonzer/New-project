@@ -519,26 +519,6 @@ export default function DiscoverPage() {
   );
 }
 
-            <span className={`font-bold text-white ${textClasses[size]}`}>
-              {displayName.charAt(0).toUpperCase()}
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function UserNameLink({ userId, displayName, className = "" }: { userId: number; displayName: string; className?: string }) {
-  return (
-    <Link href={`/shop/${userId}`}>
-      <span className={`hover:text-primary transition-colors cursor-pointer ${className}`}>
-        {displayName}
-      </span>
-    </Link>
-  );
-}
-
 interface Reaction {
   emoji: string;
   count: number;
