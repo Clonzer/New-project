@@ -128,8 +128,8 @@ export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
     }
   };
 
-  // Check if user has paid plan
-  const hasPaidPlan = user?.plan_tier && user.plan_tier !== "none";
+  // Check if user has paid plan (pro, elite, or enterprise)
+  const hasPaidPlan = user?.planTier && user.planTier !== "starter";
 
   // If user doesn't have paid plan, show locked state
   if (!hasPaidPlan) {

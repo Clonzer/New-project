@@ -59,7 +59,14 @@ export type User = {
   stripeConnectEnabled?: boolean;
   isSponsored?: boolean;
   isOwner?: boolean;
-  planTier?: 'none' | 'basic' | 'pro' | 'enterprise';
+  planTier?: 'starter' | 'pro' | 'elite' | 'enterprise';
+  sponsorshipTier?: 'free' | 'featured' | 'vip' | 'partner';
   totalXp?: number;
   rankId?: number;
+  // Enterprise team fields
+  isTeamOwner?: boolean;
+  seatCount?: number;
+  teamOwnerId?: number | null;
+  organizationName?: string | null;
+  billingEmail?: string | null;
 };

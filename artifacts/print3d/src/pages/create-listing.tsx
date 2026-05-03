@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -23,12 +23,16 @@ import {
   Plus,
   Minus,
   AlertCircle,
-  Info
+  Info,
+  Lock,
+  Crown,
+  Zap,
 } from "lucide-react";
-import { useCreateListing } from "@/lib/workspace-stub";
+import { useCreateListing, useListListings } from "@/lib/workspace-stub";
 import { useListEquipment, useListEquipmentGroups, useListShippingProfiles } from "@/lib/workspace-stub";
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
 import { useAuth } from "@/hooks/use-auth";
+import { canCreateListing, getPlanLimits, getPlanDisplayName, PLAN_LIMITS } from "@/lib/plan-utils";
 
 const PRODUCT_TYPES = [
   { value: "3d_printing", label: "3D Printing", description: "Physical 3D printed objects" },
@@ -152,6 +156,13 @@ export default function CreateListing() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const createListingMutation = useCreateListing();
+
+  // Fetch user's current listings to check plan limits
+  const { data: myListings } = useListListings(user?.id ? { sellerId: user.id } : undefined);
+  const listingCount = myListings?.listings?.length || 0;
+  const createCheck = canCreateListing(user, listingCount);
+  const limits = getPlanLimits(user?.planTier);
+  const hasReachedLimit = !createCheck.allowed && createCheck.reason?.includes("limit");
 
   // Equipment data
   const { data: equipmentData, isLoading: loadingEquipment } = useListEquipment();
@@ -1174,9 +1185,82 @@ export default function CreateListing() {
             </p>
           </div>
 
-          {renderStepIndicator()}
+          {/* Plan Limit Reached Block */}
+          {hasReachedLimit && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <Card className="bg-gradient-to-br from-yellow-900/30 to-red-900/20 border-yellow-500/30">
+                <CardContent className="p-8 text-center">
+                  <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6">
+                    <Lock className="w-10 h-10 text-yellow-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-3">
+                    Listing Limit Reached
+                  </h2>
+                  <p className="text-zinc-400 mb-2 max-w-md mx-auto">
+                    You've used all <span className="text-white font-semibold">{limits.maxListings}</span> listings included in your <span className="text-white font-semibold">{getPlanDisplayName(user?.planTier)}</span> plan.
+                  </p>
+                  <p className="text-zinc-500 text-sm mb-6">
+                    Upgrade to Pro for 20 listings, or Elite for unlimited listings.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link href="/pricing">
+                      <NeonButton glowColor="accent" className="rounded-full">
+                        <Crown className="w-4 h-4 mr-2" />
+                        Upgrade Plan
+                      </NeonButton>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/dashboard")}
+                      className="rounded-full"
+                    >
+                      Back to Dashboard
+                    </Button>
+                  </div>
 
-          <Card className="bg-zinc-900/50 border-zinc-700">
+                  {/* Plan Comparison */}
+                  <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                    {[
+                      { name: 'Starter', listings: 3, current: user?.planTier === 'starter' },
+                      { name: 'Pro', listings: 20, current: user?.planTier === 'pro' },
+                      { name: 'Elite', listings: 'Unlimited', current: user?.planTier === 'elite' },
+                    ].map((plan) => (
+                      <div
+                        key={plan.name}
+                        className={`p-4 rounded-xl border ${
+                          plan.current
+                            ? 'border-yellow-500/30 bg-yellow-500/10'
+                            : 'border-zinc-700 bg-zinc-800/50'
+                        }`}
+                      >
+                        <p className={`font-semibold ${plan.current ? 'text-yellow-400' : 'text-white'}`}>
+                          {plan.name}
+                        </p>
+                        <p className="text-2xl font-bold text-white mt-1">{plan.listings}</p>
+                        <p className="text-xs text-zinc-500">listings</p>
+                        {plan.current && (
+                          <span className="inline-block mt-2 text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded">
+                            Current Plan
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Only show form if user hasn't reached limit */}
+          {!hasReachedLimit && (
+            <>
+              {renderStepIndicator()}
+
+              <Card className="bg-zinc-900/50 border-zinc-700">
             <CardHeader>
               <CardTitle className="text-white">
                 Step {currentStep} of {totalSteps}
@@ -1232,6 +1316,8 @@ export default function CreateListing() {
               </>
             )}
           </div>
+          </>
+          )}
         </div>
       </main>
 

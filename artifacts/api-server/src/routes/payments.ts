@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@workspace/db";
-import { checkoutSessionsTable, listingsTable, ordersTable, usersTable } from "@workspace/db/schema";
+import { checkoutSessionsTable, listingsTable, ordersTable, usersTable, teamMembersTable } from "@workspace/db/schema";
 import { type AuthedRequest, requireAuth } from "../lib/auth";
 import {
   createStripeCheckoutSession,
@@ -16,10 +16,19 @@ const PLATFORM_FEE_PERCENT = 0.1;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const router: IRouter = Router();
 
-const PLAN_PRICING: Record<string, { monthly: number; yearly: number; name: string; description: string }> = {
+const PLAN_PRICING: Record<string, { monthly: number; yearly: number; name: string; description: string; perSeat?: boolean; basePrice?: number; seatPrice?: number }> = {
   starter: { monthly: 0, yearly: 0, name: "Starter", description: "Free seller onboarding and a basic shop listing." },
   pro: { monthly: 19, yearly: 15, name: "Pro", description: "Lower fees and better seller tools for growing makers." },
   elite: { monthly: 49, yearly: 39, name: "Elite", description: "Premium shop access with top-tier seller performance benefits." },
+  enterprise: {
+    monthly: 0,
+    yearly: 0,
+    name: "Enterprise",
+    description: "Team-based plan with per-seat billing for studios and organizations.",
+    perSeat: true,
+    basePrice: 199,
+    seatPrice: 49,
+  },
 };
 
 const SPONSORSHIP_OPTIONS = {
@@ -79,9 +88,11 @@ type SponsorshipPayload = {
 
 type PlanPayload = {
   kind: "plan";
-  planId: "pro" | "elite";
+  planId: "pro" | "elite" | "enterprise";
   billing: "monthly" | "yearly";
   userId: number;
+  seatCount?: number; // For Enterprise plan
+  organizationName?: string; // For Enterprise plan
 };
 
 function badRequest(res: any, message: string) {
@@ -246,31 +257,66 @@ router.get("/payments/stripe/checkout", requireAuth, async (req: AuthedRequest, 
   }
 
   try {
-    const priceUsd = billing === "yearly" ? plan.yearly : plan.monthly;
-    const stripeSession = await createStripeCheckoutSession({
-      customerEmail: buyer.email,
-      successUrl: `${appUrl}/dashboard?checkout=success&plan=${planId}`,
-      cancelUrl: `${appUrl}/pricing`,
-      lineItems: [
+    let priceUsd: number;
+    let lineItems: { name: string; description: string; quantity: number; unitAmountCents: number }[] = [];
+    let seatCount = 1;
+    let organizationName: string | undefined;
+
+    // Handle Enterprise seat-based pricing
+    if (planId === "enterprise" && plan.perSeat) {
+      seatCount = Math.max(1, Math.min(100, parseInt(String(req.query.seats ?? "5"), 10) || 5));
+      organizationName = String(req.query.organization ?? "").trim() || undefined;
+      const basePrice = plan.basePrice || 199;
+      const seatPrice = plan.seatPrice || 49;
+      priceUsd = basePrice + (seatPrice * seatCount);
+
+      lineItems = [
+        {
+          name: `${plan.name} Plan - Base`,
+          description: `Base platform fee for ${organizationName || "Organization"}`,
+          quantity: 1,
+          unitAmountCents: Math.round(basePrice * 100),
+        },
+        {
+          name: `${plan.name} Plan - Seats`,
+          description: `${seatCount} team member seats`,
+          quantity: 1,
+          unitAmountCents: Math.round(seatPrice * seatCount * 100),
+        },
+      ];
+    } else {
+      priceUsd = billing === "yearly" ? plan.yearly : plan.monthly;
+      lineItems = [
         {
           name: `${plan.name} Plan`,
           description: plan.description,
           quantity: 1,
           unitAmountCents: Math.round(priceUsd * 100),
         },
-      ],
+      ];
+    }
+
+    const stripeSession = await createStripeCheckoutSession({
+      customerEmail: buyer.email,
+      successUrl: `${appUrl}/dashboard?checkout=success&plan=${planId}`,
+      cancelUrl: `${appUrl}/pricing`,
+      lineItems,
       metadata: {
         userId: String(req.auth!.userId),
         planId,
         billing,
+        seatCount: String(seatCount),
+        organizationName: organizationName || "",
       },
     });
 
     const payload: PlanPayload = {
       kind: "plan",
-      planId: planId as "pro" | "elite",
+      planId: planId as "pro" | "elite" | "enterprise",
       billing,
       userId: req.auth!.userId,
+      seatCount,
+      organizationName,
     };
 
     await db.insert(checkoutSessionsTable).values({
@@ -560,18 +606,51 @@ router.post("/payments/stripe/webhook", async (req, res) => {
           .where(eq(listingsTable.id, payload.targetListingId));
       }
     } else if (payload.kind === "plan") {
+      // Base update for all plans
+      const updateData: Partial<typeof usersTable.$inferInsert> = {
+        planTier: payload.planId,
+      };
+
+      // Enterprise-specific: Set up team owner and seat count
+      if (payload.planId === "enterprise") {
+        updateData.isTeamOwner = true;
+        updateData.seatCount = payload.seatCount || 1;
+        if (payload.organizationName) {
+          updateData.organizationName = payload.organizationName;
+        }
+
+        // Create owner as first team member
+        await db.insert(teamMembersTable).values({
+          ownerId: payload.userId,
+          userId: payload.userId,
+          role: "owner",
+          status: "active",
+          joinedAt: new Date(),
+        });
+
+        // Send enterprise-specific notification
+        await createNotification({
+          userId: payload.userId,
+          type: "system",
+          title: "Enterprise plan activated",
+          body: `Your Enterprise plan is active with ${payload.seatCount || 1} seats. Invite your team from settings.`,
+          url: "/settings?section=team",
+        });
+      } else {
+        // Standard plan notification
+        await createNotification({
+          userId: payload.userId,
+          type: "system",
+          title: "Plan upgraded",
+          body: `Your account is now on the ${payload.planId} plan.`,
+          url: "/settings?section=payment",
+        });
+      }
+
       await db
         .update(usersTable)
-        .set({ planTier: payload.planId })
+        .set(updateData)
         .where(eq(usersTable.id, payload.userId));
-
-      await createNotification({
-        userId: payload.userId,
-        type: "system",
-        title: "Plan upgraded",
-        body: `Your account is now on the ${payload.planId} plan.`,
-        url: "/settings?section=payment",
-      });
     }
 
     await db

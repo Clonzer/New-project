@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, Crown, Megaphone, Package, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight } from "lucide-react";
+import { Check, Crown, Megaphone, Package, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight, Tag } from "lucide-react";
+import { getSponsorshipDiscount, PLAN_LIMITS } from "@/lib/plan-utils";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -107,29 +108,6 @@ const PLANS = [
   },
 ] as const;
 
-const FAQS = [
-  {
-    q: "How do profile and product sponsorships work?",
-    a: "Profile sponsorship boosts your shop across seller-focused placements for 14 days. Product sponsorship boosts one listing across product-focused placements for 14 days. Both are paid through Stripe and activate automatically after successful payment.",
-  },
-  {
-    q: "How do paid plans help beyond lower fees?",
-    a: "Paid tiers unlock stronger shop customization, better analytics, faster support, and discounted promotional placements so sellers can grow both their storefront and catalog visibility.",
-  },
-  {
-    q: "Can owners give someone enterprise features manually?",
-    a: "Yes. Owner accounts can assign plan tiers, including enterprise, from the private admin panel. Enterprise can also be paired with custom onboarding and negotiated support.",
-  },
-  {
-    q: "What do I need configured before payments and support emails work live?",
-    a: "Stripe requires STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET, while email forms require SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM on Render.",
-  },
-  {
-    q: "Do I need a paid plan?",
-    a: "No. You can browse, message, compare shops, and place orders without subscribing. Paid plans are for sellers who want enhanced features.",
-  },
-];
-
 // Animated background with gradient orbs
 function AnimatedBackground() {
   return (
@@ -147,7 +125,6 @@ export default function Pricing() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [yearly, setYearly] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isStartingProfileSponsor, setIsStartingProfileSponsor] = useState(false);
   const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
@@ -557,11 +534,35 @@ export default function Pricing() {
                           </p>
                         </div>
                         
-                        <div className="mb-4">
-                          <span className="text-3xl font-bold text-white">$39</span>
-                          <span className="text-zinc-500 ml-2">/ 14 days</span>
-                        </div>
-                        
+                        {/* Price with discount */}
+                        {(() => {
+                          const discount = getSponsorshipDiscount(user);
+                          const originalPrice = 39;
+                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
+                          return (
+                            <div className="mb-4">
+                              <div className="flex items-baseline gap-2 flex-wrap">
+                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
+                                {discount > 0 && (
+                                  <>
+                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
+                                      <Tag className="w-3 h-3" />
+                                      {discount}% off
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              <span className="text-zinc-500 text-sm">/ 14 days</span>
+                              {discount > 0 && (
+                                <p className="text-xs text-emerald-400/80 mt-1">
+                                  {user?.planTier} plan discount applied
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
+
                         <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
                           Boost your shop on seller-focused surfaces, featured maker carousels, and support-led recommendations.
                         </p>
@@ -607,11 +608,35 @@ export default function Pricing() {
                           </p>
                         </div>
                         
-                        <div className="mb-4">
-                          <span className="text-3xl font-bold text-white">$24</span>
-                          <span className="text-zinc-500 ml-2">/ 14 days</span>
-                        </div>
-                        
+                        {/* Price with discount */}
+                        {(() => {
+                          const discount = getSponsorshipDiscount(user);
+                          const originalPrice = 24;
+                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
+                          return (
+                            <div className="mb-4">
+                              <div className="flex items-baseline gap-2 flex-wrap">
+                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
+                                {discount > 0 && (
+                                  <>
+                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
+                                      <Tag className="w-3 h-3" />
+                                      {discount}% off
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              <span className="text-zinc-500 text-sm">/ 14 days</span>
+                              {discount > 0 && (
+                                <p className="text-xs text-emerald-400/80 mt-1">
+                                  {user?.planTier} plan discount applied
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
+
                         <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
                           Push one listing harder across product-focused placements and featured catalog surfaces.
                         </p>
@@ -652,76 +677,6 @@ export default function Pricing() {
             )}
           </AnimatePresence>
 
-          {/* FAQ Section */}
-          <section className="pb-24">
-            <div className="container mx-auto px-4">
-              <div className="max-w-2xl mx-auto">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-center mb-10"
-                >
-                  <h2 className="text-3xl font-bold text-white mb-2">Frequently Asked</h2>
-                  <p className="text-zinc-400">Everything you need to know about our pricing</p>
-                </motion.div>
-
-                <div className="space-y-3">
-                  {FAQS.map((faq, index) => (
-                    <motion.div
-                      key={faq.q}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`rounded-xl border transition-all duration-200 overflow-hidden ${
-                        openFaq === index 
-                          ? "border-violet-500/30 bg-zinc-900/60" 
-                          : "border-white/10 bg-zinc-900/30 hover:border-white/20"
-                      }`}
-                    >
-                      <button
-                        onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                        className="flex w-full items-center justify-between px-5 py-4 text-left"
-                      >
-                        <span className={`font-medium pr-4 ${openFaq === index ? "text-violet-300" : "text-white"}`}>
-                          {faq.q}
-                        </span>
-                        <div className={`flex h-7 w-7 items-center justify-center rounded-full shrink-0 transition-all ${
-                          openFaq === index ? "bg-violet-500/20" : "bg-zinc-800"
-                        }`}>
-                          {openFaq === index ? (
-                            <ChevronUp className="h-4 w-4 text-violet-400" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 text-zinc-500" />
-                          )}
-                        </div>
-                      </button>
-                      
-                      <AnimatePresence>
-                        {openFaq === index && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <div className="px-5 pb-4 pt-0">
-                              <div className="border-t border-white/10 pt-3">
-                                <p className="text-sm text-zinc-400 leading-relaxed">
-                                  {faq.a}
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
         </main>
 
         <Footer />

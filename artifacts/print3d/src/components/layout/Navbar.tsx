@@ -1,9 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown, Zap, Star, Rocket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { NeonButton } from "@/components/ui/neon-button";
 import { cartItemCount, CART_CHANGE_EVENT } from "@/lib/cart-storage";
 import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT } from "@/lib/shop-compare";
@@ -15,7 +15,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
@@ -27,23 +26,6 @@ export function Navbar() {
   const [comparedCount, setComparedCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
-  const [contactOpen, setContactOpen] = useState(false);
-  const contactDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Click outside handler for contact dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (contactDropdownRef.current && !contactDropdownRef.current.contains(event.target as Node)) {
-        setContactOpen(false);
-      }
-    };
-    if (contactOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [contactOpen]);
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -94,6 +76,32 @@ export function Navbar() {
   const isActive = (path: string) => location === path;
   const isSeller = user?.role === "seller" || user?.role === "both";
 
+  // Helper to get plan icon based on user's plan tier
+  const getPlanIcon = () => {
+    if (!user?.planTier || user.planTier === 'starter') return null;
+    const tier = user.planTier;
+    if (tier === 'pro') return <Star className="w-3.5 h-3.5 text-primary fill-primary" />;
+    if (tier === 'elite') return <Crown className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400/20" />;
+    if (tier === 'enterprise') return <Rocket className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400/20" />;
+    return null;
+  };
+
+  const getPlanBadge = () => {
+    if (!user?.planTier || user.planTier === 'starter') return null;
+    const tier = user.planTier;
+    const styles = {
+      pro: 'border-primary/30 bg-primary/10 text-primary',
+      elite: 'border-yellow-400/30 bg-yellow-400/10 text-yellow-300',
+      enterprise: 'border-cyan-400/30 bg-cyan-400/10 text-cyan-300',
+    };
+    return (
+      <span className={`rounded-full border ${styles[tier]} px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] flex items-center gap-1`}>
+        {getPlanIcon()}
+        {tier}
+      </span>
+    );
+  };
+
   return (
     <header className="sticky top-0 z-[100] w-full border-b border-white/[0.08] bg-black/80 backdrop-blur-xl backdrop-saturate-150 isolation-auto">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between overflow-x-auto">
@@ -118,38 +126,26 @@ export function Navbar() {
             >
               Explore
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative flex items-center gap-1.5 ${
-                    isActive("/discover") || isActive("/about")
-                      ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  Discover
-                  <ChevronDown className={`w-4 h-4 ${isActive("/discover") || isActive("/about") ? "text-white" : "opacity-70"}`} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-48 z-[9999]">
-                <DropdownMenuItem asChild>
-                  <Link href="/discover" className="cursor-pointer">
-                    Discover Feed
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/contests" className="cursor-pointer">
-                    Contests
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem asChild>
-                  <Link href="/about" className="cursor-pointer">
-                    About
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href="/discover"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/discover")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/contests"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/contests")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Contests
+            </Link>
             <Link
               href="/service-marketplace"
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
@@ -203,89 +199,52 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <div ref={contactDropdownRef} className="relative hidden sm:block">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              onClick={() => setContactOpen((value) => !value)}
-            >
-              <Flag className="w-5 h-5" />
-            </Button>
-
-            <AnimatePresence>
-              {contactOpen ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[9999]"
-                >
-                  <div className="space-y-2">
-                    <Link
-                      href="/help"
-                      onClick={() => setContactOpen(false)}
-                      className="block w-full p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                          <HelpCircle className="w-4 h-4 text-emerald-400" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">
-                            FAQ & Help Center
-                          </div>
-                          <div className="text-xs text-zinc-400">
-                            Find answers to common questions
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/messages?contact=synthix"
-                      onClick={() => setContactOpen(false)}
-                      className="block w-full p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <MessageSquare className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-white group-hover:text-primary transition-colors">
-                            Message Synthix
-                          </div>
-                          <div className="text-xs text-zinc-400">
-                            Open support and pricing options
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/contact"
-                      onClick={() => setContactOpen(false)}
-                      className="block w-full p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                          <Mail className="w-4 h-4 text-accent" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-white group-hover:text-accent transition-colors">
-                            Contact form
-                          </div>
-                          <div className="text-xs text-zinc-400">
-                            Send details to the support inbox
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full hidden sm:flex"
+              >
+                <Flag className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-64 z-[9999] p-2">
+              <DropdownMenuItem asChild className="rounded-lg p-0 focus:bg-transparent">
+                <Link href="/help" className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <HelpCircle className="w-4 h-4 text-emerald-400" />
                   </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">FAQ & Help Center</div>
+                    <div className="text-xs text-zinc-400">Find answers to common questions</div>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-lg p-0 focus:bg-transparent mt-2">
+                <Link href="/messages?contact=synthix" className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 transition-all duration-200 cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">Message Synthix</div>
+                    <div className="text-xs text-zinc-400">Open support and pricing options</div>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-lg p-0 focus:bg-transparent mt-2">
+                <Link href="/contact" className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/30 transition-all duration-200 cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-accent" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">Contact form</div>
+                    <div className="text-xs text-zinc-400">Send details to the support inbox</div>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {comparedCount > 0 ? (
             <Link href="/compare-shops">
@@ -350,6 +309,7 @@ export function Navbar() {
                   </div>
                   <div className="hidden sm:flex items-center gap-2">
                     <span className="text-sm font-medium">{user.displayName}</span>
+                    {getPlanBadge()}
                     {user?.email === "evanhuelin8@gmail.com" ? (
                       <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-amber-200">
                         Admin

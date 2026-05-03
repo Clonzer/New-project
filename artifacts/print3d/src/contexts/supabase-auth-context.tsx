@@ -115,6 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // XP and Rank data
           totalXp: xpData?.total_xp || 0,
           rankId: xpData?.current_rank || 1,
+          // Plan and subscription data
+          planTier: (data as any).plan_tier || (data as any).planTier || 'starter',
+          sponsorshipTier: (data as any).sponsorship_tier || (data as any).sponsorshipTier || 'free',
         } as User);
       }
     } catch (error) {

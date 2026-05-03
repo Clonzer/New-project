@@ -63,6 +63,12 @@ export const usersTable = pgTable("users", {
   sponsoredUntil: timestamp("sponsored_until"),
   featured: boolean("featured").notNull().default(false),
   joinedAt: timestamp("joined_at").notNull().defaultNow(),
+  // Enterprise team fields
+  seatCount: integer("seat_count").default(1), // Number of seats purchased (for Enterprise)
+  teamOwnerId: integer("team_owner_id"), // If this user is a team member, the owner's user ID
+  isTeamOwner: boolean("is_team_owner").notNull().default(false), // Whether this user owns a team
+  organizationName: text("organization_name"), // Company/organization name for Enterprise
+  billingEmail: text("billing_email"), // Separate billing contact for Enterprise
 });
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, joinedAt: true });
