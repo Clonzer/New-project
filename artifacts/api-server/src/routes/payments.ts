@@ -34,16 +34,44 @@ const PLAN_PRICING: Record<string, { monthly: number; yearly: number; name: stri
 const SPONSORSHIP_OPTIONS = {
   profile: {
     code: "profile",
-    name: "Profile sponsorship",
+    name: "Profile Sponsorship",
     description: "Boost your shop placement across featured seller surfaces for 14 days.",
     unitAmountUsd: 39,
     durationDays: 14,
   },
   listing: {
     code: "listing",
-    name: "Product sponsorship",
+    name: "Product Sponsorship",
     description: "Push one listing into sponsored marketplace placements for 14 days.",
     unitAmountUsd: 24,
+    durationDays: 14,
+  },
+  profile_monthly: {
+    code: "profile_monthly",
+    name: "Profile Sponsorship - Monthly",
+    description: "Boost your shop placement across featured seller surfaces for 30 days.",
+    unitAmountUsd: 79,
+    durationDays: 30,
+  },
+  listing_monthly: {
+    code: "listing_monthly",
+    name: "Product Sponsorship - Monthly",
+    description: "Push one listing into sponsored marketplace placements for 30 days.",
+    unitAmountUsd: 49,
+    durationDays: 30,
+  },
+  homepage_featured: {
+    code: "homepage_featured",
+    name: "Homepage Featured",
+    description: "Featured placement on homepage carousel for 7 days with premium visibility.",
+    unitAmountUsd: 99,
+    durationDays: 7,
+  },
+  search_priority: {
+    code: "search_priority",
+    name: "Search Priority Boost",
+    description: "Priority ranking in search results for 14 days.",
+    unitAmountUsd: 29,
     durationDays: 14,
   },
 } as const;
@@ -461,8 +489,8 @@ router.post("/payments/sponsorship/checkout-session", requireAuth, async (req: A
 
     const stripeSession = await createStripeCheckoutSession({
       customerEmail: buyer.email,
-      successUrl: `${appUrl}/dashboard?checkout=success&sponsorship=${sponsorshipType}`,
-      cancelUrl: `${appUrl}${cancelPath.startsWith("/") ? cancelPath : `/${cancelPath}`}`,
+      successUrl: `${appUrl}/pricing?checkout=success&sponsorship=${sponsorshipType}`,
+      cancelUrl: `${appUrl}/pricing?sponsorship=cancelled`,
       lineItems: [
         {
           name: option.name,
@@ -585,7 +613,12 @@ router.post("/payments/stripe/webhook", async (req, res) => {
       }
     } else if (payload.kind === "sponsorship") {
       const extensionMs = payload.durationDays * payload.quantity * DAY_IN_MS;
-      if (payload.sponsorshipType === "profile" && payload.targetUserId) {
+      let notificationTitle = "";
+      let notificationBody = "";
+      let notificationUrl = "";
+
+      // Handle profile sponsorships (both 14-day and 30-day)
+      if ((payload.sponsorshipType === "profile" || payload.sponsorshipType === "profile_monthly") && payload.targetUserId) {
         const [currentUser] = await db.select().from(usersTable).where(eq(usersTable.id, payload.targetUserId));
         const base = currentUser?.profileSponsoredUntil && currentUser.profileSponsoredUntil > new Date()
           ? currentUser.profileSponsoredUntil.getTime()
@@ -594,8 +627,14 @@ router.post("/payments/stripe/webhook", async (req, res) => {
           .update(usersTable)
           .set({ profileSponsoredUntil: new Date(base + extensionMs) })
           .where(eq(usersTable.id, payload.targetUserId));
+        
+        notificationTitle = "Profile sponsorship activated";
+        notificationBody = `Your shop profile is now sponsored for ${payload.durationDays} days.`;
+        notificationUrl = "/shop";
       }
-      if (payload.sponsorshipType === "listing" && payload.targetListingId) {
+      
+      // Handle listing sponsorships (both 14-day and 30-day)
+      if ((payload.sponsorshipType === "listing" || payload.sponsorshipType === "listing_monthly") && payload.targetListingId) {
         const [currentListing] = await db.select().from(listingsTable).where(eq(listingsTable.id, payload.targetListingId));
         const base = currentListing?.sponsoredUntil && currentListing.sponsoredUntil > new Date()
           ? currentListing.sponsoredUntil.getTime()
@@ -604,6 +643,54 @@ router.post("/payments/stripe/webhook", async (req, res) => {
           .update(listingsTable)
           .set({ sponsoredUntil: new Date(base + extensionMs) })
           .where(eq(listingsTable.id, payload.targetListingId));
+        
+        notificationTitle = "Product sponsorship activated";
+        notificationBody = `Your listing is now sponsored for ${payload.durationDays} days.`;
+        notificationUrl = `/listings/${payload.targetListingId}`;
+      }
+
+      // Handle homepage featured sponsorship
+      if (payload.sponsorshipType === "homepage_featured" && payload.targetUserId) {
+        const [currentUser] = await db.select().from(usersTable).where(eq(usersTable.id, payload.targetUserId));
+        const base = currentUser?.sponsoredUntil && currentUser.sponsoredUntil > new Date()
+          ? currentUser.sponsoredUntil.getTime()
+          : Date.now();
+        await db
+          .update(usersTable)
+          .set({ sponsoredUntil: new Date(base + extensionMs), featured: true })
+          .where(eq(usersTable.id, payload.targetUserId));
+        
+        notificationTitle = "Homepage feature activated";
+        notificationBody = `Your shop is now featured on the homepage for ${payload.durationDays} days.`;
+        notificationUrl = "/shop";
+      }
+
+      // Handle search priority sponsorship
+      if (payload.sponsorshipType === "search_priority" && payload.targetUserId) {
+        const [currentUser] = await db.select().from(usersTable).where(eq(usersTable.id, payload.targetUserId));
+        // Store search priority until date (could add a new column if needed)
+        const base = currentUser?.sponsoredUntil && currentUser.sponsoredUntil > new Date()
+          ? currentUser.sponsoredUntil.getTime()
+          : Date.now();
+        await db
+          .update(usersTable)
+          .set({ sponsoredUntil: new Date(base + extensionMs) })
+          .where(eq(usersTable.id, payload.targetUserId));
+        
+        notificationTitle = "Search priority activated";
+        notificationBody = `Your listings now have priority in search results for ${payload.durationDays} days.`;
+        notificationUrl = "/shop";
+      }
+
+      // Send automatic notification for sponsorship
+      if (payload.targetUserId && notificationTitle) {
+        await createNotification({
+          userId: payload.targetUserId,
+          type: "system",
+          title: notificationTitle,
+          body: notificationBody,
+          url: notificationUrl,
+        });
       }
     } else if (payload.kind === "plan") {
       // Base update for all plans

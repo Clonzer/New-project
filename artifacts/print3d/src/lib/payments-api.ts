@@ -19,7 +19,7 @@ export async function getPaymentConfig() {
 }
 
 export type SponsorshipOption = {
-  code: "profile" | "listing";
+  code: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority";
   name: string;
   description: string;
   unitAmountUsd: number;
@@ -46,9 +46,10 @@ export async function createCheckoutSession(input: {
 }
 
 export async function createSponsorshipCheckoutSession(input: {
-  sponsorshipType: "profile" | "listing";
+  sponsorshipType: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority";
   listingId?: number;
   quantity?: number;
+  duration?: number; // Duration in days (7, 14, 30)
   successPath?: string;
   cancelPath?: string;
 }) {

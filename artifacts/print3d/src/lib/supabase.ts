@@ -69,4 +69,7 @@ export type User = {
   teamOwnerId?: number | null;
   organizationName?: string | null;
   billingEmail?: string | null;
+  // Store visibility and order acceptance toggles
+  storeVisible?: boolean;
+  acceptingOrders?: boolean;
 };

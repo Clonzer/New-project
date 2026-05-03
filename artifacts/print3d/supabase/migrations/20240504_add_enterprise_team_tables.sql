@@ -9,11 +9,15 @@ ADD COLUMN IF NOT EXISTS seat_count INTEGER DEFAULT 1,
 ADD COLUMN IF NOT EXISTS team_owner_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
 ADD COLUMN IF NOT EXISTS is_team_owner BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS organization_name TEXT,
-ADD COLUMN IF NOT EXISTS billing_email TEXT;
+ADD COLUMN IF NOT EXISTS billing_email TEXT,
+ADD COLUMN IF NOT EXISTS store_visible BOOLEAN DEFAULT TRUE,
+ADD COLUMN IF NOT EXISTS accepting_orders BOOLEAN DEFAULT TRUE;
 
 -- Create indexes for team lookups
 CREATE INDEX IF NOT EXISTS idx_users_team_owner_id ON public.users(team_owner_id);
 CREATE INDEX IF NOT EXISTS idx_users_is_team_owner ON public.users(is_team_owner) WHERE is_team_owner = TRUE;
+CREATE INDEX IF NOT EXISTS idx_users_store_visible ON public.users(store_visible) WHERE store_visible = FALSE;
+CREATE INDEX IF NOT EXISTS idx_users_accepting_orders ON public.users(accepting_orders) WHERE accepting_orders = FALSE;
 
 -- Add comments for documentation
 COMMENT ON COLUMN public.users.seat_count IS 'Number of purchased seats for Enterprise plan (default 1)';
@@ -21,6 +25,8 @@ COMMENT ON COLUMN public.users.team_owner_id IS 'If user is a team member, refer
 COMMENT ON COLUMN public.users.is_team_owner IS 'True if user owns an Enterprise team';
 COMMENT ON COLUMN public.users.organization_name IS 'Company/organization name for Enterprise accounts';
 COMMENT ON COLUMN public.users.billing_email IS 'Separate billing contact email for Enterprise accounts';
+COMMENT ON COLUMN public.users.store_visible IS 'Whether the shop is visible to public (default true)';
+COMMENT ON COLUMN public.users.accepting_orders IS 'Whether the shop is currently accepting orders (default true)';
 
 -- ============================================
 -- Create team_members table

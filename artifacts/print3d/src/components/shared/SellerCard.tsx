@@ -8,7 +8,6 @@ import { ReportButton } from "@/components/shared/ReportButton";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
-import { MiniRank } from "./RankBadge";
 
 // Extended seller type that accepts both camelCase and snake_case
 interface ExtendedSeller {
@@ -180,9 +179,6 @@ export function SellerCard({
 
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-2">
-                {seller.rankId && seller.rankId > 1 && (
-                  <MiniRank rankId={seller.rankId} />
-                )}
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md backdrop-blur-sm border border-white/5">
                   <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                   <span className="text-sm font-bold text-white">{seller.rating?.toFixed(1) || "New"}</span>

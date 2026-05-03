@@ -48,9 +48,6 @@ import { Equipment } from "@/components/dashboard/Equipment";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
-import { UserRankPanel } from "@/components/dashboard/UserRankPanel";
-import { MiniRank } from "@/components/shared/RankBadge";
-import { getRankById, getXpToNextRank, getRankProgress } from "@/lib/rank-system";
 import { Progress } from "@/components/ui/progress";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
@@ -1190,7 +1187,7 @@ export default function Dashboard() {
                     <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-primary" /> <span className="hidden sm:inline">Edit</span> Storefront
                   </Button>
                 </Link>
-                <Link href="/sponsorship/purchase">
+                <Link href="/pricing#sponsorships">
                   <Button className="h-9 sm:h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-3 sm:px-5 transition-all duration-200 text-xs sm:text-sm whitespace-nowrap">
                     <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Buy</span> Sponsorship
@@ -1371,10 +1368,6 @@ export default function Dashboard() {
                   <TabsTrigger value="analytics" data-tour="analytics" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
-                  </TabsTrigger>
-                  <TabsTrigger value="rank" data-tour="rank" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Rank
                   </TabsTrigger>
                 </>
               )}
@@ -1590,12 +1583,6 @@ export default function Dashboard() {
               </TabsContent>
             )}
 
-            {/* Rank Tab */}
-            {isSellerUser && (
-              <TabsContent value="rank" className="mt-0">
-                <UserRankPanel />
-              </TabsContent>
-            )}
 
             {/* Promotions Tab */}
             {isSellerUser && (
@@ -1616,7 +1603,7 @@ export default function Dashboard() {
                         className="mb-6"
                       />
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Link href="/sponsorship/purchase">
+                        <Link href="/pricing#sponsorships">
                           <div className="glass-panel rounded-2xl border border-white/10 p-6 hover:border-primary/30 transition-colors cursor-pointer">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">

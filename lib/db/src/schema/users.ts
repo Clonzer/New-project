@@ -69,6 +69,9 @@ export const usersTable = pgTable("users", {
   isTeamOwner: boolean("is_team_owner").notNull().default(false), // Whether this user owns a team
   organizationName: text("organization_name"), // Company/organization name for Enterprise
   billingEmail: text("billing_email"), // Separate billing contact for Enterprise
+  // Store visibility and order acceptance toggles
+  storeVisible: boolean("store_visible").notNull().default(true), // Is the shop visible to public
+  acceptingOrders: boolean("accepting_orders").notNull().default(true), // Is the shop currently accepting orders
 });
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, joinedAt: true });

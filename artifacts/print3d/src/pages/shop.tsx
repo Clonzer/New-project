@@ -61,7 +61,6 @@ import { categoryLabel } from "@/lib/equipment-catalog";
 import { isComparedShop, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop } from "@/lib/shop-compare";
 import { useToast } from "@/hooks/use-toast";
 import { buildListingPriceInsights } from "@/lib/listing-pricing";
-import { MiniRank } from "@/components/shared/RankBadge";
 
 export default function Shop() {
   const params = useParams();
@@ -371,9 +370,6 @@ export default function Shop() {
                 <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md text-white border border-white/10">
                   <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> {seller.rating?.toFixed(1) || "New"} ({seller.reviewCount})
                 </span>
-                {seller.rankId && seller.rankId > 1 && (
-                  <MiniRank rankId={seller.rankId} />
-                )}
                 {seller.emailVerifiedAt ? (
                   <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200">
                     Verified maker

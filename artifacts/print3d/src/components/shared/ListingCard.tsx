@@ -10,7 +10,6 @@ import type { ListingPriceInsight } from "@/lib/listing-pricing";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { MiniRank } from "./RankBadge";
 
 export function ListingCard({
   listing,
@@ -160,9 +159,6 @@ export function ListingCard({
           <Link href={`/shop/${listing.sellerId || listing.seller_id}`} className="text-sm text-muted-foreground hover:text-accent transition-colors line-clamp-1 block">
             by {listing.sellerName || listing.seller_name || 'Unknown Shop'}
           </Link>
-          {listing.sellerRankId && listing.sellerRankId > 1 && (
-            <MiniRank rankId={listing.sellerRankId} />
-          )}
         </div>
 
         {priceInsight ? (
