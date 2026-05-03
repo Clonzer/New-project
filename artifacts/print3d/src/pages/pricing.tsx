@@ -269,6 +269,27 @@ export default function Pricing() {
             </div>
           </section>
 
+        {/* Tab Navigation */}
+        <section className="container mx-auto px-4 pb-8 relative z-20">
+          <div className="mx-auto max-w-6xl flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl p-1">
+              <button
+                onClick={() => setActiveTab("plans")}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${activeTab === "plans" ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
+              >
+                Plans
+              </button>
+              <button
+                onClick={() => setActiveTab("sponsorships")}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${activeTab === "sponsorships" ? "bg-primary text-white" : "text-zinc-400 hover:text-white"}`}
+              >
+                Sponsorships
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {activeTab === "plans" && (
         <section className="container mx-auto px-4 pb-16 relative z-20">
           <div className="mx-auto max-w-6xl mb-8 flex justify-center">
             <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl px-2 py-1.5">
@@ -390,8 +411,9 @@ export default function Pricing() {
             })}
           </div>
         </section>
+        )}
 
-        {/* Sponsorships Section */}
+        {activeTab === "sponsorships" && (
         <section className="container mx-auto px-4 pb-24">
           <div className="mx-auto max-w-6xl">
             <motion.div
@@ -498,6 +520,7 @@ export default function Pricing() {
             </motion.div>
           </div>
         </section>
+        )}
 
         {/* FAQ Section */}
         <section className="container mx-auto max-w-3xl px-4 pb-24">
@@ -549,7 +572,7 @@ export default function Pricing() {
         </section>
       </main>
 
-      <Footer className="relative z-10" />
+      <Footer />
       </div>
     </>
   );

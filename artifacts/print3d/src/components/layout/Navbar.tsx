@@ -1,6 +1,12 @@
 import { Link, useLocation } from "wouter";
 import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  COUNTRY_OPTIONS,
+  countryCodeToFlag,
+  persistLocalePreferences,
+  useLocalePreferences,
+} from "@/lib/locale-preferences";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -28,6 +34,24 @@ export function Navbar() {
   const [messageCount, setMessageCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
+
+  // Country selector state
+  const localePreferences = useLocalePreferences();
+  const [countryCode, setCountryCode] = useState(localePreferences.countryCode);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+
+  const handleCountryChange = (code: string) => {
+    setCountryCode(code);
+    const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === code);
+    if (nextCountry) {
+      persistLocalePreferences({
+        countryCode: code,
+        currencyCode: nextCountry.defaultCurrency,
+        languageCode: nextCountry.defaultLanguage,
+      });
+    }
+    setCountryDropdownOpen(false);
+  };
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -176,6 +200,49 @@ export function Navbar() {
             />
           </div>
 
+          {/* Country Selector Dropdown */}
+          <div className="relative hidden sm:block">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={() => setCountryDropdownOpen((v) => !v)}
+            >
+              <span className="text-lg">{countryCodeToFlag(countryCode)}</span>
+            </Button>
+
+            <AnimatePresence>
+              {countryDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-3 shadow-2xl z-[99999]"
+                >
+                  <div className="space-y-1 max-h-64 overflow-y-auto">
+                    {COUNTRY_OPTIONS.map((option) => (
+                      <button
+                        key={option.code}
+                        onClick={() => handleCountryChange(option.code)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+                          countryCode === option.code
+                            ? "bg-primary/20 border border-primary/30"
+                            : "hover:bg-white/5 border border-transparent"
+                        }`}
+                      >
+                        <span className="text-xl">{countryCodeToFlag(option.code)}</span>
+                        <div className="text-left">
+                          <p className="text-sm text-white font-medium">{option.label}</p>
+                          <p className="text-xs text-zinc-500">{option.defaultCurrency} • {option.defaultLanguage}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
               <ShoppingCart className="w-5 h-5" />
@@ -203,7 +270,7 @@ export function Navbar() {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[9999]"
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[99999]"
                 >
                   <div className="space-y-2">
                     <Link

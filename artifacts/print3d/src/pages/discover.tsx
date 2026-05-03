@@ -13,12 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store, Package } from "lucide-react";
-import { formatPrice } from "@/lib/locale-preferences";
+import { Heart, MessageCircle, Share, User, Users, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store, Package, Zap, Crown } from "lucide-react";
+import { formatPrice, COUNTRY_OPTIONS, countryCodeToFlag, persistLocalePreferences, useLocalePreferences } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -628,6 +629,22 @@ export default function Discover() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people" | "trending">("feed");
   const [showEmojiPicker, setShowEmojiPicker] = useState<number | null>(null);
+
+  // Locale preferences for country dropdown
+  const localePreferences = useLocalePreferences();
+  const [countryCode, setCountryCode] = useState(localePreferences.countryCode);
+
+  const handleCountryChange = (value: string) => {
+    setCountryCode(value);
+    const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === value);
+    if (nextCountry) {
+      persistLocalePreferences({
+        countryCode: value,
+        currencyCode: nextCountry.defaultCurrency,
+        languageCode: nextCountry.defaultLanguage,
+      });
+    }
+  };
 
   const emojis = [
     { emoji: "👍", name: "thumbs up", icon: ThumbsUp },
@@ -1772,6 +1789,97 @@ export default function Discover() {
                       </Button>
                     </Link>
                   </div>
+                </div>
+
+                {/* Country Selector */}
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🌍</span>
+                    Location
+                  </h2>
+                  <Select
+                    value={countryCode}
+                    onValueChange={handleCountryChange}
+                  >
+                    <SelectTrigger className="w-full bg-black/60 border-white/10 text-white">
+                      <SelectValue>
+                        {countryCodeToFlag(countryCode)} {COUNTRY_OPTIONS.find(o => o.code === countryCode)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRY_OPTIONS.map((option) => (
+                        <SelectItem key={option.code} value={option.code}>
+                          {countryCodeToFlag(option.code)} {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Pricing Cards */}
+                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
+                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-primary" />
+                    Seller Plans
+                  </h2>
+                  <div className="space-y-3">
+                    <Link href="/pricing">
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 hover:border-primary/30 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-zinc-600 to-zinc-700 flex items-center justify-center">
+                            <Zap className="w-5 h-5 text-zinc-300" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white text-sm">Starter</p>
+                            <p className="text-zinc-500 text-xs">Free forever</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                    <Link href="/pricing">
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 hover:border-primary/50 transition-colors cursor-pointer relative overflow-hidden"
+                      >
+                        <div className="absolute top-2 right-2">
+                          <span className="text-[10px] font-bold text-primary bg-primary/20 px-2 py-0.5 rounded-full">POPULAR</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                            <Star className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white text-sm">Pro</p>
+                            <p className="text-zinc-500 text-xs">$19/month</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                    <Link href="/pricing">
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 hover:border-yellow-500/50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center">
+                            <Crown className="w-5 h-5 text-black" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white text-sm">Elite</p>
+                            <p className="text-zinc-500 text-xs">$49/month</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  </div>
+                  <Link href="/pricing">
+                    <Button variant="outline" className="w-full mt-4 border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
+                      View All Plans
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Featured Models */}
