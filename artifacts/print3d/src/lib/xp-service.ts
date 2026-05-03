@@ -65,10 +65,10 @@ export async function awardXp(
       return { success: false, xpAwarded: 0, newTotalXp: 0, error: "Invalid reward ID" };
     }
 
-    // Get user's current stats
+    // Get user's current stats from users table (per rank system migration)
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("total_xp, rank_id, login_streak, last_login_at")
+      .select("total_xp, rank_id, login_streak, last_login_at, lifetime_pro")
       .eq("id", userId)
       .single();
 
@@ -122,18 +122,18 @@ export async function awardXp(
       isWeekend
     );
 
-    // Record XP history
-    const { error: historyError } = await supabase.from("xp_history").insert({
-      user_id: userId,
-      reward_id: rewardId,
-      xp_amount: xpAmount,
-      base_xp: baseXp,
-      bonus_xp: bonusXp,
-      streak_multiplier: streakMultiplier,
-      metadata: metadata || {},
-    });
-
-    if (historyError) {
+    // Record XP history (optional - may fail if table doesn't exist yet)
+    try {
+      await supabase.from("xp_history").insert({
+        user_id: userId,
+        reward_id: rewardId,
+        xp_amount: xpAmount,
+        base_xp: baseXp,
+        bonus_xp: bonusXp,
+        streak_multiplier: streakMultiplier,
+        metadata: metadata || {},
+      });
+    } catch (historyError) {
       console.error("Failed to record XP history:", historyError);
     }
 

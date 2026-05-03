@@ -2,14 +2,45 @@
 -- Rank System Tables
 -- ============================================
 
--- Add rank-related columns to users table
-ALTER TABLE public.users 
-ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS rank_id INTEGER DEFAULT 1,
-ADD COLUMN IF NOT EXISTS login_streak INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP WITH TIME ZONE,
-ADD COLUMN IF NOT EXISTS lifetime_pro BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS lifetime_pro_granted_at TIMESTAMP WITH TIME ZONE;
+-- Add rank-related columns to users table (safely with DO blocks)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'total_xp') THEN
+        ALTER TABLE public.users ADD COLUMN total_xp INTEGER DEFAULT 0;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'rank_id') THEN
+        ALTER TABLE public.users ADD COLUMN rank_id INTEGER DEFAULT 1;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'login_streak') THEN
+        ALTER TABLE public.users ADD COLUMN login_streak INTEGER DEFAULT 0;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'last_login_at') THEN
+        ALTER TABLE public.users ADD COLUMN last_login_at TIMESTAMP WITH TIME ZONE;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'lifetime_pro') THEN
+        ALTER TABLE public.users ADD COLUMN lifetime_pro BOOLEAN DEFAULT FALSE;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'lifetime_pro_granted_at') THEN
+        ALTER TABLE public.users ADD COLUMN lifetime_pro_granted_at TIMESTAMP WITH TIME ZONE;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'display_name') THEN
+        ALTER TABLE public.users ADD COLUMN display_name TEXT;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'username') THEN
+        ALTER TABLE public.users ADD COLUMN username TEXT;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'avatar_url') THEN
+        ALTER TABLE public.users ADD COLUMN avatar_url TEXT;
+    END IF;
+END $$;
 
 -- Create index for XP leaderboard
 CREATE INDEX IF NOT EXISTS idx_users_total_xp ON public.users(total_xp DESC);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, Package, Eye, Activity, DollarSign, Lock, Crown } from "lucide-react";
+import { TrendingUp, Package, Eye, Activity, DollarSign, Lock, Crown, Sparkles, Zap } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -21,6 +21,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Link } from "wouter";
+import { cn } from "@/lib/utils";
 
 const COLORS = ["#9fe5ff", "#a78bfa", "#ec4899", "#f59e0b"];
 
@@ -29,15 +30,69 @@ interface AnalyticsProps {
   timeRange?: "7d" | "30d" | "90d";
 }
 
+// Analytics tier definitions
+type AnalyticsTier = "free" | "pro" | "elite";
+
+interface TierAccess {
+  basicStats: boolean;
+  charts: boolean;
+  conversionRate: boolean;
+  topProducts: boolean;
+  performanceMetrics: boolean;
+  timeRanges: ("7d" | "30d" | "90d")[];
+}
+
+const TIER_ACCESS: Record<AnalyticsTier, TierAccess> = {
+  free: {
+    basicStats: true,
+    charts: false,
+    conversionRate: false,
+    topProducts: false,
+    performanceMetrics: false,
+    timeRanges: ["7d"],
+  },
+  pro: {
+    basicStats: true,
+    charts: true,
+    conversionRate: true,
+    topProducts: false,
+    performanceMetrics: false,
+    timeRanges: ["7d", "30d"],
+  },
+  elite: {
+    basicStats: true,
+    charts: true,
+    conversionRate: true,
+    topProducts: true,
+    performanceMetrics: true,
+    timeRanges: ["7d", "30d", "90d"],
+  },
+};
+
+function getUserAnalyticsTier(planTier?: string): AnalyticsTier {
+  if (planTier === "elite" || planTier === "enterprise") return "elite";
+  if (planTier === "pro") return "pro";
+  return "free";
+}
+
 export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<"7d" | "30d" | "90d">(timeRange);
+
+  const userTier = getUserAnalyticsTier(user?.planTier);
+  const access = TIER_ACCESS[userTier];
+
+  // Adjust time range if user doesn't have access
+  const effectiveTimeRange = access.timeRanges.includes(selectedTimeRange) 
+    ? selectedTimeRange 
+    : access.timeRanges[access.timeRanges.length - 1];
 
   useEffect(() => {
     fetchAnalyticsData();
-  }, [shopId, timeRange]);
+  }, [shopId, effectiveTimeRange]);
 
   const fetchAnalyticsData = async () => {
     if (!shopId) return;
@@ -46,7 +101,7 @@ export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
       setIsLoading(true);
 
       // Calculate date range
-      const days = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+      const days = effectiveTimeRange === "7d" ? 7 : effectiveTimeRange === "30d" ? 30 : 90;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
@@ -128,47 +183,6 @@ export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
     }
   };
 
-  // Check if user has paid plan (pro, elite, or enterprise)
-  const hasPaidPlan = user?.planTier && user.planTier !== "starter";
-
-  // If user doesn't have paid plan, show locked state
-  if (!hasPaidPlan) {
-    return (
-      <div className="space-y-8">
-        <div className="glass-panel rounded-2xl border border-white/10 p-8 text-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-primary" />
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-3">Upgrade to View Analytics</h3>
-          <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-            Get detailed insights into your store performance, revenue trends, and customer behavior with our Pro plan.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/pricing">
-              <NeonButton glowColor="primary" className="rounded-full">
-                <Crown className="w-4 h-4 mr-2" />
-                Upgrade to Pro
-              </NeonButton>
-            </Link>
-          </div>
-        </div>
-
-        {/* Blurred preview of what's available */}
-        <div className="opacity-30 pointer-events-none filter blur-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="glass-panel rounded-2xl border border-white/10 p-6 h-32" />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-80" />
-            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-80" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
       <div className="space-y-8">
@@ -224,169 +238,262 @@ export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
     ];
   }
 
+  // Helper component for locked features
+  const LockedFeature = ({ tier, children, title }: { tier: string; children: React.ReactNode; title: string }) => (
+    <div className="relative">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+        <div className="text-center p-6">
+          <Lock className="w-8 h-8 text-primary mx-auto mb-3" />
+          <p className="text-white font-semibold mb-2">{title}</p>
+          <p className="text-sm text-zinc-400 mb-4">Upgrade to {tier} to unlock</p>
+          <Link href="/pricing">
+            <NeonButton glowColor="primary" className="rounded-full text-sm py-2 px-4">
+              <Crown className="w-4 h-4 mr-1" />
+              Upgrade
+            </NeonButton>
+          </Link>
+        </div>
+      </div>
+      <div className="filter blur-sm opacity-50">{children}</div>
+    </div>
+  );
+
+  // Tier badge component
+  const TierBadge = () => (
+    <div className={cn(
+      "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
+      userTier === "elite" && "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+      userTier === "pro" && "bg-primary/20 text-primary border border-primary/30",
+      userTier === "free" && "bg-zinc-700/50 text-zinc-400 border border-zinc-600"
+    )}>
+      {userTier === "elite" && <Crown className="w-3 h-3" />}
+      {userTier === "pro" && <Sparkles className="w-3 h-3" />}
+      {userTier === "free" && <Lock className="w-3 h-3" />}
+      {userTier.charAt(0).toUpperCase() + userTier.slice(1)} Analytics
+    </div>
+  );
+
   return (
-    <div className="space-y-8">
-      {/* Stats Overview */}
+    <div className="space-y-6">
+      {/* Header with tier badge and time range selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <TierBadge />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-zinc-400">Time Range:</span>
+          <div className="flex gap-1">
+            {(["7d", "30d", "90d"] as const).map((range) => {
+              const hasAccess = access.timeRanges.includes(range);
+              return (
+                <button
+                  key={range}
+                  onClick={() => hasAccess && setSelectedTimeRange(range)}
+                  disabled={!hasAccess}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                    selectedTimeRange === range && hasAccess
+                      ? "bg-primary text-white"
+                      : hasAccess
+                      ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                      : "bg-zinc-900 text-zinc-600 cursor-not-allowed"
+                  )}
+                >
+                  {range === "7d" ? "7 Days" : range === "30d" ? "30 Days" : "90 Days"}
+                  {!hasAccess && <Lock className="w-3 h-3 inline ml-1" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Overview - Available to all tiers */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Revenue", value: `$${totalRevenue.toFixed(0)}`, change: "from this period", Icon: DollarSign, color: "emerald" },
           { label: "Total Orders", value: totalOrders, change: "from this period", Icon: Package, color: "primary" },
           { label: "Shop Views", value: totalViews, change: "from this period", Icon: Eye, color: "blue" },
-          { label: "Conversion Rate", value: `${avgConversion}%`, change: "from this period", Icon: Activity, color: "purple" },
+          { label: "Conversion Rate", value: `${avgConversion}%`, change: "from this period", Icon: Activity, color: "purple", locked: !access.conversionRate },
         ].map((stat) => (
-          <div key={stat.label} className="glass-panel rounded-2xl border border-white/10 p-6">
+          <div key={stat.label} className="glass-panel rounded-2xl border border-white/10 p-6 relative">
+            {(stat as any).locked && (
+              <div className="absolute top-3 right-3">
+                <Lock className="w-4 h-4 text-zinc-500" />
+              </div>
+            )}
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-zinc-400">{stat.label}</p>
-              <stat.Icon className={`w-5 h-5 text-${stat.color === "primary" ? "primary" : stat.color}-400`} />
+              <stat.Icon className={cn("w-5 h-5", `text-${stat.color === "primary" ? "primary" : stat.color}-400`)} />
             </div>
-            <p className="text-3xl font-bold text-white mb-2">{stat.value}</p>
-            <p className="text-xs text-zinc-400">{stat.change}</p>
+            <p className="text-3xl font-bold text-white mb-2">{(stat as any).locked ? "—" : stat.value}</p>
+            <p className="text-xs text-zinc-400">{(stat as any).locked ? "Upgrade to Pro to view" : stat.change}</p>
           </div>
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <div className="glass-panel rounded-2xl border border-white/10 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Revenue Trend</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
-              <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #ffffff1a",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-                labelStyle={{ color: "#fff" }}
-              />
-              <Legend wrapperStyle={{ color: "#a1a1a1" }} />
-              <Line
-                type="monotone"
-                dataKey="revenue"
-                stroke="#9fe5ff"
-                strokeWidth={2}
-                dot={false}
-                name="Revenue ($)"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      {/* Charts - Pro and above only */}
+      {access.charts ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue Chart */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Revenue Trend</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
+                <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#18181b",
+                    border: "1px solid #ffffff1a",
+                    borderRadius: "8px",
+                    color: "#fff",
+                  }}
+                  labelStyle={{ color: "#fff" }}
+                />
+                <Legend wrapperStyle={{ color: "#a1a1a1" }} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#9fe5ff"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Revenue ($)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* Orders Chart */}
-        <div className="glass-panel rounded-2xl border border-white/10 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Orders by Day</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
-              <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #ffffff1a",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-                labelStyle={{ color: "#fff" }}
-              />
-              <Legend wrapperStyle={{ color: "#a1a1a1" }} />
-              <Bar dataKey="orders" fill="#a78bfa" name="Orders" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          {/* Orders Chart */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Orders by Day</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
+                <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#18181b",
+                    border: "1px solid #ffffff1a",
+                    borderRadius: "8px",
+                    color: "#fff",
+                  }}
+                  labelStyle={{ color: "#fff" }}
+                />
+                <Legend wrapperStyle={{ color: "#a1a1a1" }} />
+                <Bar dataKey="orders" fill="#a78bfa" name="Orders" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* Views Chart */}
-        <div className="glass-panel rounded-2xl border border-white/10 p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-white mb-4">Shop Views Over Time</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
-              <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #ffffff1a",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-                labelStyle={{ color: "#fff" }}
-              />
-              <Legend wrapperStyle={{ color: "#a1a1a1" }} />
-              <Area
-                type="monotone"
-                dataKey="views"
-                fill="#3b82f6"
-                stroke="#60a5fa"
-                strokeWidth={2}
-                name="Views"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {/* Views Chart */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-white mb-4">Shop Views Over Time</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" />
+                <XAxis dataKey="date" stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <YAxis stroke="#a1a1a1" style={{ fontSize: "12px" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#18181b",
+                    border: "1px solid #ffffff1a",
+                    borderRadius: "8px",
+                    color: "#fff",
+                  }}
+                  labelStyle={{ color: "#fff" }}
+                />
+                <Legend wrapperStyle={{ color: "#a1a1a1" }} />
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  fill="#3b82f6"
+                  stroke="#60a5fa"
+                  strokeWidth={2}
+                  name="Views"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Locked Charts for Free Users */
+        <LockedFeature tier="Pro" title="Advanced Charts">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-80" />
+            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-80" />
+          </div>
+        </LockedFeature>
+      )}
 
-      {/* Top Products and Conversion */}
+      {/* Top Products and Performance Metrics - Elite only */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Products Table */}
-        <div className="glass-panel rounded-2xl border border-white/10 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Top Products</h3>
-          <div className="space-y-3">
-            {products.length > 0 && products[0].name !== "No data yet" ? products.map((product, index) => (
-              <div key={product.name} className="flex items-center justify-between pb-3 border-b border-white/5 last:pb-0 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: COLORS[index % COLORS.length] + "33", borderColor: COLORS[index % COLORS.length] + "80", borderWidth: "1px" }} />
-                  <div>
-                    <p className="text-sm font-medium text-white">{product.name}</p>
-                    <p className="text-xs text-zinc-500">{product.views} views</p>
+        {access.topProducts ? (
+          <div className="glass-panel rounded-2xl border border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Top Products</h3>
+            <div className="space-y-3">
+              {products.length > 0 && products[0].name !== "No data yet" ? products.map((product, index) => (
+                <div key={product.name} className="flex items-center justify-between pb-3 border-b border-white/5 last:pb-0 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: COLORS[index % COLORS.length] + "33", borderColor: COLORS[index % COLORS.length] + "80", borderWidth: "1px" }} />
+                    <div>
+                      <p className="text-sm font-medium text-white">{product.name}</p>
+                      <p className="text-xs text-zinc-500">{product.views} views</p>
+                    </div>
                   </div>
+                  <p className="text-sm font-semibold text-white">${product.revenue}</p>
                 </div>
-                <p className="text-sm font-semibold text-white">${product.revenue}</p>
-              </div>
-            )) : (
-              <p className="text-sm text-zinc-400 text-center py-4">No product data available yet</p>
-            )}
+              )) : (
+                <p className="text-sm text-zinc-400 text-center py-4">No product data available yet</p>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <LockedFeature tier="Elite" title="Top Products Analysis">
+            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-64" />
+          </LockedFeature>
+        )}
 
-        {/* Conversion Rate Distribution */}
-        <div className="glass-panel rounded-2xl border border-white/10 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Performance Metrics</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <p className="text-sm text-zinc-400">View-to-order Ratio</p>
-                <p className="text-sm font-semibold text-white">{avgConversion}%</p>
+        {/* Performance Metrics */}
+        {access.performanceMetrics ? (
+          <div className="glass-panel rounded-2xl border border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Performance Metrics</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
+                  <p className="text-sm text-zinc-400">View-to-order Ratio</p>
+                  <p className="text-sm font-semibold text-white">{avgConversion}%</p>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-emerald-400 to-green-500 h-2 rounded-full" style={{ width: `${Math.min(parseFloat(avgConversion), 100)}%` }} />
+                </div>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-emerald-400 to-green-500 h-2 rounded-full" style={{ width: `${Math.min(parseFloat(avgConversion), 100)}%` }} />
+              <div>
+                <div className="flex justify-between mb-2">
+                  <p className="text-sm text-zinc-400">Total Products</p>
+                  <p className="text-sm font-semibold text-white">{products.length}</p>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{ width: `${Math.min(products.length * 10, 100)}%` }} />
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <p className="text-sm text-zinc-400">Total Products</p>
-                <p className="text-sm font-semibold text-white">{products.length}</p>
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{ width: `${Math.min(products.length * 10, 100)}%` }} />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <p className="text-sm text-zinc-400">Active Days</p>
-                <p className="text-sm font-semibold text-white">{data.filter((d: any) => d.orders > 0 || d.views > 0).length}</p>
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full" style={{ width: `${Math.min((data.filter((d: any) => d.orders > 0 || d.views > 0).length / data.length) * 100, 100)}%` }} />
+              <div>
+                <div className="flex justify-between mb-2">
+                  <p className="text-sm text-zinc-400">Active Days</p>
+                  <p className="text-sm font-semibold text-white">{data.filter((d: any) => d.orders > 0 || d.views > 0).length}</p>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full" style={{ width: `${Math.min((data.filter((d: any) => d.orders > 0 || d.views > 0).length / data.length) * 100, 100)}%` }} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <LockedFeature tier="Elite" title="Performance Metrics">
+            <div className="glass-panel rounded-2xl border border-white/10 p-6 h-64" />
+          </LockedFeature>
+        )}
       </div>
 
       {/* Footnote */}

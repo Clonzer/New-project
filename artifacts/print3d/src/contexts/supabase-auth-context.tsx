@@ -52,11 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
-      // Fetch profile and XP data in parallel
-      const [{ data, error }, { data: xpData, error: xpError }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('user_xp').select('total_xp, current_rank').eq('user_id', userId).single()
-      ]);
+      // Fetch profile and XP data from users table (per migration 20240504_add_rank_system.sql)
+      const { data, error } = await supabase
+        .from('users')
+        .select('*, total_xp, rank_id, login_streak, last_login_at, lifetime_pro')
+        .eq('id', userId)
+        .single();
 
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -71,25 +72,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             displayName: userMetadata.display_name || userMetadata.displayName || userMetadata.name || userMetadata.username,
             role: userMetadata.role || 'buyer',
             isVerified: authData.user.email_confirmed_at ? true : false,
+            totalXp: 0,
+            rankId: 1,
           };
-          setUser(basicUser);
+          setUser(basicUser as User);
 
-          // Try to create the profile in the background
+          // Try to create the user record in the background
           supabase
-            .from('profiles')
+            .from('users')
             .insert({
               id: authData.user.id,
               email: authData.user.email,
               username: basicUser.username,
               display_name: basicUser.displayName,
               role: basicUser.role,
+              total_xp: 0,
+              rank_id: 1,
             })
             .then(({ error: insertError }) => {
               if (insertError) {
-                console.error('Error creating profile on fetch:', insertError);
+                console.error('Error creating user record on fetch:', insertError);
               } else {
-                console.log('Profile created successfully on fetch');
-                // Don't refetch to avoid infinite loop - user will reload or navigate
+                console.log('User record created successfully on fetch');
               }
             });
         }
@@ -112,9 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           instagramHandle: (data as any).instagram_handle || (data as any).instagramHandle,
           supportEmail: (data as any).support_email || (data as any).supportEmail,
           sellerTags: (data as any).seller_tags || (data as any).sellerTags,
-          // XP and Rank data
-          totalXp: xpData?.total_xp || 0,
-          rankId: xpData?.current_rank || 1,
+          // XP and Rank data - now from users table
+          totalXp: (data as any).total_xp || 0,
+          rankId: (data as any).rank_id || 1,
           // Plan and subscription data
           planTier: (data as any).plan_tier || (data as any).planTier || 'starter',
           sponsorshipTier: (data as any).sponsorship_tier || (data as any).sponsorshipTier || 'free',
@@ -175,11 +179,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
 
-    // Create profile manually to ensure data is saved
+    // Create user record manually to ensure data is saved
     if (authData.user) {
       try {
-        const { error: profileError } = await supabase
-          .from('profiles')
+        const { error: userRecordError } = await supabase
+          .from('users')
           .insert({
             id: authData.user.id,
             email: authData.user.email,
@@ -190,15 +194,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             shop_name: userData.shopName || null,
             shop_mode: userData.shopMode || null,
             avatar_url: userData.avatarUrl || null,
+            total_xp: 0,
+            rank_id: 1,
+            login_streak: 0,
           });
 
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          // Don't fail registration if profile creation fails
+        if (userRecordError) {
+          console.error('Error creating user record:', userRecordError);
+          // Don't fail registration if user creation fails
           // The trigger will try to create it
         }
       } catch (e) {
-        console.error('Error in profile creation:', e);
+        console.error('Error in user record creation:', e);
       }
     }
 

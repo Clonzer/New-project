@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Megaphone, Package, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight, Tag } from "lucide-react";
-import { getSponsorshipDiscount, PLAN_LIMITS } from "@/lib/plan-utils";
+import { getSponsorshipDiscount, PLAN_LIMITS, calculateEnterprisePrice, getEnterpriseBasePrice, getEnterpriseSeatPrice } from "@/lib/plan-utils";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -89,21 +89,21 @@ const PLANS = [
     icon: Rocket,
     iconColor: "text-cyan-300",
     price: { monthly: 0, yearly: 0 },
-    platformFee: 0,
-    badge: "Custom",
+    platformFee: 3,
+    badge: "Per-Seat",
     highlight: false,
-    description: "Custom commercial setup for studios, teams, and partners that need more than a normal seller plan.",
+    description: "Per-seat plan for teams. Base fee + per member pricing. Perfect for studios and multi-person shops.",
     features: [
-      { text: "Custom commercial terms", included: true },
-      { text: "Negotiated fees", included: true },
+      { text: "Unlimited listings", included: true },
+      { text: "3% platform fee", included: true },
+      { text: "Team member management", included: true },
       { text: "Dedicated onboarding", included: true },
-      { text: "Merchandising and launch planning", included: true },
-      { text: "Procurement or managed workflows", included: true },
+      { text: "Advanced analytics", included: true },
       { text: "Priority support and escalation", included: true },
-      { text: "Account assignment by owner", included: true },
+      { text: "Custom branding", included: true },
       { text: "White-glove rollout", included: true },
     ],
-    cta: "Learn More",
+    cta: "Buy Now",
     glow: "primary" as const,
   },
 ] as const;
@@ -134,6 +134,7 @@ export default function Pricing() {
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const [profileDuration, setProfileDuration] = useState<7 | 14 | 30>(14);
   const [listingDuration, setListingDuration] = useState<7 | 14 | 30>(14);
+  const [enterpriseSeats, setEnterpriseSeats] = useState<number>(5);
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
   const [activeTab, setActiveTab] = useState<"plans" | "sponsorships">("plans");
@@ -190,7 +191,7 @@ export default function Pricing() {
     [yearly],
   );
 
-  const startPlanCheckout = (planId: string) => {
+  const startPlanCheckout = (planId: string, seats?: number) => {
     if (!user) {
       setLocation("/register");
       return;
@@ -199,7 +200,8 @@ export default function Pricing() {
       setLocation("/settings?section=payment");
       return;
     }
-    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}&successPath=/dashboard?checkout=success&plan=${planId}`;
+    const seatParam = planId === "enterprise" && seats ? `&seats=${seats}` : "";
+    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}${seatParam}&successPath=/dashboard?checkout=success&plan=${planId}`;
   };
 
   const startProfileSponsorship = async () => {
@@ -509,14 +511,28 @@ export default function Pricing() {
 
                             {/* Price */}
                             <div className="mb-4">
-                              <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-bold text-white">
-                                  {isEnterprise ? "Custom" : plan.activePrice === 0 ? "Free" : `$${plan.activePrice}`}
-                                </span>
-                                {!isEnterprise && plan.activePrice > 0 && (
-                                  <span className="text-sm text-zinc-500">/{yearly ? "mo" : "mo"}</span>
-                                )}
-                              </div>
+                              {isEnterprise ? (
+                                <div className="space-y-2">
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="text-3xl font-bold text-white">
+                                      ${calculateEnterprisePrice(enterpriseSeats)}
+                                    </span>
+                                    <span className="text-sm text-zinc-500">/mo</span>
+                                  </div>
+                                  <p className="text-xs text-zinc-400">
+                                    Base ${getEnterpriseBasePrice()} + {enterpriseSeats} seats × ${getEnterpriseSeatPrice()}
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-4xl font-bold text-white">
+                                    {plan.activePrice === 0 ? "Free" : `$${plan.activePrice}`}
+                                  </span>
+                                  {plan.activePrice > 0 && (
+                                    <span className="text-sm text-zinc-500">/{yearly ? "mo" : "mo"}</span>
+                                  )}
+                                </div>
+                              )}
                               {yearly && plan.activePrice > 0 && !isEnterprise && (
                                 <p className="text-xs text-emerald-400 mt-1">
                                   Save ${(plan.price.monthly - plan.price.yearly) * 12}/year
@@ -526,14 +542,48 @@ export default function Pricing() {
 
                             {/* Platform Fee Badge */}
                             <div className={`inline-flex w-fit items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold mb-4 ${
-                              plan.highlight 
-                                ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" 
+                              plan.highlight
+                                ? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
                                 : "bg-zinc-800/50 text-zinc-300 border border-white/10"
                             }`}>
                               <Shield className="w-4 h-4" />
-                              <span>{isEnterprise ? "Custom" : `${plan.platformFee}%`}</span>
-                              <span className="text-zinc-500 font-normal">{isEnterprise ? "terms" : "fee"}</span>
+                              <span>{plan.platformFee}%</span>
+                              <span className="text-zinc-500 font-normal">fee</span>
                             </div>
+
+                            {/* Enterprise Seat Selector */}
+                            {isEnterprise && (
+                              <div className="mb-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                                <label className="block text-xs text-cyan-300 font-medium mb-2 uppercase tracking-wider">
+                                  Team Size (Seats)
+                                </label>
+                                <div className="flex items-center gap-3">
+                                  <button
+                                    onClick={() => setEnterpriseSeats(Math.max(1, enterpriseSeats - 1))}
+                                    className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-colors"
+                                  >
+                                    -
+                                  </button>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    max={100}
+                                    value={enterpriseSeats}
+                                    onChange={(e) => setEnterpriseSeats(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                                    className="w-16 text-center bg-black/30 border border-white/10 rounded-lg py-1.5 text-white font-semibold"
+                                  />
+                                  <button
+                                    onClick={() => setEnterpriseSeats(Math.min(100, enterpriseSeats + 1))}
+                                    className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-colors"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                <p className="text-xs text-zinc-500 mt-2">
+                                  Includes you + {enterpriseSeats - 1} team members
+                                </p>
+                              </div>
+                            )}
 
                             {/* Description */}
                             <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
@@ -563,30 +613,21 @@ export default function Pricing() {
                             </ul>
 
                             {/* CTA Button */}
-                            {isEnterprise ? (
-                              <Link href="/help" className="block">
-                                <button className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 bg-zinc-800 hover:bg-zinc-700 text-white border border-white/10 hover:border-white/20">
-                                  <span className="flex items-center justify-center gap-2">
-                                    {plan.cta}
-                                    <ArrowRight className="w-4 h-4" />
-                                  </span>
-                                </button>
-                              </Link>
-                            ) : (
-                              <button 
-                                onClick={() => startPlanCheckout(plan.id)}
-                                className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                                  plan.highlight 
-                                    ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-500/25" 
+                            <button
+                              onClick={() => startPlanCheckout(plan.id, isEnterprise ? enterpriseSeats : undefined)}
+                              className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                plan.highlight
+                                  ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-500/25"
+                                  : isEnterprise
+                                    ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25"
                                     : "bg-zinc-800 hover:bg-zinc-700 text-white border border-white/10 hover:border-white/20"
-                                }`}
-                              >
-                                <span className="flex items-center justify-center gap-2">
-                                  {plan.cta}
-                                  <ArrowRight className="w-4 h-4" />
-                                </span>
-                              </button>
-                            )}
+                              }`}
+                            >
+                              <span className="flex items-center justify-center gap-2">
+                                {plan.cta}
+                                <ArrowRight className="w-4 h-4" />
+                              </span>
+                            </button>
                           </div>
                         </motion.div>
                       );

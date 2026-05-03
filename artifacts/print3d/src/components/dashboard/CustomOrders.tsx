@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, DollarSign, FileText, MessageSquare, CheckCircle2, XCircle, AlertCircle, Plus } from "lucide-react";
+import { Clock, DollarSign, FileText, MessageSquare, CheckCircle2, XCircle, AlertCircle, Plus, Pencil, Trash2 } from "lucide-react";
 
 export default function CustomOrders({ user }: { user: any }) {
   const { toast } = useToast();
@@ -18,6 +18,7 @@ export default function CustomOrders({ user }: { user: any }) {
   const [quotedPrice, setQuotedPrice] = useState("");
   const [quoteMessage, setQuoteMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchRequests();
@@ -138,6 +139,98 @@ export default function CustomOrders({ user }: { user: any }) {
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditQuote = async () => {
+    if (!selectedRequest || !quotedPrice) {
+      toast({
+        title: "Price required",
+        description: "Please enter a quoted price.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('custom_order_requests')
+        .update({
+          quoted_price: parseFloat(quotedPrice),
+          quote_message: quoteMessage || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', selectedRequest.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Quote updated",
+        description: "Your quote has been updated successfully.",
+      });
+      setSelectedRequest(null);
+      setQuotedPrice("");
+      setQuoteMessage("");
+      setIsEditing(false);
+      fetchRequests();
+    } catch (err) {
+      console.error('Error updating quote:', err);
+      toast({
+        title: "Failed to update quote",
+        description: "Could not update your quote. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleWithdrawQuote = async (requestId: string) => {
+    if (!confirm("Are you sure you want to withdraw your quote? The buyer will no longer see it.")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('custom_order_requests')
+        .update({
+          status: 'pending',
+          quoted_price: null,
+          quote_message: null,
+          quoted_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Quote withdrawn",
+        description: "Your quote has been withdrawn successfully.",
+      });
+      fetchRequests();
+    } catch (err) {
+      console.error('Error withdrawing quote:', err);
+      toast({
+        title: "Failed to withdraw quote",
+        description: "Could not withdraw your quote. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openEditDialog = (request: any) => {
+    setSelectedRequest(request);
+    setQuotedPrice(request.quoted_price?.toString() || "");
+    setQuoteMessage(request.quote_message || "");
+    setIsEditing(true);
+  };
+
+  const openQuoteDialog = (request: any) => {
+    setSelectedRequest(request);
+    setQuotedPrice(request.proposed_price?.toString() || "");
+    setQuoteMessage("");
+    setIsEditing(false);
   };
 
   const getStatusBadge = (status: string) => {
@@ -263,11 +356,7 @@ export default function CustomOrders({ user }: { user: any }) {
                     <>
                       <NeonButton
                         glowColor="primary"
-                        onClick={() => {
-                          setSelectedRequest(request);
-                          setQuotedPrice(request.proposed_price?.toString() || "");
-                          setQuoteMessage("");
-                        }}
+                        onClick={() => openQuoteDialog(request)}
                         className="rounded-xl"
                       >
                         <DollarSign className="w-4 h-4 mr-2" />
@@ -284,9 +373,24 @@ export default function CustomOrders({ user }: { user: any }) {
                     </>
                   )}
                   {request.status === 'quoted' && (
-                    <div className="text-sm text-zinc-400 text-center">
-                      Waiting for buyer to accept
-                    </div>
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => openEditDialog(request)}
+                        className="rounded-xl glass-panel text-white border-blue-500/30 hover:bg-blue-500/10 hover:border-blue-500/50"
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit Quote
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleWithdrawQuote(request.id)}
+                        className="rounded-xl glass-panel text-white border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Withdraw
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -295,13 +399,22 @@ export default function CustomOrders({ user }: { user: any }) {
         </div>
       )}
 
-      {/* Quote Dialog */}
-      <Dialog open={!!selectedRequest} onOpenChange={(open) => !open && setSelectedRequest(null)}>
+      {/* Quote/Edit Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedRequest(null);
+          setIsEditing(false);
+        }
+      }}>
         <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">Provide Quote</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-white">
+              {isEditing ? "Edit Quote" : "Provide Quote"}
+            </DialogTitle>
             <DialogDescription className="text-zinc-500 text-sm">
-              Review the request and provide your quoted price for this custom order.
+              {isEditing
+                ? "Update your quoted price and message for this custom order."
+                : "Review the request and provide your quoted price for this custom order."}
             </DialogDescription>
           </DialogHeader>
           {selectedRequest && (
@@ -317,7 +430,9 @@ export default function CustomOrders({ user }: { user: any }) {
               </div>
 
               <div>
-                <label className="block text-sm text-zinc-300 mb-1.5">Your quoted price ($)</label>
+                <label className="block text-sm text-zinc-300 mb-1.5">
+                  {isEditing ? "Updated price ($)" : "Your quoted price ($)"}
+                </label>
                 <Input
                   type="number"
                   value={quotedPrice}
@@ -340,18 +455,23 @@ export default function CustomOrders({ user }: { user: any }) {
               <div className="flex gap-3 pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setSelectedRequest(null)}
+                  onClick={() => {
+                    setSelectedRequest(null);
+                    setIsEditing(false);
+                  }}
                   className="flex-1 border-white/10 text-zinc-300 hover:bg-white/5"
                 >
                   Cancel
                 </Button>
                 <NeonButton
                   glowColor="primary"
-                  onClick={handleQuote}
+                  onClick={isEditing ? handleEditQuote : handleQuote}
                   disabled={isSubmitting || !quotedPrice}
                   className="flex-1 rounded-xl"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Quote"}
+                  {isSubmitting
+                    ? (isEditing ? "Saving..." : "Submitting...")
+                    : (isEditing ? "Save Changes" : "Submit Quote")}
                 </NeonButton>
               </div>
             </div>
