@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store, Package } from "lucide-react";
 import { formatPrice } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
@@ -35,11 +35,10 @@ interface Comment {
   createdAt: string;
 }
 
-// Helper component for user profile links - Matching Header Style
+// Helper component for user profile links
 function UserAvatarLink({ userId, avatarUrl, displayName, size = "md" }: { userId: number; avatarUrl?: string; displayName: string; size?: "sm" | "md" | "lg" }) {
   const sizeClasses = { sm: "w-8 h-8", md: "w-12 h-12", lg: "w-16 h-16" };
   const ringClasses = { sm: "p-[1px]", md: "p-[2px]", lg: "p-[2px]" };
-  const textClasses = { sm: "text-xs", md: "text-sm", lg: "text-base" };
   
   return (
     <Link href={`/shop/${userId}`}>
@@ -48,6 +47,478 @@ function UserAvatarLink({ userId, avatarUrl, displayName, size = "md" }: { userI
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
           ) : (
+            <User className="w-1/2 h-1/2 text-zinc-500" />
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Sample posts data
+const SAMPLE_POSTS = [
+  {
+    id: 1,
+    userId: 1,
+    user: { displayName: "Alex Johnson", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=alex" },
+    content: "Just finished printing this amazing dragon model! The details are incredible. Used PrusaSlicer with 0.15mm layer height. What do you think?",
+    imageUrl: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop",
+    likes: 42,
+    comments: 8,
+    createdAt: "2 hours ago",
+    tags: ["#3DPrinting", "#Dragon", "#Fantasy"]
+  },
+  {
+    id: 2,
+    userId: 2,
+    user: { displayName: "Sarah Chen", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=sarah" },
+    content: "Working on a new cosplay prop commission. The client wanted something lightweight but durable, so I'm using PLA with specific infill patterns.",
+    likes: 28,
+    comments: 12,
+    createdAt: "4 hours ago",
+    tags: ["#Cosplay", "#Commission", "#Props"]
+  },
+  {
+    id: 3,
+    userId: 3,
+    user: { displayName: "Mike Rodriguez", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=mike" },
+    content: "Check out my new print farm setup! 6 printers running 24/7 to fulfill orders. Looking to expand soon if demand keeps up.",
+    imageUrl: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&auto=format&fit=crop",
+    likes: 156,
+    comments: 34,
+    createdAt: "6 hours ago",
+    tags: ["#PrintFarm", "#Business", "#Entrepreneur"]
+  }
+];
+
+// Trending tags
+const TRENDING_TAGS = ["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"];
+
+export default function DiscoverPage() {
+  const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people">("feed");
+  const [searchQuery, setSearchQuery] = useState("");
+  const { user } = useAuth();
+  const { data: usersData, isLoading: isLoadingUsers } = useListUsers();
+  const { data: listingsData, isLoading: isLoadingListings } = useListListings();
+  const { toast } = useToast();
+
+  // Filter listings
+  const filteredListings = useMemo(() => {
+    if (!listingsData?.listings) return [];
+    let listings = listingsData.listings;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      listings = listings.filter((l: any) =>
+        l.title?.toLowerCase().includes(query) ||
+        l.description?.toLowerCase().includes(query) ||
+        l.tags?.some((tag: string) => tag.toLowerCase().includes(query))
+      );
+    }
+    return sortByRanking(enhanceWithSponsorship(listings, 0.15), { quality: 1, views: 0.8, sales: 1.2, age: 0.5 });
+  }, [listingsData, searchQuery]);
+
+  // Filter users
+  const filteredUsers = useMemo(() => {
+    if (!usersData?.users) return [];
+    let users = usersData.users;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      users = users.filter((u: any) =>
+        u.displayName?.toLowerCase().includes(query) ||
+        u.shopName?.toLowerCase().includes(query) ||
+        u.bio?.toLowerCase().includes(query)
+      );
+    }
+    return users;
+  }, [usersData, searchQuery]);
+
+  const handleTabChange = (tab: "feed" | "projects" | "people") => {
+    setActiveTab(tab);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <SEOMeta
+        title="Discover | Print3D"
+        description="Discover amazing 3D printing projects, connect with talented makers, and explore trending models."
+      />
+      <StructuredData type="WebPage" data={generateBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "Discover", url: "/discover" }
+      ])} />
+      <MarketplaceStructuredData />
+
+      <main className="flex-grow pt-12 pb-24">
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Discover</span>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
+            >
+              Explore the Community
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-xl text-zinc-400 max-w-2xl mx-auto"
+            >
+              Discover amazing 3D printing projects, connect with talented makers, and find inspiration.
+            </motion.p>
+          </div>
+
+          {/* Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-2xl mx-auto mb-8"
+          >
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+              <Input
+                type="text"
+                placeholder="Search posts, models, creators..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-zinc-900/50 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-primary focus:ring-primary/20"
+              />
+            </div>
+          </motion.div>
+
+          {/* Tabs */}
+          <div className="flex justify-center gap-2 mb-8">
+            <button
+              onClick={() => handleTabChange("feed")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                activeTab === "feed"
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg scale-105 ring-2 ring-white/50"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Feed
+            </button>
+            <button
+              onClick={() => handleTabChange("projects")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                activeTab === "projects"
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg scale-105 ring-2 ring-white/50"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Projects
+            </button>
+            <button
+              onClick={() => handleTabChange("people")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                activeTab === "people"
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg scale-105 ring-2 ring-white/50"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <User className="w-4 h-4" />
+              People
+            </button>
+          </div>
+
+          {/* Content */}
+          {activeTab === "feed" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Feed */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Create Post */}
+                <Card className="glass-card border-white/[0.08] rounded-3xl overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex gap-4">
+                      <UserAvatarLink
+                        userId={user?.id || 0}
+                        avatarUrl={user?.avatarUrl}
+                        displayName={user?.displayName || "Guest"}
+                        size="md"
+                      />
+                      <div className="flex-1">
+                        <Textarea
+                          placeholder="Share your latest 3D printing creation..."
+                          className="min-h-[80px] bg-zinc-900/50 border-white/10 rounded-xl text-white placeholder:text-zinc-500 resize-none focus:border-primary focus:ring-primary/20"
+                        />
+                        <div className="flex justify-between items-center mt-3">
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
+                              <Plus className="w-4 h-4 mr-1" />
+                              Image
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
+                              <Tag className="w-4 h-4 mr-1" />
+                              Tag
+                            </Button>
+                          </div>
+                          <NeonButton size="sm">Post</NeonButton>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Posts Feed */}
+                <div className="space-y-6">
+                  {SAMPLE_POSTS.map((post) => (
+                    <Card key={post.id} className="glass-card border-white/[0.08] rounded-3xl overflow-hidden">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <UserAvatarLink
+                            userId={post.userId}
+                            avatarUrl={post.user.avatarUrl}
+                            displayName={post.user.displayName}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="font-semibold text-white">{post.user.displayName}</p>
+                            <p className="text-xs text-zinc-500">{post.createdAt}</p>
+                          </div>
+                        </div>
+                        <p className="text-zinc-300 mb-4">{post.content}</p>
+                        {post.imageUrl && (
+                          <div className="rounded-2xl overflow-hidden mb-4">
+                            <img src={post.imageUrl} alt="Post" className="w-full h-64 object-cover" />
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {post.tags?.map((tag) => (
+                            <span key={tag} className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-6 pt-4 border-t border-white/10">
+                          <button className="flex items-center gap-2 text-zinc-400 hover:text-red-400 transition-colors">
+                            <Heart className="w-5 h-5" />
+                            <span className="text-sm">{post.likes}</span>
+                          </button>
+                          <button className="flex items-center gap-2 text-zinc-400 hover:text-primary transition-colors">
+                            <MessageCircle className="w-5 h-5" />
+                            <span className="text-sm">{post.comments}</span>
+                          </button>
+                          <button className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
+                            <Share className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column - Sidebar */}
+              <div className="space-y-6">
+                {/* Featured Models */}
+                <Card className="glass-card border-white/[0.08] rounded-3xl overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-primary" />
+                        Featured Models
+                      </h2>
+                      <Link href="/explore">
+                        <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
+                          View All <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    </div>
+                    <div className="space-y-4">
+                      {isLoadingListings ? (
+                        <div className="space-y-3">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="animate-pulse flex items-center gap-3">
+                              <div className="w-12 h-12 bg-zinc-800/50 rounded-lg" />
+                              <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-zinc-800/50 rounded w-3/4" />
+                                <div className="h-3 bg-zinc-800/50 rounded w-1/4" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : filteredListings.slice(0, 5).map((listing: any, idx: number) => (
+                        <Link key={listing.id} href={`/listings/${listing.id}`}>
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors"
+                          >
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+                              <img
+                                src={listing.imageUrl || "/placeholder.svg"}
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-white text-sm truncate">{listing.title}</p>
+                              <p className="text-primary text-xs font-semibold">
+                                ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
+                              </p>
+                            </div>
+                          </motion.div>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Trending Tags */}
+                <Card className="glass-card border-white/[0.08] rounded-3xl overflow-hidden">
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-accent" />
+                      Trending Tags
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {TRENDING_TAGS.map((tag) => (
+                        <Button
+                          key={tag}
+                          variant="secondary"
+                          size="sm"
+                          className="rounded-full text-xs text-zinc-300 hover:bg-primary/20 hover:text-white"
+                        >
+                          {tag}
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Featured Shops */}
+                <Card className="glass-card border-white/[0.08] rounded-3xl overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
+                        <Store className="w-5 h-5 text-primary" />
+                        Featured Shops
+                      </h2>
+                      <Link href="/explore?filter=shops">
+                        <button className="text-sm text-primary hover:text-white transition-colors flex items-center gap-1">
+                          View All <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    </div>
+                    <div className="space-y-4">
+                      {isLoadingUsers ? (
+                        <div className="space-y-3">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="animate-pulse">
+                              <div className="h-16 bg-zinc-800/50 rounded-xl" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : usersData?.users?.filter((u: any) => u.role === "seller" || u.role === "both").slice(0, 5).map((seller: any, idx: number) => (
+                        <Link key={seller.id} href={`/shops/${seller.id}`}>
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors"
+                          >
+                            <UserAvatarLink
+                              userId={seller.id}
+                              avatarUrl={seller.avatarUrl}
+                              displayName={seller.displayName}
+                              size="sm"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-white text-sm truncate">{seller.displayName}</p>
+                              <p className="text-zinc-500 text-xs">{seller.shopName || "Shop"}</p>
+                            </div>
+                          </motion.div>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "projects" && (
+            <div className="space-y-6">
+              <div className="text-center py-12">
+                <h2 className="text-2xl font-display font-bold text-white mb-4">Projects</h2>
+                <p className="text-zinc-400">Browse amazing 3D printing projects from our community.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {isLoadingListings ? (
+                  [1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-64 bg-zinc-800/50 rounded-2xl" />
+                    </div>
+                  ))
+                ) : filteredListings.map((listing: any) => (
+                  <ListingCard key={listing.id} listing={listing} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "people" && (
+            <div className="space-y-6">
+              <div className="text-center py-12">
+                <h2 className="text-2xl font-display font-bold text-white mb-4">People</h2>
+                <p className="text-zinc-400">Connect with talented makers and creators.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {isLoadingUsers ? (
+                  [1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-48 bg-zinc-800/50 rounded-2xl" />
+                    </div>
+                  ))
+                ) : filteredUsers.map((user: any) => (
+                  <Link key={user.id} href={`/shops/${user.id}`}>
+                    <Card className="glass-card border-white/[0.08] rounded-3xl overflow-hidden hover:border-primary/30 transition-colors cursor-pointer">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-4">
+                          <UserAvatarLink
+                            userId={user.id}
+                            avatarUrl={user.avatarUrl}
+                            displayName={user.displayName}
+                            size="lg"
+                          />
+                          <div>
+                            <h3 className="font-semibold text-white">{user.displayName}</h3>
+                            <p className="text-zinc-500 text-sm">{user.shopName || "Maker"}</p>
+                            <Badge variant="secondary" className="mt-1">
+                              {user.role || "user"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
             <span className={`font-bold text-white ${textClasses[size]}`}>
               {displayName.charAt(0).toUpperCase()}
             </span>
