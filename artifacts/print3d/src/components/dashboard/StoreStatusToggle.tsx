@@ -3,6 +3,7 @@ import { Eye, EyeOff, ShoppingCart, Ban, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 export function StoreStatusToggle() {
   const { user, refreshUser } = useAuth();
@@ -31,11 +32,12 @@ export function StoreStatusToggle() {
     setStoreVisible(newValue);
 
     try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/users/${user.id}/store-visible`, {
-      //   method: "PATCH",
-      //   body: JSON.stringify({ storeVisible: newValue }),
-      // });
+      const { error } = await supabase
+        .from('users')
+        .update({ store_visible: newValue })
+        .eq('id', user.id);
+
+      if (error) throw error;
       
       // Refresh user data
       await refreshUser?.();
@@ -68,11 +70,12 @@ export function StoreStatusToggle() {
     setAcceptingOrders(newValue);
 
     try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/users/${user.id}/accepting-orders`, {
-      //   method: "PATCH",
-      //   body: JSON.stringify({ acceptingOrders: newValue }),
-      // });
+      const { error } = await supabase
+        .from('users')
+        .update({ accepting_orders: newValue })
+        .eq('id', user.id);
+
+      if (error) throw error;
       
       // Refresh user data
       await refreshUser?.();

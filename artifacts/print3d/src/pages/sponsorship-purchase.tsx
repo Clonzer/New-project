@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
@@ -17,58 +18,57 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
-  Sparkles,
   Crown,
-  TrendingUp
+  TrendingUp,
+  Settings,
+  Palette,
+  Type
 } from "lucide-react";
 
 const SPONSORSHIP_TIERS = [
   {
-    id: "profile-sponsorship",
-    name: "Profile Boost",
-    description: "Get featured on the homepage and in search results",
-    price: 9.99,
-    duration: "month",
-    features: [
-      "Featured profile badge",
-      "Priority search ranking",
-      "Homepage visibility",
-      "Analytics dashboard"
-    ],
-    icon: Star,
-    color: "from-amber-400 to-orange-500"
-  },
-  {
-    id: "product-sponsorship",
-    name: "Product Spotlight",
-    description: "Highlight your best products across the platform",
+    id: "featured",
+    name: "Featured",
+    description: "Boost your visibility across the platform",
     price: 19.99,
     duration: "month",
     features: [
-      "Sponsored product badges",
-      "Category page features",
-      "Related product placement",
-      "Click analytics"
+      "Featured badge on profile",
+      "Priority in search results",
+      "Homepage spotlight",
+      "Analytics dashboard",
+      "Custom promotional message"
     ],
-    icon: Sparkles,
-    color: "from-purple-400 to-pink-500"
+    customizable: [
+      { id: "badge_color", label: "Badge Color", type: "color", options: ["amber", "purple", "cyan", "emerald"] },
+      { id: "promo_message", label: "Promotional Message", type: "text", maxLength: 50, placeholder: "e.g., Top Rated Maker" }
+    ],
+    icon: Star,
+    color: "from-primary to-accent"
   },
   {
-    id: "premium-bundle",
-    name: "Premium Bundle",
-    description: "Complete visibility package for maximum exposure",
-    price: 29.99,
+    id: "premium",
+    name: "Premium",
+    description: "Maximum exposure with custom branding",
+    price: 49.99,
     duration: "month",
     popular: true,
     features: [
-      "Everything in Profile Boost",
-      "Everything in Product Spotlight",
-      "Exclusive promotional placement",
+      "Everything in Featured",
+      "Animated profile banner",
+      "Highlighted listings",
       "Priority support",
-      "Custom branding options"
+      "Custom brand colors",
+      "Verified maker badge"
+    ],
+    customizable: [
+      { id: "brand_color", label: "Primary Brand Color", type: "color", options: ["all"] },
+      { id: "banner_text", label: "Banner Headline", type: "text", maxLength: 40, placeholder: "e.g., Custom 3D Prints" },
+      { id: "show_reviews", label: "Display Review Count", type: "toggle", default: true },
+      { id: "highlight_listings", label: "Highlight Top Listings", type: "number", min: 1, max: 5, default: 3 }
     ],
     icon: Crown,
-    color: "from-cyan-400 to-emerald-500"
+    color: "from-amber-400 via-yellow-400 to-amber-500"
   }
 ];
 
@@ -77,6 +77,14 @@ export default function SponsorshipPurchase() {
   const { toast } = useToast();
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [customOptions, setCustomOptions] = useState<Record<string, any>>({
+    badge_color: "amber",
+    promo_message: "",
+    brand_color: "#8b5cf6",
+    banner_text: "",
+    show_reviews: true,
+    highlight_listings: 3,
+  });
 
   const handlePurchase = async (tierId: string) => {
     if (!user) {
@@ -92,14 +100,16 @@ export default function SponsorshipPurchase() {
       setIsProcessing(true);
       setSelectedTier(tierId);
 
-      // Map tier ID to sponsorship type
-      const sponsorshipType = tierId === "product-sponsorship" ? "listing" : "profile";
-
+      const tier = SPONSORSHIP_TIERS.find(t => t.id === tierId);
       const result = await createSponsorshipCheckoutSession({
-        sponsorshipType,
+        sponsorshipType: tierId as "featured" | "premium",
         quantity: 1,
         successPath: "/dashboard?success=true",
-        cancelPath: "/sponsorship/purchase?cancelled=true"
+        cancelPath: "/sponsorship/purchase?cancelled=true",
+        metadata: {
+          tierId,
+          customizations: customOptions
+        }
       });
 
       if (result.url) {
@@ -161,7 +171,7 @@ export default function SponsorshipPurchase() {
         {/* Pricing Cards */}
         <section className="pb-24">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {SPONSORSHIP_TIERS.map((tier, index) => (
                 <motion.div
                   key={tier.id}
@@ -198,15 +208,78 @@ export default function SponsorshipPurchase() {
                         <span className="text-zinc-500">/{tier.duration}</span>
                       </div>
                       
-                      <ul className="space-y-3">
+                      <ul className="space-y-2 mb-4">
                         {tier.features.map((feature, i) => (
                           <li key={i} className="flex items-start gap-3 text-sm">
-                            <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                             <span className="text-zinc-300">{feature}</span>
                           </li>
                         ))}
                       </ul>
-                      
+
+                      {/* Customization Options */}
+                      {tier.customizable && tier.customizable.length > 0 && (
+                        <div className="border-t border-white/10 pt-4 mt-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Settings className="w-4 h-4 text-zinc-400" />
+                            <span className="text-sm font-medium text-zinc-300">Customize</span>
+                          </div>
+                          <div className="space-y-3">
+                            {tier.customizable.map((option) => (
+                              <div key={option.id} className="space-y-1.5">
+                                <label className="text-xs text-zinc-500">{option.label}</label>
+                                {option.type === "color" && (
+                                  <div className="flex gap-2">
+                                    {(option.options?.includes("all") ? ["amber", "purple", "cyan", "emerald", "pink", "blue"] : option.options)?.map((color) => (
+                                      <button
+                                        key={color}
+                                        onClick={() => setCustomOptions(prev => ({ ...prev, [option.id]: color }))}
+                                        className={`w-6 h-6 rounded-full bg-${color}-500 ${customOptions[option.id] === color ? 'ring-2 ring-white' : 'opacity-60 hover:opacity-100'}`}
+                                        title={color}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                {option.type === "text" && (
+                                  <div className="flex items-center gap-2">
+                                    <Type className="w-4 h-4 text-zinc-500" />
+                                    <Input
+                                      value={customOptions[option.id] || ""}
+                                      onChange={(e) => setCustomOptions(prev => ({ ...prev, [option.id]: e.target.value }))}
+                                      placeholder={option.placeholder}
+                                      maxLength={option.maxLength}
+                                      className="h-8 text-sm bg-black/30 border-white/10 text-white"
+                                    />
+                                  </div>
+                                )}
+                                {option.type === "toggle" && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-zinc-400">{option.label}</span>
+                                    <Switch
+                                      checked={customOptions[option.id] ?? option.default}
+                                      onCheckedChange={(checked) => setCustomOptions(prev => ({ ...prev, [option.id]: checked }))}
+                                    />
+                                  </div>
+                                )}
+                                {option.type === "number" && (
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="number"
+                                      min={option.min}
+                                      max={option.max}
+                                      value={customOptions[option.id] || option.default}
+                                      onChange={(e) => setCustomOptions(prev => ({ ...prev, [option.id]: parseInt(e.target.value) || option.default }))}
+                                      className="h-8 w-20 text-sm bg-black/30 border-white/10 text-white"
+                                    />
+                                    <span className="text-xs text-zinc-500">listings</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <Button
                         onClick={() => handlePurchase(tier.id)}
                         disabled={isProcessing}
@@ -307,6 +380,10 @@ export default function SponsorshipPurchase() {
                   {
                     q: "How do I track my sponsorship performance?",
                     a: "You'll have access to a dedicated analytics dashboard showing impressions, clicks, and conversion metrics."
+                  },
+                  {
+                    q: "What's the difference between profile and product sponsorship?",
+                    a: "Profile sponsorship promotes your entire shop and brand, while product sponsorship highlights specific items in your catalog."
                   },
                   {
                     q: "What's the difference between profile and product sponsorship?",

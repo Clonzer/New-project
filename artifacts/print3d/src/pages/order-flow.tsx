@@ -109,6 +109,14 @@ export default function OrderFlow() {
       toast({ title: "Seller unavailable", description: "This seller could not be loaded.", variant: "destructive" });
       return;
     }
+    if (seller.acceptingOrders === false) {
+      toast({
+        title: "Seller not accepting orders",
+        description: "This seller is currently not accepting new orders. Please check back later or contact the seller directly.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!canSellerShipToCountry(seller, countryCode)) {
       toast({
         title: "Seller does not ship to your region",

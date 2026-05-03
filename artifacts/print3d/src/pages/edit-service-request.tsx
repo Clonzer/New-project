@@ -71,7 +71,7 @@ export default function EditServiceRequest() {
 
         if (error) throw error;
 
-        if (data.requester_id !== user?.id) {
+        if (data.buyer_id !== user?.id) {
           toast({
             title: "Unauthorized",
             description: "You can only edit your own service requests",
@@ -232,7 +232,7 @@ export default function EditServiceRequest() {
           updated_at: new Date().toISOString()
         })
         .eq("id", id)
-        .eq("requester_id", user?.id);
+        .eq("buyer_id", user?.id);
 
       if (error) throw error;
 
@@ -277,7 +277,7 @@ export default function EditServiceRequest() {
         .from("custom_order_requests")
         .delete()
         .eq("id", id)
-        .eq("requester_id", user?.id);
+        .eq("buyer_id", user?.id);
 
       if (error) throw error;
 

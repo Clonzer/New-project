@@ -98,12 +98,12 @@ export default function ServiceRequestDetail() {
       try {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("username, avatar_url")
-          .eq("id", requestData.requester_id)
+          .select("username, avatar_url, display_name")
+          .eq("id", requestData.buyer_id)
           .maybeSingle();
         
         if (profileData && !profileError) {
-          requesterName = profileData.username || "Unknown";
+          requesterName = profileData.display_name || profileData.username || "Unknown";
           requesterAvatar = profileData.avatar_url;
         }
       } catch (profileErr) {
@@ -124,7 +124,7 @@ export default function ServiceRequestDetail() {
         fileType: requestData.file_type,
         status: requestData.status,
         createdAt: requestData.created_at,
-        requesterId: requestData.requester_id,
+        requesterId: requestData.buyer_id,
         requesterName,
         requesterAvatar,
       };

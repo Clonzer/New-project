@@ -19,7 +19,7 @@ export async function getPaymentConfig() {
 }
 
 export type SponsorshipOption = {
-  code: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority";
+  code: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority" | "featured" | "premium";
   name: string;
   description: string;
   unitAmountUsd: number;
@@ -46,12 +46,13 @@ export async function createCheckoutSession(input: {
 }
 
 export async function createSponsorshipCheckoutSession(input: {
-  sponsorshipType: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority";
+  sponsorshipType: "profile" | "listing" | "profile_monthly" | "listing_monthly" | "homepage_featured" | "search_priority" | "featured" | "premium";
   listingId?: number;
   quantity?: number;
   duration?: number; // Duration in days (7, 14, 30)
   successPath?: string;
   cancelPath?: string;
+  metadata?: Record<string, any>;
 }) {
   return customFetch<{ url: string; sessionId: string }>("/api/payments/sponsorship/checkout-session", {
     method: "POST",

@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fetch profile and XP data from users table (per migration 20240504_add_rank_system.sql)
       const { data, error } = await supabase
         .from('users')
-        .select('*, total_xp, rank_id, login_streak, last_login_at, lifetime_pro')
+        .select('*, total_xp, rank_id, login_streak, last_login_at, lifetime_pro, avatar_url, display_name, shop_name, shop_mode, plan_tier, sponsorship_tier, store_visible, accepting_orders')
         .eq('id', userId)
         .single();
 
@@ -122,6 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Plan and subscription data
           planTier: (data as any).plan_tier || (data as any).planTier || 'starter',
           sponsorshipTier: (data as any).sponsorship_tier || (data as any).sponsorshipTier || 'free',
+          // Store status
+          storeVisible: (data as any).store_visible ?? true,
+          acceptingOrders: (data as any).accepting_orders ?? true,
         } as User);
       }
     } catch (error) {

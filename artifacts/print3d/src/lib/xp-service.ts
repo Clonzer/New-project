@@ -195,40 +195,48 @@ export async function getUserXpStats(userId: string): Promise<UserXpStats | null
 
     if (error || !data) return null;
 
-    // Calculate today's XP
-    const today = new Date().toISOString().split("T")[0];
-    const { data: todayData } = await supabase
-      .from("xp_history")
-      .select("xp_amount")
-      .eq("user_id", userId)
-      .gte("created_at", `${today}T00:00:00`);
+    // Calculate today's XP (with error handling for missing table)
+    let todayXp = 0, weekXp = 0, monthXp = 0;
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: todayData } = await supabase
+        .from("xp_history")
+        .select("xp_amount")
+        .eq("user_id", userId)
+        .gte("created_at", `${today}T00:00:00`);
+      todayXp = todayData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0;
 
-    // Calculate this week's XP
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const { data: weekData } = await supabase
-      .from("xp_history")
-      .select("xp_amount")
-      .eq("user_id", userId)
-      .gte("created_at", weekStart.toISOString());
+      // Calculate this week's XP
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const { data: weekData } = await supabase
+        .from("xp_history")
+        .select("xp_amount")
+        .eq("user_id", userId)
+        .gte("created_at", weekStart.toISOString());
+      weekXp = weekData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0;
 
-    // Calculate this month's XP
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    const { data: monthData } = await supabase
-      .from("xp_history")
-      .select("xp_amount")
-      .eq("user_id", userId)
-      .gte("created_at", monthStart.toISOString());
+      // Calculate this month's XP
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      const { data: monthData } = await supabase
+        .from("xp_history")
+        .select("xp_amount")
+        .eq("user_id", userId)
+        .gte("created_at", monthStart.toISOString());
+      monthXp = monthData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0;
+    } catch (xpError) {
+      console.warn("XP history table may not exist, using defaults:", xpError);
+    }
 
     return {
       totalXp: data.total_xp || 0,
       currentRankId: data.rank_id || 1,
       currentStreak: data.login_streak || 0,
       lastLoginDate: data.last_login_at,
-      todayXp: todayData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0,
-      weekXp: weekData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0,
-      monthXp: monthData?.reduce((sum, e) => sum + (e.xp_amount || 0), 0) || 0,
+      todayXp,
+      weekXp,
+      monthXp,
     };
   } catch (error) {
     console.error("Error getting XP stats:", error);
@@ -283,6 +291,19 @@ export async function getDailyChallengeProgress(userId: string): Promise<DailyPr
       .eq("date", today)
       .single();
 
+    // If table doesn't exist or other error, return default progress
+    if (error && (error.message?.includes('relation') || error.message?.includes('does not exist'))) {
+      return {
+        userId,
+        date: today,
+        challengeId: challenge.id,
+        current: 0,
+        target: challenge.requirement,
+        completed: false,
+        xpEarned: 0,
+      };
+    }
+
     if (existing) {
       return {
         userId: existing.user_id,
@@ -295,7 +316,7 @@ export async function getDailyChallengeProgress(userId: string): Promise<DailyPr
       };
     }
 
-    // Create new progress entry
+    // Create new progress entry (may fail if table doesn't exist)
     const { data: created, error: createError } = await supabase
       .from("daily_challenge_progress")
       .insert({
@@ -310,7 +331,18 @@ export async function getDailyChallengeProgress(userId: string): Promise<DailyPr
       .select()
       .single();
 
-    if (createError || !created) return null;
+    if (createError || !created) {
+      // Return default if creation failed
+      return {
+        userId,
+        date: today,
+        challengeId: challenge.id,
+        current: 0,
+        target: challenge.requirement,
+        completed: false,
+        xpEarned: 0,
+      };
+    }
 
     return {
       userId: created.user_id,
@@ -322,8 +354,19 @@ export async function getDailyChallengeProgress(userId: string): Promise<DailyPr
       xpEarned: created.xp_earned,
     };
   } catch (error) {
-    console.error("Error getting daily challenge:", error);
-    return null;
+    console.warn("Daily challenge progress table may not exist:", error);
+    // Return default progress on error
+    const today = new Date().toISOString().split("T")[0];
+    const challenge = getTodaysChallenge();
+    return {
+      userId,
+      date: today,
+      challengeId: challenge.id,
+      current: 0,
+      target: challenge.requirement,
+      completed: false,
+      xpEarned: 0,
+    };
   }
 }
 

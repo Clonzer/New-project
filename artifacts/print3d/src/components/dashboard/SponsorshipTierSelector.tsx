@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap } from "lucide-react";
+import { Check, Star, Crown, Zap, Palette } from "lucide-react";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,63 +13,46 @@ interface SponsorshipTier {
   price: number;
   billingPeriod: string;
   features: string[];
+  customizable?: { id: string; label: string; type: string; options?: string[] }[];
 }
 
 const TIERS: SponsorshipTier[] = [
   {
-    id: "1",
-    name: "Free",
-    slug: "free",
-    description: "Get started with basic marketplace access",
-    price: 0,
-    billingPeriod: "free",
+    id: "featured",
+    name: "Featured",
+    slug: "featured",
+    description: "Boost your visibility across the platform",
+    price: 19.99,
+    billingPeriod: "monthly",
     features: [
-      "Basic shop profile",
-      "List up to 5 products",
-      "Standard support",
+      "Featured badge on profile",
+      "Priority in search results",
+      "Homepage spotlight",
+      "Analytics dashboard",
+      "Custom promotional message",
+    ],
+    customizable: [
+      { id: "badge_color", label: "Badge Color", type: "color", options: ["amber", "purple", "cyan", "emerald"] },
     ],
   },
   {
-    id: "2",
-    name: "Featured",
-    slug: "featured",
-    description: "Premium visibility with advanced features",
+    id: "premium",
+    name: "Premium",
+    slug: "premium",
+    description: "Maximum exposure with custom branding",
     price: 49.99,
     billingPeriod: "monthly",
     features: [
-      "Featured on homepage",
-      "List unlimited products",
+      "Everything in Featured",
+      "Animated profile banner",
+      "Highlighted listings",
       "Priority support",
-      "Shop analytics",
+      "Custom brand colors",
+      "Verified maker badge",
     ],
-  },
-  {
-    id: "3",
-    name: "VIP Partner",
-    slug: "vip",
-    description: "Maximum visibility and dedicated support",
-    price: 99.99,
-    billingPeriod: "monthly",
-    features: [
-      "VIP featured placement",
-      "Sponsored sections",
-      "Dedicated account manager",
-      "Advanced analytics",
-      "Custom branding",
-    ],
-  },
-  {
-    id: "4",
-    name: "Partner",
-    slug: "partner",
-    description: "Strategic partnership opportunities",
-    price: 199.99,
-    billingPeriod: "monthly",
-    features: [
-      "Partner program",
-      "Co-marketing opportunities",
-      "Revenue share options",
-      "Premium 24/7 support",
+    customizable: [
+      { id: "brand_color", label: "Primary Brand Color", type: "color", options: ["amber", "purple", "cyan", "emerald", "pink", "blue"] },
+      { id: "highlight_listings", label: "Highlight Top Listings", type: "number" },
     ],
   },
 ];
@@ -81,7 +64,7 @@ interface SponsorshipTierSelectorProps {
 }
 
 export function SponsorshipTierSelector({
-  currentTier = "free",
+  currentTier = "featured",
   onSelectTier,
   isLoading = false,
 }: SponsorshipTierSelectorProps) {
@@ -90,12 +73,10 @@ export function SponsorshipTierSelector({
 
   const getTierIcon = (slug: string) => {
     const icons = {
-      free: Sparkles,
-      featured: Sparkles,
-      vip: Crown,
-      partner: Zap,
+      featured: Star,
+      premium: Crown,
     };
-    return icons[slug as keyof typeof icons] || Sparkles;
+    return icons[slug as keyof typeof icons] || Star;
   };
 
   const handleSelectTier = async (tierId: string) => {
@@ -129,7 +110,7 @@ export function SponsorshipTierSelector({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
         {TIERS.map((tier, idx) => {
           const Icon = getTierIcon(tier.slug);
           const isSelected = selectedTier === tier.id;
