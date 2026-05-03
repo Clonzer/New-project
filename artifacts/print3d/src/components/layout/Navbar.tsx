@@ -95,7 +95,7 @@ export function Navbar() {
   const isSeller = user?.role === "seller" || user?.role === "both";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-black/60 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-[100] w-full border-b border-white/[0.08] bg-black/80 backdrop-blur-xl backdrop-saturate-150 isolation-auto">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between overflow-x-auto">
         <div className="flex items-center gap-6 flex-shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -131,7 +131,7 @@ export function Navbar() {
                   <ChevronDown className={`w-4 h-4 ${isActive("/discover") || isActive("/about") ? "text-white" : "opacity-70"}`} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-48 z-[99999]">
+              <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-48 z-[9999]">
                 <DropdownMenuItem asChild>
                   <Link href="/discover" className="cursor-pointer">
                     Discover Feed
@@ -219,7 +219,7 @@ export function Navbar() {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[99999]"
+                  className="absolute right-0 top-full mt-2 w-64 glass-panel border border-white/10 rounded-2xl p-4 shadow-2xl z-[9999]"
                 >
                   <div className="space-y-2">
                     <Link

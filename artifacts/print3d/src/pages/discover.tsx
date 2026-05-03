@@ -25,6 +25,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListingCard } from "@/components/shared/ListingCard";
 
+// UserNameLink component for linking to user profiles
+interface UserNameLinkProps {
+  userId: number;
+  displayName: string;
+  className?: string;
+}
+
+function UserNameLink({ userId, displayName, className }: UserNameLinkProps) {
+  return (
+    <Link href={`/users/${userId}`}>
+      <span className={cn("cursor-pointer hover:text-primary transition-colors", className)}>
+        {displayName}
+      </span>
+    </Link>
+  );
+}
+
 interface Comment {
   id: number;
   userId: number;
