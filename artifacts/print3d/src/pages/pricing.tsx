@@ -144,6 +144,7 @@ export default function Pricing() {
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
   const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === "undefined") return "plans";
     const hash = window.location.hash.replace("#", "");
     if (hash === "sponsorships" || hash === "plans") return hash;
     return "plans"; // Default to plans tab (pricing cards)
