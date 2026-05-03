@@ -1886,9 +1886,10 @@ export default function Discover() {
           </div>
         )}
       </div>
-    </main>
+    </div>
+  </main>
 
-    <Footer />
-  </div>
+  <Footer />
+</div>
 );
 }
