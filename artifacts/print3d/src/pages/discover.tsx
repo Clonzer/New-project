@@ -94,7 +94,7 @@ const SAMPLE_POSTS = [
 // Trending tags
 const TRENDING_TAGS = ["#3DPrinting", "#Miniatures", "#Cosplay", "#Prototyping", "#Custom", "#Art"];
 
-export default function DiscoverPage() {
+function DiscoverPage() {
   const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people">("feed");
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
@@ -1836,7 +1836,6 @@ export default function Discover() {
                         </Link>
                       ))
                   )}
-                </div>
                   <div className="mt-4">
                     <Link href="/listings">
                       <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 hover:border-primary/30">
