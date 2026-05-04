@@ -50,7 +50,7 @@ import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInj
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import { RankProgress } from "@/components/rank/RankProgress";
 import { RankBadge } from "@/components/rank/RankBadge";
-import { getUserXpStats } from "@/lib/xp-service";
+import { getUserXpStats, type UserXpStats } from "@/lib/xp-service";
 import { RANKS } from "@/lib/rank-system";
 import { Progress } from "@/components/ui/progress";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
@@ -821,6 +821,21 @@ export default function Dashboard() {
   const [storeVisible, setStoreVisible] = useState<boolean | null>(null);
   const [storeSetupComplete, setStoreSetupComplete] = useState<boolean | null>(null);
   const [showStoreSetup, setShowStoreSetup] = useState(false);
+  const [xpStats, setXpStats] = useState<UserXpStats | null>(null);
+
+  // Fetch XP stats
+  useEffect(() => {
+    const fetchXpStats = async () => {
+      if (!user?.id) return;
+      try {
+        const stats = await getUserXpStats(user.id);
+        setXpStats(stats);
+      } catch (e) {
+        console.error('Error fetching XP stats:', e);
+      }
+    };
+    fetchXpStats();
+  }, [user?.id]);
 
   // Fetch accepting orders status from database
   useEffect(() => {

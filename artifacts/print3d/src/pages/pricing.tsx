@@ -127,13 +127,8 @@ export default function Pricing() {
   const [yearly, setYearly] = useState(false);
   const [isStartingProfileSponsor, setIsStartingProfileSponsor] = useState(false);
   const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
-  const [isStartingProfileMonthlySponsor, setIsStartingProfileMonthlySponsor] = useState(false);
-  const [isStartingListingMonthlySponsor, setIsStartingListingMonthlySponsor] = useState(false);
   const [isStartingHomepageFeatured, setIsStartingHomepageFeatured] = useState(false);
-  const [isStartingSearchPriority, setIsStartingSearchPriority] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
-  const [profileDuration, setProfileDuration] = useState<7 | 14 | 30>(14);
-  const [listingDuration, setListingDuration] = useState<7 | 14 | 30>(14);
   const [enterpriseSeats, setEnterpriseSeats] = useState<number>(5);
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
@@ -213,8 +208,8 @@ export default function Pricing() {
     try {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "profile",
-        duration: profileDuration,
-        successPath: `/pricing?checkout=success&sponsorship=profile&duration=${profileDuration}`,
+        duration: 14, // Fixed 14 days
+        successPath: `/pricing?checkout=success&sponsorship=profile`,
         cancelPath: "/pricing?checkout=cancelled",
       });
       window.location.href = session.url;
@@ -239,8 +234,8 @@ export default function Pricing() {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "listing",
         listingId: selectedListingId,
-        duration: listingDuration,
-        successPath: `/pricing?checkout=success&sponsorship=listing&duration=${listingDuration}`,
+        duration: 14, // Fixed 14 days
+        successPath: `/pricing?checkout=success&sponsorship=listing`,
         cancelPath: "/pricing?checkout=cancelled",
       });
       window.location.href = session.url;
@@ -251,27 +246,7 @@ export default function Pricing() {
     }
   };
 
-  const startProfileMonthlySponsorship = async () => {
-    if (!user) {
-      toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
-      return;
-    }
-    setIsStartingProfileMonthlySponsor(true);
-    try {
-      const session = await createSponsorshipCheckoutSession({
-        sponsorshipType: "profile_monthly",
-        successPath: "/pricing?checkout=success&sponsorship=profile_monthly",
-        cancelPath: "/pricing?checkout=cancelled",
-      });
-      window.location.href = session.url;
-    } catch (err) {
-      toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
-    } finally {
-      setIsStartingProfileMonthlySponsor(false);
-    }
-  };
-
-  const startListingMonthlySponsorship = async () => {
+  const startHomepageFeatured = async () => {
     if (!user) {
       toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
       return;
@@ -280,31 +255,12 @@ export default function Pricing() {
       toast({ title: "No listing selected", description: "Please select a listing to sponsor." });
       return;
     }
-    setIsStartingListingMonthlySponsor(true);
-    try {
-      const session = await createSponsorshipCheckoutSession({
-        sponsorshipType: "listing_monthly",
-        listingId: selectedListingId,
-        successPath: "/pricing?checkout=success&sponsorship=listing_monthly",
-        cancelPath: "/pricing?checkout=cancelled",
-      });
-      window.location.href = session.url;
-    } catch (err) {
-      toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
-    } finally {
-      setIsStartingListingMonthlySponsor(false);
-    }
-  };
-
-  const startHomepageFeatured = async () => {
-    if (!user) {
-      toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
-      return;
-    }
     setIsStartingHomepageFeatured(true);
     try {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "homepage_featured",
+        listingId: selectedListingId,
+        duration: 14,
         successPath: "/pricing?checkout=success&sponsorship=homepage_featured",
         cancelPath: "/pricing?checkout=cancelled",
       });
@@ -313,26 +269,6 @@ export default function Pricing() {
       toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
     } finally {
       setIsStartingHomepageFeatured(false);
-    }
-  };
-
-  const startSearchPriority = async () => {
-    if (!user) {
-      toast({ title: "Please log in first", description: "You need to be logged in to purchase sponsorships." });
-      return;
-    }
-    setIsStartingSearchPriority(true);
-    try {
-      const session = await createSponsorshipCheckoutSession({
-        sponsorshipType: "search_priority",
-        successPath: "/pricing?checkout=success&sponsorship=search_priority",
-        cancelPath: "/pricing?checkout=cancelled",
-      });
-      window.location.href = session.url;
-    } catch (err) {
-      toast({ title: "Could not purchase sponsorship", description: getApiErrorMessage(err) });
-    } finally {
-      setIsStartingSearchPriority(false);
     }
   };
 
@@ -637,7 +573,7 @@ export default function Pricing() {
               </motion.section>
             )}
 
-            {/* Sponsorships Tab */}
+            {/* Sponsorships Tab - Simplified */}
             {activeTab === "sponsorships" && (
               <motion.section
                 key="sponsorships"
@@ -649,211 +585,98 @@ export default function Pricing() {
               >
                 <div className="container mx-auto px-4">
                   <div className="max-w-4xl mx-auto">
-                    {/* Header Card */}
+                    {/* Simple Header */}
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-8 mb-8"
+                      className="text-center mb-10"
                     >
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30">
-                          <Megaphone className="h-7 w-7 text-violet-400" />
-                        </div>
-                        <div className="flex-1">
-                          <h2 className="text-2xl font-bold text-white">Sponsorships</h2>
-                          <p className="text-sm text-zinc-400 mt-1">
-                            Pay through Stripe and activate marketplace boosts automatically.
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-violet-400 bg-violet-500/10 px-3 py-1.5 rounded-full border border-violet-500/20">
-                          <Sparkles className="w-4 h-4" />
-                          <span>Instant activation</span>
-                        </div>
-                      </div>
+                      <h2 className="text-3xl font-bold text-white mb-3">Boost Your Visibility</h2>
+                      <p className="text-zinc-400 max-w-lg mx-auto">
+                        One-click sponsorships that activate instantly. No setup required.
+                      </p>
                     </motion.div>
 
-                    {/* Sponsorship Cards */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Profile Sponsorship */}
+                    {/* Simple 3-Option Grid */}
+                    <div className="grid md:grid-cols-3 gap-6">
+                      {/* Profile Boost */}
                       <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-6 hover:border-violet-500/30 transition-all duration-300"
+                        className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 backdrop-blur-sm p-6 hover:border-violet-400/50 transition-all duration-300"
                       >
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/20 border border-violet-500/30">
-                            <Users className="h-5 w-5 text-violet-400" />
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/20 border border-violet-500/30">
+                            <Users className="h-6 w-6 text-violet-400" />
                           </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Profile Sponsorship
-                          </p>
                         </div>
 
-                        {/* Duration Selector */}
+                        <h3 className="text-xl font-bold text-white mb-1">Profile Boost</h3>
+                        <p className="text-sm text-zinc-400 mb-4">Get featured across the marketplace</p>
+
                         <div className="mb-4">
-                          <label className="block text-xs text-zinc-500 font-medium mb-2 uppercase tracking-wider">
-                            Select Duration
-                          </label>
-                          <div className="flex gap-2">
-                            {[7, 14, 30].map((days) => (
-                              <button
-                                key={days}
-                                onClick={() => setProfileDuration(days as 7 | 14 | 30)}
-                                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                                  profileDuration === days
-                                    ? "bg-violet-500/20 border border-violet-500/50 text-violet-300"
-                                    : "bg-zinc-800/50 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
-                                }`}
-                              >
-                                {days} days
-                              </button>
-                            ))}
-                          </div>
+                          <span className="text-4xl font-bold text-white">$29</span>
+                          <span className="text-zinc-500 text-sm"> / 14 days</span>
                         </div>
 
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const basePrice = profileDuration === 7 ? 19 : profileDuration === 14 ? 39 : 79;
-                          const discountedPrice = Math.round(basePrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${basePrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ {profileDuration} days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-                          Boost your shop on seller-focused surfaces, featured maker carousels, and support-led recommendations.
-                        </p>
-
-                        <ul className="space-y-3 mb-6">
-                          {[
-                            "Prioritized shop placements",
-                            "Better discovery during campaigns",
-                            "Renewable without losing time",
-                          ].map((item) => (
-                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20">
-                                <Check className="h-3 w-3 text-emerald-400" />
-                              </div>
-                              {item}
-                            </li>
-                          ))}
+                        <ul className="space-y-2 mb-6 text-sm text-zinc-300">
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-violet-400" />
+                            Featured shop placement
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-violet-400" />
+                            Priority in discovery
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-violet-400" />
+                            Auto-activates instantly
+                          </li>
                         </ul>
 
                         <button
                           onClick={() => void startProfileSponsorship()}
                           disabled={isStartingProfileSponsor}
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 transition-all duration-200 disabled:opacity-50"
+                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingProfileSponsor ? "Starting checkout..." : `Sponsor Profile (${profileDuration} Days)`}
+                          {isStartingProfileSponsor ? "Starting..." : "Boost Profile"}
                         </button>
                       </motion.div>
 
-                      {/* Product Sponsorship */}
+                      {/* Product Boost */}
                       <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                         whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-6 hover:border-cyan-500/30 transition-all duration-300"
+                        className="rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 backdrop-blur-sm p-6 hover:border-cyan-400/50 transition-all duration-300"
                       >
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 border border-cyan-500/30">
-                            <Package className="h-5 w-5 text-cyan-400" />
-                          </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Product Sponsorship
-                          </p>
-                        </div>
-
-                        {/* Duration Selector */}
-                        <div className="mb-4">
-                          <label className="block text-xs text-zinc-500 font-medium mb-2 uppercase tracking-wider">
-                            Select Duration
-                          </label>
-                          <div className="flex gap-2">
-                            {[7, 14, 30].map((days) => (
-                              <button
-                                key={days}
-                                onClick={() => setListingDuration(days as 7 | 14 | 30)}
-                                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                                  listingDuration === days
-                                    ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300"
-                                    : "bg-zinc-800/50 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
-                                }`}
-                              >
-                                {days} days
-                              </button>
-                            ))}
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/20 border border-cyan-500/30">
+                            <Package className="h-6 w-6 text-cyan-400" />
                           </div>
                         </div>
 
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const basePrice = listingDuration === 7 ? 12 : listingDuration === 14 ? 24 : 49;
-                          const discountedPrice = Math.round(basePrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${basePrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ {listingDuration} days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
-                          Push one listing harder across product-focused placements and featured catalog surfaces.
-                        </p>
+                        <h3 className="text-xl font-bold text-white mb-1">Product Boost</h3>
+                        <p className="text-sm text-zinc-400 mb-4">Push one listing to the top</p>
 
                         <div className="mb-4">
-                          <label className="block text-sm text-zinc-400 font-medium mb-2">
-                            Choose a listing
-                          </label>
+                          <span className="text-4xl font-bold text-white">$19</span>
+                          <span className="text-zinc-500 text-sm"> / 14 days</span>
+                        </div>
+
+                        {/* Listing Selector */}
+                        <div className="mb-4">
                           <select
                             value={selectedListingId ?? ""}
                             onChange={(e) => setSelectedListingId(Number(e.target.value))}
-                            className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+                            className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                           >
                             {!ownListingsData?.listings?.length ? (
-                              <option value="">No listings available</option>
+                              <option value="">No listings</option>
                             ) : (
                               ownListingsData.listings.map((listing) => (
                                 <option key={listing.id} value={listing.id}>
@@ -864,151 +687,66 @@ export default function Pricing() {
                           </select>
                         </div>
 
+                        <ul className="space-y-2 mb-6 text-sm text-zinc-300">
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-cyan-400" />
+                            Top search results
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-cyan-400" />
+                            Featured in catalog
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-cyan-400" />
+                            Auto-activates instantly
+                          </li>
+                        </ul>
+
                         <button
                           onClick={() => void startListingSponsorship()}
                           disabled={isStartingListingSponsor || !ownListingsData?.listings?.length}
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 transition-all duration-200 disabled:opacity-50"
+                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingListingSponsor ? "Starting checkout..." : `Sponsor Product (${listingDuration} Days)`}
+                          {isStartingListingSponsor ? "Starting..." : "Boost Product"}
                         </button>
                       </motion.div>
 
-                      {/* Profile Sponsorship - Monthly */}
+                      {/* Premium Bundle */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                         whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-6 hover:border-pink-500/30 transition-all duration-300"
+                        className="rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-sm p-6 hover:border-yellow-400/50 transition-all duration-300 relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/20 border border-pink-500/30">
-                            <Users className="h-5 w-5 text-pink-400" />
-                          </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Profile Sponsorship - Monthly
-                          </p>
+                        <div className="absolute top-3 right-3 px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded-full">
+                          Best Value
                         </div>
-                        
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const originalPrice = 79;
-                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ 30 days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
 
-                        <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-                          Extended 30-day profile boost for maximum visibility across all seller surfaces.
-                        </p>
-                        
-                        <ul className="space-y-3 mb-6">
-                          {[
-                            "30 days of premium placement",
-                            "Featured in maker carousels",
-                            "Better campaign visibility",
-                            "Best value for longer campaigns",
-                          ].map((item) => (
-                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-pink-500/20">
-                                <Check className="h-3 w-3 text-pink-400" />
-                              </div>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                        
-                        <button
-                          onClick={() => void startProfileMonthlySponsorship()}
-                          disabled={isStartingProfileMonthlySponsor}
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white shadow-lg shadow-pink-500/25 transition-all duration-200 disabled:opacity-50"
-                        >
-                          {isStartingProfileMonthlySponsor ? "Starting checkout..." : "Sponsor Profile (30 Days)"}
-                        </button>
-                      </motion.div>
-
-                      {/* Product Sponsorship - Monthly */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-6 hover:border-amber-500/30 transition-all duration-300"
-                      >
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 border border-amber-500/30">
-                            <Package className="h-5 w-5 text-amber-400" />
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/20 border border-yellow-500/30">
+                            <Star className="h-6 w-6 text-yellow-400" />
                           </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Product Sponsorship - Monthly
-                          </p>
                         </div>
-                        
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const originalPrice = 49;
-                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ 30 days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
 
-                        <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
-                          Extended 30-day product boost for sustained marketplace visibility.
-                        </p>
-                        
+                        <h3 className="text-xl font-bold text-white mb-1">Premium Bundle</h3>
+                        <p className="text-sm text-zinc-400 mb-4">Profile + Product + Homepage</p>
+
                         <div className="mb-4">
-                          <label className="block text-sm text-zinc-400 font-medium mb-2">
-                            Choose a listing
-                          </label>
+                          <span className="text-4xl font-bold text-white">$79</span>
+                          <span className="text-zinc-500 text-sm"> / 14 days</span>
+                          <div className="text-xs text-emerald-400 mt-1">Save $38</div>
+                        </div>
+
+                        {/* Listing Selector */}
+                        <div className="mb-4">
                           <select
                             value={selectedListingId ?? ""}
                             onChange={(e) => setSelectedListingId(Number(e.target.value))}
-                            className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
+                            className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/50"
                           >
                             {!ownListingsData?.listings?.length ? (
-                              <option value="">No listings available</option>
+                              <option value="">Select listing</option>
                             ) : (
                               ownListingsData.listings.map((listing) => (
                                 <option key={listing.id} value={listing.id}>
@@ -1018,170 +756,44 @@ export default function Pricing() {
                             )}
                           </select>
                         </div>
-                        
-                        <button
-                          onClick={() => void startListingMonthlySponsorship()}
-                          disabled={isStartingListingMonthlySponsor || !ownListingsData?.listings?.length}
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-lg shadow-amber-500/25 transition-all duration-200 disabled:opacity-50"
-                        >
-                          {isStartingListingMonthlySponsor ? "Starting checkout..." : "Sponsor Product (30 Days)"}
-                        </button>
-                      </motion.div>
 
-                      {/* Homepage Featured */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
-                        whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-sm p-6 hover:border-yellow-400/50 transition-all duration-300 relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded-bl-xl">
-                          Premium
-                        </div>
-                        
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500/20 border border-yellow-500/30">
-                            <Star className="h-5 w-5 text-yellow-400" />
-                          </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Homepage Featured
-                          </p>
-                        </div>
-                        
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const originalPrice = 99;
-                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ 7 days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-                          Premium placement on the homepage carousel. Maximum visibility for high-impact campaigns.
-                        </p>
-                        
-                        <ul className="space-y-3 mb-6">
-                          {[
-                            "Homepage carousel placement",
-                            "Highest visibility on site",
-                            "Premium positioning",
-                            "Limited spots available",
-                          ].map((item) => (
-                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500/20">
-                                <Check className="h-3 w-3 text-yellow-400" />
-                              </div>
-                              {item}
-                            </li>
-                          ))}
+                        <ul className="space-y-2 mb-6 text-sm text-zinc-300">
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-yellow-400" />
+                            Homepage featured spot
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-yellow-400" />
+                            Profile + Product boost
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-yellow-400" />
+                            Maximum visibility
+                          </li>
                         </ul>
-                        
+
                         <button
                           onClick={() => void startHomepageFeatured()}
-                          disabled={isStartingHomepageFeatured}
+                          disabled={isStartingHomepageFeatured || !ownListingsData?.listings?.length}
                           className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black shadow-lg shadow-yellow-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingHomepageFeatured ? "Starting checkout..." : "Get Featured"}
-                        </button>
-                      </motion.div>
-
-                      {/* Search Priority */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
-                        whileHover={{ scale: 1.02 }}
-                        className="rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-sm p-6 hover:border-green-500/30 transition-all duration-300"
-                      >
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-500/20 border border-green-500/30">
-                            <Zap className="h-5 w-5 text-green-400" />
-                          </div>
-                          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                            Search Priority Boost
-                          </p>
-                        </div>
-                        
-                        {/* Price with discount */}
-                        {(() => {
-                          const discount = getSponsorshipDiscount(user);
-                          const originalPrice = 29;
-                          const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
-                          return (
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-bold text-white">${discountedPrice}</span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-lg text-zinc-500 line-through">${originalPrice}</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {discount}% off
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-zinc-500 text-sm">/ 14 days</span>
-                              {discount > 0 && (
-                                <p className="text-xs text-emerald-400/80 mt-1">
-                                  {user?.planTier} plan discount applied
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-                          Boost your listings to the top of search results. Be seen first when buyers search.
-                        </p>
-                        
-                        <ul className="space-y-3 mb-6">
-                          {[
-                            "Priority search ranking",
-                            "Appear above non-sponsored listings",
-                            "14 days of boosted visibility",
-                            "Works for all your listings",
-                          ].map((item) => (
-                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/20">
-                                <Check className="h-3 w-3 text-green-400" />
-                              </div>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                        
-                        <button
-                          onClick={() => void startSearchPriority()}
-                          disabled={isStartingSearchPriority}
-                          className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg shadow-green-500/25 transition-all duration-200 disabled:opacity-50"
-                        >
-                          {isStartingSearchPriority ? "Starting checkout..." : "Boost Search Rank"}
+                          {isStartingHomepageFeatured ? "Starting..." : "Get Premium"}
                         </button>
                       </motion.div>
                     </div>
+
+                    {/* Auto-activation Note */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="mt-8 text-center"
+                    >
+                      <div className="inline-flex items-center gap-2 text-sm text-zinc-400 bg-zinc-900/50 px-4 py-2 rounded-full border border-white/10">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        All boosts auto-activate after payment — no setup needed
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </motion.section>
