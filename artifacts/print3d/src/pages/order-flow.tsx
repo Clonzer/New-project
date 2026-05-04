@@ -3,7 +3,7 @@ import { useSearch, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useGetListing, useGetUser, getGetListingQueryKey, getGetUserQueryKey } from "@/lib/workspace-api-mock";
+import { useGetListing, useGetUser } from "@/lib/workspace-api-mock";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -45,15 +45,8 @@ export default function OrderFlow() {
   const [fileDataUrl, setFileDataUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: listing } = useGetListing(parseInt(listingId || "0", 10), {
-    query: { enabled: !!listingId, queryKey: getGetListingQueryKey(parseInt(listingId || "0", 10)) },
-  });
-  const { data: seller } = useGetUser(parseInt(sellerId || listing?.sellerId?.toString() || "0", 10), {
-    query: {
-      enabled: !!sellerId || !!listing,
-      queryKey: getGetUserQueryKey(parseInt(sellerId || listing?.sellerId?.toString() || "0", 10)),
-    },
-  });
+  const { data: listing } = useGetListing(listingId || undefined);
+  const { data: seller } = useGetUser(sellerId || listing?.sellerId?.toString() || undefined);
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),

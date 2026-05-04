@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown, Zap, Star, Rocket } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown, Zap, Star, Rocket, DollarSign, TrendingUp, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -104,13 +105,13 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-[100] w-full border-b border-white/[0.08] bg-black/80 backdrop-blur-xl backdrop-saturate-150 isolation-auto">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between overflow-x-auto">
+      <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
         <div className="flex items-center gap-6 flex-shrink-0">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="font-display font-extrabold text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-all duration-300 bg-gradient-to-r from-white to-white bg-clip-text">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="font-display font-extrabold text-lg sm:text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-all duration-300">
               SYNTHIX
             </span>
-            <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            <span className="hidden sm:inline rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
               Beta
             </span>
           </Link>
@@ -188,8 +189,18 @@ export function Navbar() {
             />
           </div>
 
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative">
+          <Link href="/cart" className="sm:hidden">
+            <Button variant="ghost" size="icon" className="rounded-full relative h-9 w-9">
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 ? (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              ) : null}
+            </Button>
+          </Link>
+          <Link href="/cart" className="hidden sm:block">
+            <Button variant="ghost" size="icon" className="rounded-full relative">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 ? (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
@@ -327,7 +338,13 @@ export function Navbar() {
             </Link>
           )}
 
-          <Button variant="ghost" size="icon" className="lg:hidden rounded-full" onClick={() => setMenuOpen((value) => !value)}>
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden rounded-full h-9 w-9"
+            onClick={() => setMenuOpen((value) => !value)}
+          >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
@@ -335,44 +352,127 @@ export function Navbar() {
 
       <VerifyEmailBanner />
 
+      {/* Mobile Menu */}
       <AnimatePresence>
         {menuOpen ? (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-t border-white/10 bg-black/80 backdrop-blur-xl overflow-hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden border-t border-white/10 bg-black/95 backdrop-blur-xl overflow-hidden"
           >
-            <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {[
-                { path: "/explore", label: "Explore Shops" },
-                { path: "/listings", label: "Model Catalog" },
-                { path: "/discover", label: "Discover" },
-                { path: "/contests", label: "Contests" },
-                { path: "/cart", label: "Cart" },
-                { path: "/compare-shops", label: "Compare Shops" },
-                { path: "/messages", label: "Messages" },
-                { path: "/dashboard", label: "Dashboard" },
-                { path: "/settings", label: "Settings" },
-                { path: "/help", label: "Help" },
-                { path: "/pricing", label: "Pricing & Support" },
-              ].map((route) => (
-                <Link
-                  key={route.path}
-                  href={route.path}
-                  onClick={() => setMenuOpen(false)}
-                  className="py-3 px-4 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+            <nav className="container mx-auto px-4 py-4 flex flex-col gap-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              {/* Mobile Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={headerSearch}
+                  onChange={(e) => setHeaderSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    const term = headerSearch.trim();
+                    if (e.key === "Enter" && term) {
+                      setLocation(`/search?q=${encodeURIComponent(term)}`);
+                      setHeaderSearch("");
+                      setMenuOpen(false);
+                    }
+                  }}
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50"
+                />
+              </div>
+
+              {/* Primary Links */}
+              <div className="space-y-1">
+                <p className="text-xs text-zinc-500 uppercase tracking-wider px-3 py-2">Main</p>
+                {[
+                  { path: "/explore-all", label: "Explore", icon: Search },
+                  { path: "/discover", label: "Discover", icon: MessageSquare },
+                  { path: "/contests", label: "Contests", icon: Crown },
+                  { path: "/service-marketplace", label: "Custom Orders", icon: MessageSquare },
+                ].map((route) => (
+                  <Link
+                    key={route.path}
+                    href={route.path}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+                  >
+                    <route.icon className="w-5 h-5 text-zinc-400" />
+                    {route.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* User Links */}
+              {user && (
+                <div className="space-y-1 mt-4 pt-4 border-t border-white/10">
+                  <p className="text-xs text-zinc-500 uppercase tracking-wider px-3 py-2">Your Account</p>
+                  {[
+                    { path: "/dashboard", label: "Dashboard", icon: TrendingUp },
+                    { path: "/messages", label: "Messages", icon: MessageSquare },
+                    { path: "/notifications", label: "Notifications", icon: Bell },
+                    { path: "/cart", label: "Cart", icon: ShoppingCart },
+                    { path: "/settings", label: "Settings", icon: Settings },
+                  ].map((route) => (
+                    <Link
+                      key={route.path}
+                      href={route.path}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+                    >
+                      <route.icon className="w-5 h-5 text-zinc-400" />
+                      {route.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Support */}
+              <div className="space-y-1 mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs text-zinc-500 uppercase tracking-wider px-3 py-2">Support</p>
+                {[
+                  { path: "/help", label: "Help Center", icon: HelpCircle },
+                  { path: "/pricing", label: "Pricing", icon: DollarSign },
+                ].map((route) => (
+                  <Link
+                    key={route.path}
+                    href={route.path}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-white/5 text-white font-medium transition-colors"
+                  >
+                    <route.icon className="w-5 h-5 text-zinc-400" />
+                    {route.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Auth Button */}
+              {!user ? (
+                <div className="mt-6">
+                  <Link href="/register" onClick={() => setMenuOpen(false)}>
+                    <Button className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30 py-3">
+                      Join Now
+                    </Button>
+                  </Link>
+                  <Link href="/login" onClick={() => setMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full rounded-xl mt-2 text-zinc-400 hover:text-white py-3">
+                      Sign In
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    supabase.auth.signOut();
+                    setMenuOpen(false);
+                  }}
+                  className="w-full rounded-xl mt-6 text-red-400 hover:text-red-300 hover:bg-red-500/10 py-3"
                 >
-                  {route.label}
-                </Link>
-              ))}
-
-              {!isSeller ? (
-                <Link href="/register" onClick={() => setMenuOpen(false)}>
-                  <Button className="w-full rounded-xl mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30">Join Now</Button>
-                </Link>
-              ) : null}
-
+                  Sign Out
+                </Button>
+              )}
             </nav>
           </motion.div>
         ) : null}

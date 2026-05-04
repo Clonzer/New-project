@@ -54,6 +54,7 @@ import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
+import { MobileDashboardNav, CondensedDashboardTabs } from "@/components/dashboard/MobileDashboardNav";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1171,7 +1172,7 @@ export default function Dashboard() {
         initialData={editingEquipmentGroup}
       />
 
-      <main className="flex-grow pt-4 pb-24">
+      <main className="flex-grow pt-4 pb-24 lg:pb-8">
         <div className="container mx-auto px-4">
 
           {/* Action Buttons Bar */}
@@ -1313,8 +1314,39 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Mobile Bottom Navigation */}
+          <MobileDashboardNav
+            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab}
+            onTabChange={(tab) => {
+              const element = document.querySelector(`[data-tour="${tab}"]`) as HTMLElement;
+              element?.click();
+            }}
+            isSeller={isSellerUser}
+            isOwner={user?.isOwner}
+            isBoth={user?.role === "both"}
+            dashboardView={dashboardView}
+            onViewChange={setDashboardView}
+          />
+
+          {/* Desktop Condensed Tabs (LG only, hidden on XL) */}
+          <div className="hidden lg:flex xl:hidden mb-8">
+            <CondensedDashboardTabs
+              activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab}
+              onTabChange={(tab) => {
+                const element = document.querySelector(`[data-tour="${tab}"]`) as HTMLElement;
+                element?.click();
+              }}
+              isSeller={isSellerUser}
+              isOwner={user?.isOwner}
+              isBoth={user?.role === "both"}
+              dashboardView={dashboardView}
+              onViewChange={setDashboardView}
+            />
+          </div>
+
           <Tabs defaultValue={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab} className="w-full">
-            <TabsList className="bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 flex flex-wrap h-auto w-full gap-2">
+            {/* Desktop Tabs - Hidden on mobile and LG */}
+            <TabsList className="hidden xl:flex bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 h-auto w-full gap-2">
               {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <TabsTrigger value="overview" data-tour="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">

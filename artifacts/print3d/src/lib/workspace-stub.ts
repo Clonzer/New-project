@@ -69,20 +69,43 @@ export async function customFetch<T>(url: string, options?: RequestInit & { skip
 
 // Export hooks that the old API provided
 export function useListings() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      setIsLoading(true);
+      try {
+        const { data: listingsData, error: listingsError } = await supabase
+          .from('listings')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (listingsError) throw listingsError;
+        setData(listingsData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchListings();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 // Base mutation return type with all required properties
 type MutationReturn<T = any> = {
-  mutate: (vars?: T) => Promise<void>;
+  mutate: (vars?: T) => Promise<any>;
   mutateAsync: (vars?: T) => Promise<any>;
   isLoading: boolean;
   isPending: boolean;
   error: Error | null;
+  data?: any;
+  reset?: () => void;
 };
 
 export function useCreateListing(): MutationReturn {
@@ -614,19 +637,77 @@ export function useGetUser(userId?: string | number) {
 
 
 export function useGetCart() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: cartData, error: cartError } = await supabase
+          .from('carts')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (cartError && !cartError.message?.includes('not found')) throw cartError;
+        setData(cartData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCart();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useGetOrders() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*')
+          .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+          .order('created_at', { ascending: false });
+        
+        if (ordersError) throw ordersError;
+        setData(ordersData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchOrders();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useListOrders() {
@@ -638,27 +719,107 @@ export function useListOrders() {
 }
 
 export function useGetMessages() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: messagesData, error: messagesError } = await supabase
+          .from('message_threads')
+          .select('*')
+          .or(`participant_1_id.eq.${user.id},participant_2_id.eq.${user.id}`)
+          .order('updated_at', { ascending: false });
+        
+        if (messagesError) throw messagesError;
+        setData(messagesData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchMessages();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useGetNotifications() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: notifData, error: notifError } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (notifError) throw notifError;
+        setData(notifData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchNotifications();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
-export function useGetPrinters() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useGetPrinters(userId?: string | number) {
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchPrinters = async () => {
+      setIsLoading(true);
+      try {
+        let query = supabase.from('printers').select('*');
+        if (userId) {
+          query = query.eq('user_id', userId);
+        }
+        const { data: printersData, error: printersError } = await query.order('created_at', { ascending: false });
+        
+        if (printersError) throw printersError;
+        setData(printersData || []);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchPrinters();
+  }, [userId]);
+
+  return { data, isLoading, error };
 }
 
 export function useListReviews(options?: { revieweeId?: string | number }) {
@@ -735,36 +896,140 @@ export function useListPrinters(options?: { userId?: string | number }) {
   return { data, isLoading, error, refetch: fetchPrinters };
 }
 
-export function useGetPortfolio() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useGetPortfolio(userId?: string | number) {
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      setIsLoading(true);
+      try {
+        let query = supabase.from('portfolio').select('*');
+        if (userId) {
+          query = query.eq('user_id', userId);
+        }
+        const { data: portfolioData, error: portfolioError } = await query.order('created_at', { ascending: false });
+        
+        if (portfolioError) throw portfolioError;
+        setData(portfolioData || []);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchPortfolio();
+  }, [userId]);
+
+  return { data, isLoading, error };
 }
 
 export function useGetReviews() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('*')
+          .or(`reviewer_id.eq.${user.id},reviewee_id.eq.${user.id}`)
+          .order('created_at', { ascending: false });
+        
+        if (reviewsError) throw reviewsError;
+        setData(reviewsData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchReviews();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useGetFavorites() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setData(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        const { data: favData, error: favError } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (favError) throw favError;
+        setData(favData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchFavorites();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
-export function useGetShop() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useGetShop(userId?: string | number) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    
+    const fetchShop = async () => {
+      setIsLoading(true);
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .single();
+        
+        if (userError) throw userError;
+        setData(userData);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchShop();
+  }, [userId]);
+
+  return { data, isLoading, error };
 }
 
 // Mutations
@@ -1099,11 +1364,33 @@ export function useGetPrinter() {
 }
 
 export function useListSponsoredShops() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchSponsored = async () => {
+      setIsLoading(true);
+      try {
+        const { data: sponsoredData, error: sponsoredError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('sponsorship_active', true)
+          .limit(10);
+        
+        if (sponsoredError) throw sponsoredError;
+        setData(sponsoredData || []);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSponsored();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useCreateSponsoredShop(): MutationReturn {

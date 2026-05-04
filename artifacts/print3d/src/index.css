@@ -219,3 +219,20 @@ h1, h2, h3, h4, h5, h6 {
   0% { background-position: 20px 0; }
   100% { background-position: 0 0; }
 }
+
+/* Safe area support for mobile devices with home indicators */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile optimization utilities */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
