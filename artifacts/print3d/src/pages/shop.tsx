@@ -134,8 +134,7 @@ export default function Shop() {
             emailVerifiedAt: data.is_verified ? data.created_at : null,
             shopAnnouncement: null,
             brandStory: null,
-            portfolio: [],
-            websiteUrl: null,
+                        websiteUrl: null,
             instagramHandle: null,
             supportEmail: null,
             tiktokHandle: null,
@@ -256,7 +255,7 @@ export default function Shop() {
   const seoTitle = `${shopName} - 3D Printing & Laser Cutting Services | Synthix Marketplace`;
   const seoDescription = seller.bio ? 
     `${seller.bio.slice(0, 160)}${seller.bio.length > 160 ? '...' : ''}` : 
-    `Visit ${shopName} on Synthix for custom 3D printing, laser cutting, and maker services. Browse their portfolio and services.`;
+    `Visit ${shopName} on Synthix for custom 3D printing, laser cutting, and maker services.`;
   const canonicalUrl = `https://synthix.com/shop/${shopId}`;
   const bannerUrl = seller.bannerUrl || "https://synthix.com/default-shop-banner.jpg";
   const logoUrl = seller.logoUrl || seller.avatarUrl || "https://synthix.com/default-shop-logo.jpg";
@@ -569,7 +568,6 @@ export default function Shop() {
             <TabsList className="bg-black/40 border border-white/5 p-1 rounded-xl mb-8 w-full justify-start">
               <TabsTrigger value="models" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Products</TabsTrigger>
               <TabsTrigger value="printers" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Equipment</TabsTrigger>
-              <TabsTrigger value="portfolio" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Portfolio</TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white">Reviews</TabsTrigger>
             </TabsList>
 
@@ -629,35 +627,6 @@ export default function Shop() {
                   <p className="text-zinc-500 col-span-full">No equipment listed publicly.</p>
                 ) : null}
               </div>
-            </TabsContent>
-
-            <TabsContent value="portfolio" className="mt-0">
-              {seller.portfolio?.length ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {seller.portfolio.map((item) => (
-                    <div key={item.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-                      <img src={item.imageUrl} alt={item.title} className="h-52 w-full object-cover" />
-                      <div className="p-5">
-                        <h3 className="text-xl font-display font-bold text-white">{item.title}</h3>
-                        {item.description ? <p className="mt-2 text-sm text-zinc-400">{item.description}</p> : null}
-                        {item.tags?.length ? (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {item.tags.map((tag) => (
-                              <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] text-zinc-300">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="glass-panel p-12 text-center rounded-2xl border border-white/5">
-                  <p className="text-zinc-500">This shop has not published portfolio projects yet.</p>
-                </div>
-              )}
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-0">

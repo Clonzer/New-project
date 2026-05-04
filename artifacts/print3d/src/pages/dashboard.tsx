@@ -49,6 +49,9 @@ import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
 import { RankProgress } from "@/components/rank/RankProgress";
+import { RankBadge } from "@/components/rank/RankBadge";
+import { getUserXpStats } from "@/lib/xp-service";
+import { RANKS } from "@/lib/rank-system";
 import { Progress } from "@/components/ui/progress";
 import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
@@ -1206,87 +1209,115 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="glass-panel rounded-xl sm:rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-4 sm:p-6 mb-6 sm:mb-8">
-            <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Logo Row */}
               <div className="flex items-center gap-2">
                 <span className="text-xl sm:text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
+
+              {/* Welcome Row */}
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white mb-1 sm:mb-2">
-                    Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white">
+                      Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                    </h1>
+                    {/* Rank Badge */}
+                    {xpStats && (
+                      <div className="flex items-center gap-2">
+                        <RankBadge rankId={xpStats.currentRankId} size="md" />
+                        <span className="text-sm text-zinc-400 hidden sm:inline">
+                          {xpStats.totalXp.toLocaleString()} XP
+                        </span>
+                      </div>
+                    )}
                     {user.isOwner ? (
-                      <span className="ml-2 sm:ml-3 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 sm:px-3 py-0.5 sm:py-1 align-middle text-[10px] sm:text-xs uppercase tracking-[0.22em] text-amber-200">
+                      <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs uppercase tracking-[0.22em] text-amber-200">
                         Owner
                       </span>
                     ) : null}
-                  </h1>
-                  {/* Accepting Orders Toggle for Sellers */}
-                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && acceptingOrders !== null && (
-                    <div className="flex items-center gap-2 sm:gap-3 bg-black/40 border border-white/10 rounded-full px-3 sm:px-4 h-9 sm:h-10">
-                      <span className="text-xs sm:text-sm text-zinc-400 whitespace-nowrap">Accepting Orders</span>
+                  </div>
+                </div>
+
+                {/* View Toggle for users with both roles */}
+                {user?.role === "both" && (
+                  <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-9 sm:h-10 shrink-0">
+                    <button
+                      onClick={() => setDashboardView("purchases")}
+                      className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        dashboardView === "purchases"
+                          ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <Package className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "purchases" ? "text-white" : ""}`} />
+                      My Purchases
+                    </button>
+                    <button
+                      onClick={() => setDashboardView("store")}
+                      className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        dashboardView === "store"
+                          ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg shadow-accent/30 ring-2 ring-accent/50 scale-[1.02]"
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <Store className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "store" ? "text-white" : ""}`} />
+                      My Store
+                    </button>
+                  </div>
+                )}
+
+                {!isSellerUser && (
+                  <Link href="/register">
+                    <Button className="h-9 sm:h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 sm:px-5 text-xs sm:text-sm shrink-0">Join Now</Button>
+                  </Link>
+                )}
+              </div>
+
+              {/* Visibility Toggles Row - For Sellers */}
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3 border-t border-white/10">
+                  <span className="text-xs sm:text-sm text-zinc-500 font-medium">Store Status:</span>
+
+                  {/* Accepting Orders Toggle */}
+                  {acceptingOrders !== null && (
+                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 h-8 sm:h-9">
                       <Switch
                         checked={acceptingOrders}
                         onCheckedChange={toggleAcceptingOrders}
                         disabled={acceptingOrders === null}
-                        className="data-[state=checked]:bg-emerald-500 scale-90 sm:scale-100"
+                        className="data-[state=checked]:bg-emerald-500 scale-75 sm:scale-90"
                       />
-                      <span className={`text-[10px] sm:text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
-                        {acceptingOrders ? "Open" : "Closed"}
+                      <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
+                        {acceptingOrders ? "Accepting Orders" : "Orders Closed"}
                       </span>
                     </div>
                   )}
 
-                  {/* Store Visibility Toggle for Sellers */}
-                  {isSellerUser && (user?.role !== "both" || dashboardView === "store") && storeVisible !== null && (
-                    <div className="flex items-center gap-2 sm:gap-3 bg-black/40 border border-white/10 rounded-full px-3 sm:px-4 h-9 sm:h-10">
-                      <span className="text-xs sm:text-sm text-zinc-400 whitespace-nowrap">Store Visible</span>
+                  {/* Store Visibility Toggle */}
+                  {storeVisible !== null && (
+                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 h-8 sm:h-9">
                       <Switch
                         checked={storeVisible}
                         onCheckedChange={toggleStoreVisibility}
                         disabled={storeVisible === null}
-                        className="data-[state=checked]:bg-primary scale-90 sm:scale-100"
+                        className="data-[state=checked]:bg-primary scale-75 sm:scale-90"
                       />
-                      <span className={`text-[10px] sm:text-xs font-medium ${storeVisible ? "text-primary" : "text-zinc-500"}`}>
-                        {storeVisible ? "Public" : "Hidden"}
+                      <span className={`text-xs font-medium ${storeVisible ? "text-primary" : "text-zinc-500"}`}>
+                        {storeVisible ? "Store Public" : "Store Hidden"}
                       </span>
                     </div>
                   )}
 
-                  {/* View Toggle for users with both roles */}
-                  {user?.role === "both" && (
-                    <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-9 sm:h-10">
-                      <button
-                        onClick={() => setDashboardView("purchases")}
-                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
-                          dashboardView === "purchases"
-                            ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
-                            : "text-zinc-400 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <Package className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "purchases" ? "text-white" : ""}`} />
-                        My Purchases
-                      </button>
-                      <button
-                        onClick={() => setDashboardView("store")}
-                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
-                          dashboardView === "store"
-                            ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg shadow-accent/30 ring-2 ring-accent/50 scale-[1.02]"
-                            : "text-zinc-400 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <Store className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "store" ? "text-white" : ""}`} />
-                        My Store
-                      </button>
-                    </div>
-                  )}
-
-                  {!isSellerUser && (
-                    <Link href="/register">
-                      <Button className="h-9 sm:h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 sm:px-5 text-xs sm:text-sm">Join Now</Button>
-                    </Link>
-                  )}
+                  {/* Status Indicator */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <div className={`h-2 w-2 rounded-full ${storeVisible && acceptingOrders ? "bg-emerald-500 animate-pulse" : storeVisible ? "bg-yellow-500" : "bg-red-500"}`} />
+                    <span className="text-xs text-zinc-400 hidden sm:inline">
+                      {storeVisible && acceptingOrders ? "Open for business" : storeVisible ? "Visible but closed" : "Store offline"}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

@@ -58,45 +58,53 @@ const METRICS_CONTEST_CONFIG = {
  */
 export async function getLeaderboard(metric: string, limit: number = 10) {
   try {
-    // Query user_xp table joined with profiles for leaderboard
-    const { data, error } = await supabase
+    // Step 1: Get user_xp data
+    const { data: xpData, error: xpError } = await supabase
       .from('user_xp')
-      .select(`
-        total_xp,
-        current_rank,
-        profiles:user_id (
-          id,
-          username,
-          display_name,
-          shop_name,
-          avatar_url,
-          rating,
-          review_count
-        )
-      `)
+      .select('user_id, total_xp, current_rank')
       .order('total_xp', { ascending: false })
       .limit(limit);
 
-    if (error) throw error;
-    
-    // Transform data to match expected format
-    const transformed = data?.map(item => ({
-      id: item.profiles?.id,
-      userId: item.profiles?.id,
-      username: item.profiles?.username,
-      displayName: item.profiles?.display_name,
-      shopName: item.profiles?.shop_name,
-      avatarUrl: item.profiles?.avatar_url,
-      rating: item.profiles?.rating,
-      reviewCount: item.profiles?.review_count,
-      total_xp: item.total_xp,
-      current_rank: item.current_rank,
-      // Map metrics for contest compatibility
-      total_sales: Math.floor(item.total_xp / 10), // Approximate
-      products_sold: Math.floor(item.total_xp / 20), // Approximate
-      jobs_completed: Math.floor(item.total_xp / 30), // Approximate
-      total_revenue: item.total_xp * 0.5 // Approximate
-    })) || [];
+    if (xpError) throw xpError;
+    if (!xpData || xpData.length === 0) {
+      return { success: true, leaderboard: [] };
+    }
+
+    // Step 2: Get user IDs
+    const userIds = xpData.map(item => item.user_id);
+
+    // Step 3: Fetch profiles for these users
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, shop_name, avatar_url, rating')
+      .in('id', userIds);
+
+    if (profilesError) throw profilesError;
+
+    // Create a map for quick lookup
+    const profileMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+    // Step 4: Transform and combine data
+    const transformed = xpData.map(item => {
+      const profile = profileMap.get(item.user_id);
+      return {
+        id: item.user_id,
+        userId: item.user_id,
+        username: profile?.username || 'Unknown',
+        displayName: profile?.display_name || profile?.username || 'Unknown User',
+        shopName: profile?.shop_name,
+        avatarUrl: profile?.avatar_url,
+        rating: profile?.rating,
+        reviewCount: 0,
+        total_xp: item.total_xp,
+        current_rank: item.current_rank,
+        // Map metrics for contest compatibility
+        total_sales: Math.floor(item.total_xp / 10),
+        products_sold: Math.floor(item.total_xp / 20),
+        jobs_completed: Math.floor(item.total_xp / 30),
+        total_revenue: item.total_xp * 0.5
+      };
+    });
     
     return { success: true, leaderboard: transformed };
   } catch (error) {
@@ -111,20 +119,10 @@ export async function getLeaderboard(metric: string, limit: number = 10) {
  */
 export async function selectMetricsWinner(contestId: string, metric: string, minThreshold: number) {
   try {
-    // Get top performer from user_xp (using total_xp as metric)
+    // Step 1: Get top performer from user_xp
     const { data: topPerformers, error } = await supabase
       .from('user_xp')
-      .select(`
-        user_id,
-        total_xp,
-        profiles:user_id (
-          id,
-          username,
-          display_name,
-          shop_name,
-          avatar_url
-        )
-      `)
+      .select('user_id, total_xp')
       .gte('total_xp', minThreshold)
       .order('total_xp', { ascending: false })
       .limit(1);
@@ -137,7 +135,15 @@ export async function selectMetricsWinner(contestId: string, metric: string, min
 
     const winner = topPerformers[0];
     const userId = winner.user_id;
-    const profile = winner.profiles?.[0];
+
+    // Step 2: Fetch winner's profile separately
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, shop_name, avatar_url')
+      .eq('id', userId)
+      .single();
+
+    const profile = profileData;
 
     // Record winner in contest_winners table
     const { error: winnerError } = await supabase

@@ -87,20 +87,40 @@ export function ServiceRequestMarketplace() {
   };
 
   const filteredRequests = requests.filter(req => {
-    const matchesSearch = searchQuery === "" || 
+    const matchesSearch = searchQuery === "" ||
       req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.material?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesMaterial = selectedMaterial === "all" || req.material === selectedMaterial;
-    
+
     let matchesPrice = true;
     if (priceRange === "under50") matchesPrice = req.proposed_price < 50;
     else if (priceRange === "50to200") matchesPrice = req.proposed_price >= 50 && req.proposed_price <= 200;
     else if (priceRange === "over200") matchesPrice = req.proposed_price > 200;
-    
+
     return matchesSearch && matchesMaterial && matchesPrice;
   });
+
+  // Fetch user's own requests
+  const [myRequests, setMyRequests] = useState<ServiceRequest[]>([]);
+
+  useEffect(() => {
+    const fetchMyRequests = async () => {
+      if (!user?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from('custom_order_requests')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .order('created_at', { ascending: false });
+        if (!error && data) setMyRequests(data);
+      } catch (e) {
+        console.error('Error fetching my requests:', e);
+      }
+    };
+    fetchMyRequests();
+  }, [user?.id]);
 
   const handleSubmitQuote = async () => {
     if (!selectedRequest || !user?.id || !quotePrice) return;
@@ -192,6 +212,52 @@ export function ServiceRequestMarketplace() {
           <span>{requests.length} open requests</span>
         </div>
       </div>
+
+      {/* My Requests Section */}
+      {myRequests.length > 0 && (
+        <div className="glass-panel rounded-2xl border border-primary/20 bg-primary/5 p-6">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            My Requests
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {myRequests.map((request) => (
+              <div key={request.id} className="glass-panel rounded-xl border border-white/10 p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-white">{request.title}</h4>
+                  <Badge variant="outline" className={`
+                    ${request.status === 'pending' ? 'border-yellow-500/30 text-yellow-400' : ''}
+                    ${request.status === 'quoted' ? 'border-blue-500/30 text-blue-400' : ''}
+                    ${request.status === 'accepted' ? 'border-green-500/30 text-green-400' : ''}
+                  `}>
+                    {request.status}
+                  </Badge>
+                </div>
+                <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{request.description || request.notes}</p>
+                <div className="flex gap-2">
+                  {request.status === 'pending' && (
+                    <Link href={`/edit-service-request/${request.id}`}>
+                      <Button variant="outline" size="sm" className="border-white/10 text-zinc-400 hover:text-white">
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                    </Link>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = `/service-request/${request.id}`}
+                    className="border-white/10 text-zinc-400 hover:text-white"
+                  >
+                    <Eye className="w-4 h-4 mr-1" />
+                    View
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

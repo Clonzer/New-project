@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { NeonButton } from "@/components/ui/neon-button";
-import { PortfolioManager } from "./PortfolioManager";
 
 export function Overview({ user, mySales, averageOrderValue, activeEquipmentCount, totalCatalogItems, setShowAddPrinter }) {
   const [, navigate] = useLocation();
@@ -50,9 +49,6 @@ export function Overview({ user, mySales, averageOrderValue, activeEquipmentCoun
           </div>
         </div>
       </div>
-      <div className="mt-6">
-        <PortfolioManager userId={user.id} />
-      </div>
     </div>
-  )
+  );
 }

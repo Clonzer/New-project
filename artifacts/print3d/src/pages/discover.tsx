@@ -12,8 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Users, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, Sparkles, TrendingUp, Tag, ChevronRight, Store, Package, Zap, Crown } from "lucide-react";
-import { formatPrice, COUNTRY_OPTIONS, countryCodeToFlag, persistLocalePreferences, useLocalePreferences } from "@/lib/locale-preferences";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, TrendingUp, Tag, ChevronRight, Store, Package, Zap, Crown } from "lucide-react";
+import { formatPrice } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 import { motion, AnimatePresence } from "framer-motion";
@@ -179,7 +179,7 @@ export default function Discover() {
   const [isUploading, setIsUploading] = useState(false);
   const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"feed" | "projects" | "people" | "trending">("feed");
+  const [activeTab, setActiveTab] = useState<"feed" | "trending">("feed");
   const [showEmojiPicker, setShowEmojiPicker] = useState<number | null>(null);
 
   // Fetch real users from Supabase with avatars
@@ -189,21 +189,6 @@ export default function Discover() {
   const [listingsData, setListingsData] = useState<{ listings: any[] }>({ listings: [] });
   const [isLoadingListings, setIsLoadingListings] = useState(true);
 
-  // Locale preferences for country dropdown
-  const localePreferences = useLocalePreferences();
-  const [countryCode, setCountryCode] = useState(localePreferences.countryCode);
-
-  const handleCountryChange = (value: string) => {
-    setCountryCode(value);
-    const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === value);
-    if (nextCountry) {
-      persistLocalePreferences({
-        countryCode: value,
-        currencyCode: nextCountry.defaultCurrency,
-        languageCode: nextCountry.defaultLanguage,
-      });
-    }
-  };
 
   const emojis = [
     { emoji: "👍", name: "thumbs up", icon: ThumbsUp },
@@ -346,7 +331,7 @@ export default function Discover() {
     return ids;
   }, [listingsData?.listings]);
 
-  const handleTabChange = (tab: "feed" | "projects" | "people" | "trending") => {
+  const handleTabChange = (tab: "feed" | "trending") => {
     setActiveTab(tab);
     trackEvent("discover_tab_change", { tab });
   };
@@ -625,28 +610,6 @@ export default function Discover() {
             >
               <MessageSquare className="w-4 h-4" />
               Feed
-            </button>
-            <button
-              onClick={() => handleTabChange("projects")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                activeTab === "projects"
-                  ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Projects
-            </button>
-            <button
-              onClick={() => handleTabChange("people")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                activeTab === "people"
-                  ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-[0_0_25px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-white/50"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              People
             </button>
             <button
               onClick={() => handleTabChange("trending")}
@@ -1071,31 +1034,6 @@ export default function Discover() {
                       </Button>
                     </Link>
                   </div>
-                </div>
-
-                {/* Country Selector */}
-                <div className="glass-card border-white/[0.08] rounded-3xl p-6">
-                  <h2 className="text-xl font-display font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="text-2xl">🌍</span>
-                    Location
-                  </h2>
-                  <Select
-                    value={countryCode}
-                    onValueChange={handleCountryChange}
-                  >
-                    <SelectTrigger className="w-full bg-black/60 border-white/10 text-white">
-                      <SelectValue>
-                        {countryCodeToFlag(countryCode)} {COUNTRY_OPTIONS.find(o => o.code === countryCode)?.label}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COUNTRY_OPTIONS.map((option) => (
-                        <SelectItem key={option.code} value={option.code}>
-                          {countryCodeToFlag(option.code)} {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 {/* Pricing Cards */}
