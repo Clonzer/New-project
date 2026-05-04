@@ -840,8 +840,12 @@ export default function Dashboard() {
   // Fetch accepting orders status from database
   useEffect(() => {
     const fetchAcceptingStatus = async () => {
-      if (!user?.id || !isSellerUser) return;
+      if (!user?.id || !isSellerUser) {
+        console.log('Fetch skipped - no user or not seller', { userId: user?.id, isSellerUser });
+        return;
+      }
 
+      console.log('Fetching seller status for user', user.id);
       try {
         const { data, error } = await supabase
           .from('sellers')
@@ -849,11 +853,25 @@ export default function Dashboard() {
           .eq('user_id', user.id)
           .single();
 
+        console.log('Seller status fetch result:', { data, error });
+
         if (data && !error) {
           setAcceptingOrders(data.accepting_orders !== false);
           setStoreVisible(data.shop_mode !== false);
+          console.log('Set visibility states:', {
+            accepting_orders: data.accepting_orders,
+            shop_mode: data.shop_mode,
+            computedAccepting: data.accepting_orders !== false,
+            computedVisible: data.shop_mode !== false
+          });
+        } else if (error) {
+          console.error('Error fetching seller status:', error);
+          // Default to true if fetch fails
+          setAcceptingOrders(true);
+          setStoreVisible(true);
         }
-      } catch {
+      } catch (err) {
+        console.error('Exception fetching seller status:', err);
         // Default to true if fetch fails
         setAcceptingOrders(true);
         setStoreVisible(true);
@@ -924,10 +942,15 @@ export default function Dashboard() {
 
   // Save store visibility status to database
   const toggleStoreVisibility = async () => {
+    console.log('toggleStoreVisibility called', { storeVisible, userId: user?.id });
     // Don't toggle if we haven't loaded the initial value yet
-    if (storeVisible === null || !user?.id) return;
+    if (storeVisible === null || !user?.id) {
+      console.log('Toggle blocked - storeVisible is null or no user');
+      return;
+    }
 
     const newValue = !storeVisible;
+    console.log('Toggling visibility from', storeVisible, 'to', newValue);
 
     try {
       const { error } = await supabase
@@ -935,9 +958,13 @@ export default function Dashboard() {
         .update({ shop_mode: newValue })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating visibility:', error);
+        throw error;
+      }
 
       setStoreVisible(newValue);
+      console.log('Visibility updated successfully to', newValue);
 
       toast({
         title: newValue ? "Store Visible" : "Store Hidden",

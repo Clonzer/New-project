@@ -129,6 +129,9 @@ export default function Pricing() {
   const [isStartingListingSponsor, setIsStartingListingSponsor] = useState(false);
   const [isStartingHomepageFeatured, setIsStartingHomepageFeatured] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
+  const [profileDuration, setProfileDuration] = useState<7 | 14 | 30>(14);
+  const [listingDuration, setListingDuration] = useState<7 | 14 | 30>(14);
+  const [bundleDuration, setBundleDuration] = useState<7 | 14 | 30>(14);
   const [enterpriseSeats, setEnterpriseSeats] = useState<number>(5);
   const isSeller = user?.role === "seller" || user?.role === "both";
   const { data: ownListingsData } = useListListings();
@@ -208,7 +211,7 @@ export default function Pricing() {
     try {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "profile",
-        duration: 14, // Fixed 14 days
+        duration: profileDuration,
         successPath: `/pricing?checkout=success&sponsorship=profile`,
         cancelPath: "/pricing?checkout=cancelled",
       });
@@ -234,7 +237,7 @@ export default function Pricing() {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "listing",
         listingId: selectedListingId,
-        duration: 14, // Fixed 14 days
+        duration: listingDuration,
         successPath: `/pricing?checkout=success&sponsorship=listing`,
         cancelPath: "/pricing?checkout=cancelled",
       });
@@ -260,7 +263,7 @@ export default function Pricing() {
       const session = await createSponsorshipCheckoutSession({
         sponsorshipType: "homepage_featured",
         listingId: selectedListingId,
-        duration: 14,
+        duration: bundleDuration,
         successPath: "/pricing?checkout=success&sponsorship=homepage_featured",
         cancelPath: "/pricing?checkout=cancelled",
       });
@@ -617,10 +620,35 @@ export default function Pricing() {
                         <h3 className="text-xl font-bold text-white mb-1">Profile Boost</h3>
                         <p className="text-sm text-zinc-400 mb-4">Get featured across the marketplace</p>
 
-                        <div className="mb-4">
-                          <span className="text-4xl font-bold text-white">$29</span>
-                          <span className="text-zinc-500 text-sm"> / 14 days</span>
+                        {/* Duration Selector */}
+                        <div className="mb-3">
+                          <div className="flex gap-1 bg-black/40 rounded-lg p-1">
+                            {[7, 14, 30].map((days) => (
+                              <button
+                                key={days}
+                                onClick={() => setProfileDuration(days as 7 | 14 | 30)}
+                                className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                                  profileDuration === days
+                                    ? "bg-violet-500/30 text-violet-300"
+                                    : "text-zinc-500 hover:text-zinc-300"
+                                }`}
+                              >
+                                {days}d
+                              </button>
+                            ))}
+                          </div>
                         </div>
+
+                        {/* Dynamic Price */}
+                        {(() => {
+                          const prices = { 7: 19, 14: 29, 30: 59 };
+                          return (
+                            <div className="mb-4">
+                              <span className="text-4xl font-bold text-white">${prices[profileDuration]}</span>
+                              <span className="text-zinc-500 text-sm"> / {profileDuration} days</span>
+                            </div>
+                          );
+                        })()}
 
                         <ul className="space-y-2 mb-6 text-sm text-zinc-300">
                           <li className="flex items-center gap-2">
@@ -642,7 +670,7 @@ export default function Pricing() {
                           disabled={isStartingProfileSponsor}
                           className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingProfileSponsor ? "Starting..." : "Boost Profile"}
+                          {isStartingProfileSponsor ? "Starting..." : `Boost for ${profileDuration} Days`}
                         </button>
                       </motion.div>
 
@@ -663,10 +691,35 @@ export default function Pricing() {
                         <h3 className="text-xl font-bold text-white mb-1">Product Boost</h3>
                         <p className="text-sm text-zinc-400 mb-4">Push one listing to the top</p>
 
-                        <div className="mb-4">
-                          <span className="text-4xl font-bold text-white">$19</span>
-                          <span className="text-zinc-500 text-sm"> / 14 days</span>
+                        {/* Duration Selector */}
+                        <div className="mb-3">
+                          <div className="flex gap-1 bg-black/40 rounded-lg p-1">
+                            {[7, 14, 30].map((days) => (
+                              <button
+                                key={days}
+                                onClick={() => setListingDuration(days as 7 | 14 | 30)}
+                                className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                                  listingDuration === days
+                                    ? "bg-cyan-500/30 text-cyan-300"
+                                    : "text-zinc-500 hover:text-zinc-300"
+                                }`}
+                              >
+                                {days}d
+                              </button>
+                            ))}
+                          </div>
                         </div>
+
+                        {/* Dynamic Price */}
+                        {(() => {
+                          const prices = { 7: 12, 14: 19, 30: 39 };
+                          return (
+                            <div className="mb-3">
+                              <span className="text-4xl font-bold text-white">${prices[listingDuration]}</span>
+                              <span className="text-zinc-500 text-sm"> / {listingDuration} days</span>
+                            </div>
+                          );
+                        })()}
 
                         {/* Listing Selector */}
                         <div className="mb-4">
@@ -707,7 +760,7 @@ export default function Pricing() {
                           disabled={isStartingListingSponsor || !ownListingsData?.listings?.length}
                           className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingListingSponsor ? "Starting..." : "Boost Product"}
+                          {isStartingListingSponsor ? "Starting..." : `Boost for ${listingDuration} Days`}
                         </button>
                       </motion.div>
 
@@ -732,11 +785,37 @@ export default function Pricing() {
                         <h3 className="text-xl font-bold text-white mb-1">Premium Bundle</h3>
                         <p className="text-sm text-zinc-400 mb-4">Profile + Product + Homepage</p>
 
-                        <div className="mb-4">
-                          <span className="text-4xl font-bold text-white">$79</span>
-                          <span className="text-zinc-500 text-sm"> / 14 days</span>
-                          <div className="text-xs text-emerald-400 mt-1">Save $38</div>
+                        {/* Duration Selector */}
+                        <div className="mb-3">
+                          <div className="flex gap-1 bg-black/40 rounded-lg p-1">
+                            {[7, 14, 30].map((days) => (
+                              <button
+                                key={days}
+                                onClick={() => setBundleDuration(days as 7 | 14 | 30)}
+                                className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+                                  bundleDuration === days
+                                    ? "bg-yellow-500/30 text-yellow-300"
+                                    : "text-zinc-500 hover:text-zinc-300"
+                                }`}
+                              >
+                                {days}d
+                              </button>
+                            ))}
+                          </div>
                         </div>
+
+                        {/* Dynamic Price */}
+                        {(() => {
+                          const prices = { 7: 49, 14: 79, 30: 149 };
+                          const savings = { 7: 22, 14: 38, 30: 78 };
+                          return (
+                            <div className="mb-3">
+                              <span className="text-4xl font-bold text-white">${prices[bundleDuration]}</span>
+                              <span className="text-zinc-500 text-sm"> / {bundleDuration} days</span>
+                              <div className="text-xs text-emerald-400 mt-1">Save ${savings[bundleDuration]}</div>
+                            </div>
+                          );
+                        })()}
 
                         {/* Listing Selector */}
                         <div className="mb-4">
@@ -777,7 +856,7 @@ export default function Pricing() {
                           disabled={isStartingHomepageFeatured || !ownListingsData?.listings?.length}
                           className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black shadow-lg shadow-yellow-500/25 transition-all duration-200 disabled:opacity-50"
                         >
-                          {isStartingHomepageFeatured ? "Starting..." : "Get Premium"}
+                          {isStartingHomepageFeatured ? "Starting..." : `Get Premium (${bundleDuration} Days)`}
                         </button>
                       </motion.div>
                     </div>

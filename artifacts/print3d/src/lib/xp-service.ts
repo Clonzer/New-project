@@ -183,9 +183,20 @@ export async function awardXp(
 }
 
 /**
- * Get user's XP stats
+ * Get user's XP stats - always returns valid stats (defaults to 0 XP, rank 1 if error)
  */
-export async function getUserXpStats(userId: string): Promise<UserXpStats | null> {
+export async function getUserXpStats(userId: string): Promise<UserXpStats> {
+  // Default stats to return if anything fails
+  const defaultStats: UserXpStats = {
+    totalXp: 0,
+    currentRankId: 1,
+    currentStreak: 0,
+    lastLoginDate: null,
+    todayXp: 0,
+    weekXp: 0,
+    monthXp: 0,
+  };
+
   try {
     const { data, error } = await supabase
       .from("users")
@@ -193,7 +204,10 @@ export async function getUserXpStats(userId: string): Promise<UserXpStats | null
       .eq("id", userId)
       .single();
 
-    if (error || !data) return null;
+    if (error || !data) {
+      console.warn("User XP data not found, using defaults:", error);
+      return defaultStats;
+    }
 
     // Calculate today's XP (with error handling for missing table)
     let todayXp = 0, weekXp = 0, monthXp = 0;
@@ -230,9 +244,9 @@ export async function getUserXpStats(userId: string): Promise<UserXpStats | null
     }
 
     return {
-      totalXp: data.total_xp || 0,
-      currentRankId: data.rank_id || 1,
-      currentStreak: data.login_streak || 0,
+      totalXp: data.total_xp ?? 0,
+      currentRankId: data.rank_id ?? 1,
+      currentStreak: data.login_streak ?? 0,
       lastLoginDate: data.last_login_at,
       todayXp,
       weekXp,
@@ -240,7 +254,7 @@ export async function getUserXpStats(userId: string): Promise<UserXpStats | null
     };
   } catch (error) {
     console.error("Error getting XP stats:", error);
-    return null;
+    return defaultStats;
   }
 }
 
