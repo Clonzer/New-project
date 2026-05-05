@@ -56,16 +56,18 @@ export default function ExploreModels() {
       try {
         setLoadingListings(true);
         const { data: listingsData, error: listingsError } = await supabase.from('listings').select('*');
-        const { data: sellersData, error: sellersError } = await supabase.from('sellers').select('id, store_name');
+        const { data: sellersData, error: sellersError } = await supabase.from('sellers').select('id, store_name, accepting_orders');
 
         if (listingsData && !listingsError && sellersData && !sellersError) {
-          // Create a map of seller IDs to seller names
+          // Create maps of seller IDs to seller data
           const sellerMap = new Map(sellersData.map((s: any) => [s.id, s.store_name]));
+          const acceptingOrdersMap = new Map(sellersData.map((s: any) => [s.id, s.accepting_orders]));
 
           // Transform listings with seller names
           const transformedListings = listingsData.map((listing: any) => {
             const transformed = transformListing(listing);
             transformed.sellerName = sellerMap.get(listing.seller_id) || 'Unknown Seller';
+            transformed.sellerAcceptingOrders = acceptingOrdersMap.get(listing.seller_id);
             return transformed;
           });
           setListings(transformedListings);
@@ -117,7 +119,7 @@ export default function ExploreModels() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {listings.slice(0, 8).map((listing: any) => (
                   <div key={listing.id} className="relative">
-                    <ListingCard listing={listing} />
+                    <ListingCard listing={listing} sellerAcceptingOrders={listing.sellerAcceptingOrders} />
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-white text-xs font-bold flex items-center gap-1">
                       <Zap className="w-3 h-3" />
                       Sponsored
@@ -237,7 +239,7 @@ export default function ExploreModels() {
               ) : filteredListings.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   {filteredListings.map((listing: any) => (
-                    <ListingCard key={listing.id} listing={listing} />
+                    <ListingCard key={listing.id} listing={listing} sellerAcceptingOrders={listing.sellerAcceptingOrders} />
                   ))}
                 </div>
               ) : (

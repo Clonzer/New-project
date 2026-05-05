@@ -5,7 +5,7 @@ import { ListingCard } from "@/components/shared/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, ShoppingCart, MessageSquare, Package, Shield, Truck, Eye, Calendar, Hash, Star, Printer, Store, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowLeft, Clock, ShoppingCart, MessageSquare, Package, Shield, Truck, Eye, Calendar, Hash, Star, Printer, Store, Sparkles, TrendingUp, XCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -293,13 +293,23 @@ export default function ListingDetail() {
                 )}
               </div>
 
+              {/* Orders Closed Disclaimer */}
+              {listing.seller?.acceptingOrders === false && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+                  <p className="text-sm text-red-400 font-medium flex items-center gap-2">
+                    <XCircle className="w-5 h-5" />
+                    This seller is currently not accepting orders. You can still browse their listings, but new orders cannot be placed at this time.
+                  </p>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="space-y-3">
                 {!isServiceListing && (
                   <Button
                     onClick={handleAddToCart}
                     className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
-                    disabled={listing.stockQuantity === 0}
+                    disabled={listing.stockQuantity === 0 || listing.seller?.acceptingOrders === false}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
                     Add to Cart
@@ -316,7 +326,10 @@ export default function ListingDetail() {
                   </Button>
                 ) : (
                   <Link href={`/product-order?listingId=${listing.id}`} className="block">
-                    <Button className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300">
+                    <Button 
+                      className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300"
+                      disabled={listing.seller?.acceptingOrders === false}
+                    >
                       Order Now
                     </Button>
                   </Link>

@@ -82,17 +82,17 @@ export function MobileDashboardNav({
   return (
     <div>
       {/* Tab Bar - Always visible on all screen sizes */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 safe-area-inset-bottom">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-4 safe-area-inset-bottom">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Active Tab Display */}
           <Button
             variant="ghost"
             onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2 text-white hover:bg-white/10 rounded-xl px-3 py-2 h-auto"
+            className="flex items-center gap-3 text-white hover:bg-white/10 rounded-xl px-4 py-3 h-12"
           >
-            <ActiveIcon className="w-5 h-5 text-primary" />
-            <span className="font-medium text-sm">{activeTabLabel}</span>
-            <Menu className="w-4 h-4 text-zinc-400 ml-1" />
+            <ActiveIcon className="w-6 h-6 text-primary" />
+            <span className="font-medium text-base">{activeTabLabel}</span>
+            <Menu className="w-5 h-5 text-zinc-400 ml-1" />
           </Button>
 
           {/* Quick Actions */}

@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Zap,
   Star,
+  Crown,
 } from "lucide-react";
 
 interface RankProgressProps {
@@ -64,6 +65,9 @@ export function RankProgress({ userId }: RankProgressProps) {
   const rankInfo = calculateRank(stats.totalXp);
   const { currentRank, nextRank, progress, xpToNext } = rankInfo;
   const todaysChallenge = getTodaysChallenge();
+  
+  // Get next 3 ranks for display
+  const nextRanks = RANKS.filter(r => r.minXp > stats.totalXp).slice(0, 3);
 
   return (
     <div className="space-y-6">

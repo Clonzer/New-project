@@ -85,6 +85,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: authData } = await supabase.auth.getUser();
         if (authData.user) {
           const userMetadata = authData.user.user_metadata || {};
+          // Try multiple possible avatar sources
+          const avatarUrl = userMetadata.avatar_url || 
+                           userMetadata.avatarUrl || 
+                           userMetadata.avatar || 
+                           userMetadata.picture ||
+                           userMetadata.image_url ||
+                           userMetadata.image ||
+                           null;
+          console.log('Auth metadata avatar sources:', {
+            avatar_url: userMetadata.avatar_url,
+            avatarUrl: userMetadata.avatarUrl,
+            avatar: userMetadata.avatar,
+            picture: userMetadata.picture,
+            final: avatarUrl
+          });
           const basicUser = {
             id: authData.user.id,
             email: authData.user.email || '',
@@ -92,10 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             displayName: userMetadata.display_name || userMetadata.displayName || userMetadata.name || userMetadata.username,
             role: userMetadata.role || 'buyer',
             isVerified: authData.user.email_confirmed_at ? true : false,
-            avatarUrl: userMetadata.avatar_url || userMetadata.avatarUrl || null,
+            avatarUrl: avatarUrl,
             totalXp: 0,
             rankId: 1,
           };
+          console.log('Setting basicUser with avatarUrl:', basicUser.avatarUrl);
           setUser(basicUser as User);
 
           // Try to create the user record in the background
@@ -120,6 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         // Map database column names (snake_case) to User type (camelCase)
+        console.log('DB fetch raw data:', data);
+        console.log('DB avatar_url:', (data as any).avatar_url);
         const userData = {
           ...(data as any),
           displayName: (data as any).display_name || (data as any).displayName,

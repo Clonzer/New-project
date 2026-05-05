@@ -94,16 +94,18 @@ export default function ExploreAll() {
       try {
         setLoadingListings(true);
         const { data: listingsData, error: listingsError } = await supabase.from('listings').select('*');
-        const { data: sellersData, error: sellersError } = await supabase.from('sellers').select('id, store_name');
+        const { data: sellersData, error: sellersError } = await supabase.from('sellers').select('id, store_name, accepting_orders');
 
         if (listingsData && !listingsError && sellersData && !sellersError) {
-          // Create a map of seller IDs to seller names
+          // Create maps of seller IDs to seller data
           const sellerMap = new Map(sellersData.map(s => [s.id, s.store_name]));
+          const acceptingOrdersMap = new Map(sellersData.map(s => [s.id, s.accepting_orders]));
 
           // Transform listings with seller names
           const transformedListings = listingsData.map((listing: any) => {
             const transformed = transformListing(listing);
             transformed.sellerName = sellerMap.get(listing.seller_id) || 'Unknown Seller';
+            transformed.sellerAcceptingOrders = acceptingOrdersMap.get(listing.seller_id);
             return transformed;
           });
           setListings(transformedListings);
@@ -212,7 +214,7 @@ export default function ExploreAll() {
                   ) : filteredListings.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                       {filteredListings.slice(0, 8).map((listing) => (
-                        <ListingCard key={listing.id} listing={listing} />
+                        <ListingCard key={listing.id} listing={listing} sellerAcceptingOrders={listing.sellerAcceptingOrders} />
                       ))}
                     </div>
                   ) : (
@@ -256,7 +258,7 @@ export default function ExploreAll() {
               ) : filteredListings.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   {filteredListings.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} />
+                    <ListingCard key={listing.id} listing={listing} sellerAcceptingOrders={listing.sellerAcceptingOrders} />
                   ))}
                 </div>
               ) : (

@@ -1,6 +1,6 @@
 import { Listing } from "@/lib/workspace-api-mock";
 import { Link, useLocation } from "wouter";
-import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare, Sparkles, Wrench } from "lucide-react";
+import { Box, Clock, ShoppingCart, AlertCircle, Trash2, Edit, MessageSquare, Sparkles, Wrench, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ReportButton } from "@/components/shared/ReportButton";
@@ -21,6 +21,7 @@ export function ListingCard({
   isSponsored,
   sponsorTier,
   equipmentStatus,
+  sellerAcceptingOrders,
 }: {
   listing: Listing & { stockQuantity?: number; trackStock?: boolean; sellerRankId?: number };
   priceInsight?: ListingPriceInsight;
@@ -30,6 +31,7 @@ export function ListingCard({
   isSponsored?: boolean;
   sponsorTier?: "premium" | "gold" | "silver";
   equipmentStatus?: "operational" | "maintenance" | "out-of-service" | "busy";
+  sellerAcceptingOrders?: boolean;
 }) {
   const tierStyles = {
     premium: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-purple-300",
@@ -164,6 +166,16 @@ export function ListingCard({
             <MiniRank rankId={listing.sellerRankId} />
           )}
         </div>
+
+        {/* Orders Closed Disclaimer */}
+        {sellerAcceptingOrders === false && (
+          <div className="mb-3 p-2 rounded-lg bg-red-500/10 border border-red-500/30">
+            <p className="text-xs text-red-400 font-medium flex items-center gap-1.5">
+              <XCircle className="w-3.5 h-3.5" />
+              Not accepting orders
+            </p>
+          </div>
+        )}
 
         {priceInsight ? (
           <div className="mb-4 rounded-xl border p-3">
