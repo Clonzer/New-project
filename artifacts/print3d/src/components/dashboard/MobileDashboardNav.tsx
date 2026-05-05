@@ -253,10 +253,10 @@ export function CondensedDashboardTabs({
                     <Icon className="w-4 h-4" />
                     {tab.label}
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
