@@ -258,6 +258,65 @@ export function RankProgress({ userId }: RankProgressProps) {
         />
       </div>
 
+      {/* Next Ranks Section */}
+      {nextRanks.length > 0 && (
+        <Card className="bg-zinc-900/50 border-zinc-800">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-primary" />
+              <CardTitle className="text-lg text-white">Next Ranks</CardTitle>
+            </div>
+            <p className="text-sm text-zinc-400 mt-1">
+              Progress through ranks to unlock exclusive perks
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {nextRanks.map((rank, index) => (
+              <div
+                key={rank.id}
+                className={`p-4 rounded-xl border ${
+                  index === 0
+                    ? 'bg-primary/10 border-primary/30'
+                    : 'bg-zinc-800/50 border-zinc-700'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">{rank.badge}</span>
+                  <div className="flex-1">
+                    <h4 className={`font-semibold ${index === 0 ? 'text-white' : 'text-zinc-300'}`}>
+                      {rank.name}
+                    </h4>
+                    <p className="text-xs text-zinc-400">
+                      {rank.minXp.toLocaleString()} XP required
+                      {index === 0 && stats && (
+                        <span className="text-primary ml-2">
+                          ({(rank.minXp - stats.totalXp).toLocaleString()} XP to go)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {rank.perks.map((perk, perkIndex) => (
+                    <span
+                      key={perkIndex}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                        index === 0
+                          ? 'bg-primary/20 text-primary border border-primary/30'
+                          : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'
+                      }`}
+                    >
+                      <Zap className="w-3 h-3" />
+                      {perk}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Lifetime Pro Banner (for Legend rank) */}
       {currentRank.isLifetime && (
         <motion.div

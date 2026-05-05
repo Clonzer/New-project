@@ -20,8 +20,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const USER_CACHE_KEY = 'synthix_user_cache';
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Load cached user data immediately to prevent flash of missing content
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(USER_CACHE_KEY);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          // Only use cache if it's less than 24 hours old
+          if (parsed._cachedAt && Date.now() - parsed._cachedAt < 24 * 60 * 60 * 1000) {
+            delete parsed._cachedAt;
+            return parsed;
+          }
+        } catch {
+          localStorage.removeItem(USER_CACHE_KEY);
+        }
+      }
+    }
+    return null;
+  });
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -72,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             displayName: userMetadata.display_name || userMetadata.displayName || userMetadata.name || userMetadata.username,
             role: userMetadata.role || 'buyer',
             isVerified: authData.user.email_confirmed_at ? true : false,
+            avatarUrl: userMetadata.avatar_url || userMetadata.avatarUrl || null,
             totalXp: 0,
             rankId: 1,
           };
@@ -99,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         // Map database column names (snake_case) to User type (camelCase)
-        setUser({
+        const userData = {
           ...(data as any),
           displayName: (data as any).display_name || (data as any).displayName,
           shopName: (data as any).shop_name || (data as any).shopName,
@@ -125,7 +146,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Store status
           storeVisible: (data as any).store_visible ?? true,
           acceptingOrders: (data as any).accepting_orders ?? true,
-        } as User);
+        } as User;
+        
+        setUser(userData);
+        
+        // Cache user data in localStorage
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ ...userData, _cachedAt: Date.now() }));
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -219,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    localStorage.removeItem(USER_CACHE_KEY);
   }
 
   async function resetPassword(email: string) {

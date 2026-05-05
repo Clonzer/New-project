@@ -80,10 +80,10 @@ export function MobileDashboardNav({
   const ActiveIcon = visibleTabs.find((t) => t.value === activeTab)?.icon || Menu;
 
   return (
-    <div className="lg:hidden">
-      {/* Mobile Tab Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 px-4 py-2 safe-area-inset-bottom">
-        <div className="flex items-center justify-between gap-2">
+    <div>
+      {/* Tab Bar - Always visible on all screen sizes */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 safe-area-inset-bottom">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Active Tab Display */}
           <Button
             variant="ghost"

@@ -847,29 +847,41 @@ export default function Dashboard() {
 
       console.log('Fetching seller status for user', user.id);
       try {
-        const { data, error } = await supabase
+        // Fetch accepting_orders from sellers table
+        const { data: sellerData, error: sellerError } = await supabase
           .from('sellers')
-          .select('accepting_orders, shop_mode')
+          .select('accepting_orders')
           .eq('user_id', user.id)
           .single();
 
-        console.log('Seller status fetch result:', { data, error });
+        // Fetch shop_mode from profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('shop_mode')
+          .eq('id', user.id)
+          .single();
 
-        if (data && !error) {
-          setAcceptingOrders(data.accepting_orders !== false);
-          setStoreVisible(data.shop_mode !== false);
-          console.log('Set visibility states:', {
-            accepting_orders: data.accepting_orders,
-            shop_mode: data.shop_mode,
-            computedAccepting: data.accepting_orders !== false,
-            computedVisible: data.shop_mode !== false
-          });
-        } else if (error) {
-          console.error('Error fetching seller status:', error);
-          // Default to true if fetch fails
+        console.log('Seller status fetch result:', { sellerData, profileData, sellerError, profileError });
+
+        if (!sellerError && sellerData) {
+          setAcceptingOrders(sellerData.accepting_orders !== false);
+        } else {
           setAcceptingOrders(true);
+        }
+
+        if (!profileError && profileData) {
+          // shop_mode is 'catalog', 'custom', 'both' - treat as visible if not 'none'
+          setStoreVisible(profileData.shop_mode !== 'none');
+        } else {
           setStoreVisible(true);
         }
+
+        console.log('Set visibility states:', {
+          accepting_orders: sellerData?.accepting_orders,
+          shop_mode: profileData?.shop_mode,
+          computedAccepting: sellerData?.accepting_orders !== false,
+          computedVisible: profileData?.shop_mode !== 'none'
+        });
       } catch (err) {
         console.error('Exception fetching seller status:', err);
         // Default to true if fetch fails
@@ -953,10 +965,12 @@ export default function Dashboard() {
     console.log('Toggling visibility from', storeVisible, 'to', newValue);
 
     try {
+      // shop_mode is TEXT ('catalog', 'custom', 'both', 'none') - use 'none' for hidden
+      const newShopMode = newValue ? 'both' : 'none';
       const { error } = await supabase
-        .from('sellers')
-        .update({ shop_mode: newValue })
-        .eq('user_id', user.id);
+        .from('profiles')
+        .update({ shop_mode: newShopMode })
+        .eq('id', user.id);
 
       if (error) {
         console.error('Supabase error updating visibility:', error);
@@ -1217,7 +1231,7 @@ export default function Dashboard() {
         initialData={editingEquipmentGroup}
       />
 
-      <main className="flex-grow pt-4 pb-24 lg:pb-8">
+      <main className="flex-grow pt-4 pb-28">
         <div className="container mx-auto px-4">
 
           {/* Action Buttons Bar */}
@@ -1264,13 +1278,33 @@ export default function Dashboard() {
                     <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white">
                       Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
                     </h1>
-                    {/* Rank Badge */}
+                    {/* Rank Badge with Progress */}
                     {xpStats && (
-                      <div className="flex items-center gap-2">
-                        <RankBadge rankId={xpStats.currentRankId} size="md" />
-                        <span className="text-sm text-zinc-400 hidden sm:inline">
-                          {xpStats.totalXp.toLocaleString()} XP
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <RankBadge rankId={xpStats.currentRankId} size="md" />
+                          <span className="text-sm text-zinc-400 hidden sm:inline">
+                            {xpStats.totalXp.toLocaleString()} XP
+                          </span>
+                        </div>
+                        {/* Rank Progress Bar */}
+                        {(() => {
+                          const currentRank = RANKS.find(r => r.id === xpStats.currentRankId) || RANKS[0];
+                          const nextRank = RANKS.find(r => r.minXp > xpStats.totalXp);
+                          if (!nextRank) return null;
+                          const progress = Math.min(100, Math.max(0, 
+                            ((xpStats.totalXp - currentRank.minXp) / (nextRank.minXp - currentRank.minXp)) * 100
+                          ));
+                          const xpNeeded = nextRank.minXp - xpStats.totalXp;
+                          return (
+                            <div className="flex items-center gap-2 min-w-[150px]">
+                              <Progress value={progress} className="h-1.5 flex-1 bg-white/10" />
+                              <span className="text-[10px] text-zinc-500 whitespace-nowrap">
+                                {xpNeeded.toLocaleString()} XP to {nextRank.name}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                     {user.isOwner ? (
@@ -1401,25 +1435,9 @@ export default function Dashboard() {
             onViewChange={setDashboardView}
           />
 
-          {/* Desktop Condensed Tabs (LG only, hidden on XL) */}
-          <div className="hidden lg:flex xl:hidden mb-8">
-            <CondensedDashboardTabs
-              activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab}
-              onTabChange={(tab) => {
-                const element = document.querySelector(`[data-tour="${tab}"]`) as HTMLElement;
-                element?.click();
-              }}
-              isSeller={isSellerUser}
-              isOwner={user?.isOwner}
-              isBoth={user?.role === "both"}
-              dashboardView={dashboardView}
-              onViewChange={setDashboardView}
-            />
-          </div>
-
           <Tabs defaultValue={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab} className="w-full">
-            {/* Desktop Tabs - Hidden on mobile and LG */}
-            <TabsList className="hidden xl:flex bg-black/60 border border-white/10 p-2 rounded-2xl mb-8 h-auto w-full gap-2">
+            {/* Desktop tabs removed - using mobile navigation on all screens */}
+            <TabsList className="hidden">
               {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
                 <TabsTrigger value="overview" data-tour="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
