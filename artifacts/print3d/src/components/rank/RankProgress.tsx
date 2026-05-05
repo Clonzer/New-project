@@ -275,83 +275,92 @@ export function RankProgress({ userId }: RankProgressProps) {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Spider/Mind Diagram Visualization */}
-            <div className="relative flex items-center justify-center p-8">
-              <div className="relative w-full max-w-2xl">
-                {/* Connection lines */}
-                <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
-                  {nextRanks.map((rank, index) => {
-                    if (index === 0) return null;
-                    const prevRank = nextRanks[index - 1];
-                    const x1 = (index - 1) * 25 + 12.5;
-                    const x2 = index * 25 + 12.5;
-                    return (
-                      <line
-                        key={`line-${index}`}
-                        x1={`${x1}%`}
-                        y1="50%"
-                        x2={`${x2}%`}
-                        y2="50%"
-                        stroke={index === 1 ? "rgb(147, 51, 234)" : "rgb(113, 113, 122)"}
-                        strokeWidth="2"
-                        strokeDasharray={index > 1 ? "5,5" : "0"}
-                        opacity="0.6"
-                      />
-                    );
-                  })}
-                </svg>
-                
-                {/* Rank nodes */}
-                <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
-                  {nextRanks.map((rank, index) => (
-                    <div
-                      key={rank.id}
-                      className="relative flex flex-col items-center"
-                      style={{ width: '25%' }}
-                    >
-                      {/* Rank circle */}
+            {/* Spider/Mind Diagram Visualization - Scrollable */}
+            <div className="relative overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
+              <div className="min-w-[600px] p-6">
+                <div className="relative w-full">
+                  {/* Connection lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+                    {nextRanks.map((rank, index) => {
+                      if (index === 0) return null;
+                      const prevRank = nextRanks[index - 1];
+                      const x1 = (index - 1) * 25 + 12.5;
+                      const x2 = index * 25 + 12.5;
+                      return (
+                        <line
+                          key={`line-${index}`}
+                          x1={`${x1}%`}
+                          y1="50%"
+                          x2={`${x2}%`}
+                          y2="50%"
+                          stroke={index === 1 ? "url(#lineGradient)" : "rgb(113, 113, 122)"}
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeDasharray={index > 1 ? "8,4" : "0"}
+                          opacity={index === 1 ? "1" : "0.4"}
+                        />
+                      );
+                    })}
+                    <defs>
+                      <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="rgb(147, 51, 234)" />
+                        <stop offset="100%" stopColor="rgb(236, 72, 153)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  
+                  {/* Rank nodes */}
+                  <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
+                    {nextRanks.map((rank, index) => (
                       <div
-                        className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 ${
-                          index === 0
-                            ? 'bg-primary/20 border-primary shadow-lg shadow-primary/20'
-                            : 'bg-zinc-800/50 border-zinc-600'
-                        }`}
+                        key={rank.id}
+                        className="relative flex flex-col items-center group"
+                        style={{ width: '25%' }}
                       >
-                        <span className={index === 0 ? 'scale-110' : ''}>
-                          {rank.badge}
-                        </span>
-                      </div>
-                      
-                      {/* Rank name */}
-                      <h4 className={`font-semibold mt-2 text-sm ${
-                        index === 0 ? 'text-white' : 'text-zinc-400'
-                      }`}>
-                        {rank.name}
-                      </h4>
-                      
-                      {/* XP requirement */}
-                      <p className="text-xs text-zinc-500 mt-1">
-                        {rank.minXp.toLocaleString()} XP
-                        {index === 0 && stats && (
-                          <span className="text-primary ml-1">
-                            (+{(rank.minXp - stats.totalXp).toLocaleString()})
+                        {/* Rank circle with glow */}
+                        <div
+                          className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl border-2 transition-all duration-300 group-hover:scale-110 ${
+                            index === 0
+                              ? 'bg-gradient-to-br from-primary/30 to-violet-500/30 border-primary shadow-[0_0_30px_rgba(147,51,234,0.4)]'
+                              : 'bg-zinc-800/80 border-zinc-600 hover:border-zinc-500'
+                          }`}
+                        >
+                          <span className={index === 0 ? 'animate-pulse' : ''}>
+                            {rank.badge}
                           </span>
-                        )}
-                      </p>
-                      
-                      {/* Progress indicator for next rank */}
-                      {index === 0 && stats && (
-                        <div className="absolute -bottom-2 w-full h-1 bg-zinc-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-primary to-violet-500 transition-all duration-300"
-                            style={{
-                              width: `${Math.min(100, (stats.totalXp / rank.minXp) * 100)}%`
-                            }}
-                          />
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        
+                        {/* Rank name */}
+                        <h4 className={`font-bold mt-3 text-base ${
+                          index === 0 ? 'text-white' : 'text-zinc-400'
+                        }`}>
+                          {rank.name}
+                        </h4>
+                        
+                        {/* XP requirement */}
+                        <p className="text-sm text-zinc-500 mt-1 font-medium">
+                          {rank.minXp.toLocaleString()} XP
+                          {index === 0 && stats && (
+                            <span className="text-primary ml-1">
+                              (+{(rank.minXp - stats.totalXp).toLocaleString()})
+                            </span>
+                          )}
+                        </p>
+                        
+                        {/* Progress indicator for next rank */}
+                        {index === 0 && stats && (
+                          <div className="absolute -bottom-3 w-3/4 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-primary via-violet-500 to-pink-500 transition-all duration-500 rounded-full"
+                              style={{
+                                width: `${Math.min(100, (stats.totalXp / rank.minXp) * 100)}%`
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

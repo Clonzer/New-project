@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
+import { EmailVerificationForm } from "@/components/auth/EmailVerificationForm";
 import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import {
   COUNTRY_OPTIONS,
@@ -756,58 +757,12 @@ export default function Settings() {
                 {activeSection === "security" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Security</h2>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
-                      <div>
-                        <p className="text-sm font-medium text-white">Email verification</p>
-                        <p className="mt-1 text-sm text-zinc-400">
-                          {isVerified
-                            ? "This account is verified."
-                            : "You can verify your email to unlock additional features, but it's not required to create listings."}
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <div
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            isVerified
-                              ? "bg-emerald-500/15 text-emerald-300"
-                              : "bg-yellow-500/15 text-yellow-200"
-                          }`}
-                        >
-                          {isVerified ? "Verified" : "Not verified"}
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                      {!isVerified && (
+                        <div className="space-y-4">
+                          <EmailVerificationForm />
                         </div>
-                        {!isVerified ? (
-                          <NeonButton
-                            glowColor="primary"
-                            onClick={() => void sendVerificationCode()}
-                            disabled={isRequestingVerification || resendCountdown > 0}
-                          >
-                            {isRequestingVerification
-                              ? "Sending..."
-                              : resendCountdown > 0
-                                ? `Resend in ${resendCountdown}s`
-                                : "Send verification code"}
-                          </NeonButton>
-                        ) : null}
-                      </div>
-                      {!isVerified ? (
-                        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-                          <p className="text-sm text-zinc-300">
-                            <strong className="text-white">📧 Check your email!</strong><br />
-                            A verification link has been sent to your email address. 
-                            Click the link in the email to verify your account.
-                          </p>
-                          <p className="text-xs text-zinc-500 mt-2">
-                            The link will expire in 1 hour. If you don't see the email, check your spam folder.
-                          </p>
-                        </div>
-                      ) : null}
-                    </div>
-                    <div>
-                      <label className="block text-sm text-zinc-400 mb-1.5">Current Password</label>
-                      <Input
-                        type="password"
-                        value={passwordForm.currentPassword}
-                        onChange={(event) =>
+                      )}
                           setPasswordForm((current) => ({ ...current, currentPassword: event.target.value }))
                         }
                         className="bg-black/30 border-white/10 text-white"

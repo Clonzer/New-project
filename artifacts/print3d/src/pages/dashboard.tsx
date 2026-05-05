@@ -847,42 +847,45 @@ export default function Dashboard() {
 
       console.log('Fetching seller status for user', user.id);
       try {
-        // Fetch accepting_orders from sellers table
-        const { data: sellerData, error: sellerError } = await supabase
-          .from('sellers')
-          .select('accepting_orders')
-          .eq('user_id', user.id)
-          .single();
+        // Fetch accepting_orders from sellers table - handle missing column gracefully
+        let sellerAcceptingOrders = false;
+        try {
+          const { data: sellerData, error: sellerError } = await supabase
+            .from('sellers')
+            .select('accepting_orders')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!sellerError && sellerData) {
+            sellerAcceptingOrders = sellerData.accepting_orders === true;
+          }
+        } catch (sellerErr) {
+          console.warn('Could not fetch accepting_orders, column may not exist:', sellerErr);
+        }
+        setAcceptingOrders(sellerAcceptingOrders);
 
         // Fetch shop_mode from profiles table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('shop_mode')
-          .eq('id', user.id)
-          .single();
+        let profileShopMode = 'both';
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('shop_mode')
+            .eq('id', user.id)
+            .maybeSingle();
 
-        console.log('Seller status fetch result:', { sellerData, profileData, sellerError, profileError });
-
-        if (!sellerError && sellerData) {
-          // Only accept orders if explicitly set to true, default to false if null/undefined
-          setAcceptingOrders(sellerData.accepting_orders === true);
-        } else {
-          // Default to not accepting orders if no seller record
-          setAcceptingOrders(false);
+          if (!profileError && profileData) {
+            profileShopMode = profileData.shop_mode || 'both';
+          }
+        } catch (profileErr) {
+          console.warn('Could not fetch shop_mode:', profileErr);
         }
-
-        if (!profileError && profileData) {
-          // shop_mode is 'catalog', 'custom', 'both' - treat as visible if not 'none'
-          setStoreVisible(profileData.shop_mode !== 'none');
-        } else {
-          setStoreVisible(true);
-        }
+        setStoreVisible(profileShopMode !== 'none');
 
         console.log('Set visibility states:', {
-          accepting_orders: sellerData?.accepting_orders,
-          shop_mode: profileData?.shop_mode,
-          computedAccepting: sellerData?.accepting_orders === true,
-          computedVisible: profileData?.shop_mode !== 'none'
+          accepting_orders: sellerAcceptingOrders,
+          shop_mode: profileShopMode,
+          computedAccepting: sellerAcceptingOrders,
+          computedVisible: profileShopMode !== 'none'
         });
       } catch (err) {
         console.error('Exception fetching seller status:', err);
