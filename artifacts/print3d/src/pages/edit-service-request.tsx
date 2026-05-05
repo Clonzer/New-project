@@ -33,7 +33,7 @@ const MATERIALS = ["PLA", "ABS", "PETG", "TPU", "Resin", "Nylon", "Carbon Fiber"
 export default function EditServiceRequest() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -262,13 +262,17 @@ export default function EditServiceRequest() {
     setSaving(true);
     try {
       // Delete file if exists
-      if (formData.fileUrl) {
-        const url = new URL(formData.fileUrl);
-        const pathParts = url.pathname.split('/');
-        const filePath = pathParts.slice(pathParts.indexOf('custom-order-files') + 1).join('/');
-        
-        if (filePath) {
-          await supabase.storage.from('custom-order-files').remove([filePath]);
+      if (formData.fileUrl && formData.fileUrl.startsWith('http')) {
+        try {
+          const url = new URL(formData.fileUrl);
+          const pathParts = url.pathname.split('/');
+          const filePath = pathParts.slice(pathParts.indexOf('custom-order-files') + 1).join('/');
+
+          if (filePath) {
+            await supabase.storage.from('custom-order-files').remove([filePath]);
+          }
+        } catch (urlError) {
+          console.warn('Invalid file URL, skipping file deletion:', formData.fileUrl);
         }
       }
 

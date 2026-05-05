@@ -1370,26 +1370,11 @@ export default function Dashboard() {
                     </div>
                   )}
 
-                  {/* Store Visibility Toggle */}
-                  {storeVisible !== null && (
-                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 h-8 sm:h-9">
-                      <Switch
-                        checked={storeVisible}
-                        onCheckedChange={toggleStoreVisibility}
-                        disabled={storeVisible === null}
-                        className="data-[state=checked]:bg-primary scale-75 sm:scale-90"
-                      />
-                      <span className={`text-xs font-medium ${storeVisible ? "text-primary" : "text-zinc-500"}`}>
-                        {storeVisible ? "Store Public" : "Store Hidden"}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Status Indicator */}
+                  {/* Status Indicator - Only show accepting orders status */}
                   <div className="flex items-center gap-2 ml-auto">
-                    <div className={`h-2 w-2 rounded-full ${storeVisible && acceptingOrders ? "bg-emerald-500 animate-pulse" : storeVisible ? "bg-yellow-500" : "bg-red-500"}`} />
+                    <div className={`h-2 w-2 rounded-full ${acceptingOrders ? "bg-emerald-500 animate-pulse" : "bg-yellow-500"}`} />
                     <span className="text-xs text-zinc-400 hidden sm:inline">
-                      {storeVisible && acceptingOrders ? "Open for business" : storeVisible ? "Visible but closed" : "Store offline"}
+                      {acceptingOrders ? "Accepting orders" : "Orders closed"}
                     </span>
                   </div>
                 </div>
@@ -1421,12 +1406,19 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Mobile Bottom Navigation */}
+          {/* Bottom Navigation - Used on all screen sizes */}
           <MobileDashboardNav
-            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab}
+            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : defaultTab) : defaultTab}
             onTabChange={(tab) => {
-              const element = document.querySelector(`[data-tour="${tab}"]`) as HTMLElement;
-              element?.click();
+              // Direct state update instead of clicking hidden elements
+              if (user?.role === "both") {
+                if (["purchases", "wallet", "payment", "reviews", "service-requests", "sponsorship"].includes(tab)) {
+                  setDashboardView("purchases");
+                } else {
+                  setDashboardView("store");
+                }
+              }
+              setDefaultTab(tab);
             }}
             isSeller={isSellerUser}
             isOwner={user?.isOwner}
@@ -1435,7 +1427,11 @@ export default function Dashboard() {
             onViewChange={setDashboardView}
           />
 
-          <Tabs defaultValue={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : "overview") : defaultTab} className="w-full">
+          <Tabs
+            value={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : defaultTab) : defaultTab}
+            onValueChange={(value) => setDefaultTab(value)}
+            className="w-full"
+          >
             {/* Desktop tabs removed - using mobile navigation on all screens */}
             <TabsList className="hidden">
               {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}

@@ -406,7 +406,7 @@ export default function CustomOrders({ user }: { user: any }) {
           setIsEditing(false);
         }
       }}>
-        <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-lg">
+        <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-4xl w-[90vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">
               {isEditing ? "Edit Quote" : "Provide Quote"}

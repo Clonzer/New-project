@@ -134,39 +134,44 @@ export default function ServiceRequestDetail() {
         setActiveImage(requestData.file_url);
       }
 
-      // Load quotes
-      const { data: quotesData, error: quotesError } = await supabase
-        .from("custom_order_quotes")
-        .select("*")
-        .eq("request_id", id)
-        .order("created_at", { ascending: false });
+      // Load quotes - handle missing table gracefully
+      let quotesWithProfiles: any[] = [];
+      try {
+        const { data: quotesData, error: quotesError } = await supabase
+          .from("custom_order_quotes")
+          .select("*")
+          .eq("request_id", id)
+          .order("created_at", { ascending: false });
 
-      if (quotesError) throw quotesError;
+        if (!quotesError && quotesData) {
+          // Load seller profiles for quotes
+          quotesWithProfiles = await Promise.all(
+            quotesData.map(async (quote) => {
+              const { data: sellerProfile } = await supabase
+                .from("profiles")
+                .select("username, avatar_url, rating")
+                .eq("id", quote.seller_id)
+                .single();
 
-      // Load seller profiles for quotes
-      const quotesWithProfiles = await Promise.all(
-        (quotesData || []).map(async (quote) => {
-          const { data: sellerProfile } = await supabase
-            .from("profiles")
-            .select("username, avatar_url, rating")
-            .eq("id", quote.seller_id)
-            .single();
-
-          return {
-            id: quote.id,
-            requestId: quote.request_id,
-            sellerId: quote.seller_id,
-            sellerName: sellerProfile?.username || "Unknown Seller",
-            sellerAvatar: sellerProfile?.avatar_url,
-            price: quote.price,
-            message: quote.message,
-            estimatedDays: quote.estimated_days,
-            status: quote.status,
-            createdAt: quote.created_at,
-            rating: sellerProfile?.rating || 0,
-          };
-        })
-      );
+              return {
+                id: quote.id,
+                requestId: quote.request_id,
+                sellerId: quote.seller_id,
+                sellerName: sellerProfile?.username || "Unknown Seller",
+                sellerAvatar: sellerProfile?.avatar_url,
+                price: quote.price,
+                message: quote.message,
+                estimatedDays: quote.estimated_days,
+                status: quote.status,
+                createdAt: quote.created_at,
+                rating: sellerProfile?.rating || 0,
+              };
+            })
+          );
+        }
+      } catch (quotesErr) {
+        console.warn("Quotes table not available, skipping quotes load:", quotesErr);
+      }
 
       setQuotes(quotesWithProfiles);
     } catch (error) {
@@ -183,12 +188,15 @@ export default function ServiceRequestDetail() {
 
   const handleAcceptQuote = async (quoteId: string) => {
     try {
-      const { error } = await supabase
-        .from("custom_order_quotes")
-        .update({ status: "accepted" })
-        .eq("id", quoteId);
-
-      if (error) throw error;
+      // Try to update quote status if table exists
+      try {
+        await supabase
+          .from("custom_order_quotes")
+          .update({ status: "accepted" })
+          .eq("id", quoteId);
+      } catch {
+        console.warn("Could not update quote status - table may not exist");
+      }
 
       // Update request status
       await supabase

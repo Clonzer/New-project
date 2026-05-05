@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useToast } from "@/hooks/use-toast";
 import { SEOMeta, StructuredData, generateBreadcrumbSchema, MarketplaceStructuredData } from "@/components/seo";
-import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, TrendingUp, Tag, ChevronRight, Store, Package, Zap, Crown, Sparkles } from "lucide-react";
+import { Heart, MessageCircle, Share, User, Search, Plus, Star, Smile, ThumbsUp, Laugh, Angry, Loader2, ExternalLink, MessageSquare, TrendingUp, Tag, ChevronRight, Store, Package, Zap, Crown, Sparkles, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/locale-preferences";
 import { cn } from "@/lib/utils";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
@@ -437,8 +437,75 @@ export default function Discover() {
     trackEvent("discover_share", { postId: post.id });
   };
 
+  const handleDeletePost = async (postId: number) => {
+    if (!user?.id) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to delete your posts.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const post = posts.find(p => p.id === postId);
+      if (!post || post.userId !== user.id) {
+        toast({
+          title: "Unauthorized",
+          description: "You can only delete your own posts.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Delete media files from storage if they exist
+      if (post.imageUrl) {
+        const imagePath = post.imageUrl.split('/').slice(-2).join('/');
+        await supabase.storage.from('discover-media').remove([imagePath]);
+      }
+      if (post.videoUrl) {
+        const videoPath = post.videoUrl.split('/').slice(-2).join('/');
+        await supabase.storage.from('discover-media').remove([videoPath]);
+      }
+
+      // Remove post from state
+      setPosts(prev => prev.filter(p => p.id !== postId));
+
+      // Clear from localStorage cache
+      const cached = localStorage.getItem('cached_discover_posts');
+      if (cached) {
+        const cachedPosts = JSON.parse(cached);
+        const updatedCached = cachedPosts.filter((p: Post) => p.id !== postId);
+        localStorage.setItem('cached_discover_posts', JSON.stringify(updatedCached));
+      }
+
+      toast({
+        title: "Post deleted",
+        description: "Your post has been successfully deleted.",
+      });
+
+      trackEvent("discover_delete_post", { postId });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePost = async () => {
     if (!newPost.trim()) return;
+    
+    if (!user?.id) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to create a post on Discover.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsUploading(true);
@@ -778,6 +845,17 @@ export default function Discover() {
                                 {new Date(post.createdAt).toLocaleDateString()}
                               </span>
                             </div>
+                            {/* Delete button for post owner */}
+                            {user?.id && post.userId === user.id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeletePost(post.id)}
+                                className="text-zinc-500 hover:text-red-400 ml-auto"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
                             {post.title && (
                               <h4 className="text-lg font-semibold text-white mb-2">{post.title}</h4>
                             )}
