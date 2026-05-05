@@ -763,10 +763,6 @@ export default function Settings() {
                           <EmailVerificationForm />
                         </div>
                       )}
-                          setPasswordForm((current) => ({ ...current, currentPassword: event.target.value }))
-                        }
-                        className="bg-black/30 border-white/10 text-white"
-                      />
                     </div>
                     <div>
                       <label className="block text-sm text-zinc-400 mb-1.5">New Password</label>
