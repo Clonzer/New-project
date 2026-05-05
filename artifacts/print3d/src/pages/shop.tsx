@@ -579,7 +579,7 @@ export default function Shop() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {listings?.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} />
+                    <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} sellerAcceptingOrders={seller?.accepting_orders} />
                   ))}
                 </div>
               )}

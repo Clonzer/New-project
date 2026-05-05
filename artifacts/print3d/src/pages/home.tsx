@@ -60,15 +60,15 @@ export default function Home() {
       />
       <MarketplaceStructuredData />
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      {/* Hero gradient applied to entire page */}
+      {/* Hero gradient with more vibrant colors */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0 bg-[#050510]" />
-        <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-40 blur-[100px] bg-gradient-to-br from-[#7c3aed] via-[#4f46e5] to-transparent animate-aurora-1" />
-        <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-30 blur-[90px] bg-gradient-to-bl from-[#06b6d4] via-[#0891b2] to-transparent animate-aurora-2" />
-        <div className="absolute bottom-[0%] left-[20%] w-[60vw] h-[40vw] max-w-[700px] max-h-[500px] rounded-full opacity-25 blur-[110px] bg-gradient-to-tr from-[#a855f7] via-[#7c3aed] to-transparent animate-aurora-3" />
-        <div className="absolute top-[40%] left-[-5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-[#06b6d4] to-transparent animate-aurora-4" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950" />
+        <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-50 blur-[120px] bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600 animate-pulse" />
+        <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-40 blur-[100px] bg-gradient-to-bl from-cyan-400 via-teal-500 to-emerald-600 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-[0%] left-[20%] w-[60vw] h-[40vw] max-w-[700px] max-h-[500px] rounded-full opacity-35 blur-[130px] bg-gradient-to-tr from-orange-400 via-pink-500 to-purple-600 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[40%] left-[-5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-30 blur-[90px] bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
         <div className="absolute inset-0 opacity-[0.03] bg-noise" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(139,92,246,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.4) 1px, transparent 1px)`, backgroundSize: "80px 80px" }} />
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `linear-gradient(rgba(236,72,153,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px)`, backgroundSize: "60px 60px" }} />
       </div>
       <Navbar />
 
@@ -87,27 +87,32 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary backdrop-blur-md"
+                className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-pink-500/25"
               >
-                <Sparkles className="w-4 h-4" />
-                Storefront marketplace
+                <Sparkles className="w-4 h-4 text-pink-300" />
+                <span className="bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">Storefront marketplace</span>
               </motion.span>
-              <h1 className="mt-8 text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white leading-[0.95] tracking-tight">
+              <h1 className="mt-8 text-5xl md:text-7xl lg:text-8xl font-display font-black text-white leading-[0.95] tracking-tight">
                 Your 3D Printing{" "}
-                <span className="gradient-text-animated">Marketplace</span>
+                <span className="relative">
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Marketplace</span>
+                  <span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Marketplace</span>
+                </span>
               </h1>
-              <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-zinc-400 leading-relaxed">
-                Connect with verified makers, buy ready-to-ship products, and order custom prints. The easiest way to bring your ideas to life.
+              <p className="mt-8 max-w-2xl mx-auto text-xl md:text-2xl text-zinc-300 leading-relaxed font-medium">
+                Connect with verified makers, buy ready-to-ship products, and order custom prints. <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold">The easiest way to bring your ideas to life.</span>
               </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="mt-12 flex flex-col sm:flex-row gap-5 justify-center">
                 <Link href="/explore">
-                  <Button size="lg" variant="gradient" className="w-full sm:w-auto px-10 h-14 text-base rounded-xl group">
-                    Browse makers 
-                    <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                  <Button size="lg" className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group border-0">
+                    <span className="flex items-center gap-3">
+                      Browse makers 
+                      <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2" />
+                    </span>
                   </Button>
                 </Link>
                 <Link href="/listings">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-10 h-14 text-base rounded-xl border-2">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:text-purple-200 backdrop-blur-sm transition-all duration-300">
                     Browse catalog
                   </Button>
                 </Link>
@@ -128,13 +133,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <Badge variant="glass" className="mb-4">
+              <Badge variant="glass" className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Discover
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Everything</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Everything</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Everything</span></span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Browse all shops and models in one place
               </p>
             </motion.div>
@@ -146,15 +151,15 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
               >
                 <Link href="/explore-all?filter=shops">
-                  <Card className="bg-gradient-to-br from-cyan-600/20 to-blue-600/20 border-cyan-500/30 hover:border-cyan-400/50 hover:from-cyan-600/30 hover:to-blue-600/30 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                  <Card className="bg-gradient-to-br from-pink-600/30 via-purple-600/30 to-indigo-600/30 border-pink-500/40 hover:border-pink-400/60 hover:from-pink-600/40 hover:via-purple-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30">
                     <CardContent className="p-8 text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform duration-300">
-                        <Users className="w-8 h-8 text-white" />
+                      <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        <Users className="w-10 h-10 text-white" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-3">Explore All Shops</h3>
-                      <p className="text-zinc-300 mb-6">Discover verified makers and their equipment</p>
-                      <Button className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold py-6 rounded-xl group-hover:shadow-lg group-hover:shadow-cyan-500/25 transition-all">
-                        Browse Shops <ChevronRight className="w-5 h-5 ml-2" />
+                      <h3 className="text-3xl font-black text-white mb-3">Explore All Shops</h3>
+                      <p className="text-zinc-200 mb-6 text-lg font-medium">Discover verified makers and their equipment</p>
+                      <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-pink-500/30 transition-all border-0">
+                        Browse Shops <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -167,15 +172,15 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
               >
                 <Link href="/explore-all?filter=models">
-                  <Card className="bg-gradient-to-br from-emerald-600/20 to-green-600/20 border-emerald-500/30 hover:border-emerald-400/50 hover:from-emerald-600/30 hover:to-green-600/30 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                  <Card className="bg-gradient-to-br from-cyan-600/30 via-teal-600/30 to-emerald-600/30 border-cyan-500/40 hover:border-cyan-400/60 hover:from-cyan-600/40 hover:via-teal-600/40 hover:to-emerald-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30">
                     <CardContent className="p-8 text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
-                        <Package className="w-8 h-8 text-white" />
+                      <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        <Package className="w-10 h-10 text-white" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-3">Explore All Models</h3>
-                      <p className="text-zinc-300 mb-6">Find ready-to-ship products and custom listings</p>
-                      <Button className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-6 rounded-xl group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all">
-                        Browse Models <ChevronRight className="w-5 h-5 ml-2" />
+                      <h3 className="text-3xl font-black text-white mb-3">Explore All Models</h3>
+                      <p className="text-zinc-200 mb-6 text-lg font-medium">Find ready-to-ship products and custom listings</p>
+                      <Button className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-cyan-500/30 transition-all border-0">
+                        Browse Models <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -194,13 +199,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Sparkles className="w-3 h-3 mr-1" /> Platform Features
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Synthix</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Synthix</span></span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 The most trusted platform for 3D printing services and products
               </p>
             </motion.div>
@@ -211,37 +216,37 @@ export default function Home() {
                   icon: Shield,
                   title: "Verified Makers",
                   description: "All makers are thoroughly vetted for quality and reliability",
-                  color: "from-emerald-400 to-cyan-400"
+                  color: "from-emerald-400 via-teal-400 to-cyan-400"
                 },
                 {
                   icon: Clock,
                   title: "Fast Delivery",
                   description: "Quick turnaround times with real-time tracking",
-                  color: "from-blue-400 to-indigo-400"
+                  color: "from-blue-400 via-indigo-400 to-purple-400"
                 },
                 {
                   icon: Award,
                   title: "Quality Guarantee",
                   description: "100% satisfaction guarantee on all products and services",
-                  color: "from-amber-400 to-orange-400"
+                  color: "from-amber-400 via-orange-400 to-red-400"
                 },
                 {
                   icon: Users,
                   title: "Community Driven",
                   description: "Join thousands of satisfied customers and talented makers",
-                  color: "from-purple-400 to-pink-400"
+                  color: "from-purple-400 via-pink-400 to-rose-400"
                 },
                 {
                   icon: Zap,
                   title: "Instant Quotes",
                   description: "Get pricing instantly for custom projects",
-                  color: "from-yellow-400 to-red-400"
+                  color: "from-yellow-400 via-amber-400 to-orange-400"
                 },
                 {
                   icon: Gem,
                   title: "Premium Materials",
                   description: "Access to high-quality filaments and resins",
-                  color: "from-rose-400 to-pink-400"
+                  color: "from-rose-400 via-pink-400 to-purple-400"
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -251,15 +256,15 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -6 }}
                 >
-                  <Card className="bg-zinc-900/50 border-white/10 hover:border-primary/50 hover:bg-zinc-900/70 transition-all duration-300 h-full group overflow-hidden shadow-xl">
+                  <Card className="bg-black/40 border-white/10 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm">
                     <CardHeader>
-                      <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-${feature.color.split('-')[1]}-500/30 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300`}>
-                        <feature.icon className="w-8 h-8 text-white" />
+                      <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mb-5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                        <feature.icon className="w-10 h-10 text-white" />
                       </div>
-                      <CardTitle className="text-white text-2xl">{feature.title}</CardTitle>
+                      <CardTitle className="text-white text-2xl font-black">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-zinc-400 text-lg leading-relaxed">
+                      <p className="text-zinc-300 text-lg leading-relaxed font-medium">
                         {feature.description}
                       </p>
                     </CardContent>
@@ -279,13 +284,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Boxes className="w-3 h-3 mr-1" /> Simple Process
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Works</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Works</span></span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Get your 3D prints in three simple steps
               </p>
             </motion.div>
@@ -297,21 +302,21 @@ export default function Home() {
                   icon: Search,
                   title: "Browse & Discover",
                   description: "Explore thousands of designs or find a maker for your custom project",
-                  color: "from-cyan-400 to-blue-500"
+                  color: "from-pink-400 via-purple-400 to-indigo-400"
                 },
                 {
                   step: "02",
                   icon: CreditCard,
                   title: "Order & Pay",
                   description: "Secure checkout with buyer protection and multiple payment options",
-                  color: "from-purple-400 to-pink-500"
+                  color: "from-cyan-400 via-teal-400 to-emerald-400"
                 },
                 {
                   step: "03",
                   icon: Truck,
                   title: "Receive & Enjoy",
                   description: "Fast shipping with tracking. Get your prints delivered to your door",
-                  color: "from-emerald-400 to-green-500"
+                  color: "from-amber-400 via-orange-400 to-red-400"
                 }
               ].map((item, index) => (
                 <motion.div
@@ -321,21 +326,21 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   className="relative"
                 >
-                  <Card className="bg-black/30 border-zinc-800 hover:border-zinc-700 hover:bg-black/40 transition-all duration-300 h-full relative overflow-hidden">
+                  <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full relative overflow-hidden shadow-2xl backdrop-blur-sm">
                     <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
                     <CardHeader className="pt-8">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center shadow-lg`}>
-                          <item.icon className="w-8 h-8 text-white" />
+                        <div className={`w-20 h-20 bg-gradient-to-r ${item.color} rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                          <item.icon className="w-10 h-10 text-white" />
                         </div>
-                        <span className={`text-5xl font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent opacity-20`}>
+                        <span className={`text-6xl font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent opacity-20`}>
                           {item.step}
                         </span>
                       </div>
-                      <CardTitle className="text-white text-2xl">{item.title}</CardTitle>
+                      <CardTitle className="text-white text-2xl font-black">{item.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-zinc-400 text-lg leading-relaxed">{item.description}</p>
+                      <p className="text-zinc-300 text-lg leading-relaxed font-medium">{item.description}</p>
                     </CardContent>
                   </Card>
                   {index < 2 && (
@@ -358,27 +363,27 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-zinc-800 text-white border-zinc-700">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Palette className="w-3 h-3 mr-1" /> Browse by Category
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Categories</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span></span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Find exactly what you need across our diverse range of 3D printing categories
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-cyan-400 to-blue-500" },
-                { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-emerald-400 to-green-500" },
-                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-pink-400 to-rose-500" },
-                { icon: Lightbulb, title: "Cosplay Props", items: "950+ items", color: "from-amber-400 to-orange-500" },
-                { icon: Package, title: "Home Decor", items: "1,500+ items", color: "from-purple-400 to-violet-500" },
-                { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 to-amber-500" },
-                { icon: Zap, title: "Tech Accessories", items: "1,200+ items", color: "from-indigo-400 to-blue-500" },
-                { icon: MessageCircle, title: "Custom Orders", items: "Custom quotes", color: "from-teal-400 to-emerald-500" }
+                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-pink-400 via-purple-400 to-indigo-400" },
+                { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-cyan-400 via-teal-400 to-emerald-400" },
+                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-rose-400 via-pink-400 to-purple-400" },
+                { icon: Lightbulb, title: "Cosplay Props", items: "950+ items", color: "from-amber-400 via-orange-400 to-red-400" },
+                { icon: Package, title: "Home Decor", items: "1,500+ items", color: "from-purple-400 via-violet-400 to-indigo-400" },
+                { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 via-amber-400 to-orange-400" },
+                { icon: Zap, title: "Tech Accessories", items: "1,200+ items", color: "from-indigo-400 via-blue-400 to-cyan-400" },
+                { icon: MessageCircle, title: "Custom Orders", items: "Custom quotes", color: "from-teal-400 via-emerald-400 to-green-400" }
               ].map((category, index) => (
                 <motion.div
                   key={index}
@@ -388,14 +393,14 @@ export default function Home() {
                   whileHover={{ scale: 1.03 }}
                 >
                   <Link href="/listings">
-                    <Card className="bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full">
+                    <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
                       <CardContent className="p-4 flex items-center gap-4">
-                        <div className={`w-12 h-12 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
-                          <category.icon className="w-6 h-6 text-white" />
+                        <div className={`w-14 h-14 bg-gradient-to-r ${category.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}>
+                          <category.icon className="w-7 h-7 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors">{category.title}</h3>
-                          <p className="text-zinc-400 text-sm">{category.items}</p>
+                          <h3 className="text-white font-bold text-xl group-hover:text-pink-400 transition-colors">{category.title}</h3>
+                          <p className="text-zinc-300 text-sm font-medium">{category.items}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -415,13 +420,13 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-zinc-700 text-white border-zinc-600">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Customers Say</span>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Customers Say</span></span>
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Real reviews from real customers
               </p>
             </motion.div>
@@ -434,7 +439,7 @@ export default function Home() {
                   content: "Synthix has completely transformed how I prototype my designs. The quality is exceptional and the turnaround time is incredible.",
                   rating: 5,
                   avatar: "https://api.pravatar.cc/150?u=sarah",
-                  color: "from-cyan-400 to-blue-500"
+                  color: "from-pink-400 via-purple-400 to-indigo-400"
                 },
                 {
                   name: "Mike Chen",
@@ -442,7 +447,7 @@ export default function Home() {
                   content: "As an engineer, I need precision and reliability. Synthix delivers both. The custom parts I ordered were perfect.",
                   rating: 5,
                   avatar: "https://api.pravatar.cc/150?u=mike",
-                  color: "from-purple-400 to-pink-500"
+                  color: "from-cyan-400 via-teal-400 to-emerald-400"
                 },
                 {
                   name: "Emily Davis",
@@ -450,7 +455,7 @@ export default function Home() {
                   content: "The artistic possibilities are endless! I've created stunning pieces that wouldn't be possible with traditional methods.",
                   rating: 5,
                   avatar: "https://api.pravatar.cc/150?u=emily",
-                  color: "from-emerald-400 to-green-500"
+                  color: "from-amber-400 via-orange-400 to-red-400"
                 }
               ].map((testimonial, index) => (
                 <motion.div
@@ -460,27 +465,27 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -4 }}
                 >
-                  <Card className="bg-black/30 border-zinc-800 hover:border-zinc-700 hover:bg-black/40 transition-all duration-300 h-full">
+                  <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full shadow-2xl backdrop-blur-sm">
                     <CardContent className="p-6">
-                      <div className={`w-12 h-12 bg-gradient-to-r ${testimonial.color} rounded-xl flex items-center justify-center mb-4`}>
-                        <Quote className="w-6 h-6 text-white" />
+                      <div className={`w-16 h-16 bg-gradient-to-r ${testimonial.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl`}>
+                        <Quote className="w-8 h-8 text-white" />
                       </div>
-                      <div className="flex mb-4">
+                      <div className="flex mb-6">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
+                          <Star key={i} className="w-6 h-6 text-amber-400 fill-current" />
                         ))}
                       </div>
-                      <p className="text-zinc-300 mb-6 leading-relaxed">"{testimonial.content}"</p>
-                      <div className="flex items-center gap-3 pt-4 border-t border-zinc-700">
-                        <Avatar className="w-12 h-12">
+                      <p className="text-zinc-200 mb-8 leading-relaxed text-lg font-medium">"{testimonial.content}"</p>
+                      <div className="flex items-center gap-4 pt-6 border-t border-zinc-700">
+                        <Avatar className="w-14 h-14">
                           <AvatarImage src={testimonial.avatar} />
-                          <AvatarFallback className="bg-gradient-to-r from-zinc-700 to-zinc-600 text-zinc-200 font-semibold">
+                          <AvatarFallback className="bg-gradient-to-r from-zinc-700 to-zinc-600 text-zinc-200 font-bold text-lg">
                             {testimonial.name[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-white font-semibold">{testimonial.name}</p>
-                          <p className="text-zinc-400 text-sm">{testimonial.role}</p>
+                          <p className="text-white font-bold text-lg">{testimonial.name}</p>
+                          <p className="text-zinc-300 text-sm font-medium">{testimonial.role}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -492,8 +497,10 @@ export default function Home() {
         </section>
 
         {/* Section 6: CTA - Gradient Background */}
-        <section className="py-24 bg-gradient-to-br from-cyan-600 via-blue-700 to-emerald-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <section className="py-24 bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-600 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
+          <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-20 blur-[100px] bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 animate-pulse" />
+          <div className="absolute bottom-[-20%] right-[10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-20 blur-[80px] bg-gradient-to-tr from-cyan-400 via-teal-500 to-emerald-600 animate-pulse" style={{ animationDelay: '1s' }} />
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -501,24 +508,27 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white mb-6">
-                <Sparkles className="w-4 h-4" />
-                Join 10,000+ creators today
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-6 py-3 text-sm font-bold text-white mb-8 shadow-xl border border-white/20">
+                <Sparkles className="w-5 h-5 text-yellow-300" />
+                <span className="bg-gradient-to-r from-yellow-200 to-pink-200 bg-clip-text text-transparent">Join 10,000+ creators today</span>
               </div>
-              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                Ready to Start <span className="text-yellow-300">Creating?</span>
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
+                Ready to Start <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Creating?</span><span className="relative bg-gradient-to-r from-yellow-200 via-pink-200 to-purple-200 bg-clip-text text-transparent">Creating?</span></span>
               </h2>
-              <p className="text-xl text-white/80 mb-10">
+              <p className="text-2xl text-white/90 mb-12 font-medium">
                 Join thousands of makers and customers who trust Synthix for their 3D printing needs.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link href="/create-listing">
-                  <Button size="lg" className="bg-white text-cyan-700 hover:bg-zinc-100 font-semibold px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all">
-                    Start Selling <ArrowRight className="w-5 h-5 ml-2" />
+                  <Button size="lg" className="bg-white text-purple-700 hover:bg-zinc-100 font-black px-12 py-8 text-xl rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 group border-0">
+                    <span className="flex items-center gap-3">
+                      Start Selling 
+                      <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2" />
+                    </span>
                   </Button>
                 </Link>
                 <Link href="/explore">
-                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-semibold px-8 py-6 text-lg rounded-full backdrop-blur-sm">
+                  <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/15 hover:border-white/60 font-black px-12 py-8 text-xl rounded-full backdrop-blur-md transition-all duration-300">
                     Browse Products
                   </Button>
                 </Link>
