@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Only use cache if it's less than 24 hours old
           if (parsed._cachedAt && Date.now() - parsed._cachedAt < 24 * 60 * 60 * 1000) {
             delete parsed._cachedAt;
+            console.log('Loading user from cache:', { avatarUrl: parsed.avatarUrl, userId: parsed.id });
             return parsed;
           }
         } catch {
@@ -166,10 +167,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           acceptingOrders: (data as any).accepting_orders ?? true,
         } as User;
         
-        setUser(userData);
+        console.log('Setting user from DB fetch:', { 
+  avatarUrl: userData.avatarUrl, 
+  userId: userData.id,
+  source: 'database'
+});
+setUser(userData);
         
         // Cache user data in localStorage
-        localStorage.setItem(USER_CACHE_KEY, JSON.stringify({ ...userData, _cachedAt: Date.now() }));
+        const cacheData = { ...userData, _cachedAt: Date.now() };
+        console.log('Caching user data:', { avatarUrl: cacheData.avatarUrl });
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cacheData));
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);

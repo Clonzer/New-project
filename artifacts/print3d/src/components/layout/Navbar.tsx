@@ -309,13 +309,20 @@ export function Navbar() {
                 <div className="flex items-center gap-2 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-accent p-[2px]">
                     <div className="w-full h-full rounded-full bg-card overflow-hidden flex items-center justify-center">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="font-bold text-white text-sm">
-                          {(user.displayName || user.username || "?").charAt(0).toUpperCase()}
-                        </span>
-                      )}
+                      {(() => {
+                        console.log('Navbar rendering user avatar:', {
+                          avatarUrl: user.avatarUrl,
+                          userId: user.id,
+                          displayName: user.displayName
+                        });
+                        return user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="font-bold text-white text-sm">
+                            {(user.displayName || user.username || "?").charAt(0).toUpperCase()}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                   <div className="hidden sm:flex items-center gap-2">

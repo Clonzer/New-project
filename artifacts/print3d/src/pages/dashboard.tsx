@@ -864,9 +864,11 @@ export default function Dashboard() {
         console.log('Seller status fetch result:', { sellerData, profileData, sellerError, profileError });
 
         if (!sellerError && sellerData) {
-          setAcceptingOrders(sellerData.accepting_orders !== false);
+          // Only accept orders if explicitly set to true, default to false if null/undefined
+          setAcceptingOrders(sellerData.accepting_orders === true);
         } else {
-          setAcceptingOrders(true);
+          // Default to not accepting orders if no seller record
+          setAcceptingOrders(false);
         }
 
         if (!profileError && profileData) {
@@ -879,13 +881,13 @@ export default function Dashboard() {
         console.log('Set visibility states:', {
           accepting_orders: sellerData?.accepting_orders,
           shop_mode: profileData?.shop_mode,
-          computedAccepting: sellerData?.accepting_orders !== false,
+          computedAccepting: sellerData?.accepting_orders === true,
           computedVisible: profileData?.shop_mode !== 'none'
         });
       } catch (err) {
         console.error('Exception fetching seller status:', err);
-        // Default to true if fetch fails
-        setAcceptingOrders(true);
+        // Default to false if fetch fails - safer to not accept orders
+        setAcceptingOrders(false);
         setStoreVisible(true);
       }
     };
@@ -1448,22 +1450,22 @@ export default function Dashboard() {
                 </TabsTrigger>
               ) : null}
 
-              {/* Purchases tab - shown for all, or when in purchases view for both role */}
-              {(!isSellerUser || user?.role !== "both" || dashboardView === "purchases") && (
+              {/* Purchases tab - shown for all buyer users */}
+              {(!isSellerUser || user?.role === "both") && (
                 <TabsTrigger value="purchases" data-tour="orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <Package className="w-4 h-4 mr-2" />
                   Orders
                 </TabsTrigger>
               )}
 
-              {/* Seller tabs - shown when NOT in purchases view */}
-              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+              {/* Seller tabs - shown for all seller users */}
+              {isSellerUser && (
                 <TabsTrigger value="reviews" data-tour="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   My Reviews
                 </TabsTrigger>
               )}
-              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+              {isSellerUser && (
                 <>
                   <TabsTrigger value="listings" data-tour="shop" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Store className="w-4 h-4 mr-2" />
@@ -1496,8 +1498,8 @@ export default function Dashboard() {
                 </>
               )}
 
-              {/* Buyer tabs - shown when in purchases view */}
-              {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
+              {/* Buyer tabs - shown for all buyer users */}
+              {!isSellerUser || user?.role === "both" ? (
                 <>
                   <TabsTrigger value="messages" data-tour="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <MessageSquare className="w-4 h-4 mr-2" />
@@ -1520,7 +1522,7 @@ export default function Dashboard() {
                     Payment Methods
                   </TabsTrigger>
                 </>
-              )}
+              ) : null}
             </TabsList>
 
             {isSellerUser && (

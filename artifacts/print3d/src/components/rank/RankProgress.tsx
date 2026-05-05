@@ -274,49 +274,133 @@ export function RankProgress({ userId }: RankProgressProps) {
               Progress through ranks to unlock exclusive perks
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {nextRanks.map((rank, index) => (
-              <div
-                key={rank.id}
-                className={`p-4 rounded-xl border ${
-                  index === 0
-                    ? 'bg-primary/10 border-primary/30'
-                    : 'bg-zinc-800/50 border-zinc-700'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{rank.badge}</span>
-                  <div className="flex-1">
-                    <h4 className={`font-semibold ${index === 0 ? 'text-white' : 'text-zinc-300'}`}>
-                      {rank.name}
-                    </h4>
-                    <p className="text-xs text-zinc-400">
-                      {rank.minXp.toLocaleString()} XP required
-                      {index === 0 && stats && (
-                        <span className="text-primary ml-2">
-                          ({(rank.minXp - stats.totalXp).toLocaleString()} XP to go)
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {rank.perks.map((perk, perkIndex) => (
-                    <span
-                      key={perkIndex}
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
-                        index === 0
-                          ? 'bg-primary/20 text-primary border border-primary/30'
-                          : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'
-                      }`}
+          <CardContent className="space-y-6">
+            {/* Spider/Mind Diagram Visualization */}
+            <div className="relative flex items-center justify-center p-8">
+              <div className="relative w-full max-w-2xl">
+                {/* Connection lines */}
+                <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
+                  {nextRanks.map((rank, index) => {
+                    if (index === 0) return null;
+                    const prevRank = nextRanks[index - 1];
+                    const x1 = (index - 1) * 25 + 12.5;
+                    const x2 = index * 25 + 12.5;
+                    return (
+                      <line
+                        key={`line-${index}`}
+                        x1={`${x1}%`}
+                        y1="50%"
+                        x2={`${x2}%`}
+                        y2="50%"
+                        stroke={index === 1 ? "rgb(147, 51, 234)" : "rgb(113, 113, 122)"}
+                        strokeWidth="2"
+                        strokeDasharray={index > 1 ? "5,5" : "0"}
+                        opacity="0.6"
+                      />
+                    );
+                  })}
+                </svg>
+                
+                {/* Rank nodes */}
+                <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
+                  {nextRanks.map((rank, index) => (
+                    <div
+                      key={rank.id}
+                      className="relative flex flex-col items-center"
+                      style={{ width: '25%' }}
                     >
-                      <Zap className="w-3 h-3" />
-                      {perk}
-                    </span>
+                      {/* Rank circle */}
+                      <div
+                        className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 ${
+                          index === 0
+                            ? 'bg-primary/20 border-primary shadow-lg shadow-primary/20'
+                            : 'bg-zinc-800/50 border-zinc-600'
+                        }`}
+                      >
+                        <span className={index === 0 ? 'scale-110' : ''}>
+                          {rank.badge}
+                        </span>
+                      </div>
+                      
+                      {/* Rank name */}
+                      <h4 className={`font-semibold mt-2 text-sm ${
+                        index === 0 ? 'text-white' : 'text-zinc-400'
+                      }`}>
+                        {rank.name}
+                      </h4>
+                      
+                      {/* XP requirement */}
+                      <p className="text-xs text-zinc-500 mt-1">
+                        {rank.minXp.toLocaleString()} XP
+                        {index === 0 && stats && (
+                          <span className="text-primary ml-1">
+                            (+{(rank.minXp - stats.totalXp).toLocaleString()})
+                          </span>
+                        )}
+                      </p>
+                      
+                      {/* Progress indicator for next rank */}
+                      {index === 0 && stats && (
+                        <div className="absolute -bottom-2 w-full h-1 bg-zinc-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-primary to-violet-500 transition-all duration-300"
+                            style={{
+                              width: `${Math.min(100, (stats.totalXp / rank.minXp) * 100)}%`
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
-            ))}
+            </div>
+            
+            {/* Detailed rank cards */}
+            <div className="space-y-4">
+              {nextRanks.map((rank, index) => (
+                <div
+                  key={rank.id}
+                  className={`p-4 rounded-xl border ${
+                    index === 0
+                      ? 'bg-primary/10 border-primary/30'
+                      : 'bg-zinc-800/50 border-zinc-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">{rank.badge}</span>
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${index === 0 ? 'text-white' : 'text-zinc-300'}`}>
+                        {rank.name}
+                      </h4>
+                      <p className="text-xs text-zinc-400">
+                        {rank.minXp.toLocaleString()} XP required
+                        {index === 0 && stats && (
+                          <span className="text-primary ml-2">
+                            ({(rank.minXp - stats.totalXp).toLocaleString()} XP to go)
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {rank.perks.map((perk, perkIndex) => (
+                      <span
+                        key={perkIndex}
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                          index === 0
+                            ? 'bg-primary/20 text-primary border border-primary/30'
+                            : 'bg-zinc-700/50 text-zinc-400 border border-zinc-600'
+                        }`}
+                      >
+                        <Zap className="w-3 h-3" />
+                        {perk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

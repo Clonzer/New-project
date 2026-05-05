@@ -97,30 +97,6 @@ export function MobileDashboardNav({
 
           {/* Quick Actions */}
           <div className="flex items-center gap-1">
-            {isBoth && (
-              <div className="flex bg-white/5 rounded-lg p-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onViewChange?.("store")}
-                  className={`text-xs px-2 py-1 h-auto rounded-md ${
-                    dashboardView === "store" ? "bg-primary/20 text-primary" : "text-zinc-400"
-                  }`}
-                >
-                  Store
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onViewChange?.("purchases")}
-                  className={`text-xs px-2 py-1 h-auto rounded-md ${
-                    dashboardView === "purchases" ? "bg-primary/20 text-primary" : "text-zinc-400"
-                  }`}
-                >
-                  Buy
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -277,37 +253,6 @@ export function CondensedDashboardTabs({
                     <Icon className="w-4 h-4" />
                     {tab.label}
                   </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {isBoth && (
-        <div className="flex items-center gap-1 ml-4 border-l border-white/10 pl-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewChange?.("store")}
-            className={`text-xs px-3 py-1.5 h-auto rounded-lg ${
-              dashboardView === "store" ? "bg-primary/20 text-primary" : "text-zinc-400"
-            }`}
-          >
-            Store
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewChange?.("purchases")}
-            className={`text-xs px-3 py-1.5 h-auto rounded-lg ${
-              dashboardView === "purchases" ? "bg-primary/20 text-primary" : "text-zinc-400"
-            }`}
-          >
-            Buy
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
