@@ -845,24 +845,24 @@ export default function Dashboard() {
         return;
       }
 
-      console.log('Fetching seller status for user', user.id);
+      console.log('Fetching order acceptance status for user', user.id);
       try {
-        // Fetch accepting_orders from sellers table - handle missing column gracefully
-        let sellerAcceptingOrders = false;
+        // Fetch accepting_orders from users table - consistent with storefront
+        let userAcceptingOrders = true; // default to true
         try {
-          const { data: sellerData, error: sellerError } = await supabase
-            .from('sellers')
+          const { data: userData, error: userError } = await supabase
+            .from('users')
             .select('accepting_orders')
-            .eq('user_id', user.id)
-            .maybeSingle();
+            .eq('id', user.id)
+            .single();
 
-          if (!sellerError && sellerData) {
-            sellerAcceptingOrders = sellerData.accepting_orders === true;
+          if (!userError && userData) {
+            userAcceptingOrders = userData.accepting_orders !== false; // default to true if not set
           }
-        } catch (sellerErr) {
-          console.warn('Could not fetch accepting_orders, column may not exist:', sellerErr);
+        } catch (userErr) {
+          console.warn('Could not fetch accepting_orders from users table:', userErr);
         }
-        setAcceptingOrders(sellerAcceptingOrders);
+        setAcceptingOrders(userAcceptingOrders);
 
         // Fetch shop_mode from profiles table
         let profileShopMode = 'both';
@@ -926,32 +926,33 @@ export default function Dashboard() {
 
   // Save accepting orders status to database
   const toggleAcceptingOrders = async () => {
-    // Don't toggle if we haven't loaded the initial value yet
+    // Don't toggle if we haven't loaded initial value yet
     if (acceptingOrders === null || !user?.id) return;
     
     const newValue = !acceptingOrders;
     
     try {
       const { error } = await supabase
-        .from('sellers')
+        .from('users')
         .update({ accepting_orders: newValue })
-        .eq('user_id', user.id);
-        
+        .eq('id', user.id);
+
       if (error) throw error;
       
       setAcceptingOrders(newValue);
       
       toast({
         title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
-        description: newValue 
-          ? "Your store is now open for new orders."
-          : "Your store is temporarily closed for new orders.",
+        description: newValue
+          ? "Customers can place orders with your shop"
+          : "Customers cannot place new orders",
       });
     } catch (error) {
-      console.error('Failed to update accepting orders status:', error);
+      // Revert on error
+      setAcceptingOrders(!newValue);
       toast({
         title: "Error",
-        description: "Failed to update order status. Please try again.",
+        description: "Could not update order acceptance status",
         variant: "destructive",
       });
     }

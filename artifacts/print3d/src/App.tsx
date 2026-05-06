@@ -10,6 +10,7 @@ import { useSyncContestsOnMount } from "@/lib/contest-sync";
 import { useEffect } from "react";
 
 import Home from "@/pages/home";
+import Landing from "@/pages/landing";
 import Explore from "@/pages/explore";
 import ExploreAll from "@/pages/explore-all";
 import ExploreModels from "@/pages/explore-models";
@@ -127,7 +128,7 @@ function Router() {
     <>
       <ScrollToTop />
       <Switch>
-      <Route path="/" component={ExploreAll} />
+      <Route path="/" component={Landing} />
       <Route path="/explore-all" component={ExploreAll} />
       <Route path="/explore" component={Explore} />
       <Route path="/explore-models" component={ExploreModels} />
