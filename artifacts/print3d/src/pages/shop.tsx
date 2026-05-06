@@ -99,15 +99,21 @@ export default function Shop() {
           // Fetch avatar_url from profiles table (same as auth context)
           let avatarUrl = data.avatar_url || data.avatar || data.profile_image_url || null;
           
+          // Ensure accepting_orders field is properly fetched
+          let acceptingOrders = data.accepting_orders !== false; // default to true if not set
+          
           if (userId) {
             try {
               const { data: profileData } = await supabase
                 .from('profiles')
-                .select('avatar_url')
+                .select('avatar_url, accepting_orders')
                 .eq('id', userId)
                 .single();
               if (profileData?.avatar_url) {
                 avatarUrl = profileData.avatar_url;
+              }
+              if (profileData?.accepting_orders !== undefined) {
+                acceptingOrders = profileData.accepting_orders;
               }
             } catch {
               // Ignore errors from profile fetch - use fallback
@@ -121,7 +127,7 @@ export default function Shop() {
             displayName: data.store_name || data.display_name || data.username,
             shopName: data.store_name || data.username,
             avatarUrl,
-            accepting_orders: data.accepting_orders !== false, // default to true if not set
+            accepting_orders: acceptingOrders, // use the properly fetched value
             bannerUrl: data.hero_image_url,
             location: data.location,
             rating: data.rating || 0,

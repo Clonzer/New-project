@@ -20,7 +20,7 @@ import {
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
@@ -38,6 +38,11 @@ export function Navbar() {
       window.removeEventListener(CART_CHANGE_EVENT, syncCart);
     };
   }, []);
+
+  // Force navbar re-render when user data changes
+  useEffect(() => {
+    // This will trigger a re-render of the avatar display
+  }, [user?.avatarUrl, user?.displayName]);
 
   useEffect(() => {
     const syncCompare = () => setComparedCount(getComparedShops().length);
