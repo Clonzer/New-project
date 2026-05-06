@@ -267,14 +267,6 @@ export default function Landing() {
                     </motion.div>
                   </Link>
                 ))}
-                      </div>
-                      
-                      <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white">
-                        Visit Shop
-                      </Button>
-                    </motion.div>
-                  </Link>
-                ))}
               </div>
             </div>
           </section>
