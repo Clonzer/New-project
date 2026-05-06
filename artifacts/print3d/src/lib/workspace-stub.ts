@@ -343,7 +343,7 @@ export function useUpdateUser(): MutationReturn {
       console.log('Update data:', data);
 
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           display_name: data.displayName,
           bio: data.bio,
@@ -351,6 +351,13 @@ export function useUpdateUser(): MutationReturn {
           avatar_url: data.avatarUrl,
           shop_name: data.shopName,
           shop_mode: data.shopMode,
+          shop_announcement: data.shopAnnouncement,
+          brand_story: data.brandStory,
+          website_url: data.websiteUrl,
+          instagram_handle: data.instagramHandle,
+          support_email: data.supportEmail,
+          seller_tags: data.sellerTags,
+          banner_url: data.bannerUrl,
         })
         .eq('id', userId);
 

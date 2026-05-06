@@ -696,19 +696,11 @@ export default function EditListing() {
             className="space-y-6"
           >
             <div>
-              <Label htmlFor="imageUrl" className="text-white flex items-center gap-2">
-                Product Image URL <span className="text-red-400">*</span>
+              <Label className="text-white flex items-center gap-2">
+                Product Image <span className="text-red-400">*</span>
               </Label>
-              <Input
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => updateFormData("imageUrl", e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="mt-1"
-              />
-              {errors.imageUrl && <p className="text-red-400 text-sm mt-1">{errors.imageUrl}</p>}
               <p className="text-xs text-zinc-400 mt-1">
-                Upload your image to a service like Imgur or Cloudinary and paste the URL here
+                Upload images using the file uploader above
               </p>
             </div>
 

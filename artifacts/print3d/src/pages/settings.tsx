@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateUser } from "@/lib/workspace-stub";
 import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -21,9 +21,11 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
@@ -323,95 +325,124 @@ export default function Settings() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-grow pt-10 pb-24">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-3xl font-display font-bold text-white mb-8">Settings</h1>
+      <main className="flex-grow pt-8 pb-24">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-display font-bold text-white mb-2 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+              Settings
+            </h1>
+            <p className="text-zinc-400">Manage your account, preferences, and shop settings</p>
+          </div>
 
-          <div className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+            {/* Sidebar Navigation */}
             <aside className="shrink-0">
-              <nav className="glass-panel sticky top-24 rounded-2xl border border-white/10 overflow-hidden">
-                {SECTIONS.map((section, index) => {
-                  const Icon = section.icon;
-                  return (
-                    <button
-                      key={section.id}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`w-full flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-all duration-200 ${
-                        activeSection === section.id
-                          ? "bg-gradient-to-r from-primary/30 to-primary/10 text-white border-l-4 border-primary shadow-[0_0_20px_rgba(139,92,246,0.3)]"
-                          : "text-zinc-400 hover:text-white hover:bg-white/5 border-l-4 border-transparent"
-                      } ${index !== 0 ? "border-t border-white/5" : ""}`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Icon className="w-4 h-4" />
-                        {section.label}
-                      </span>
-                      <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-                    </button>
-                  );
-                })}
+              <nav className="glass-panel sticky top-24 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-xl">
+                <div className="p-2">
+                  {SECTIONS.map((section, index) => {
+                    const Icon = section.icon;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => setActiveSection(section.id)}
+                        className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                          activeSection === section.id
+                            ? "bg-gradient-to-r from-primary/80 to-primary/60 text-white border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <Icon className="w-4 h-4" />
+                          {section.label}
+                        </span>
+                        <ChevronRight className={`w-4 h-4 transition-transform ${
+                          activeSection === section.id ? "rotate-90" : "opacity-50"
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
               </nav>
             </aside>
 
+            {/* Main Content */}
             <div className="min-w-0">
-              <motion.div
-                key={activeSection}
-                initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.98 }}
-                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                className="glass-panel min-h-[42rem] rounded-2xl border border-white/10 p-8 lg:p-10"
-              >
-                {activeSection === "profile" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Profile Information</h2>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeSection}
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  className="glass-panel rounded-2xl border border-white/10 p-8 lg:p-10 backdrop-blur-xl"
+                >
+                  {activeSection === "profile" && (
+                    <div className="space-y-8">
+                      {/* Profile Header */}
+                      <div>
+                        <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                          <User className="w-6 h-6 text-primary" />
+                          Profile Information
+                        </h2>
+                        <p className="text-zinc-400">Manage your personal information and public profile</p>
+                      </div>
 
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent p-0.5">
-                        <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden">
-                          {form.avatarUrl ? (
-                            <img src={form.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
-                              {user?.displayName?.charAt(0) ?? "?"}
+                      {/* Avatar Section */}
+                      <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20">
+                        <div className="flex items-center gap-6">
+                          <div className="relative">
+                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent p-[3px]">
+                              <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden">
+                                {form.avatarUrl ? (
+                                  <img src={form.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
+                                    {user?.displayName?.charAt(0) ?? "?"}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
+                            <label className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/80 transition-colors border-2 border-zinc-900">
+                              <Camera className="w-4 h-4 text-white" />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (!file) return;
+                                  if (file.size > 6 * 1024 * 1024) {
+                                    toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onload = () => {
+                                    setForm((current) => ({
+                                      ...current,
+                                      avatarUrl: typeof reader.result === "string" ? reader.result : current.avatarUrl,
+                                    }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                              />
+                            </label>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-semibold mb-1">Profile Picture</h3>
+                            <p className="text-zinc-400 text-sm mb-3">Click the camera icon to upload a new avatar</p>
+                            <div className="flex gap-2">
+                              <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+                                <Upload className="w-3 h-3 mr-1" />
+                                Drag & Drop Supported
+                              </Badge>
+                              <Badge variant="outline" className="border-white/20">
+                                Max 6MB
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-zinc-400 mb-1">Profile picture</p>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          className="mb-3 bg-black/30 border-white/10 text-white w-72 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1 file:text-xs file:text-white"
-                          onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (!file) return;
-                            if (file.size > 6 * 1024 * 1024) {
-                              toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
-                              return;
-                            }
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              setForm((current) => ({
-                                ...current,
-                                avatarUrl: typeof reader.result === "string" ? reader.result : current.avatarUrl,
-                              }));
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                        />
-                        <Input
-                          value={form.avatarUrl}
-                          onChange={(event) => setForm((current) => ({ ...current, avatarUrl: event.target.value }))}
-                          placeholder="https://..."
-                          className="bg-black/30 border-white/10 text-white w-72"
-                        />
-                        <p className="mt-2 text-xs text-zinc-500">
-                          Upload an image directly or paste a hosted image URL.
-                        </p>
-                      </div>
-                    </div>
 
                     <div className="grid gap-4 lg:grid-cols-3">
                       <div>
@@ -808,16 +839,11 @@ export default function Settings() {
                   </div>
                 )}
               </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </main>
-
-      <ProfilePreviewModal
-        isOpen={showProfilePreview}
-        onOpenChange={setShowProfilePreview}
-        user={user ? { ...user, ...form } : null}
-      />
     </div>
   );
 }

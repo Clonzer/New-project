@@ -315,7 +315,7 @@ export default function EditServiceRequest() {
     <div className="min-h-screen bg-zinc-950">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 max-w-7xl py-8">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
