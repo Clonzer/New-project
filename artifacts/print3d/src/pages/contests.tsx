@@ -21,7 +21,6 @@ import {
   Gem
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SEOMeta, MarketplaceStructuredData, StructuredData, generateBreadcrumbSchema } from "@/components/seo";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -431,7 +430,6 @@ export default function Contests() {
       <MarketplaceStructuredData />
       
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-      <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative pt-20 pb-12 overflow-hidden">

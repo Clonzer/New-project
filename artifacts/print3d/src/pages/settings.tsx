@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateUser } from "@/lib/workspace-stub";
 import { useLocation } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,7 +20,7 @@ import {
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X, Wallet, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +30,8 @@ const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "payment", label: "Payments", icon: CreditCard },
+  { id: "wallet", label: "Wallet", icon: Wallet },
+  { id: "transactions", label: "Transactions", icon: TrendingUp },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "accounts", label: "Accounts", icon: User },
@@ -323,8 +324,6 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="flex-grow pt-8 pb-24">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Header */}
@@ -618,6 +617,38 @@ export default function Settings() {
                   </div>
                 )}
 
+                {activeSection === "policies" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Policies</h2>
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <h3 className="text-lg font-semibold text-white mb-2">Terms of Service</h3>
+                        <p className="text-sm text-zinc-300 mb-3">Read our terms of service to understand your rights and responsibilities when using Synthix.</p>
+                        <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                          <FileText className="w-4 h-4 mr-2" />
+                          View Terms of Service
+                        </Button>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <h3 className="text-lg font-semibold text-white mb-2">Privacy Policy</h3>
+                        <p className="text-sm text-zinc-300 mb-3">Learn how we collect, use, and protect your personal information.</p>
+                        <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                          <FileText className="w-4 h-4 mr-2" />
+                          View Privacy Policy
+                        </Button>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <h3 className="text-lg font-semibold text-white mb-2">Cookie Policy</h3>
+                        <p className="text-sm text-zinc-300 mb-3">Understand how we use cookies and similar technologies to enhance your experience.</p>
+                        <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                          <FileText className="w-4 h-4 mr-2" />
+                          View Cookie Policy
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {activeSection === "notifications" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Notifications</h2>
@@ -741,6 +772,45 @@ export default function Settings() {
                       <p className="text-sm text-emerald-200">
                         ✓ <strong>All feedback is valuable.</strong> Even a one-line suggestion helps us prioritize what matters most to our community.
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeSection === "wallet" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Wallet & Balance</h2>
+                    <p className="text-sm text-zinc-400">View your available balance and earnings</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                      <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 rounded-2xl border border-emerald-500/20">
+                        <p className="text-sm text-emerald-400 mb-1">Available Balance</p>
+                        <p className="text-3xl font-bold text-white">$0.00</p>
+                      </div>
+                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                        <p className="text-sm text-zinc-400 mb-1">Pending Earnings</p>
+                        <p className="text-3xl font-bold text-white">$0.00</p>
+                      </div>
+                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                        <p className="text-sm text-zinc-400 mb-1">Total Earnings</p>
+                        <p className="text-3xl font-bold text-white">$0.00</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-lg font-semibold text-white mb-4">Payout Settings</h3>
+                      <p className="text-zinc-400">Connect your bank account to receive payouts automatically every week.</p>
+                    </div>
+                  </div>
+                )}
+
+                {activeSection === "transactions" && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-white">Transaction History</h2>
+                    <p className="text-sm text-zinc-400">View all your sales, purchases, and payouts</p>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+                      <div className="text-center py-12">
+                        <TrendingUp className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                        <p className="text-zinc-400">No transactions yet</p>
+                        <p className="text-sm text-zinc-500 mt-2">Your sales and purchases will appear here</p>
+                      </div>
                     </div>
                   </div>
                 )}

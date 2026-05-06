@@ -49,7 +49,6 @@ function transformListing(listing: any) {
     trackStock: listing.track_stock !== undefined ? listing.track_stock : listing.track_stock,
   };
 }
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -232,7 +231,6 @@ export default function Shop() {
   if (loadingSeller) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow container mx-auto px-4 pt-12">
           <Skeleton className="h-64 w-full bg-white/5 rounded-3xl" />
         </main>
@@ -305,8 +303,6 @@ export default function Shop() {
       <StructuredData schema={[vendorSchema, breadcrumbSchema]} />
       
     <div className="min-h-screen flex flex-col bg-zinc-950">
-      <Navbar />
-
       {/* Not Accepting Orders Banner */}
       {seller.accepting_orders === false && (
         <div className="bg-red-500/20 border-b border-red-500/30 py-3">

@@ -815,7 +815,7 @@ export default function Dashboard() {
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
-  const [defaultTab, setDefaultTab] = useState(isSellerUser ? "overview" : "overview");
+  const [defaultTab, setDefaultTab] = useState(isSellerUser ? "store-orders" : "overview");
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
   const [acceptingOrders, setAcceptingOrders] = useState<boolean | null>(null);
   const [storeVisible, setStoreVisible] = useState<boolean | null>(null);
@@ -1018,7 +1018,7 @@ export default function Dashboard() {
       setDefaultTab(savedTab);
       localStorage.removeItem('dashboardTab');
     } else {
-      setDefaultTab(isSellerUser ? "overview" : "overview");
+      setDefaultTab(isSellerUser ? "store-orders" : "overview");
     }
 
     if (checkout === "success") {
@@ -1414,11 +1414,11 @@ export default function Dashboard() {
 
           {/* Bottom Navigation - Used on all screen sizes */}
           <MobileDashboardNav
-            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : defaultTab) : defaultTab}
+            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "store-orders" : defaultTab) : defaultTab}
             onTabChange={(tab) => {
               // Direct state update instead of clicking hidden elements
               if (user?.role === "both") {
-                if (["purchases", "wallet", "payment", "reviews", "service-requests", "sponsorship"].includes(tab)) {
+                if (["store-orders", "reviews", "service-requests", "sponsorship"].includes(tab)) {
                   setDashboardView("purchases");
                 } else {
                   setDashboardView("store");
@@ -1434,7 +1434,7 @@ export default function Dashboard() {
           />
 
           <Tabs
-            value={user?.role === "both" ? (dashboardView === "purchases" ? "purchases" : defaultTab) : defaultTab}
+            value={user?.role === "both" ? (dashboardView === "purchases" ? "store-orders" : defaultTab) : defaultTab}
             onValueChange={(value) => setDefaultTab(value)}
             className="w-full"
           >
@@ -1454,26 +1454,18 @@ export default function Dashboard() {
                 </TabsTrigger>
               ) : null}
 
-              {/* Purchases tab - shown for all buyer users */}
-              {(!isSellerUser || user?.role === "both") && (
-                <TabsTrigger value="purchases" data-tour="orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                  <Package className="w-4 h-4 mr-2" />
-                  Orders
-                </TabsTrigger>
-              )}
+              {/* Combined Store & Orders tab - shown for all users */}
+              <TabsTrigger value="store-orders" data-tour="store-orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                <Store className="w-4 h-4 mr-2" />
+                Store & Orders
+              </TabsTrigger>
 
               {/* Seller tabs - shown for all seller users */}
               {isSellerUser && (
-                <TabsTrigger value="reviews" data-tour="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  My Reviews
-                </TabsTrigger>
-              )}
-              {isSellerUser && (
                 <>
-                  <TabsTrigger value="listings" data-tour="shop" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <Store className="w-4 h-4 mr-2" />
-                    My Shop
+                  <TabsTrigger value="reviews" data-tour="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    My Reviews
                   </TabsTrigger>
                   <TabsTrigger value="marketplace" data-tour="marketplace" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
                     <Briefcase className="w-4 h-4 mr-2" />
@@ -1513,19 +1505,7 @@ export default function Dashboard() {
                     <Megaphone className="w-4 h-4 mr-2" />
                     Promotions
                   </TabsTrigger>
-                  <TabsTrigger value="wallet" data-tour="wallet" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <Wallet className="w-4 h-4 mr-2" />
-                    Wallet
-                  </TabsTrigger>
-                  <TabsTrigger value="transactions" data-tour="transactions" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Transactions
-                  </TabsTrigger>
-                  <TabsTrigger value="payments" data-tour="payments" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Payment Methods
-                  </TabsTrigger>
-                </>
+                                  </>
               ) : null}
             </TabsList>
 
@@ -1548,30 +1528,44 @@ export default function Dashboard() {
               </TabsContent>
             ) : null}
 
-            <TabsContent value="purchases" className="mt-0">
-              <Purchases myPurchases={myPurchases} isSellerUser={isSellerUser} />
-              <div className="mt-8">
-                <BuyerCustomOrders user={user} />
-              </div>
-              {isSellerUser && (
-                <div className="mt-8">
-                  <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+            <TabsContent value="store-orders" className="mt-0">
+              <div className="space-y-8">
+                {/* Store Listings Section */}
+                {isSellerUser && (
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                      <Store className="w-6 h-6 text-primary" />
+                      My Store
+                    </h2>
+                    <Listings
+                      myListings={myListings}
+                      handleDeleteListing={handleDeleteListing}
+                    />
+                  </div>
+                )}
+
+                {/* Orders Section */}
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <Package className="w-6 h-6 text-primary" />
+                      Orders
+                  </h2>
+                  <Purchases myPurchases={myPurchases} isSellerUser={isSellerUser} />
+                  <div className="mt-8">
+                    <BuyerCustomOrders user={user} />
+                  </div>
+                  {isSellerUser && (
+                    <div className="mt-8">
+                      <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </TabsContent>
 
             {isSellerUser && (
               <TabsContent value="reviews" className="mt-0">
                 <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
-              </TabsContent>
-            )}
-
-            {isSellerUser && (
-              <TabsContent value="listings" className="mt-0">
-                <Listings
-                  myListings={myListings}
-                  handleDeleteListing={handleDeleteListing}
-                />
               </TabsContent>
             )}
 
@@ -1631,79 +1625,7 @@ export default function Dashboard() {
                   </div>
                 </TabsContent>
 
-                {/* Wallet Tab */}
-                <TabsContent value="wallet" className="mt-0">
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-semibold text-white">Wallet & Balance</h2>
-                      <p className="text-zinc-400 mt-1">View your available balance and earnings</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 rounded-2xl border border-emerald-500/20">
-                          <p className="text-sm text-emerald-400 mb-1">Available Balance</p>
-                          <p className="text-3xl font-bold text-white">$0.00</p>
-                        </div>
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                          <p className="text-sm text-zinc-400 mb-1">Pending Earnings</p>
-                          <p className="text-3xl font-bold text-white">$0.00</p>
-                        </div>
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                          <p className="text-sm text-zinc-400 mb-1">Total Earnings</p>
-                          <p className="text-3xl font-bold text-white">$0.00</p>
-                        </div>
-                      </div>
-                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                        <h3 className="text-lg font-semibold text-white mb-4">Payout Settings</h3>
-                        <p className="text-zinc-400">Connect your bank account to receive payouts automatically every week.</p>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                {/* Transactions Tab */}
-                <TabsContent value="transactions" className="mt-0">
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-semibold text-white">Transaction History</h2>
-                      <p className="text-zinc-400 mt-1">View all your sales, purchases, and payouts</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="space-y-4">
-                        {(mySales?.orders?.length ?? 0) > 0 ? (
-                          mySales.orders.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${order.type === 'sale' ? 'bg-emerald-500/20' : 'bg-zinc-700'}`}>
-                                  {order.type === 'sale' ? <TrendingUp className="w-5 h-5 text-emerald-400" /> : <Package className="w-5 h-5 text-zinc-400" />}
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium text-white">Order #{order.id}</p>
-                                  <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
-                                </div>
-                              </div>
-                              <p className={`text-sm font-medium ${order.type === 'sale' ? 'text-emerald-400' : 'text-zinc-400'}`}>
-                                {order.type === 'sale' ? '+' : '-'}${(order.totalPrice - order.platformFee).toFixed(2)}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-center py-12">
-                            <Receipt className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                            <p className="text-zinc-400">No transactions yet</p>
-                            <p className="text-sm text-zinc-500 mt-2">Your sales and purchases will appear here</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                {/* Payment Methods Tab */}
-                <TabsContent value="payments" className="mt-0">
-                  <PaymentMethods />
-                </TabsContent>
-              </>
+                              </>
             )}
 
             {/* Analytics Tab */}

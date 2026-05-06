@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getComparedShops, SHOP_COMPARE_CHANGE_EVENT, toggleComparedShop, type ComparedShop } from "@/lib/shop-compare";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ export default function CompareShops() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow container mx-auto px-4 pt-12 pb-24">
         <div className="mb-10">
           <h1 className="text-4xl font-display font-bold text-white">Compare shops</h1>

@@ -33,9 +33,8 @@ interface MobileDashboardNavProps {
 const SELLER_TABS = [
   { value: "overview", label: "Overview", icon: TrendingUp },
   { value: "admin", label: "Admin", icon: Settings },
-  { value: "purchases", label: "Orders", icon: Package },
+  { value: "store-orders", label: "Store & Orders", icon: Store },
   { value: "reviews", label: "Reviews", icon: CheckCircle2 },
-  { value: "listings", label: "My Shop", icon: Store },
   { value: "marketplace", label: "Marketplace", icon: Briefcase },
   { value: "services", label: "Services", icon: PenLine },
   { value: "printers", label: "Equipment", icon: PrinterIcon },
@@ -47,7 +46,6 @@ const SELLER_TABS = [
 const BUYER_TABS = [
   { value: "purchases", label: "Orders", icon: Package },
   { value: "wallet", label: "Wallet", icon: Wallet },
-  { value: "payment", label: "Payment", icon: CreditCard },
   { value: "reviews", label: "My Reviews", icon: CheckCircle2 },
   { value: "service-requests", label: "Custom Orders", icon: MessageSquare },
   { value: "sponsorship", label: "Sponsorship", icon: Sparkles },

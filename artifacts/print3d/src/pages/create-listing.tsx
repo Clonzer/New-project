@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Input } from "@/components/ui/input";
@@ -1164,8 +1163,6 @@ export default function CreateListing() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      <Navbar />
-
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8">
