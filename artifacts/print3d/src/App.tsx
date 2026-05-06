@@ -9,6 +9,7 @@ import { AppErrorBoundary } from "@/components/system/AppErrorBoundary";
 import { useSyncContestsOnMount } from "@/lib/contest-sync";
 import { useEffect } from "react";
 
+import { Navbar } from "@/components/layout/Navbar";
 import Home from "@/pages/home";
 import Landing from "@/pages/landing";
 import Explore from "@/pages/explore";
@@ -126,6 +127,7 @@ function ScrollToTop() {
 function Router() {
   return (
     <>
+      <Navbar />
       <ScrollToTop />
       <Switch>
       <Route path="/" component={Landing} />

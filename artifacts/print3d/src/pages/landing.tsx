@@ -1,23 +1,23 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { 
-  ArrowRight, 
-  Sparkles, 
-  Users, 
+  Search, 
+  Filter, 
   Package, 
   Star, 
+  Users, 
   TrendingUp,
+  Clock,
+  MapPin,
+  Heart,
+  MessageSquare,
+  Eye,
+  ChevronRight,
+  ArrowRight,
   Shield,
   Zap,
-  Rocket,
-  Target,
-  Crown,
-  Flame,
   Globe,
-  Play,
-  ChevronDown,
-  CheckCircle,
-  ArrowUpRight,
+  Award
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -30,8 +30,8 @@ export default function Landing() {
   return (
     <>
       <SEOMeta
-        title="Synthix | The Ultimate 3D Printing & Laser Cutting Marketplace"
-        description="Connect with skilled makers, browse thousands of products, and bring your ideas to life. The most trusted platform for 3D printing, laser cutting, and custom fabrication services."
+        title="Synthix | 3D Printing & Laser Cutting Marketplace"
+        description="Browse thousands of 3D printed products and services from verified makers. Order custom prints or buy ready-to-ship items."
         canonical="https://synthix.com"
         image="https://synthix.com/og-image.jpg"
         type="website"
@@ -39,334 +39,281 @@ export default function Landing() {
           "3D printing marketplace",
           "laser cutting services", 
           "custom fabrication",
+          "3D printed products",
           "maker marketplace",
           "3D printing service",
           "custom orders",
-          "3D printed products",
           "CNC machining",
-          "prototyping services",
         ]}
       />
       <MarketplaceStructuredData />
       
-      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-        {/* Enhanced Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center">
-          {/* Animated Background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950" />
-            
-            {/* Floating Orbs */}
-            <motion.div 
-              animate={{ 
-                x: [0, 100, -100, 100, 0],
-                y: [0, -100, 100, -100, 0],
-              }}
-              transition={{ 
-                duration: 20, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="absolute top-[20%] left-[15%] w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] rounded-full opacity-20 blur-[150px] bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600"
-            />
-            
-            <motion.div 
-              animate={{ 
-                x: [0, -80, 80, -80, 0],
-                y: [0, 80, -80, 80, 0],
-              }}
-              transition={{ 
-                duration: 25, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="absolute top-[10%] right-[15%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full opacity-15 blur-[120px] bg-gradient-to-bl from-cyan-400 via-teal-500 to-emerald-600"
-            />
-            
-            <motion.div 
-              animate={{ 
-                scale: [1, 1.2, 0.8, 1.1, 1],
-                rotate: [0, 180, 360, 180, 0],
-              }}
-              transition={{ 
-                duration: 15, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-              className="absolute top-[35%] left-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500"
-            />
-          </div>
-
-          <div className="container mx-auto px-4 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-4xl text-center mx-auto"
-            >
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-pink-500/25 mb-6"
-              >
-                <Sparkles className="w-4 h-4 text-pink-300" />
-                <span className="bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">Storefront marketplace</span>
-              </motion.div>
-              
-              <motion.h1 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-white leading-[0.95] tracking-tight mb-6"
-              >
-                Your 3D Printing{" "}
-                <span className="relative">
-                  <motion.span 
-                    animate={{ 
-                      backgroundPosition: ["0% 50%", "100% 50%"], 
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
-                    style={{ backgroundSize: "200% 100%" }}
-                  >
-                    Marketplace
-                  </motion.span>
-                  <span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Marketplace</span>
-                </span>
-              </motion.h1>
-              
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="max-w-2xl mx-auto text-xl md:text-2xl text-zinc-300 leading-relaxed font-medium mb-8"
-              >
-                Connect with verified makers, buy ready-to-ship products, and order custom prints. 
-                <motion.span 
-                  animate={{ opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold"
-                >
-                  The easiest way to bring your ideas to life.
-                </motion.span>
-              </motion.p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                >
-                  <Link href="/explore">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group border-0"
-                    >
-                      <span className="flex items-center gap-3">
-                        Browse makers 
-                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                      </span>
-                    </Button>
-                  </Link>
-                </motion.div>
+      <div className="min-h-screen flex flex-col bg-zinc-950">
+        <Navbar />
+        
+        <main className="flex-grow">
+          {/* Marketplace Header */}
+          <section className="bg-gradient-to-br from-zinc-900 via-purple-900/20 to-zinc-900 border-b border-zinc-800">
+            <div className="container mx-auto px-4 py-12">
+              <div className="max-w-4xl mx-auto text-center">
+                <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+                  3D Printing <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Marketplace</span>
+                </h1>
+                <p className="text-xl text-zinc-300 mb-8">
+                  Connect with verified makers and browse thousands of products
+                </p>
                 
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 1 }}
-                >
-                  <Link href="/listings">
-                    <Button 
-                      size="lg" 
-                      variant="outline" 
-                      className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:text-purple-200 backdrop-blur-sm transition-all duration-300"
-                    >
-                      Browse catalog
-                    </Button>
+                {/* Search Bar */}
+                <div className="max-w-2xl mx-auto mb-8">
+                  <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                    <input
+                      type="text"
+                      placeholder="Search for products, services, or makers..."
+                      className="w-full pl-12 pr-32 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-zinc-400 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all"
+                    />
+                    <Link href="/search">
+                      <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl transition-all">
+                        Search
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Quick Links */}
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Link href="/explore-all">
+                    <Badge className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer transition-colors">
+                      Browse All
+                    </Badge>
                   </Link>
-                </motion.div>
+                  <Link href="/listings">
+                    <Badge className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer transition-colors">
+                      Products
+                    </Badge>
+                  </Link>
+                  <Link href="/service-marketplace">
+                    <Badge className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer transition-colors">
+                      Services
+                    </Badge>
+                  </Link>
+                  <Link href="/discover">
+                    <Badge className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer transition-colors">
+                      Makers
+                    </Badge>
+                  </Link>
+                </div>
               </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
-            >
-              {[
-                { number: "10,000+", label: "Active Makers", icon: Users, color: "from-emerald-400 via-teal-400 to-cyan-400" },
-                { number: "50,000+", label: "Products Listed", icon: Package, color: "from-purple-400 via-pink-400 to-rose-400" },
-                { number: "99.9%", label: "Success Rate", icon: CheckCircle, color: "from-amber-400 via-orange-400 to-red-400" },
-                { number: "24/7", label: "Support", icon: Shield, color: "from-blue-400 via-indigo-400 to-purple-400" }
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className={`bg-gradient-to-r ${stat.color} rounded-2xl p-6 shadow-xl backdrop-blur-md`}>
-                    <stat.icon className="w-8 h-8 mx-auto text-white mb-3" />
-                    <div className="text-3xl font-black text-white">{stat.number}</div>
-                    <div className="text-sm text-zinc-200">{stat.label}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-24">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-16"
-            >
-              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
-                <Crown className="w-3 h-3 mr-1" /> Platform Features
-              </Badge>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Synthix</span></span>
-              </h2>
-              <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
-                The most trusted platform for 3D printing services and products
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  icon: Shield,
-                  title: "Verified Makers",
-                  description: "All makers are thoroughly vetted for quality and reliability",
-                  color: "from-emerald-400 via-teal-400 to-cyan-400",
-                  badge: "100% Verified"
-                },
-                {
-                  icon: Zap,
-                  title: "Lightning Fast",
-                  description: "Average 48-hour delivery with real-time tracking",
-                  color: "from-blue-400 via-indigo-400 to-purple-400",
-                  badge: "Express Delivery"
-                },
-                {
-                  icon: Star,
-                  title: "Quality Guarantee",
-                  description: "100% satisfaction guarantee with free revisions",
-                  color: "from-amber-400 via-orange-400 to-red-400",
-                  badge: "Risk-Free"
-                },
-                {
-                  icon: Users,
-                  title: "Community Driven",
-                  description: "Join 50,000+ satisfied customers and talented makers",
-                  color: "from-purple-400 via-pink-400 to-rose-400",
-                  badge: "5-Star Rated"
-                },
-                {
-                  icon: Target,
-                  title: "Instant Quotes",
-                  description: "Get pricing instantly for custom projects",
-                  color: "from-yellow-400 via-amber-400 to-orange-400",
-                  badge: "AI-Powered"
-                },
-                {
-                  icon: Globe,
-                  title: "Global Network",
-                  description: "Access to makers worldwide with local pickup options",
-                  color: "from-rose-400 via-pink-400 to-purple-400",
-                  badge: "Worldwide"
-                }
-              ].map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -6 }}
-                >
-                  <div className="bg-black/40 border-white/10 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm rounded-2xl relative">
-                    {feature.badge && (
-                      <div className="absolute top-4 right-4 z-20">
-                        <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
-                          {feature.badge}
-                        </Badge>
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mb-5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative`}>
-                        <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <feature.icon className="w-8 h-8 text-white relative z-10" />
-                      </div>
-                      <h3 className="text-white text-2xl font-black mb-3">{feature.title}</h3>
-                      <p className="text-zinc-300 text-lg leading-relaxed font-medium">{feature.description}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* CTA Section */}
-        <section className="py-24 bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-          <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-20 blur-[100px] bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 animate-pulse" />
-          <div className="absolute bottom-[-20%] right-[10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-20 blur-[80px] bg-gradient-to-tr from-cyan-400 via-teal-500 to-emerald-600 animate-pulse" style={{ animationDelay: '1s' }} />
-          
-          <div className="container mx-auto px-4 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center max-w-3xl mx-auto"
-            >
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-6 py-3 text-sm font-bold text-white mb-8 shadow-xl border border-white/20">
-                <Rocket className="w-5 h-5 text-yellow-300" />
-                <span className="bg-gradient-to-r from-yellow-200 to-pink-200 bg-clip-text text-transparent">Join 10,000+ creators today</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">
-                Ready to Start <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Creating?</span><span className="relative bg-gradient-to-r from-yellow-200 via-pink-200 to-purple-200 bg-clip-text text-transparent">Creating?</span></span>
-              </h2>
-              <p className="text-2xl text-white/90 mb-12 font-medium">
-                Join thousands of makers and customers who trust Synthix for their 3D printing needs.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Link href="/create-listing">
-                  <NeonButton 
-                    glowColor="primary" 
-                    className="py-4 px-12 rounded-2xl text-lg font-black"
-                  >
-                    Start Selling <ArrowRight className="w-5 h-5 ml-2" />
-                  </NeonButton>
-                </Link>
-                <Link href="/explore">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-white/40 text-white hover:bg-white/15 hover:border-white/60 font-black px-12 py-4 rounded-2xl text-lg backdrop-blur-md transition-all duration-300"
-                  >
-                    Browse Products
+          {/* Categories Section */}
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-white">Browse Categories</h2>
+                <Link href="/explore-all">
+                  <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                    View All <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               </div>
-            </motion.div>
-          </div>
-        </section>
-      </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[
+                  { name: "3D Printing", icon: "🖨️", count: "2.5k", color: "from-blue-500 to-cyan-500" },
+                  { name: "Laser Cutting", icon: "⚡", count: "1.8k", color: "from-pink-500 to-purple-500" },
+                  { name: "CNC", icon: "⚙️", count: "980", color: "from-orange-500 to-red-500" },
+                  { name: "Prototyping", icon: "🔬", count: "1.2k", color: "from-green-500 to-teal-500" },
+                  { name: "Jewelry", icon: "💎", count: "650", color: "from-amber-500 to-yellow-500" },
+                  { name: "Art", icon: "🎨", count: "890", color: "from-purple-500 to-pink-500" }
+                ].map((category, index) => (
+                  <Link key={index} href={`/explore?category=${category.name.toLowerCase()}`}>
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-pink-500/50 transition-all cursor-pointer group"
+                    >
+                      <div className={`w-12 h-12 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center mb-3 text-2xl group-hover:scale-110 transition-transform`}>
+                        {category.icon}
+                      </div>
+                      <h3 className="text-white font-semibold mb-1">{category.name}</h3>
+                      <p className="text-zinc-400 text-sm">{category.count} items</p>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
 
-      <Footer />
+          {/* Featured Products */}
+          <section className="py-16 bg-zinc-900/50">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-white">Featured Products</h2>
+                <Link href="/listings">
+                  <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                    View All <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                  <motion.div
+                    key={item}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: item * 0.1 }}
+                    whileHover={{ y: -8 }}
+                    className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group cursor-pointer"
+                  >
+                    <div className="aspect-square bg-zinc-800 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-pink-500 text-white text-xs">Featured</Badge>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-white font-semibold mb-2 line-clamp-1">Product {item}</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-amber-400 fill-current" />
+                          <span className="text-zinc-300 text-sm">4.8</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-4 h-4 text-zinc-400" />
+                          <span className="text-zinc-400 text-sm">234</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-bold">$29.99</span>
+                        <Button size="sm" className="bg-pink-500 hover:bg-pink-600 text-white">
+                          View
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Top Makers */}
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-white">Top Makers</h2>
+                <Link href="/discover">
+                  <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                    View All <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { name: "PrintMaster Pro", rating: 4.9, orders: 342, specialty: "Miniatures", verified: true },
+                  { name: "LaserWorks", rating: 4.8, orders: 289, specialty: "Engraving", verified: true },
+                  { name: "3DCraft Studio", rating: 4.7, orders: 198, specialty: "Prototypes", verified: true },
+                  { name: "Precision Prints", rating: 4.9, orders: 156, specialty: "Functional Parts", verified: false }
+                ].map((maker, index) => (
+                  <Link key={index} href={`/shop/${index + 1}`}>
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-pink-500/50 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <Users className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-semibold flex items-center gap-2">
+                              {maker.name}
+                              {maker.verified && (
+                                <Shield className="w-4 h-4 text-emerald-400" />
+                              )}
+                            </h3>
+                            <p className="text-zinc-400 text-sm">{maker.specialty}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="text-center">
+                          <div className="text-white font-bold">{maker.rating}</div>
+                          <div className="text-zinc-400 text-xs">Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-white font-bold">{maker.orders}</div>
+                          <div className="text-zinc-400 text-xs">Orders</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-white font-bold">98%</div>
+                          <div className="text-zinc-400 text-xs">Success</div>
+                        </div>
+                      </div>
+                      
+                      <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white">
+                        Visit Shop
+                      </Button>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Services Section */}
+          <section className="py-16 bg-zinc-900/50">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-white">Custom Services</h2>
+                <Link href="/service-marketplace">
+                  <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                    View All <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { title: "3D Printing", desc: "High-quality prints in various materials", price: "From $15", icon: "🖨️" },
+                  { title: "Laser Cutting", desc: "Precise cuts on wood, acrylic, metal", price: "From $25", icon: "⚡" },
+                  { title: "CNC Machining", desc: "Professional metal and plastic parts", price: "From $50", icon: "⚙️" },
+                  { title: "3D Scanning", desc: "Digitize physical objects", price: "From $30", icon: "📷" },
+                  { title: "Design Services", desc: "Custom 3D modeling and design", price: "From $40/hour", icon: "🎨" },
+                  { title: "Assembly", desc: "Professional product assembly", price: "From $20/hour", icon: "🔧" }
+                ].map((service, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ y: -4 }}
+                    className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-pink-500/50 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-3xl">{service.icon}</div>
+                      <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
+                        {service.price}
+                      </Badge>
+                    </div>
+                    <h3 className="text-white font-semibold mb-2">{service.title}</h3>
+                    <p className="text-zinc-400 text-sm mb-4">{service.desc}</p>
+                    <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white">
+                      Get Quote
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+                  </main>
+
+        <Footer />
+      </div>
     </>
   );
 }
