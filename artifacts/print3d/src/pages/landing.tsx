@@ -233,7 +233,6 @@ export default function Landing() {
                     </div>
                   </motion.div>
                 </div>
-              </div>
             </div>
           </section>
 
