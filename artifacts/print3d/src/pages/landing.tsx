@@ -93,19 +93,54 @@ export default function Landing() {
           {/* Featured Products Section */}
           <section className="bg-zinc-950">
             <div className="container mx-auto px-4 pt-8 pb-16">
-              {/* Filter Selector */}
-              <div className="flex justify-end mb-8">
-                <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg p-1">
-                  <span className="text-zinc-400 text-sm">Show:</span>
-                  <select 
-                    value={filterType} 
-                    onChange={(e) => setFilterType(e.target.value)}
-                    className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">All</option>
-                    <option value="shops">Shops Only</option>
-                    <option value="models">Models Only</option>
-                  </select>
+              {/* Filter Bar */}
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2 items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
+                      <span className="text-zinc-400 text-sm font-medium">Type:</span>
+                      <select 
+                        value={filterType} 
+                        onChange={(e) => setFilterType(e.target.value)}
+                        className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer"
+                      >
+                        <option value="all">All Items</option>
+                        <option value="shops">Shops Only</option>
+                        <option value="models">Products Only</option>
+                      </select>
+                    </div>
+                    
+                    <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
+                      <span className="text-zinc-400 text-sm font-medium">Category:</span>
+                      <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
+                        <option value="all">All Categories</option>
+                        <option value="3d-printing">3D Printing</option>
+                        <option value="laser-cutting">Laser Cutting</option>
+                        <option value="cnc-machining">CNC Machining</option>
+                        <option value="3d-scanning">3D Scanning</option>
+                        <option value="design-services">Design Services</option>
+                        <option value="assembly">Assembly</option>
+                      </select>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
+                      <span className="text-zinc-400 text-sm font-medium">Sort:</span>
+                      <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
+                        <option value="recent">Most Recent</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button className="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-sm transition-colors">
+                      <Search className="w-4 h-4 mr-2" />
+                      Search
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -167,37 +202,6 @@ export default function Landing() {
                     </Link>
                   </motion.div>
                 ))}
-              </div>
-
-              {/* Categories */}
-              <div className="mb-6">
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                  {[
-                    { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
-                    { name: "Laser Cutting", color: "from-yellow-500 to-orange-500" },
-                    { name: "CNC Machining", color: "from-purple-500 to-pink-500" },
-                    { name: "3D Scanning", color: "from-green-500 to-emerald-500" },
-                    { name: "Design Services", color: "from-pink-500 to-rose-500" },
-                    { name: "Assembly", color: "from-indigo-500 to-blue-500" }
-                  ].map((category, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.05, y: -5 }}
-                      className="group cursor-pointer"
-                    >
-                      <Link href={`/explore?category=${category.name.toLowerCase().replace(' ', '-')}`}>
-                        <div className="bg-zinc-800 border border-zinc-700 p-2 rounded-lg hover:border-pink-500/50 transition-all duration-300">
-                          <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-xs`}>
-                            {category.name}
-                          </h3>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
               </div>
 
               {/* Products Grid - Remaining Items */}
