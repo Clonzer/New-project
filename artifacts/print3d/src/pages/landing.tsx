@@ -94,72 +94,102 @@ export default function Landing() {
       
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
-          {/* Hero Section */}
-          <section className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 relative overflow-hidden">
-            <div className="container mx-auto px-4 py-16">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div className="text-center lg:text-left">
+          {/* Featured Carousel Section */}
+          <section className="relative overflow-hidden">
+            <div className="container mx-auto px-4 py-12">
+              {/* Featured Products Carousel */}
+              <div className="mb-12">
+                <div className="text-center mb-8">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                   >
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-                      <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
-                        Transform Your Ideas
-                      </span>
-                      <br />
-                      <span className="text-2xl md:text-3xl lg:text-4xl text-zinc-300">Into Reality</span>
-                    </h1>
-                    <p className="text-lg text-zinc-300 mb-8 max-w-2xl">
-                      Connect with verified makers and bring your concepts to life through cutting-edge 3D printing, laser cutting, and CNC machining services.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button className="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-pink-500/25">
-                        <Zap className="w-5 h-5 mr-2" />
-                        Explore Marketplace
-                      </Button>
-                      <Button variant="outline" className="border-zinc-600 hover:bg-zinc-800 text-zinc-300 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300">
-                        <Crown className="w-5 h-5 mr-2" />
-                        Become a Maker
-                      </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-full mb-6">
+                      <Sparkles className="w-6 h-6" />
+                      <span className="text-lg font-bold">Featured Products & Top Shops</span>
                     </div>
                   </motion.div>
                 </div>
-                
-                <div className="hidden lg:block">
+
+                {/* Carousel Container */}
+                <div className="relative">
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                   >
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl"></div>
-                      <div className="relative bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-700">
-                        <div className="grid grid-cols-3 gap-6 text-center">
-                          <div>
-                            <div className="bg-zinc-900 rounded-xl p-4 mb-4">
-                              <TrendingUp className="w-8 h-8 text-pink-500 mx-auto mb-2" />
-                              <div className="text-3xl font-bold text-white">10K+</div>
-                              <div className="text-zinc-400 text-sm">Active Makers</div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="bg-zinc-900 rounded-xl p-4 mb-4">
-                              <Package className="w-8 h-8 text-cyan-500 mx-auto mb-2" />
-                              <div className="text-3xl font-bold text-white">50K+</div>
-                              <div className="text-zinc-400 text-sm">Products Listed</div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="bg-zinc-900 rounded-xl p-4">
-                              <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-                              <div className="text-3xl font-bold text-white">4.9?</div>
-                              <div className="text-zinc-400 text-sm">Avg Rating</div>
-                            </div>
-                          </div>
+                    <div className="flex gap-6 overflow-hidden">
+                      {/* Featured Products */}
+                      <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+                          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                            Trending Products
+                          </span>
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {/* Placeholder for featured products */}
+                          {[1, 2, 3].map((item) => (
+                            <motion.div
+                              key={item}
+                              initial={{ opacity: 0, y: 30 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: item * 0.1 }}
+                              whileHover={{ y: -5, scale: 1.05 }}
+                              className="group"
+                            >
+                              <div className="bg-gradient-to-br from-purple-600/20 via-pink-600/20 to-blue-600/20 rounded-xl p-6 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300">
+                                <div className="w-16 h-20 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg mb-4 flex items-center justify-center">
+                                  <Package className="w-12 h-12 text-purple-400" />
+                                  <h3 className="text-white font-bold text-lg mb-2">Featured Product {item}</h3>
+                                  <p className="text-zinc-300 text-sm">Premium 3D Printed Item</p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
                         </div>
                       </div>
+
+                      {/* Featured Shops */}
+                      <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+                          <span className="bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">
+                            Top Rated Shops
+                          </span>
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {[1, 2, 3].map((item) => (
+                            <motion.div
+                              key={item}
+                              initial={{ opacity: 0, y: 30 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: item * 0.1 }}
+                              whileHover={{ y: -5, scale: 1.05 }}
+                              className="group"
+                            >
+                              <div className="bg-gradient-to-br from-pink-600/20 via-orange-600/20 to-red-600/20 rounded-xl p-6 border border-orange-500/30 hover:border-orange-400/50 transition-all duration-300">
+                                <div className="w-16 h-20 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg mb-4 flex items-center justify-center">
+                                  <Crown className="w-12 h-12 text-orange-400" />
+                                  <h3 className="text-white font-bold text-lg mb-2">Featured Shop {item}</h3>
+                                  <p className="text-zinc-300 text-sm">Verified Professional Service</p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Navigation Arrows */}
+                    <div className="absolute left-4 top-1/2 z-10">
+                      <button className="bg-zinc-900/80 backdrop-blur-sm text-white p-2 rounded-full hover:bg-zinc-800 transition-colors">
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="absolute right-4 top-1/2 z-10">
+                      <button className="bg-zinc-900/80 backdrop-blur-sm text-white p-2 rounded-full hover:bg-zinc-800 transition-colors">
+                        <ChevronRight className="w-5 h-5 rotate-180" />
+                      </button>
                     </div>
                   </motion.div>
                 </div>
