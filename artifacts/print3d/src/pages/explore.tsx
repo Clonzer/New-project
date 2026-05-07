@@ -87,15 +87,15 @@ export default function Explore() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
       <div className="flex-grow">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-8">
           {/* Featured Shops Section */}
-          <section className="mb-16">
+          <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#9fe5ff]" />
-                <h2 className="text-2xl font-display font-bold text-white">Featured Shops</h2>
+                <h2 className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent text-2xl font-display font-bold">Featured Shops</h2>
               </div>
             </div>
             {loadingSellers ? (
@@ -123,10 +123,10 @@ export default function Explore() {
             )}
           </section>
 
-          <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-6 text-center">
+          <h1 className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent text-4xl md:text-5xl font-display font-bold mb-6 text-center">
             Explore Shops
           </h1>
-          <p className="text-xl text-zinc-400 mb-8 text-center">
+          <p className="text-zinc-400 mb-8 text-center">
             Discover amazing 3D printing shops and makers
           </p>
 
@@ -139,13 +139,13 @@ export default function Explore() {
                 placeholder="Search shops..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-4 py-4 h-14 bg-zinc-900/50 border border-zinc-700 rounded-full text-lg focus:ring-2 focus:ring-primary/50"
+                className="pl-12 pr-4 py-4 h-14 bg-zinc-800 border border-zinc-700 rounded-full text-lg focus:ring-2 focus:ring-pink-500/20"
               />
             </div>
             <button
               type="button"
               onClick={() => setShowFilters((current) => !current)}
-              className="h-14 px-6 rounded-full glass-panel border border-white/10 flex items-center gap-2 text-white hover:bg-white/5 transition-colors"
+              className="h-14 px-6 rounded-full bg-zinc-800 border border-zinc-700 flex items-center gap-2 text-white hover:bg-zinc-700 transition-colors"
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
             </button>
@@ -153,9 +153,9 @@ export default function Explore() {
 
           {/* Filters Panel */}
           {showFilters && (
-            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5 max-w-4xl mx-auto">
+            <div className="mb-8 rounded-2xl border border-zinc-700 bg-zinc-800 p-5 max-w-4xl mx-auto">
               <div className="mb-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Sort By</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">Sort By</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {[
                     { value: "newest", label: "Newest" },
@@ -168,8 +168,8 @@ export default function Explore() {
                       onClick={() => setSortBy(option.value)}
                       className={`rounded-full border px-4 py-2 text-sm transition ${
                         sortBy === option.value
-                          ? "border-primary/50 bg-primary/15 text-white"
-                          : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                          ? "border-pink-500/50 bg-pink-500/20 text-white"
+                          : "border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-white"
                       }`}
                     >
                       {option.label}
@@ -182,15 +182,15 @@ export default function Explore() {
 
           <Tabs value="shops" className="w-full">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-zinc-900 border border-zinc-700">
-              <TabsTrigger value="all" className="data-[state=active]:bg-primary" onClick={() => window.location.href='/explore-all'}>
+              <TabsTrigger value="all" className="data-[state=active]:bg-pink-500" onClick={() => window.location.href='/explore-all'}>
                 <Grid3x3 className="w-4 h-4 mr-2" />
                 All
               </TabsTrigger>
-              <TabsTrigger value="shops" className="data-[state=active]:bg-primary">
+              <TabsTrigger value="shops" className="data-[state=active]:bg-pink-500">
                 <Store className="w-4 h-4 mr-2" />
                 Shops
               </TabsTrigger>
-              <TabsTrigger value="models" className="data-[state=active]:bg-primary" onClick={() => window.location.href='/explore-models'}>
+              <TabsTrigger value="models" className="data-[state=active]:bg-pink-500" onClick={() => window.location.href='/explore-models'}>
                 <Package className="w-4 h-4 mr-2" />
                 Models
               </TabsTrigger>

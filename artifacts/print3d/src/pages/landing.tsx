@@ -67,15 +67,9 @@ export default function Landing() {
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
           {/* Categories Section */}
-          <section className="py-12 bg-zinc-900/30">
+          <section className="py-8 bg-zinc-900">
             <div className="container mx-auto px-4">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white mb-4">
-                  Browse <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span>
-                </h2>
-                <p className="text-zinc-400">Find exactly what you're looking for</p>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                 {[
                   { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
                   { name: "Laser Cutting", color: "from-yellow-500 to-orange-500" },
@@ -92,9 +86,13 @@ export default function Landing() {
                     whileHover={{ scale: 1.05, y: -5 }}
                     className="group cursor-pointer"
                   >
-                    <div className={`bg-gradient-to-br ${category.color} p-6 rounded-2xl border border-zinc-800/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
-                      <h3 className="text-white font-semibold text-sm">{category.name}</h3>
-                    </div>
+                    <Link href={`/explore?category=${category.name.toLowerCase().replace(' ', '-')}`}>
+                      <div className="bg-zinc-800 border border-zinc-700 p-4 rounded-xl hover:border-pink-500/50 transition-all duration-300">
+                        <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-sm`}>
+                          {category.name}
+                        </h3>
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
