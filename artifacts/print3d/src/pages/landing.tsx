@@ -36,29 +36,30 @@ export default function Landing() {
   // Combine and mix listings and users from real database
   const marketplaceItems = [
     // Real listings
-    ...(listings.data?.listings?.slice(0, 6).map(listing => ({
+    ...(listings.data?.listings?.slice(0, 8).map(listing => ({
       ...listing,
       type: "product",
       title: listing.title,
-      subtitle: `$${listing.basePrice}`,
-      image: listing.imageUrl,
+      subtitle: `$${listing.price || listing.basePrice}`,
+      image: listing.images?.[0] || listing.imageUrl || `https://picsum.photos/seed/${listing.id}/400/400.jpg`,
       rating: listing.rating || "4.8",
-      views: listing.views || "0",
-      sellerName: listing.sellerName,
+      views: listing.views?.toString() || "0",
+      sellerName: listing.sellerName || "Professional Maker",
       link: `/listings/${listing.id}`
     })) || []),
     
     // Real users (sellers)
-    ...(users.data?.users?.slice(0, 6).map((user, index) => ({
+    ...(users.data?.users?.slice(0, 4).map((user, index) => ({
       ...user,
       type: "maker",
-      title: user.displayName || user.name || `User ${index + 1}`,
-      subtitle: user.role || "Maker",
-      rating: user.rating || "4.8",
-      orders: user.orders || "0",
+      title: user.displayName || user.name || `Maker ${index + 1}`,
+      subtitle: user.role || "Professional Seller",
+      rating: user.rating || "4.9",
+      views: user.orders?.toString() || "0",
+      image: user.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`,
       link: `/shop/${user.id}`
     })) || [])
-  ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
+  ].sort(() => Math.random() - 0.5); // Shuffle all items
 
   console.log("Marketplace items count:", marketplaceItems.length);
 
@@ -108,28 +109,24 @@ export default function Landing() {
       
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
-          {/* Featured Carousel Section */}
-          <section className="relative overflow-hidden">
-            <div className="container mx-auto px-4 py-12">
-              {/* Central Carousel with Auto-Rotation */}
-              <div className="mb-12">
-                <div className="text-center mb-8">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                  >
-                    <div className="relative inline-block">
-                      {/* Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-cyan-500/20 blur-xl rounded-full w-32 h-32 opacity-60"></div>
-                      
-                      <div className="relative bg-zinc-900/90 backdrop-blur-lg rounded-full p-4">
-                        <div className="text-white font-bold text-xl mb-2">Featured This Week</div>
-                        <div className="text-zinc-300 text-sm">Discover trending designs and top-rated shops</div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
+          {/* Hero Carousel Section */}
+          <section className="relative overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+            <div className="container mx-auto px-4 py-8">
+              {/* Hero Header */}
+              <div className="text-center mb-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+                    Discover Amazing <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">3D Creations</span>
+                  </h1>
+                  <p className="text-zinc-300 text-lg max-w-2xl mx-auto">
+                    Browse thousands of 3D printed products, laser cutting services, and custom fabrication from verified makers
+                  </p>
+                </motion.div>
+              </div>
 
                 {/* Auto-Rotating Carousel with Big Central Card */}
                 <div className="relative max-w-4xl mx-auto">
@@ -241,8 +238,8 @@ export default function Landing() {
           </section>
 
           {/* Featured Products Section */}
-          <section className="bg-zinc-950">
-            <div className="container mx-auto px-4 pt-8 pb-16">
+          <section className="bg-zinc-950 pt-4">
+            <div className="container mx-auto px-4 pt-4 pb-16">
               {/* Featured Section */}
               <div className="mb-8">
                 <div className="text-center mb-8">
