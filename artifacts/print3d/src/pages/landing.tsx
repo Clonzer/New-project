@@ -40,10 +40,11 @@ export default function Landing() {
       type: "product",
       title: listing.title,
       subtitle: `$${listing.price || listing.basePrice}`,
-      image: listing.images?.[0] || listing.imageUrl || `https://picsum.photos/seed/${listing.id}/400/400.jpg`,
+      image: listing.images?.[0] || listing.imageUrl,
       rating: listing.rating || "4.8",
       views: listing.views?.toString() || "0",
-      sellerName: listing.sellerName || "Professional Maker",
+      sellerName: listing.sellerName,
+      tags: listing.tags || [],
       link: `/listings/${listing.id}`
     })) || []),
     
@@ -55,8 +56,9 @@ export default function Landing() {
       subtitle: user.role || "Professional Seller",
       rating: user.rating || "4.9",
       views: user.orders?.toString() || "0",
-      image: user.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username || user.id}`,
-      banner: user.bannerUrl || `https://picsum.photos/seed/banner-${user.username || user.id}/800/200.jpg`,
+      image: user.avatarUrl,
+      banner: user.bannerUrl,
+      tags: user.tags || [],
       link: `/shop/${user.id}`
     })) || [])
   ].sort(() => Math.random() - 0.5); // Shuffle all items
@@ -100,22 +102,7 @@ export default function Landing() {
           {/* Hero Carousel Section */}
           <section className="relative overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
             <div className="container mx-auto px-4 py-4">
-              {/* Hero Header */}
-              <div className="text-center mb-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-                    Discover Amazing <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">3D Creations</span>
-                  </h1>
-                  <p className="text-zinc-300 text-lg max-w-2xl mx-auto">
-                    Browse thousands of 3D printed products, laser cutting services, and custom fabrication from verified makers
-                  </p>
-                </motion.div>
-              </div>
-
+              
                             </div>
           </section>
 
@@ -223,27 +210,23 @@ export default function Landing() {
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-pink-600/20 via-purple-600/20 to-blue-600/20" />
+                                <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent" />
-                              <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
-                                  {item.image ? (
+                              {item.image && (
+                                <div className="absolute bottom-2 left-2 flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
                                     <img 
                                       src={item.image} 
                                       alt={item.title}
                                       className="w-full h-full object-cover"
                                     />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="w-4 h-4 text-zinc-600" />
-                                    </div>
-                                  )}
+                                  </div>
+                                  <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
+                                    <span className="text-white text-xs font-medium">{item.title}</span>
+                                  </div>
                                 </div>
-                                <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
-                                  <span className="text-white text-xs font-medium">{item.title}</span>
-                                </div>
-                              </div>
+                              )}
                             </>
                           ) : (
                             // Product card
@@ -274,6 +257,15 @@ export default function Landing() {
                                 </Badge>
                                 {item.sellerName && (
                                   <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
+                                )}
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="flex gap-1 flex-wrap">
+                                    {item.tags.slice(0, 2).map((tag, tagIndex) => (
+                                      <span key={tagIndex} className="text-zinc-500 text-xs bg-zinc-800 px-2 py-1 rounded">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -320,27 +312,23 @@ export default function Landing() {
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-pink-600/20 via-purple-600/20 to-blue-600/20" />
+                                <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent" />
-                              <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
-                                  {item.image ? (
+                              {item.image && (
+                                <div className="absolute bottom-2 left-2 flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
                                     <img 
                                       src={item.image} 
                                       alt={item.title}
                                       className="w-full h-full object-cover"
                                     />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="w-4 h-4 text-zinc-600" />
-                                    </div>
-                                  )}
+                                  </div>
+                                  <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
+                                    <span className="text-white text-xs font-medium">{item.title}</span>
+                                  </div>
                                 </div>
-                                <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
-                                  <span className="text-white text-xs font-medium">{item.title}</span>
-                                </div>
-                              </div>
+                              )}
                             </>
                           ) : (
                             // Product card
@@ -371,6 +359,15 @@ export default function Landing() {
                                 </Badge>
                                 {item.sellerName && (
                                   <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
+                                )}
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="flex gap-1 flex-wrap">
+                                    {item.tags.slice(0, 2).map((tag, tagIndex) => (
+                                      <span key={tagIndex} className="text-zinc-500 text-xs bg-zinc-800 px-2 py-1 rounded">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
                             </div>
