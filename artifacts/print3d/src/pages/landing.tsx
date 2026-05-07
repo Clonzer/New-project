@@ -27,17 +27,17 @@ export default function Landing() {
   const [filterType, setFilterType] = useState("all");
 
   // Debug logging
-  console.log('Listings data:', listings.data);
-  console.log('Users data:', users.data);
-  console.log('Listings loading:', listings.isLoading);
-  console.log('Users loading:', users.isLoading);
+  console.log("Listings data:", listings.data);
+  console.log("Users data:", users.data);
+  console.log("Listings loading:", listings.isLoading);
+  console.log("Users loading:", users.isLoading);
 
   // Combine and mix listings and users from real database
   const marketplaceItems = [
     // Real listings
     ...(listings.data?.listings?.slice(0, 6).map(listing => ({
       ...listing,
-      type: 'product',
+      type: "product",
       title: listing.title,
       subtitle: `$${listing.basePrice}`,
       image: listing.imageUrl,
@@ -50,16 +50,16 @@ export default function Landing() {
     // Real users (sellers)
     ...(users.data?.users?.slice(0, 6).map((user, index) => ({
       ...user,
-      type: 'maker',
+      type: "maker",
       title: user.displayName || user.name || `User ${index + 1}`,
-      subtitle: user.role || 'Maker',
+      subtitle: user.role || "Maker",
       rating: user.rating || "4.8",
       orders: user.orders || "0",
       link: `/shop/${user.id}`
     })) || [])
   ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
 
-  console.log('Marketplace items count:', marketplaceItems.length);
+  console.log("Marketplace items count:", marketplaceItems.length);
 
   // Filter items based on type
   const filteredItems = marketplaceItems.filter(item => {
@@ -68,8 +68,8 @@ export default function Landing() {
     return true; // Show all (both products and shops)
   });
 
-  console.log('Filter type:', filterType);
-  console.log('Filtered items count:', filteredItems.length);
+  console.log("Filter type:", filterType);
+  console.log("Filtered items count:", filteredItems.length);
 
   return (
     <>
@@ -154,7 +154,7 @@ export default function Landing() {
                           <div>
                             <div className="bg-zinc-900 rounded-xl p-4">
                               <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-                              <div className="text-3xl font-bold text-white">4.9★</div>
+                              <div className="text-3xl font-bold text-white">4.9?</div>
                               <div className="text-zinc-400 text-sm">Avg Rating</div>
                             </div>
                           </div>
@@ -187,10 +187,11 @@ export default function Landing() {
                     </h2>
                   </motion.div>
                 </div>
+              </div>
 
-                {/* Filter Bar */}
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-2 items-center justify-between">
+              {/* Filter Bar */}
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2 items-center justify-between">
                   <div className="flex flex-wrap gap-2">
                     <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
                       <span className="text-zinc-400 text-sm font-medium">Type:</span>
@@ -258,8 +259,8 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[3/2]' : 'aspect-[3/2]'}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
@@ -318,8 +319,8 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[3/2]' : 'aspect-[3/2]'}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
