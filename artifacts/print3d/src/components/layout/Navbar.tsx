@@ -153,6 +153,16 @@ export function Navbar() {
               Contests
             </Link>
             <Link
+              href="/explore"
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                isActive("/explore")
+                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Explore
+            </Link>
+            <Link
               href="/service-marketplace"
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                 isActive("/service-marketplace")

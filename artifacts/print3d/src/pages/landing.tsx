@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { useListListings, useListUsers } from "@/lib/workspace-stub";
+import { Link } from "wouter";
 
 export default function Landing() {
   const listings = useListListings();
@@ -117,13 +118,20 @@ export default function Landing() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                   >
-                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full mb-4">
+                    <div className="flex items-center justify-between mb-6">
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full">
                       <Sparkles className="w-5 h-5" />
                       <span className="font-bold">Featured This Week</span>
                     </div>
-                    <h2 className="text-3xl font-bold text-white mb-4">
-                      Trending Designs & Top Rated Shops
-                    </h2>
+                    <Link href="/explore">
+                      <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:border-pink-500 hover:text-pink-400">
+                        Explore All
+                      </Button>
+                    </Link>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-4">
+                    Trending Designs & Top Rated Shops
+                  </h2>
                   </motion.div>
                 </div>
               </div>

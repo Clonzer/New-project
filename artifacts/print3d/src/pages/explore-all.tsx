@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SellerCard } from "@/components/shared/SellerCard";
 import { ListingCard } from "@/components/shared/ListingCard";
@@ -137,7 +136,6 @@ export default function ExploreAll() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-      <Navbar />
       <div className="flex-grow">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-6 text-center">
