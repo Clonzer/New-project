@@ -132,7 +132,7 @@ function Router() {
       <Switch>
       <Route path="/" component={Landing} />
       <Route path="/explore-all" component={ExploreAll} />
-      <Route path="/explore" component={Explore} />
+      <Route path="/explore" component={Landing} />
       <Route path="/explore-models" component={ExploreModels} />
       <Route path="/discover" component={Discover} />
       <Route path="/about" component={About} />

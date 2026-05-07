@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
@@ -626,7 +625,6 @@ export default function Discover() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
 
       <SEOMeta
         title="Discover Top Makers & 3D Printing Services | Synthix"

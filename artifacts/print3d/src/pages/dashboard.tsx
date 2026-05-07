@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import {
@@ -1195,7 +1194,6 @@ export default function Dashboard() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center glass-panel p-12 rounded-3xl">
             <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
@@ -1210,7 +1208,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
 
       {/* Dialogs */}
       <RegisterPrinterDialog
