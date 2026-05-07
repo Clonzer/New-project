@@ -35,11 +35,11 @@ export default function Landing() {
       ...listing,
       type: 'product',
       title: listing.title,
-      subtitle: `$${listing.basePrice || '29.99'}`,
+      subtitle: `$${listing.basePrice}`,
       image: listing.imageUrl,
       rating: listing.rating || "4.8",
-      views: listing.views || "234",
-      sellerName: users.data?.users?.find(u => u.id === listing.sellerId)?.displayName || users.data?.users?.find(u => u.id === listing.sellerId)?.name,
+      views: listing.views || "0",
+      sellerName: listing.sellerName,
       link: `/listings/${listing.id}`
     })) || []),
     
@@ -50,7 +50,7 @@ export default function Landing() {
       title: user.displayName || user.name || `User ${index + 1}`,
       subtitle: user.role || 'Maker',
       rating: user.rating || "4.8",
-      orders: user.orders || "156",
+      orders: user.orders || "0",
       link: `/shop/${user.id}`
     })) || [])
   ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
@@ -110,7 +110,7 @@ export default function Landing() {
               </div>
 
               {/* Products Grid - First Row */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                 {filteredItems.slice(0, 4).map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -121,7 +121,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300 ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
                         <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
                           {item.image ? (
                             <img 
@@ -170,7 +170,7 @@ export default function Landing() {
               </div>
 
               {/* Categories */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                   {[
                     { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
@@ -189,8 +189,8 @@ export default function Landing() {
                       className="group cursor-pointer"
                     >
                       <Link href={`/explore?category=${category.name.toLowerCase().replace(' ', '-')}`}>
-                        <div className="bg-zinc-800 border border-zinc-700 p-3 rounded-xl hover:border-pink-500/50 transition-all duration-300">
-                          <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-sm`}>
+                        <div className="bg-zinc-800 border border-zinc-700 p-2 rounded-lg hover:border-pink-500/50 transition-all duration-300">
+                          <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-xs`}>
                             {category.name}
                           </h3>
                         </div>
@@ -201,7 +201,7 @@ export default function Landing() {
               </div>
 
               {/* Products Grid - Remaining Items */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {filteredItems.slice(4).map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -212,7 +212,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300 ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
                         <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
                           {item.image ? (
                             <img 

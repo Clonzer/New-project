@@ -420,6 +420,7 @@ export function useListUsers() {
         }
 
         console.log('Using sellers:', sellers);
+        console.log('Sellers count:', sellers.length);
         
         // If we have sellers, fetch their profiles separately
         const userIds = sellers.map(s => s.user_id).filter(Boolean);
@@ -455,6 +456,7 @@ export function useListUsers() {
           };
         });
 
+        console.log('Transformed users:', transformedUsers);
         setData({ users: transformedUsers });
       } catch (err) {
         console.error('Error fetching users:', err);
