@@ -7,7 +7,8 @@ import {
   Eye,
   ChevronRight,
   Shield,
-  Package
+  Package,
+  Crown
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
