@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { 
   Search, 
   Star, 
@@ -19,6 +20,7 @@ import { useListListings, useListUsers } from "@/lib/workspace-stub";
 export default function Landing() {
   const listings = useListListings();
   const users = useListUsers();
+  const [filterType, setFilterType] = useState("all");
 
   // Combine and mix listings and users
   const marketplaceItems = [
@@ -30,6 +32,7 @@ export default function Landing() {
       image: listing.imageUrl,
       rating: listing.rating || "4.8",
       views: listing.views || "234",
+      sellerName: users.data?.users?.find(u => u.id === listing.user_id)?.displayName || users.data?.users?.find(u => u.id === listing.user_id)?.name,
       link: `/listings/${listing.id}`
     })) || []),
     ...(users.data?.users?.slice(0, 6).map((user, index) => ({
@@ -42,6 +45,13 @@ export default function Landing() {
       link: `/shop/${user.id}`
     })) || [])
   ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
+
+  // Filter items based on type
+  const filteredItems = marketplaceItems.filter(item => {
+    if (filterType === "shops") return item.type === "maker";
+    if (filterType === "models") return item.type === "product";
+    return true; // Show all
+  });
 
   return (
     <>
@@ -66,44 +76,59 @@ export default function Landing() {
       
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
-          {/* Categories Section */}
-          <section className="bg-black">
-            <div className="container mx-auto px-4 py-6">
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                {[
-                  { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
-                  { name: "Laser Cutting", color: "from-yellow-500 to-orange-500" },
-                  { name: "CNC Machining", color: "from-purple-500 to-pink-500" },
-                  { name: "3D Scanning", color: "from-green-500 to-emerald-500" },
-                  { name: "Design Services", color: "from-pink-500 to-rose-500" },
-                  { name: "Assembly", color: "from-indigo-500 to-blue-500" }
-                ].map((category, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    className="group cursor-pointer"
-                  >
-                    <Link href={`/explore?category=${category.name.toLowerCase().replace(' ', '-')}`}>
-                      <div className="bg-zinc-800 border border-zinc-700 p-3 rounded-xl hover:border-pink-500/50 transition-all duration-300">
-                        <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-sm`}>
-                          {category.name}
-                        </h3>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-
           {/* Featured Products Section */}
           <section className="bg-zinc-950">
             <div className="container mx-auto px-4 py-16">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {marketplaceItems.slice(0, 6).map((item, index) => (
+              {/* Filter Selector */}
+              <div className="flex justify-end mb-8">
+                <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg p-1">
+                  <span className="text-zinc-400 text-sm">Show:</span>
+                  <select 
+                    value={filterType} 
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All</option>
+                    <option value="shops">Shops Only</option>
+                    <option value="models">Models Only</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Categories Row */}
+              <div className="mb-8">
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {[
+                    { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
+                    { name: "Laser Cutting", color: "from-yellow-500 to-orange-500" },
+                    { name: "CNC Machining", color: "from-purple-500 to-pink-500" },
+                    { name: "3D Scanning", color: "from-green-500 to-emerald-500" },
+                    { name: "Design Services", color: "from-pink-500 to-rose-500" },
+                    { name: "Assembly", color: "from-indigo-500 to-blue-500" }
+                  ].map((category, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05, y: -5 }}
+                      className="group cursor-pointer"
+                    >
+                      <Link href={`/explore?category=${category.name.toLowerCase().replace(' ', '-')}`}>
+                        <div className="bg-zinc-800 border border-zinc-700 p-3 rounded-xl hover:border-pink-500/50 transition-all duration-300">
+                          <h3 className={`bg-gradient-to-r ${category.color} bg-clip-text text-transparent font-semibold text-sm`}>
+                            {category.name}
+                          </h3>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Products Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredItems.map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -113,7 +138,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden hover:border-pink-500/50 transition-all duration-300">
+                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300">
                         <div className="aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
                           {item.image ? (
                             <img 
@@ -123,33 +148,36 @@ export default function Landing() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-16 h-16 text-zinc-600" />
+                              <Package className="w-12 h-12 text-zinc-600" />
                             </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
-                        <div className="p-6">
-                          <div className="flex items-start justify-between mb-3">
+                        <div className="p-3">
+                          <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
-                              <h3 className="text-white font-bold text-lg mb-1 line-clamp-1">{item.title}</h3>
-                              <p className="text-zinc-400 text-sm">{item.subtitle}</p>
-                            </div>
-                            <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
-                              {item.type}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-white text-sm font-medium">{item.rating}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Eye className="w-4 h-4 text-zinc-400" />
-                                <span className="text-zinc-400 text-sm">{item.views}</span>
+                              <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
+                              <p className="text-zinc-400 text-xs">{item.subtitle}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
+                                  {item.type}
+                                </Badge>
+                                {item.sellerName && (
+                                  <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
+                                )}
                               </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-zinc-400 group-hover:text-pink-400 transition-colors" />
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                <span className="text-white text-xs font-medium">{item.rating}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Eye className="w-3 h-3 text-zinc-400" />
+                                <span className="text-zinc-400 text-xs">{item.views}</span>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
                           </div>
                         </div>
                       </div>
