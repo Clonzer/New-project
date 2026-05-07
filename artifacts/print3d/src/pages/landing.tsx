@@ -122,7 +122,7 @@ export default function Landing() {
                   >
                     <Link href={item.link}>
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : 'aspect-[4/3]'}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[3/2]' : 'aspect-[3/2]'}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
@@ -213,7 +213,7 @@ export default function Landing() {
                   >
                     <Link href={item.link}>
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : 'aspect-[4/3]'}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[3/2]' : 'aspect-[3/2]'}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
