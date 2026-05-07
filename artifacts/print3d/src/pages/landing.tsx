@@ -25,77 +25,12 @@ export default function Landing() {
   // Debug logging
   console.log('Listings data:', listings.data);
   console.log('Users data:', users.data);
+  console.log('Listings loading:', listings.isLoading);
+  console.log('Users loading:', users.isLoading);
 
-  // Fallback placeholder data when no real data is available
-  const placeholderListings = [
-    {
-      id: 'placeholder-1',
-      type: 'product',
-      title: 'Custom 3D Printed Miniature',
-      subtitle: '$29.99',
-      image: 'https://picsum.photos/seed/miniature/400/400.jpg',
-      rating: '4.8',
-      views: '234',
-      sellerName: '3D Printing Pro',
-      link: '#'
-    },
-    {
-      id: 'placeholder-2',
-      type: 'product',
-      title: 'Laser Cut Signage',
-      subtitle: '$89.99',
-      image: 'https://picsum.photos/seed/sign/400/400.jpg',
-      rating: '4.9',
-      views: '156',
-      sellerName: 'Laser Cutting Studio',
-      link: '#'
-    },
-    {
-      id: 'placeholder-3',
-      type: 'product',
-      title: 'CNC Machined Components',
-      subtitle: '$129.99',
-      image: 'https://picsum.photos/seed/cnc/400/400.jpg',
-      rating: '4.7',
-      views: '89',
-      sellerName: 'CNC Machining Co',
-      link: '#'
-    }
-  ];
-
-  const placeholderUsers = [
-    {
-      id: 'placeholder-user-1',
-      type: 'maker',
-      title: '3D Printing Pro',
-      subtitle: 'Premium 3D Printing Services',
-      rating: '4.8',
-      orders: '156',
-      link: '#'
-    },
-    {
-      id: 'placeholder-user-2',
-      type: 'maker',
-      title: 'Laser Cutting Studio',
-      subtitle: 'Precision Laser Cutting',
-      rating: '4.9',
-      orders: '234',
-      link: '#'
-    },
-    {
-      id: 'placeholder-user-3',
-      type: 'maker',
-      title: 'CNC Machining Co',
-      subtitle: 'Industrial CNC Services',
-      rating: '4.7',
-      orders: '89',
-      link: '#'
-    }
-  ];
-
-  // Combine and mix listings and users
+  // Combine and mix listings and users from real database
   const marketplaceItems = [
-    // Real listings if available, otherwise use placeholders
+    // Real listings
     ...(listings.data?.listings?.slice(0, 6).map(listing => ({
       ...listing,
       type: 'product',
@@ -104,11 +39,11 @@ export default function Landing() {
       image: listing.imageUrl,
       rating: listing.rating || "4.8",
       views: listing.views || "234",
-      sellerName: users.data?.users?.find(u => u.id === listing.user_id)?.displayName || users.data?.users?.find(u => u.id === listing.user_id)?.name,
+      sellerName: users.data?.users?.find(u => u.id === listing.sellerId)?.displayName || users.data?.users?.find(u => u.id === listing.sellerId)?.name,
       link: `/listings/${listing.id}`
-    })) || (listings.data?.listings?.length === 0 ? [] : placeholderListings)),
+    })) || []),
     
-    // Real users if available, otherwise use placeholders
+    // Real users (sellers)
     ...(users.data?.users?.slice(0, 6).map((user, index) => ({
       ...user,
       type: 'maker',
@@ -117,8 +52,10 @@ export default function Landing() {
       rating: user.rating || "4.8",
       orders: user.orders || "156",
       link: `/shop/${user.id}`
-    })) || (users.data?.users?.length === 0 ? [] : placeholderUsers))
+    })) || [])
   ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
+
+  console.log('Marketplace items count:', marketplaceItems.length);
 
   // Filter items based on type
   const filteredItems = marketplaceItems.filter(item => {
@@ -126,6 +63,9 @@ export default function Landing() {
     if (filterType === "models") return item.type === "product";
     return true; // Show all (both products and shops)
   });
+
+  console.log('Filter type:', filterType);
+  console.log('Filtered items count:', filteredItems.length);
 
   return (
     <>
@@ -169,6 +109,66 @@ export default function Landing() {
                 </div>
               </div>
 
+              {/* Products Grid - First Row */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                {filteredItems.slice(0, 4).map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -10 }}
+                    className="group"
+                  >
+                    <Link href={item.link}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300 ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
+                        <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
+                          {item.image ? (
+                            <img 
+                              src={item.image} 
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-12 h-12 text-zinc-600" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                        <div className="p-3">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
+                              <p className="text-zinc-400 text-xs">{item.subtitle}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
+                                  {item.type}
+                                </Badge>
+                                {item.sellerName && (
+                                  <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                <span className="text-white text-xs font-medium">{item.rating}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Eye className="w-3 h-3 text-zinc-400" />
+                                <span className="text-zinc-400 text-xs">{item.views}</span>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
               {/* Categories */}
               <div className="mb-8">
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -200,9 +200,9 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Products Grid */}
+              {/* Products Grid - Remaining Items */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filteredItems.map((item, index) => (
+                {filteredItems.slice(4).map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -212,8 +212,8 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300">
-                        <div className="aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all duration-300 ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
+                        <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 

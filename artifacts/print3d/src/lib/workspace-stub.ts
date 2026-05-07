@@ -394,7 +394,15 @@ export function useListUsers() {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch sellers who have completed store setup
+        // First, let's see what's in the sellers table
+        const { data: allSellers, error: allSellersError } = await supabase
+          .from('sellers')
+          .select('*');
+        
+        console.log('All sellers in DB:', allSellers);
+        console.log('All sellers error:', allSellersError);
+
+        // Fetch sellers who have completed store setup (fallback to all if none completed)
         const { data: sellersData, error: sellersError } = await supabase
           .from('sellers')
           .select('*')
@@ -403,7 +411,15 @@ export function useListUsers() {
 
         if (sellersError) throw sellersError;
 
-        const sellers = sellersData || [];
+        let sellers = sellersData || [];
+        
+        // If no completed sellers, use all sellers
+        if (sellers.length === 0 && allSellers && allSellers.length > 0) {
+          console.log('No completed sellers found, using all sellers');
+          sellers = allSellers;
+        }
+
+        console.log('Using sellers:', sellers);
         
         // If we have sellers, fetch their profiles separately
         const userIds = sellers.map(s => s.user_id).filter(Boolean);
@@ -464,6 +480,7 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       setIsLoading(true);
       setError(null);
       try {
+        console.log('Fetching listings...');
         let query = supabase
           .from('listings')
           .select(`
@@ -488,7 +505,10 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
         }
 
         const result = await query;
+        console.log('Listings query result:', result);
         if (result.error) throw result.error;
+
+        console.log('Raw listings data:', result.data);
 
         // Map database columns to component expectations
         const mappedListings = (result.data || []).map((listing: any) => ({
