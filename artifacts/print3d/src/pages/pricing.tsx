@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Crown, Megaphone, Package, Rocket, Star, Users, X, Zap, Sparkles, Shield, ArrowRight, Tag } from "lucide-react";
 import { getSponsorshipDiscount, PLAN_LIMITS, calculateEnterprisePrice, getEnterpriseBasePrice, getEnterpriseSeatPrice } from "@/lib/plan-utils";
 import { useListListings } from "@/lib/workspace-api-mock";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
@@ -288,7 +287,6 @@ export default function Pricing() {
 
       <div className="min-h-screen flex flex-col bg-black">
         <AnimatedBackground />
-        <Navbar />
         
         <main className="flex-1 relative z-10">
           {/* Hero Section */}
@@ -301,25 +299,19 @@ export default function Pricing() {
                 className="text-center max-w-3xl mx-auto"
               >
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 mb-6"
                 >
-                  <Zap className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm font-medium text-violet-300">Pricing & Plans</span>
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                    Grow your{" "}
+                    <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+                      Shop
+                    </span>
+                  </h2>
+                  <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+                    Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
+                  </p>
                 </motion.div>
-                
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-                  Grow your{" "}
-                  <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
-                    Shop
-                  </span>
-                </h1>
-                
-                <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-                  Plans shape your long-term seller tooling. Sponsorships are the fast lane for short-term visibility.
-                </p>
               </motion.div>
             </div>
           </section>

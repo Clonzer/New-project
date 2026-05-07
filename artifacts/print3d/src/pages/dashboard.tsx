@@ -1190,7 +1190,7 @@ export default function Dashboard() {
   const totalFeesPaid = (mySales?.orders ?? []).reduce((sum, o) => sum + o.platformFee, 0);
   const averageOrderValue = (mySales?.orders ?? []).length ? totalRevenue / (mySales?.orders ?? []).length : 0;
   const activeEquipmentCount = myPrinters?.filter((printer) => printer.is_active).length ?? 0;
-  const totalCatalogItems = myListings?.listings.length ?? 0;
+  const totalCatalogItems = myListings?.listings?.length ?? 0;
 
   if (!user) {
     return (
@@ -1538,7 +1538,7 @@ export default function Dashboard() {
                       My Store
                     </h2>
                     <Listings
-                      myListings={myListings}
+                      myListings={myListings || { listings: [] }}
                       handleDeleteListing={handleDeleteListing}
                     />
                   </div>

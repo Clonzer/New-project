@@ -467,9 +467,9 @@ export default function Contests() {
           >
             <div className="flex items-center justify-center gap-3 mb-4">
               <Target className="w-8 h-8 text-primary" />
-              <h1 className="text-4xl md:text-5xl font-display font-bold text-white">
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
                 Performance Contests
-              </h1>
+              </h2>
               <Target className="w-8 h-8 text-primary" />
             </div>
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
