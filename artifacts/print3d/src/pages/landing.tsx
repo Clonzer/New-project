@@ -66,34 +66,6 @@ export default function Landing() {
       
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
-          {/* Marketplace Header */}
-          <section className="bg-gradient-to-br from-zinc-900 via-purple-900/20 to-zinc-900 border-b border-zinc-800">
-            <div className="container mx-auto px-4 py-16">
-              <div className="max-w-4xl mx-auto text-center">
-                <h1 className="text-5xl md:text-6xl font-black text-white mb-6">
-                  3D Printing <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Marketplace</span>
-                </h1>
-              </div>
-                
-                {/* Search Bar */}
-                <div className="max-w-2xl mx-auto mb-12">
-                  <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-zinc-400" />
-                    <input
-                      type="text"
-                      placeholder="Search products, services, or makers..."
-                      className="w-full pl-14 pr-36 py-5 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-zinc-400 text-lg focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all"
-                    />
-                    <Link href="/search">
-                      <Button className="absolute right-3 top-1/2 transform -translate-y-1/2 px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl transition-all text-lg">
-                        Search
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-          </section>
-
           {/* Categories Section */}
           <section className="py-12 bg-zinc-900/30">
             <div className="container mx-auto px-4">
@@ -105,12 +77,12 @@ export default function Landing() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {[
-                  { name: "3D Printing", icon: "🖨️", color: "from-blue-500 to-cyan-500" },
-                  { name: "Laser Cutting", icon: "⚡", color: "from-yellow-500 to-orange-500" },
-                  { name: "CNC Machining", icon: "⚙️", color: "from-purple-500 to-pink-500" },
-                  { name: "3D Scanning", icon: "📷", color: "from-green-500 to-emerald-500" },
-                  { name: "Design Services", icon: "🎨", color: "from-pink-500 to-rose-500" },
-                  { name: "Assembly", icon: "🔧", color: "from-indigo-500 to-blue-500" }
+                  { name: "3D Printing", color: "from-blue-500 to-cyan-500" },
+                  { name: "Laser Cutting", color: "from-yellow-500 to-orange-500" },
+                  { name: "CNC Machining", color: "from-purple-500 to-pink-500" },
+                  { name: "3D Scanning", color: "from-green-500 to-emerald-500" },
+                  { name: "Design Services", color: "from-pink-500 to-rose-500" },
+                  { name: "Assembly", color: "from-indigo-500 to-blue-500" }
                 ].map((category, index) => (
                   <motion.div
                     key={index}
@@ -121,7 +93,6 @@ export default function Landing() {
                     className="group cursor-pointer"
                   >
                     <div className={`bg-gradient-to-br ${category.color} p-6 rounded-2xl border border-zinc-800/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
-                      <div className="text-3xl mb-3">{category.icon}</div>
                       <h3 className="text-white font-semibold text-sm">{category.name}</h3>
                     </div>
                   </motion.div>
