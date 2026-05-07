@@ -92,7 +92,7 @@ export default function Landing() {
         <main className="flex-grow">
           {/* Featured Products Section */}
           <section className="bg-zinc-950">
-            <div className="container mx-auto px-4 py-16">
+            <div className="container mx-auto px-4 pt-8 pb-16">
               {/* Filter Selector */}
               <div className="flex justify-end mb-8">
                 <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg p-1">
@@ -122,7 +122,7 @@ export default function Landing() {
                   >
                     <Link href={item.link}>
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : 'aspect-[4/3]'}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
@@ -213,7 +213,7 @@ export default function Landing() {
                   >
                     <Link href={item.link}>
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === 'maker' ? 'md:col-span-2' : ''}`}>
-                        <div className={`aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : ''}`}>
+                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === 'maker' ? 'md:aspect-[2/1]' : 'aspect-[4/3]'}`}>
                           {item.image ? (
                             <img 
                               src={item.image} 
