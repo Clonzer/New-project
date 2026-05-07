@@ -9,7 +9,11 @@ import {
   ChevronRight,
   Shield,
   Package,
-  Crown
+  Crown,
+  TrendingUp,
+  Zap,
+  Award,
+  Sparkles
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -90,12 +94,103 @@ export default function Landing() {
       
       <div className="min-h-screen flex flex-col bg-zinc-950">
         <main className="flex-grow">
+          {/* Hero Section */}
+          <section className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 relative overflow-hidden">
+            <div className="container mx-auto px-4 py-16">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div className="text-center lg:text-left">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                      <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+                        Transform Your Ideas
+                      </span>
+                      <br />
+                      <span className="text-2xl md:text-3xl lg:text-4xl text-zinc-300">Into Reality</span>
+                    </h1>
+                    <p className="text-lg text-zinc-300 mb-8 max-w-2xl">
+                      Connect with verified makers and bring your concepts to life through cutting-edge 3D printing, laser cutting, and CNC machining services.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button className="bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-pink-500/25">
+                        <Zap className="w-5 h-5 mr-2" />
+                        Explore Marketplace
+                      </Button>
+                      <Button variant="outline" className="border-zinc-600 hover:bg-zinc-800 text-zinc-300 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300">
+                        <Crown className="w-5 h-5 mr-2" />
+                        Become a Maker
+                      </Button>
+                    </div>
+                  </motion.div>
+                </div>
+                
+                <div className="hidden lg:block">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                  >
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl"></div>
+                      <div className="relative bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-700">
+                        <div className="grid grid-cols-3 gap-6 text-center">
+                          <div>
+                            <div className="bg-zinc-900 rounded-xl p-4 mb-4">
+                              <TrendingUp className="w-8 h-8 text-pink-500 mx-auto mb-2" />
+                              <div className="text-3xl font-bold text-white">10K+</div>
+                              <div className="text-zinc-400 text-sm">Active Makers</div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="bg-zinc-900 rounded-xl p-4 mb-4">
+                              <Package className="w-8 h-8 text-cyan-500 mx-auto mb-2" />
+                              <div className="text-3xl font-bold text-white">50K+</div>
+                              <div className="text-zinc-400 text-sm">Products Listed</div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="bg-zinc-900 rounded-xl p-4">
+                              <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                              <div className="text-3xl font-bold text-white">4.9★</div>
+                              <div className="text-zinc-400 text-sm">Avg Rating</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Featured Products Section */}
           <section className="bg-zinc-950">
             <div className="container mx-auto px-4 pt-8 pb-16">
-              {/* Filter Bar */}
-              <div className="mb-6">
-                <div className="flex flex-wrap gap-2 items-center justify-between">
+              {/* Featured Section */}
+              <div className="mb-8">
+                <div className="text-center mb-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full mb-4">
+                      <Sparkles className="w-5 h-5" />
+                      <span className="font-bold">Featured This Week</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-4">
+                      Trending Designs & Top Rated Shops
+                    </h2>
+                  </motion.div>
+                </div>
+
+                {/* Filter Bar */}
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2 items-center justify-between">
                   <div className="flex flex-wrap gap-2">
                     <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
                       <span className="text-zinc-400 text-sm font-medium">Type:</span>
@@ -136,10 +231,17 @@ export default function Landing() {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <button className="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg text-sm transition-colors">
-                      <Search className="w-4 h-4 mr-2" />
-                      Search
-                    </button>
+                    <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
+                      <span className="text-zinc-400 text-sm font-medium">Price Range:</span>
+                      <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
+                        <option value="all">All Prices</option>
+                        <option value="0-25">$0 - $25</option>
+                        <option value="25-50">$25 - $50</option>
+                        <option value="50-100">$50 - $100</option>
+                        <option value="100-200">$100 - $200</option>
+                        <option value="200+">$200+</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
