@@ -22,8 +22,80 @@ export default function Landing() {
   const users = useListUsers();
   const [filterType, setFilterType] = useState("all");
 
+  // Debug logging
+  console.log('Listings data:', listings.data);
+  console.log('Users data:', users.data);
+
+  // Fallback placeholder data when no real data is available
+  const placeholderListings = [
+    {
+      id: 'placeholder-1',
+      type: 'product',
+      title: 'Custom 3D Printed Miniature',
+      subtitle: '$29.99',
+      image: 'https://picsum.photos/seed/miniature/400/400.jpg',
+      rating: '4.8',
+      views: '234',
+      sellerName: '3D Printing Pro',
+      link: '#'
+    },
+    {
+      id: 'placeholder-2',
+      type: 'product',
+      title: 'Laser Cut Signage',
+      subtitle: '$89.99',
+      image: 'https://picsum.photos/seed/sign/400/400.jpg',
+      rating: '4.9',
+      views: '156',
+      sellerName: 'Laser Cutting Studio',
+      link: '#'
+    },
+    {
+      id: 'placeholder-3',
+      type: 'product',
+      title: 'CNC Machined Components',
+      subtitle: '$129.99',
+      image: 'https://picsum.photos/seed/cnc/400/400.jpg',
+      rating: '4.7',
+      views: '89',
+      sellerName: 'CNC Machining Co',
+      link: '#'
+    }
+  ];
+
+  const placeholderUsers = [
+    {
+      id: 'placeholder-user-1',
+      type: 'maker',
+      title: '3D Printing Pro',
+      subtitle: 'Premium 3D Printing Services',
+      rating: '4.8',
+      orders: '156',
+      link: '#'
+    },
+    {
+      id: 'placeholder-user-2',
+      type: 'maker',
+      title: 'Laser Cutting Studio',
+      subtitle: 'Precision Laser Cutting',
+      rating: '4.9',
+      orders: '234',
+      link: '#'
+    },
+    {
+      id: 'placeholder-user-3',
+      type: 'maker',
+      title: 'CNC Machining Co',
+      subtitle: 'Industrial CNC Services',
+      rating: '4.7',
+      orders: '89',
+      link: '#'
+    }
+  ];
+
   // Combine and mix listings and users
   const marketplaceItems = [
+    // Real listings if available, otherwise use placeholders
     ...(listings.data?.listings?.slice(0, 6).map(listing => ({
       ...listing,
       type: 'product',
@@ -34,7 +106,9 @@ export default function Landing() {
       views: listing.views || "234",
       sellerName: users.data?.users?.find(u => u.id === listing.user_id)?.displayName || users.data?.users?.find(u => u.id === listing.user_id)?.name,
       link: `/listings/${listing.id}`
-    })) || []),
+    })) || (listings.data?.listings?.length === 0 ? [] : placeholderListings)),
+    
+    // Real users if available, otherwise use placeholders
     ...(users.data?.users?.slice(0, 6).map((user, index) => ({
       ...user,
       type: 'maker',
@@ -43,14 +117,14 @@ export default function Landing() {
       rating: user.rating || "4.8",
       orders: user.orders || "156",
       link: `/shop/${user.id}`
-    })) || [])
+    })) || (users.data?.users?.length === 0 ? [] : placeholderUsers))
   ].sort(() => Math.random() - 0.5).slice(0, 8); // Shuffle and limit to 8 items
 
   // Filter items based on type
   const filteredItems = marketplaceItems.filter(item => {
     if (filterType === "shops") return item.type === "maker";
     if (filterType === "models") return item.type === "product";
-    return true; // Show all
+    return true; // Show all (both products and shops)
   });
 
   return (
@@ -95,7 +169,7 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Categories Row */}
+              {/* Categories */}
               <div className="mb-8">
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                   {[
@@ -178,71 +252,6 @@ export default function Landing() {
                               </div>
                             </div>
                             <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Sponsored Products Section */}
-          <section className="py-16 bg-gradient-to-br from-zinc-900 via-purple-900/20 to-zinc-900">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 mb-4">
-                  <Crown className="w-6 h-6 text-yellow-400" />
-                  <h2 className="text-3xl font-bold text-white">
-                    Sponsored <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">Products</span>
-                  </h2>
-                  <Crown className="w-6 h-6 text-yellow-400" />
-                </div>
-                <p className="text-zinc-400">Premium items from verified sellers</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {marketplaceItems.slice(6, 10).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    className="group"
-                  >
-                    <Link href={item.link}>
-                      <div className="relative bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 border border-yellow-500/30 rounded-2xl overflow-hidden hover:border-yellow-400/50 transition-all duration-300">
-                        {/* Sponsored Badge */}
-                        <div className="absolute top-3 right-3 z-10">
-                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
-                            <Crown className="w-3 h-3 mr-1" />
-                            Sponsored
-                          </Badge>
-                        </div>
-                        <div className="aspect-square bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
-                          {item.image ? (
-                            <img 
-                              src={item.image} 
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-12 h-12 text-zinc-600" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-white font-bold text-sm mb-2 line-clamp-2">{item.title}</h3>
-                          <p className="text-zinc-400 text-xs mb-3">{item.subtitle}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                              <span className="text-white text-xs font-medium">{item.rating}</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-yellow-400 transition-colors" />
                           </div>
                         </div>
                       </div>

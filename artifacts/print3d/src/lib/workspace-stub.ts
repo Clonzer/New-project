@@ -385,11 +385,73 @@ export function useUpdateUser(): MutationReturn {
 }
 
 export function useListUsers() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Fetch sellers who have completed store setup
+        const { data: sellersData, error: sellersError } = await supabase
+          .from('sellers')
+          .select('*')
+          .eq('store_setup_complete', true)
+          .order('created_at', { ascending: false });
+
+        if (sellersError) throw sellersError;
+
+        const sellers = sellersData || [];
+        
+        // If we have sellers, fetch their profiles separately
+        const userIds = sellers.map(s => s.user_id).filter(Boolean);
+        let profilesMap = new Map();
+        
+        if (userIds.length > 0) {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', userIds);
+          
+          if (!profilesResult.error && profilesResult.data) {
+            profilesResult.data.forEach((profile: any) => {
+              profilesMap.set(profile.id, profile);
+            });
+          }
+        }
+
+        // Transform sellers to user format for the landing page
+        const transformedUsers = sellers.map((seller: any) => {
+          const profile = profilesMap.get(seller.user_id) || {};
+          return {
+            id: seller.id,
+            user_id: seller.user_id,
+            name: profile.display_name || seller.store_name || 'Unnamed Shop',
+            displayName: profile.display_name || seller.store_name || 'Unnamed Shop',
+            role: profile.role || 'seller',
+            rating: '4.8', // Default rating
+            orders: '156', // Default orders
+            avatar: profile.avatar_url || '',
+            avatar_url: profile.avatar_url || '',
+            shop_name: seller.store_name || profile.display_name || 'Unnamed Shop',
+          };
+        });
+
+        setData({ users: transformedUsers });
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        setError(err as Error);
+        setData({ users: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  return { data, isLoading, error };
 }
 
 export function useListListings(options?: { limit?: number; offset?: number; sellerId?: string; userId?: string }) {
