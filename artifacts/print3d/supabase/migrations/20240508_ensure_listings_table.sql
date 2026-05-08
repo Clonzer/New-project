@@ -3,7 +3,7 @@
 
 -- Create listings table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.listings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT,

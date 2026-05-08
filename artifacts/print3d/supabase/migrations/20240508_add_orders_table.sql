@@ -3,7 +3,7 @@
 
 -- Create orders table for regular product orders
 CREATE TABLE IF NOT EXISTS public.orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     buyer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     seller_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     listing_id UUID REFERENCES public.listings(id) ON DELETE CASCADE,
