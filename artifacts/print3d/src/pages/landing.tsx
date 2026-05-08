@@ -162,15 +162,15 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Vertical Icon Bar */}
+              {/* Enhanced Vertical Icon Bar */}
               <div className="mb-6 relative">
                 <motion.div 
-                  className="fixed left-0 top-20 z-50 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-r-lg p-2"
-                  initial={{ width: "40px", height: "auto" }}
-                  whileHover={{ width: "200px" }}
+                  className="fixed left-0 top-0 z-50 bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-sm border-r border-zinc-700 p-2"
+                  initial={{ width: "50px", height: "100vh" }}
+                  whileHover={{ width: "250px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-2 overflow-hidden max-h-[calc(100vh-120px)] overflow-y-auto">
+                  <div className="flex flex-col gap-1 h-full overflow-y-auto py-4">
                     {/* Filter button - opens full sidebar */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors"
@@ -180,10 +180,10 @@ export default function Landing() {
                       <span className="text-white text-sm whitespace-nowrap">Filters</span>
                     </div>
                     
-                    {/* Direct filter options */}
+                    {/* Enhanced Navigation Tabs */}
                     <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
-                        filterType === "all" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
+                        filterType === "all" ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500"
                       }`}
                       onClick={() => setFilterType("all")}
                     >
@@ -192,8 +192,8 @@ export default function Landing() {
                     </div>
                     
                     <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
-                        filterType === "shops" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
+                        filterType === "shops" ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500"
                       }`}
                       onClick={() => setFilterType("shops")}
                     >
@@ -202,13 +202,76 @@ export default function Landing() {
                     </div>
                     
                     <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
-                        filterType === "models" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
+                        filterType === "models" ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-500"
                       }`}
                       onClick={() => setFilterType("models")}
                     >
                       <Package className="w-5 h-5 min-w-[20px]" />
                       <span className="text-sm whitespace-nowrap">Items</span>
+                    </div>
+
+                    {/* New Category Tabs */}
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-500">
+                      <Zap className="w-5 h-5 min-w-[20px] text-orange-400" />
+                      <span className="text-sm whitespace-nowrap">Laser</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500">
+                      <Wrench className="w-5 h-5 min-w-[20px] text-purple-400" />
+                      <span className="text-sm whitespace-nowrap">CNC</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-blue-500">
+                      <Cpu className="w-5 h-5 min-w-[20px] text-indigo-400" />
+                      <span className="text-sm whitespace-nowrap">Electronics</span>
+                    </div>
+
+                    {/* Navigation Tabs */}
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-orange-500">
+                      <Home className="w-5 h-5 min-w-[20px] text-yellow-400" />
+                      <span className="text-sm whitespace-nowrap">Home</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-teal-500 hover:to-green-500">
+                      <Info className="w-5 h-5 min-w-[20px] text-teal-400" />
+                      <span className="text-sm whitespace-nowrap">About</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500">
+                      <Mail className="w-5 h-5 min-w-[20px] text-red-400" />
+                      <span className="text-sm whitespace-nowrap">Contact</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500">
+                      <DollarSign className="w-5 h-5 min-w-[20px] text-cyan-400" />
+                      <span className="text-sm whitespace-nowrap">Pricing</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-500 hover:to-purple-500">
+                      <HelpCircle className="w-5 h-5 min-w-[20px] text-violet-400" />
+                      <span className="text-sm whitespace-nowrap">Help</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500">
+                      <FileText className="w-5 h-5 min-w-[20px] text-emerald-400" />
+                      <span className="text-sm whitespace-nowrap">Blog</span>
+                    </div>
+
+                    {/* Special Features */}
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-amber-500 hover:to-yellow-500">
+                      <Star className="w-5 h-5 min-w-[20px] text-amber-400" />
+                      <span className="text-sm whitespace-nowrap">Featured</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-rose-500 hover:to-pink-500">
+                      <TrendingUp className="w-5 h-5 min-w-[20px] text-rose-400" />
+                      <span className="text-sm whitespace-nowrap">Trending</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-slate-500 hover:to-gray-500">
+                      <Settings className="w-5 h-5 min-w-[20px] text-slate-400" />
+                      <span className="text-sm whitespace-nowrap">Settings</span>
                     </div>
                     
                     {/* Category shortcuts */}
