@@ -172,7 +172,7 @@ export default function Landing() {
                   whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-2 h-full overflow-y-auto py-3">
+                  <div className="flex flex-col gap-2 h-full overflow-y-auto py-3" style={{scrollbarWidth: 'thin', scrollbarColor: '#52734D #27272a'}}>
                     {/* Filter button - opens full sidebar */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden"
@@ -183,10 +183,10 @@ export default function Landing() {
                     </div>
                     
                     {/* Price Filter Section */}
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
                       <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                      <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
-                      <ChevronDown className="w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200" />
+                      <span className="text-white text-xs whitespace-nowrap">Price Range</span>
+                      <ChevronDown className="w-3 h-3 text-zinc-400" />
                     </div>
 
                     {/* Main Filters */}
