@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { Button } from "@/components/ui/button";
@@ -61,8 +60,6 @@ export default function Contact() {
       />
       <MarketplaceStructuredData />
       <div className="min-h-screen flex flex-col">
-        <Navbar />
-
         <main className="flex-grow">
           <section className="relative overflow-hidden pb-16 pt-32 text-center">
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.12),transparent_50%)]" />

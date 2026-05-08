@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { ChevronDown, ChevronUp, HelpCircle, Search } from "lucide-react";
@@ -183,8 +182,6 @@ export default function Help() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background">
-      <Navbar />
-
       <main className="flex-grow">
         <section className="relative pt-16 pb-20">
           <AnimatedGradientBg />

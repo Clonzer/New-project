@@ -27,7 +27,25 @@ import {
   Settings,
   HelpCircle,
   FileText,
-  MessageSquare
+  MessageSquare,
+  Wrench,
+  Cpu,
+  Palette,
+  Scissors,
+  Hammer,
+  Brush,
+  Camera,
+  Music,
+  Gamepad2,
+  Car,
+  Heart,
+  Bone,
+  Building,
+  Factory,
+  Truck,
+  ShoppingBag,
+  Gift,
+  Tag
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -252,19 +270,67 @@ export default function Landing() {
                         <div className="grid grid-cols-4 gap-3">
                           <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
                             <Package className="w-5 h-5" />
-                            <span className="text-xs">3D</span>
+                            <span className="text-xs">3D Print</span>
                           </button>
                           <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
                             <Zap className="w-5 h-5" />
                             <span className="text-xs">Laser</span>
                           </button>
                           <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Settings className="w-5 h-5" />
+                            <Wrench className="w-5 h-5" />
                             <span className="text-xs">CNC</span>
                           </button>
                           <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
                             <Eye className="w-5 h-5" />
-                            <span className="text-xs">Scan</span>
+                            <span className="text-xs">3D Scan</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Cpu className="w-5 h-5" />
+                            <span className="text-xs">Electronics</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Palette className="w-5 h-5" />
+                            <span className="text-xs">Design</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Hammer className="w-5 h-5" />
+                            <span className="text-xs">Tools</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Brush className="w-5 h-5" />
+                            <span className="text-xs">Art</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Camera className="w-5 h-5" />
+                            <span className="text-xs">Photo</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Music className="w-5 h-5" />
+                            <span className="text-xs">Audio</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Gamepad2 className="w-5 h-5" />
+                            <span className="text-xs">Gaming</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Car className="w-5 h-5" />
+                            <span className="text-xs">Auto</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Heart className="w-5 h-5" />
+                            <span className="text-xs">Medical</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Bone className="w-5 h-5" />
+                            <span className="text-xs">Dental</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Building className="w-5 h-5" />
+                            <span className="text-xs">Arch</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Factory className="w-5 h-5" />
+                            <span className="text-xs">Industrial</span>
                           </button>
                         </div>
                       </div>

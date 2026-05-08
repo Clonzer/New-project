@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -83,8 +82,6 @@ export default function About() {
       />
       <MarketplaceStructuredData />
       <div className="min-h-screen flex flex-col">
-        <Navbar />
-        
         <main className="flex-grow">
           {/* Hero Section */}
           <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 overflow-hidden">
