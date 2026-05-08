@@ -165,13 +165,78 @@ export default function Landing() {
 
               {/* Collapsible Filter Sidebar */}
               <div className="mb-6 relative">
-                {/* Sidebar Toggle Button */}
-                <div 
-                  className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 bg-zinc-800 border border-zinc-700 rounded-r-lg p-2 cursor-pointer group"
+                {/* Vertical Icon Toggle Bar */}
+                <motion.div 
+                  className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-r-lg p-2"
                   onMouseEnter={() => setIsSidebarOpen(true)}
+                  initial={{ width: "40px" }}
+                  whileHover={{ width: "200px" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <ChevronRight className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
-                </div>
+                  <div className="flex flex-col gap-3 overflow-hidden">
+                    {/* Filter button - opens full sidebar */}
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors"
+                      onMouseEnter={() => setIsSidebarOpen(true)}
+                    >
+                      <Filter className="w-5 h-5 text-zinc-300 min-w-[20px]" />
+                      <span className="text-white text-sm whitespace-nowrap">Filters</span>
+                    </div>
+                    
+                    {/* Direct filter options */}
+                    <div 
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                        filterType === "all" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      }`}
+                      onClick={() => setFilterType("all")}
+                    >
+                      <Grid3x3 className="w-5 h-5 min-w-[20px]" />
+                      <span className="text-sm whitespace-nowrap">All</span>
+                    </div>
+                    
+                    <div 
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                        filterType === "shops" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      }`}
+                      onClick={() => setFilterType("shops")}
+                    >
+                      <Users className="w-5 h-5 min-w-[20px]" />
+                      <span className="text-sm whitespace-nowrap">Shops</span>
+                    </div>
+                    
+                    <div 
+                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                        filterType === "models" ? "bg-pink-600 text-white" : "hover:bg-zinc-700"
+                      }`}
+                      onClick={() => setFilterType("models")}
+                    >
+                      <Package className="w-5 h-5 min-w-[20px]" />
+                      <span className="text-sm whitespace-nowrap">Items</span>
+                    </div>
+                    
+                    {/* Category shortcuts */}
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
+                      <Package className="w-5 h-5 text-zinc-300 min-w-[20px]" />
+                      <span className="text-white text-sm whitespace-nowrap">3D Print</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
+                      <Zap className="w-5 h-5 text-zinc-300 min-w-[20px]" />
+                      <span className="text-white text-sm whitespace-nowrap">Laser</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
+                      <Wrench className="w-5 h-5 text-zinc-300 min-w-[20px]" />
+                      <span className="text-white text-sm whitespace-nowrap">CNC</span>
+                    </div>
+                    
+                    {/* Navigation */}
+                    <Link href="/" className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
+                      <Home className="w-5 h-5 text-zinc-300 min-w-[20px]" />
+                      <span className="text-white text-sm whitespace-nowrap">Home</span>
+                    </Link>
+                  </div>
+                </motion.div>
 
                 {/* Sidebar */}
                 <motion.div
