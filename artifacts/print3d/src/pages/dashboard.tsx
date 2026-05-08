@@ -15,7 +15,7 @@ import {
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
   Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
   ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt, Briefcase,
-  HelpCircle,
+  HelpCircle, Heart,
 } from "lucide-react";
 import {
   EQUIPMENT_CATEGORY_CHOICES,
@@ -1629,17 +1629,51 @@ export default function Dashboard() {
               </TabsContent>
             )}
 
-            {/* Orders Tab */}
+            {/* Orders Tab - Redirect to Dashboard */}
             {user?.id && (
               <TabsContent value="orders" className="mt-0">
-                <Orders user={user} />
+                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10 bg-white/5">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Package className="w-5 h-5 text-primary" />
+                      Orders
+                    </h2>
+                    <p className="text-zinc-400 mt-1">Your orders are now managed from the main dashboard</p>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-zinc-500 mb-4">Please navigate to the main dashboard to manage your orders.</p>
+                    <Button 
+                      onClick={() => setDefaultTab("store-orders")}
+                      className="bg-primary text-white hover:bg-primary/90"
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
             )}
 
-            {/* Favorites Tab */}
+            {/* Favorites Tab - Redirect to Dashboard */}
             {user?.id && (
               <TabsContent value="favorites" className="mt-0">
-                <Favorites />
+                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10 bg-white/5">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-primary" />
+                      Favorites
+                    </h2>
+                    <p className="text-zinc-400 mt-1">Your favorites are now managed from the main dashboard</p>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-zinc-500 mb-4">Please navigate to the main dashboard to manage your favorites.</p>
+                    <Button 
+                      onClick={() => setDefaultTab("store-orders")}
+                      className="bg-primary text-white hover:bg-primary/90"
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
             )}
 

@@ -33,7 +33,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      <Navbar />
       <main className="pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">

@@ -201,8 +201,7 @@ export default function Messages() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-grow flex items-center justify-center text-zinc-400">
+          <div className="flex-grow flex items-center justify-center text-zinc-400">
           Please sign in to view messages.
         </div>
       </div>
@@ -211,7 +210,6 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow pt-8 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <h1 className="text-3xl font-display font-bold text-white mb-6 flex items-center gap-3">

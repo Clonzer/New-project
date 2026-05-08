@@ -70,7 +70,6 @@ export default function Listings() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
 
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4">
