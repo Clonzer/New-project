@@ -1,10 +1,7 @@
 // Sitemap generation utility for Synthix marketplace
 // This generates an XML sitemap for search engines
 
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { supabase } from "@/lib/supabase";
 
 interface SitemapUrl {
   loc: string;
@@ -49,9 +46,7 @@ ${urlEntries}
 
 // Fetch all active vendor shops
 async function fetchVendorShops(): Promise<SitemapUrl[]> {
-  if (!supabaseUrl || !supabaseKey) return [];
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  if (!supabase) return [];
   
   const { data: shops, error } = await supabase
     .from("profiles")
@@ -71,9 +66,7 @@ async function fetchVendorShops(): Promise<SitemapUrl[]> {
 
 // Fetch all active product listings
 async function fetchProductListings(): Promise<SitemapUrl[]> {
-  if (!supabaseUrl || !supabaseKey) return [];
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  if (!supabase) return [];
   
   const { data: listings, error } = await supabase
     .from("listings")
@@ -93,9 +86,7 @@ async function fetchProductListings(): Promise<SitemapUrl[]> {
 
 // Fetch all equipment/printer listings
 async function fetchEquipmentListings(): Promise<SitemapUrl[]> {
-  if (!supabaseUrl || !supabaseKey) return [];
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  if (!supabase) return [];
   
   const { data: printers, error } = await supabase
     .from("printers")
@@ -108,7 +99,7 @@ async function fetchEquipmentListings(): Promise<SitemapUrl[]> {
   return printers.map((printer) => ({
     loc: `https://synthix.com/equipment/${printer.id}`,
     lastmod: printer.updated_at ? new Date(printer.updated_at).toISOString().split("T")[0] : undefined,
-    changefreq: "weekly",
+    changefreq: "daily",
     priority: 0.7,
   }));
 }

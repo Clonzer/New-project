@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { DollarSign, Clock, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const supabaseUrl = (globalThis as any).VITE_SUPABASE_URL || 'https://hegixxfxymvwlcenuewx.supabase.co';
 const supabaseAnonKey = (globalThis as any).VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ2l4eGZ4eW12d2xjZW51ZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjM2NzQsImV4cCI6MjA5MTQzOTY3NH0.dsnhzsHb9H9WyL20rnKNA6inp6NE8WNE--Q2-JejKMs';
@@ -31,9 +32,7 @@ export default function CustomOrderPayment() {
   const fetchRequest = async () => {
     try {
       setLoading(true);
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+      
       const { data, error } = await supabase
         .from('custom_order_requests')
         .select('*')
@@ -83,9 +82,7 @@ export default function CustomOrderPayment() {
       setIsSubmitting(true);
 
       // Update request status to accepted
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+      
       const { error: updateError } = await supabase
         .from('custom_order_requests')
         .update({ status: 'accepted', accepted_at: new Date().toISOString() })
@@ -128,9 +125,7 @@ export default function CustomOrderPayment() {
     if (!request) return;
 
     try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+      
       const { error } = await supabase
         .from('custom_order_requests')
         .update({ status: 'rejected' })
