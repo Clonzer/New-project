@@ -1269,11 +1269,6 @@ export default function Dashboard() {
           {/* Header */}
           <div className="glass-panel rounded-xl sm:rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col gap-4 sm:gap-6">
-              {/* Logo Row */}
-              <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
-              </div>
-
               {/* Welcome Row */}
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="flex-1 min-w-0">

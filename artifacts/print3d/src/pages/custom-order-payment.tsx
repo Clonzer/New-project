@@ -157,7 +157,6 @@ export default function CustomOrderPayment() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-white">Loading...</div>
         </main>
@@ -168,7 +167,6 @@ export default function CustomOrderPayment() {
   if (!request) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-white">Request not found</div>
         </main>

@@ -261,7 +261,6 @@ export default function ContestDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-white">Loading contest...</div>
         </main>
@@ -272,7 +271,6 @@ export default function ContestDetail() {
   if (!contest) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-white">Contest not found</div>
         </main>

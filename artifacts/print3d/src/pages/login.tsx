@@ -51,7 +51,6 @@ export default function Login() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <Navbar />
         <div className="flex-grow flex items-center justify-center text-zinc-400">Loading…</div>
       </div>
     );

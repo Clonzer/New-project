@@ -171,10 +171,10 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-pink-500/25"
+                className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-gradient-to-r from-orange-500/20 to-orange-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-orange-500/25"
               >
                 <Sparkles className="w-4 h-4 text-pink-300" />
-                <span className="bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">Storefront marketplace</span>
+                <span className="bg-gradient-to-r from-orange-300 to-orange-400 bg-clip-text text-transparent">Storefront marketplace</span>
               </motion.span>
               <motion.h1 
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -206,7 +206,7 @@ export default function Home() {
                 <motion.span 
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold"
+                  className="bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent font-bold"
                 >
                   The easiest way to bring your ideas to life.
                 </motion.span>
@@ -244,9 +244,9 @@ export default function Home() {
                     <Button 
                       size="lg" 
                       variant="outline" 
-                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:text-purple-200 backdrop-blur-sm transition-all duration-300 relative overflow-hidden group"
+                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl border-2 border-orange-500/50 text-orange-300 hover:bg-orange-500/10 hover:border-orange-400 hover:text-orange-200 backdrop-blur-sm transition-all duration-300 relative overflow-hidden group"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-orange-500/20 to-orange-500/20 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
                       <span className="relative z-10">Browse catalog</span>
                     </Button>
                   </Link>
@@ -268,7 +268,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <Badge variant="glass" className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+              <Badge variant="glass" className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Discover
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
@@ -293,7 +293,7 @@ export default function Home() {
                       </div>
                       <h3 className="text-3xl font-black text-white mb-3">Explore All Shops</h3>
                       <p className="text-zinc-200 mb-6 text-lg font-medium">Discover verified makers and their equipment</p>
-                      <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-pink-500/30 transition-all border-0">
+                      <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-orange-500/30 transition-all border-0">
                         Browse Shops <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </CardContent>
@@ -327,7 +327,7 @@ export default function Home() {
 
         {/* Section 2: Enhanced Features with Stats */}
         <section className="py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-pink-900/10 to-transparent opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-orange-800/10 to-transparent opacity-30" />
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -335,7 +335,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Crown className="w-3 h-3 mr-1" /> Platform Features
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">

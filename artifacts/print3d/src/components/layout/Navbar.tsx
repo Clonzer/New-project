@@ -113,7 +113,7 @@ export function Navbar() {
       <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
         <div className="flex items-center gap-6 flex-shrink-0">
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="font-display font-extrabold text-lg sm:text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-all duration-300">
+            <span className="font-display font-extrabold text-lg sm:text-xl tracking-wider text-white group-hover:drop-shadow-[0_0_15px_rgba(251,146,60,0.8)] transition-all duration-300">
               SYNTHIX
             </span>
             <span className="hidden sm:inline rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -122,16 +122,6 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
-            <Link
-              href="/explore-all"
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
-                isActive("/explore-all")
-                  ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              Explore
-            </Link>
             <Link
               href="/discover"
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 relative ${
@@ -409,7 +399,6 @@ export function Navbar() {
               <div className="space-y-1">
                 <p className="text-xs text-zinc-500 uppercase tracking-wider px-3 py-2">Main</p>
                 {[
-                  { path: "/explore-all", label: "Explore", icon: Search },
                   { path: "/discover", label: "Discover", icon: MessageSquare },
                   { path: "/contests", label: "Contests", icon: Crown },
                   { path: "/service-marketplace", label: "Custom Orders", icon: MessageSquare },

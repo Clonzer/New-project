@@ -232,7 +232,6 @@ export default function ServiceRequestDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -244,7 +243,6 @@ export default function ServiceRequestDetail() {
   if (!request) {
     return (
       <div className="min-h-screen bg-zinc-950">
-        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Card className="bg-zinc-900/50 border-zinc-800">
             <CardContent className="p-8 text-center">

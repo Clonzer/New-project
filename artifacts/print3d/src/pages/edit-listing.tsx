@@ -313,7 +313,6 @@ export default function EditListing() {
   if (isLoadingListing || !formData) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow pt-12 pb-24">
           <div className="container mx-auto px-4 text-center">
             <div className="text-white">Loading listing...</div>
@@ -327,7 +326,6 @@ export default function EditListing() {
   if (!listing || listing.sellerId !== user?.id) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow pt-12 pb-24">
           <div className="container mx-auto px-4 text-center">
             <div className="text-red-400">Listing not found or access denied</div>

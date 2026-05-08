@@ -40,7 +40,6 @@ export default function ListingDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-        <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="max-w-7xl mx-auto">
             <Skeleton className="h-96 w-full mb-8" />
@@ -57,7 +56,6 @@ export default function ListingDetail() {
   if (error || !listing) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-        <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-2xl font-bold text-white mb-4">Listing not found</h1>

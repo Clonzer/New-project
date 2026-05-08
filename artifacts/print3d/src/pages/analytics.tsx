@@ -237,7 +237,6 @@ export default function Analytics() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow">
           <section className="container mx-auto px-4 pb-24 pt-12">
             <div className="space-y-6">
@@ -259,7 +258,6 @@ export default function Analytics() {
   if (!data) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow">
           <section className="container mx-auto px-4 pb-24 pt-12">
             <div className="text-center py-12">
