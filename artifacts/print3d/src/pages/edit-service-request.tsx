@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -313,7 +312,6 @@ export default function EditServiceRequest() {
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      <Navbar />
       
       <div className="container mx-auto px-4 max-w-7xl py-8">
         {/* Header */}

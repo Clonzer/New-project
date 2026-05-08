@@ -35,7 +35,6 @@ import {
   Target,
   Zap
 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -277,7 +276,6 @@ export default function Analytics() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow">
         <section className="container mx-auto px-4 pb-24 pt-12">
           {/* Header */}

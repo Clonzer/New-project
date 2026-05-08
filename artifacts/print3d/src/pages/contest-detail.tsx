@@ -19,7 +19,6 @@ import {
   Upload,
   Sparkles
 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Badge } from "@/components/ui/badge";
@@ -286,7 +285,6 @@ export default function ContestDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
 
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-6xl">

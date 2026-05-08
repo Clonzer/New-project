@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,7 +34,6 @@ export default function Admin() {
   if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
@@ -92,8 +90,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">

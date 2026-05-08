@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/Navbar";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -11,7 +10,6 @@ import {
 export default function DashboardHelp() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      <Navbar />
       
       <main className="container mx-auto px-4 pt-24 pb-16">
         <motion.div

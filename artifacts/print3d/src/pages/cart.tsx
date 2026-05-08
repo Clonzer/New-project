@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -132,7 +131,6 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
 
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-5xl">

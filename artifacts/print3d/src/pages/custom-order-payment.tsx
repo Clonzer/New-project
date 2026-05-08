@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useSearch, useLocation } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
 import { useAuth } from "@/hooks/use-auth";
@@ -180,7 +179,6 @@ export default function CustomOrderPayment() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="mb-8">

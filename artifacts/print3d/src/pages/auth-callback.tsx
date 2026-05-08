@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from "@/components/layout/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
@@ -72,7 +71,6 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950">
-      <Navbar />
 
       <main className="flex-grow flex items-center justify-center">
         <div className="text-center p-8">
