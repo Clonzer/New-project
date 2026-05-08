@@ -12,14 +12,14 @@ export function Listings({ myListings, handleDeleteListing }) {
   const listingCount = myListings?.listings?.length || 0;
   const createCheck = canCreateListing(user, listingCount);
   const remaining = getRemainingListings(user, listingCount);
-  const limits = getPlanLimits(user?.planTier);
+  const limits = getPlanLimits(user?.planTier) || { maxListings: 3 }; // Fallback to starter limits
 
   const renderAddButton = () => {
     if (createCheck.allowed) {
       return (
         <NeonButton glowColor="primary" className="rounded-full px-5" onClick={() => navigate("/create-listing")}>
           <Plus className="w-4 h-4 mr-2" /> Add Listing
-          {remaining > 0 && limits.maxListings !== -1 && (
+          {remaining > 0 && limits && limits.maxListings !== -1 && (
             <span className="ml-2 text-xs opacity-70">({remaining} left)</span>
           )}
         </NeonButton>
@@ -40,7 +40,7 @@ export function Listings({ myListings, handleDeleteListing }) {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-bold text-white">My Catalog Listings</h2>
-          {limits.maxListings !== -1 && (
+          {limits && limits.maxListings !== -1 && (
             <p className="text-xs text-zinc-500 mt-1">
               {listingCount} / {limits.maxListings} listings used on {user?.planTier || 'starter'} plan
             </p>
@@ -57,7 +57,7 @@ export function Listings({ myListings, handleDeleteListing }) {
             <div>
               <p className="text-sm font-medium text-white">Listing limit reached</p>
               <p className="text-xs text-zinc-400">
-                You've used all {limits.maxListings} listings on your plan. Upgrade to create more.
+                You've used all {limits?.maxListings || 3} listings on your plan. Upgrade to create more.
               </p>
             </div>
             <Link href="/pricing" className="ml-auto">
