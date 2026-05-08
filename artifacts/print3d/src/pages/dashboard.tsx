@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link, Route } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useListListings, useListPrinters, useListOrders } from "@/lib/workspace-stub";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import ShopManagement from "./dashboard/shop";
 import OrdersAndSales from "./dashboard/orders";
@@ -104,25 +103,45 @@ export default function Dashboard() {
     }
   }, [location]);
 
+  // Handle routing based on current path
+  const renderContent = () => {
+    if (location.startsWith("/dashboard/shop")) {
+      return <ShopManagement />;
+    } else if (location.startsWith("/dashboard/orders")) {
+      return <OrdersAndSales />;
+    } else if (location.startsWith("/dashboard/customer")) {
+      return <CustomerActivity />;
+    } else if (location.startsWith("/dashboard/account")) {
+      return <AccountSettings />;
+    } else if (location === "/dashboard/shop/listings") {
+      return <ListingsWrapper />;
+    } else if (location === "/dashboard/shop/equipment") {
+      return <EquipmentWrapper />;
+    } else if (location === "/dashboard/shop/analytics") {
+      return <AnalyticsWrapper />;
+    } else if (location === "/dashboard/sales") {
+      return <SalesWrapper />;
+    } else if (location === "/dashboard/custom-orders") {
+      return <CustomOrders user={user} />;
+    } else if (location === "/dashboard/purchases") {
+      return <PurchasesWrapper />;
+    } else if (location === "/dashboard/reviews") {
+      return <ReviewsWrapper />;
+    } else if (location === "/dashboard/favorites") {
+      return <Favorites />;
+    } else if (location === "/dashboard/payment-methods") {
+      return <PaymentMethods />;
+    } else if (location === "/dashboard/shipping-profiles") {
+      return <ShippingProfiles />;
+    }
+    
+    // Default to shop management
+    return <ShopManagement />;
+  };
+
   return (
     <DashboardLayout>
-      <Route path="/dashboard/shop" component={ShopManagement} />
-      <Route path="/dashboard/shop/listings" component={ListingsWrapper} />
-      <Route path="/dashboard/shop/equipment" component={EquipmentWrapper} />
-      <Route path="/dashboard/shop/analytics" component={AnalyticsWrapper} />
-      
-      <Route path="/dashboard/orders" component={OrdersAndSales} />
-      <Route path="/dashboard/sales" component={SalesWrapper} />
-      <Route path="/dashboard/custom-orders" component={() => <CustomOrders user={user} />} />
-      
-      <Route path="/dashboard/customer" component={CustomerActivity} />
-      <Route path="/dashboard/purchases" component={PurchasesWrapper} />
-      <Route path="/dashboard/reviews" component={ReviewsWrapper} />
-      <Route path="/dashboard/favorites" component={Favorites} />
-      
-      <Route path="/dashboard/account" component={AccountSettings} />
-      <Route path="/dashboard/payment-methods" component={PaymentMethods} />
-      <Route path="/dashboard/shipping-profiles" component={ShippingProfiles} />
+      {renderContent()}
     </DashboardLayout>
   );
 }
