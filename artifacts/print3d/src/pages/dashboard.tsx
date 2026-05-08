@@ -44,6 +44,8 @@ import { Reviews } from "@/components/dashboard/Reviews";
 import { Sales } from "@/components/dashboard/Sales";
 import { Listings } from "@/components/dashboard/Listings";
 import { Equipment } from "@/components/dashboard/Equipment";
+import { Favorites } from "@/components/dashboard/Favorites";
+import { Orders } from "@/components/dashboard/Orders";
 import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
 import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
 import CustomOrders from "@/components/dashboard/CustomOrders";
@@ -1624,6 +1626,20 @@ export default function Dashboard() {
             {isSellerUser && (
               <TabsContent value="analytics" className="mt-0">
                 <Analytics shopId={user?.id} timeRange="30d" />
+              </TabsContent>
+            )}
+
+            {/* Orders Tab */}
+            {user?.id && (
+              <TabsContent value="orders" className="mt-0">
+                <Orders user={user} />
+              </TabsContent>
+            )}
+
+            {/* Favorites Tab */}
+            {user?.id && (
+              <TabsContent value="favorites" className="mt-0">
+                <Favorites />
               </TabsContent>
             )}
 

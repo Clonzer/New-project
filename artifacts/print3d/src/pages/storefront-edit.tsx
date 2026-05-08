@@ -51,7 +51,7 @@ function ShopPreview({ form }: { form: any }) {
         style={{ 
           backgroundImage: form.bannerUrl 
             ? `url(${form.bannerUrl})` 
-            : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' 
+            : 'linear-gradient(135deg, #1a1a1a 0%, #2a1810 100%)' 
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent rounded-2xl" />
@@ -72,7 +72,7 @@ function ShopPreview({ form }: { form: any }) {
           style={{ 
             backgroundImage: form.avatarUrl 
               ? `url(${form.avatarUrl})` 
-              : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' 
+              : 'linear-gradient(135deg, #fb923c 0%, #dc2626 100%)' 
           }}
         >
           {!form.avatarUrl && (
@@ -104,8 +104,8 @@ function ShopPreview({ form }: { form: any }) {
 
       {/* Announcement */}
       {form.shopAnnouncement && (
-        <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-          <p className="text-sm text-yellow-200 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
+          <p className="text-sm text-orange-200 flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             {form.shopAnnouncement}
           </p>
@@ -627,8 +627,8 @@ export default function StorefrontEdit() {
                         {[
                           { id: "dark", name: "Dark", icon: Moon, color: "from-zinc-900 to-black" },
                           { id: "light", name: "Light", icon: Sun, color: "from-zinc-100 to-white" },
+                          { id: "orange", name: "Orange", icon: Palette, color: "from-orange-900 to-orange-950" },
                           { id: "purple", name: "Purple", icon: Palette, color: "from-purple-900 to-purple-950" },
-                          { id: "blue", name: "Ocean", icon: Palette, color: "from-blue-900 to-slate-900" },
                         ].map((theme) => (
                           <button
                             key={theme.id}

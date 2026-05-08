@@ -17,6 +17,7 @@ import {
   CreditCard,
   MessageSquare,
   Sparkles,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -34,6 +35,7 @@ const SELLER_TABS = [
   { value: "overview", label: "Overview", icon: TrendingUp },
   { value: "admin", label: "Admin", icon: Settings },
   { value: "store-orders", label: "Store & Orders", icon: Store },
+  { value: "orders", label: "Orders", icon: Package },
   { value: "reviews", label: "Reviews", icon: CheckCircle2 },
   { value: "marketplace", label: "Marketplace", icon: Briefcase },
   { value: "services", label: "Services", icon: PenLine },
@@ -41,13 +43,16 @@ const SELLER_TABS = [
   { value: "shipping", label: "Shipping", icon: Truck },
   { value: "analytics", label: "Analytics", icon: TrendingUp },
   { value: "rank", label: "Rank", icon: Trophy },
+  { value: "favorites", label: "Favorites", icon: Heart },
 ];
 
 const BUYER_TABS = [
   { value: "purchases", label: "Orders", icon: Package },
+  { value: "orders", label: "Orders", icon: Package },
   { value: "wallet", label: "Wallet", icon: Wallet },
   { value: "reviews", label: "My Reviews", icon: CheckCircle2 },
   { value: "service-requests", label: "Custom Orders", icon: MessageSquare },
+  { value: "favorites", label: "Favorites", icon: Heart },
   { value: "sponsorship", label: "Sponsorship", icon: Sparkles },
 ];
 

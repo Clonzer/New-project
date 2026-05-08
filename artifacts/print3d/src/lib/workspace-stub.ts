@@ -1091,6 +1091,134 @@ export function useGetFavorites() {
   return { data, isLoading, error };
 }
 
+export async function toggleFavorite(userId: string, itemId: string, favoriteType: 'item' | 'shop') {
+  try {
+    // First check if it's already favorited
+    const { data: existing } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', userId)
+      .eq(favoriteType === 'item' ? 'item_id' : 'shop_id', itemId)
+      .eq('favorite_type', favoriteType)
+      .single();
+
+    if (existing) {
+      // Remove favorite
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('id', existing.id);
+      
+      if (error) throw error;
+      return { action: 'removed', success: true };
+    } else {
+      // Add favorite
+      const favoriteData = {
+        user_id: userId,
+        favorite_type: favoriteType,
+        ...(favoriteType === 'item' ? { item_id: itemId } : { shop_id: itemId })
+      };
+
+      const { error } = await supabase
+        .from('favorites')
+        .insert(favoriteData);
+      
+      if (error) throw error;
+      return { action: 'added', success: true };
+    }
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+    return { action: 'error', success: false, error };
+  }
+}
+
+export async function removeFavorite(favoriteId: string) {
+  try {
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('id', favoriteId);
+    
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error('Error removing favorite:', error);
+    return { success: false, error };
+  }
+}
+
+export async function createOrder(orderData: {
+  buyer_id: string;
+  seller_id: string;
+  listing_id?: string;
+  quantity: number;
+  unit_price: number;
+  total_amount: number;
+  shipping_address?: any;
+  notes?: string;
+}) {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert({
+        ...orderData,
+        status: 'pending'
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return { success: false, error };
+  }
+}
+
+export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
+  try {
+    const updateData: any = { status };
+    if (trackingNumber) {
+      updateData.tracking_number = trackingNumber;
+    }
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', orderId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return { success: false, error };
+  }
+}
+
+export async function cancelOrder(orderId: string, reason?: string) {
+  try {
+    const updateData: any = { status: 'cancelled' };
+    if (reason) {
+      updateData.notes = reason;
+    }
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', orderId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    return { success: false, error };
+  }
+}
+
 export function useGetShop(userId?: string | number) {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);

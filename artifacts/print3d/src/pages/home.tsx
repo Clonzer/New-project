@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { 
   ChevronRight, 
   Sparkles, 
@@ -31,7 +32,8 @@ import {
   Target,
   Crown,
   Flame,
-  Globe
+  Globe,
+  ChevronDown
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -43,8 +45,99 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SiteStats } from "@/components/shared/SiteStats";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Home() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const categories = [
+    { value: "all", label: "All Categories", icon: Globe },
+    { value: "prototyping", label: "Prototyping", icon: Printer },
+    { value: "functional-parts", label: "Functional Parts", icon: Wrench },
+    { value: "miniatures", label: "Miniatures", icon: Heart },
+    { value: "cosplay-props", label: "Cosplay Props", icon: Lightbulb },
+    { value: "home-decor", label: "Home Decor", icon: Package },
+    { value: "jewelry", label: "Jewelry", icon: Boxes },
+    { value: "tech-accessories", label: "Tech Accessories", icon: Zap },
+    { value: "custom-orders", label: "Custom Orders", icon: MessageCircle }
+  ];
+
+  const categoryMap: { [key: string]: string } = {
+    "prototyping": "prototyping",
+    "functional-parts": "functional-parts",
+    "miniatures": "miniatures",
+    "cosplay-props": "cosplay-props",
+    "home-decor": "home-decor",
+    "jewelry": "jewelry",
+    "tech-accessories": "tech-accessories",
+    "custom-orders": "custom-orders"
+  };
+
+  const getCategoryText = (category: string) => {
+    switch(category) {
+      case "prototyping":
+        return {
+          title: "Prototyping Services",
+          description: "Find rapid prototyping and 3D printing services for your projects",
+          badge: "Prototyping"
+        };
+      case "functional-parts":
+        return {
+          title: "Functional Parts",
+          description: "Discover custom mechanical parts and functional components",
+          badge: "Functional"
+        };
+      case "miniatures":
+        return {
+          title: "Miniatures & Models",
+          description: "Browse detailed miniatures, gaming models, and collectibles",
+          badge: "Miniatures"
+        };
+      case "cosplay-props":
+        return {
+          title: "Cosplay Props",
+          description: "Get custom cosplay props and costume accessories",
+          badge: "Cosplay"
+        };
+      case "home-decor":
+        return {
+          title: "Home Decor",
+          description: "Find unique home decorations and artistic pieces",
+          badge: "Decor"
+        };
+      case "jewelry":
+        return {
+          title: "Custom Jewelry",
+          description: "Discover custom jewelry and wearable accessories",
+          badge: "Jewelry"
+        };
+      case "tech-accessories":
+        return {
+          title: "Tech Accessories",
+          description: "Browse tech gadgets and electronic accessories",
+          badge: "Tech"
+        };
+      case "custom-orders":
+        return {
+          title: "Custom Orders",
+          description: "Connect with makers for custom projects and commissions",
+          badge: "Custom"
+        };
+      default:
+        return {
+          title: "Everything",
+          description: "Browse all shops and models in one place",
+          badge: "All"
+        };
+    }
+  };
+
+  const currentCategoryText = getCategoryText(selectedCategory);
   return (
     <>
       <SEOMeta
@@ -271,11 +364,33 @@ export default function Home() {
               <Badge variant="glass" className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Discover
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Everything</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Everything</span></span>
-              </h2>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <h2 className="text-4xl md:text-5xl font-black text-white">
+                  Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
+                </h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="rounded-xl border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                      {categories.find(cat => cat.value === selectedCategory)?.label}
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="glass-card border-white/10 rounded-xl w-48">
+                    {categories.map((category) => (
+                      <DropdownMenuItem
+                        key={category.value}
+                        onClick={() => setSelectedCategory(category.value)}
+                        className="flex items-center gap-2 text-white hover:bg-white/10 cursor-pointer"
+                      >
+                        <category.icon className="w-4 h-4" />
+                        {category.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
-                Browse all shops and models in one place
+                {currentCategoryText.description}
               </p>
             </motion.div>
 
@@ -285,7 +400,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Link href="/explore-all?filter=shops">
+                <Link href={`/explore-all?filter=shops${selectedCategory !== 'all' ? `&category=${selectedCategory}` : ''}`}>
                   <Card className="bg-gradient-to-br from-pink-600/30 via-purple-600/30 to-indigo-600/30 border-pink-500/40 hover:border-pink-400/60 hover:from-pink-600/40 hover:via-purple-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30">
                     <CardContent className="p-8 text-center">
                       <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
@@ -306,7 +421,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Link href="/explore-all?filter=models">
+                <Link href={`/explore-all?filter=models${selectedCategory !== 'all' ? `&category=${selectedCategory}` : ''}`}>
                   <Card className="bg-gradient-to-br from-cyan-600/30 via-teal-600/30 to-emerald-600/30 border-cyan-500/40 hover:border-cyan-400/60 hover:from-cyan-600/40 hover:via-teal-600/40 hover:to-emerald-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30">
                     <CardContent className="p-8 text-center">
                       <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
@@ -542,13 +657,24 @@ export default function Home() {
               className="text-center mb-16"
             >
               <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
-                <Palette className="w-3 h-3 mr-1" /> Browse by Category
+                <Palette className="w-3 h-3 mr-1" /> {currentCategoryText.badge} Category
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span></span>
+                {selectedCategory === 'all' ? (
+                  <>
+                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
+                  </>
+                )}
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
-                Find exactly what you need across our diverse range of 3D printing categories
+                {selectedCategory === 'all' 
+                  ? "Find exactly what you need across our diverse range of 3D printing categories"
+                  : `Explore ${currentCategoryText.title.toLowerCase()} and find the perfect match for your needs`
+                }
               </p>
             </motion.div>
 
@@ -562,7 +688,9 @@ export default function Home() {
                 { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 via-amber-400 to-orange-400" },
                 { icon: Zap, title: "Tech Accessories", items: "1,200+ items", color: "from-indigo-400 via-blue-400 to-cyan-400" },
                 { icon: MessageCircle, title: "Custom Orders", items: "Custom quotes", color: "from-teal-400 via-emerald-400 to-green-400" }
-              ].map((category, index) => (
+              ].map((category, index) => {
+                const categoryValue = categoryMap[category.title.toLowerCase().replace(' ', '-')] || 'all';
+                return (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -570,7 +698,10 @@ export default function Home() {
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   whileHover={{ scale: 1.03 }}
                 >
-                  <Link href="/listings">
+                  <Link 
+                    href={`/explore-all?filter=models&category=${categoryValue}`}
+                    onClick={() => setSelectedCategory(categoryValue)}
+                  >
                     <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className={`w-14 h-14 bg-gradient-to-r ${category.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}>
@@ -584,7 +715,8 @@ export default function Home() {
                     </Card>
                   </Link>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

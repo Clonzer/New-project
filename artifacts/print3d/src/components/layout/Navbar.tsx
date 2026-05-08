@@ -27,6 +27,7 @@ export function Navbar() {
   const [comparedCount, setComparedCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const syncCart = () => setCartCount(cartItemCount());
@@ -79,6 +80,27 @@ export function Navbar() {
       .catch(() => setNotificationCount(0));
   }, [user]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const isDropdownClick = target.closest('[data-dropdown]');
+      
+      if (!isDropdownClick) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleDropdownToggle = (dropdownName: string) => {
+    setOpenDropdown(prev => prev === dropdownName ? null : dropdownName);
+  };
+
   const isActive = (path: string) => location === path;
   const isSeller = user?.role === "seller" || user?.role === "both";
 
@@ -129,6 +151,7 @@ export function Navbar() {
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
+              onClick={() => setOpenDropdown(null)}
             >
               Discover
             </Link>
@@ -139,6 +162,7 @@ export function Navbar() {
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
+              onClick={() => setOpenDropdown(null)}
             >
               Contests
             </Link>
@@ -149,6 +173,7 @@ export function Navbar() {
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
+              onClick={() => setOpenDropdown(null)}
             >
               Explore
             </Link>
@@ -159,6 +184,7 @@ export function Navbar() {
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
+              onClick={() => setOpenDropdown(null)}
             >
               Custom Orders
             </Link>
@@ -169,6 +195,7 @@ export function Navbar() {
                   ? "text-white bg-gradient-to-r from-primary/80 to-primary/60 border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
+              onClick={() => setOpenDropdown(null)}
             >
               Pricing
             </Link>
@@ -215,17 +242,19 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <DropdownMenu>
+          <DropdownMenu open={openDropdown === 'help'}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 className="rounded-full hidden sm:flex"
+                onClick={() => handleDropdownToggle('help')}
+                data-dropdown="help"
               >
                 <Flag className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-64 z-[9999] p-2">
+            <DropdownMenuContent align="end" className="glass-card border-white/10 rounded-xl mt-2 w-64 z-[9999] p-2" data-dropdown="help">
               <DropdownMenuItem asChild className="rounded-lg p-0 focus:bg-transparent">
                 <Link href="/help" className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer">
                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
@@ -355,7 +384,10 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             className="lg:hidden rounded-full h-9 w-9"
-            onClick={() => setMenuOpen((value) => !value)}
+            onClick={() => {
+              setMenuOpen((value) => !value);
+              setOpenDropdown(null);
+            }}
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
