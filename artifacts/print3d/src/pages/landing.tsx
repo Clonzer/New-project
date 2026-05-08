@@ -19,7 +19,15 @@ import {
   Filter,
   Grid3x3,
   DollarSign,
-  ArrowUpDown
+  ArrowUpDown,
+  Home,
+  Info,
+  Mail,
+  Phone,
+  Settings,
+  HelpCircle,
+  FileText,
+  MessageSquare
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -170,118 +178,94 @@ export default function Landing() {
                       </button>
                     </div>
 
-                    {/* Filter Sections */}
-                    <div className="space-y-6">
-                      {/* Type Filter */}
-                      <div>
-                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <Grid3x3 className="w-4 h-4" />
-                          Type
-                        </h4>
-                        <div className="space-y-2">
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input
-                              type="radio"
-                              name="type"
-                              value="all"
-                              checked={filterType === "all"}
-                              onChange={(e) => setFilterType(e.target.value)}
-                              className="text-pink-500 focus:ring-pink-500"
-                            />
-                            <span>All Items</span>
-                          </label>
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input
-                              type="radio"
-                              name="type"
-                              value="shops"
-                              checked={filterType === "shops"}
-                              onChange={(e) => setFilterType(e.target.value)}
-                              className="text-pink-500 focus:ring-pink-500"
-                            />
-                            <span>Shops Only</span>
-                          </label>
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input
-                              type="radio"
-                              name="type"
-                              value="models"
-                              checked={filterType === "models"}
-                              onChange={(e) => setFilterType(e.target.value)}
-                              className="text-pink-500 focus:ring-pink-500"
-                            />
-                            <span>Products Only</span>
-                          </label>
+                    {/* Navigation Section */}
+                    <div className="space-y-4">
+                      {/* Navigation Links */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <Link href="/" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <Home className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">Home</span>
+                        </Link>
+                        <Link href="/about" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <Info className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">About</span>
+                        </Link>
+                        <Link href="/contact" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <Mail className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">Contact</span>
+                        </Link>
+                        <Link href="/pricing" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <DollarSign className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">Pricing</span>
+                        </Link>
+                        <Link href="/help" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <HelpCircle className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">Help</span>
+                        </Link>
+                        <Link href="/blog" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
+                          <FileText className="w-5 h-5 text-zinc-300" />
+                          <span className="text-xs text-zinc-400">Blog</span>
+                        </Link>
+                      </div>
+
+                      {/* Filter Icons Only */}
+                      <div className="border-t border-zinc-800 pt-4">
+                        <h4 className="text-white font-medium mb-3 text-sm">Quick Filters</h4>
+                        <div className="grid grid-cols-4 gap-3">
+                          <button
+                            onClick={() => setFilterType("all")}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
+                              filterType === "all" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                            }`}
+                          >
+                            <Grid3x3 className="w-5 h-5" />
+                            <span className="text-xs">All</span>
+                          </button>
+                          <button
+                            onClick={() => setFilterType("shops")}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
+                              filterType === "shops" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                            }`}
+                          >
+                            <Users className="w-5 h-5" />
+                            <span className="text-xs">Shops</span>
+                          </button>
+                          <button
+                            onClick={() => setFilterType("models")}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
+                              filterType === "models" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                            }`}
+                          >
+                            <Package className="w-5 h-5" />
+                            <span className="text-xs">Items</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Settings className="w-5 h-5" />
+                            <span className="text-xs">More</span>
+                          </button>
                         </div>
                       </div>
 
-                      {/* Category Filter */}
-                      <div>
-                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <Package className="w-4 h-4" />
-                          Category
-                        </h4>
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
-                          <option value="all">All Categories</option>
-                          <option value="3d-printing">3D Printing</option>
-                          <option value="laser-cutting">Laser Cutting</option>
-                          <option value="cnc-machining">CNC Machining</option>
-                          <option value="3d-scanning">3D Scanning</option>
-                          <option value="design-services">Design Services</option>
-                          <option value="assembly">Assembly</option>
-                        </select>
-                      </div>
-
-                      {/* Sort Filter */}
-                      <div>
-                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <ArrowUpDown className="w-4 h-4" />
-                          Sort By
-                        </h4>
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
-                          <option value="recent">Most Recent</option>
-                          <option value="popular">Most Popular</option>
-                          <option value="price-low">Price: Low to High</option>
-                          <option value="price-high">Price: High to Low</option>
-                          <option value="rating">Highest Rated</option>
-                        </select>
-                      </div>
-
-                      {/* Price Range Filter */}
-                      <div>
-                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <DollarSign className="w-4 h-4" />
-                          Price Range
-                        </h4>
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
-                          <option value="all">All Prices</option>
-                          <option value="0-25">$0 - $25</option>
-                          <option value="25-50">$25 - $50</option>
-                          <option value="50-100">$50 - $100</option>
-                          <option value="100-200">$100 - $200</option>
-                          <option value="200+">$200+</option>
-                        </select>
-                      </div>
-
-                      {/* Shop Types */}
-                      <div>
-                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          Shop Types
-                        </h4>
-                        <div className="space-y-2">
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
-                            <span>Verified Shops</span>
-                          </label>
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
-                            <span>Premium Sellers</span>
-                          </label>
-                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
-                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
-                            <span>Fast Delivery</span>
-                          </label>
+                      {/* Category Icons */}
+                      <div className="border-t border-zinc-800 pt-4">
+                        <h4 className="text-white font-medium mb-3 text-sm">Categories</h4>
+                        <div className="grid grid-cols-4 gap-3">
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Package className="w-5 h-5" />
+                            <span className="text-xs">3D</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Zap className="w-5 h-5" />
+                            <span className="text-xs">Laser</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Settings className="w-5 h-5" />
+                            <span className="text-xs">CNC</span>
+                          </button>
+                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
+                            <Eye className="w-5 h-5" />
+                            <span className="text-xs">Scan</span>
+                          </button>
                         </div>
                       </div>
                     </div>
