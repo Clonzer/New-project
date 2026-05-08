@@ -45,6 +45,7 @@ import {
   Truck,
   ShoppingBag,
   ShoppingCart,
+  Clock,
   Gift,
   Tag
 } from "lucide-react";
@@ -64,6 +65,8 @@ export default function Landing() {
   const [priceDropdownOpen, setPriceDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
+  const [favoritesDropdownOpen, setFavoritesDropdownOpen] = useState(false);
 
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -216,36 +219,57 @@ export default function Landing() {
                       
                       {priceDropdownOpen && (
                         <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
-                          <div className="space-y-3">
-                            <div className="text-white text-sm font-medium">Price Range</div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="text-zinc-400 text-xs block mb-1">Min</label>
-                                <input
-                                  type="number"
-                                  placeholder="0"
-                                  value={minPrice}
-                                  onChange={(e) => setMinPrice(e.target.value)}
-                                  className="bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-full focus:outline-none focus:border-pink-500"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-zinc-400 text-xs block mb-1">Max</label>
-                                <input
-                                  type="number"
-                                  placeholder="1000"
-                                  value={maxPrice}
-                                  onChange={(e) => setMaxPrice(e.target.value)}
-                                  className="bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-full focus:outline-none focus:border-pink-500"
-                                />
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => setPriceDropdownOpen(false)}
-                              className="w-full bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-2 rounded transition-colors"
+                          <div className="text-white text-sm font-medium mb-2">Price Range</div>
+                          <div className="space-y-1">
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                !minPrice && !maxPrice ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                              }`}
+                              onClick={() => {setMinPrice(""); setMaxPrice(""); setPriceDropdownOpen(false);}}
                             >
-                              Apply Filter
-                            </button>
+                              <DollarSign className="w-3 h-3 flex-shrink-0" />
+                              <span className="text-xs">All Prices</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                minPrice === "0" && maxPrice === "25" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                              }`}
+                              onClick={() => {setMinPrice("0"); setMaxPrice("25"); setPriceDropdownOpen(false);}}
+                            >
+                              <Tag className="w-3 h-3 flex-shrink-0" />
+                              <span className="text-xs">$0 - $25</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                minPrice === "25" && maxPrice === "50" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                              }`}
+                              onClick={() => {setMinPrice("25"); setMaxPrice("50"); setPriceDropdownOpen(false);}}
+                            >
+                              <Tag className="w-3 h-3 flex-shrink-0" />
+                              <span className="text-xs">$25 - $50</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                minPrice === "50" && maxPrice === "100" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                              }`}
+                              onClick={() => {setMinPrice("50"); setMaxPrice("100"); setPriceDropdownOpen(false);}}
+                            >
+                              <Tag className="w-3 h-3 flex-shrink-0" />
+                              <span className="text-xs">$50 - $100</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                minPrice === "100" && !maxPrice ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                              }`}
+                              onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}
+                            >
+                              <Tag className="w-3 h-3 flex-shrink-0" />
+                              <span className="text-xs">$100+</span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -395,28 +419,90 @@ export default function Landing() {
 
                     {/* Store Functions */}
                     <div className="flex flex-col gap-2">
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => console.log("View Orders")}
-                      >
-                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
+                      {/* My Orders Dropdown */}
+                      <div className="relative">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                          onClick={() => setOrdersDropdownOpen(!ordersDropdownOpen)}
+                        >
+                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
+                          <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${ordersDropdownOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                        
+                        {ordersDropdownOpen && (
+                          <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
+                            <div className="text-white text-sm font-medium mb-2">My Orders</div>
+                            <div className="space-y-1">
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Active Orders");}}
+                              >
+                                <ShoppingBag className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Active Orders</span>
+                              </div>
+                              
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Completed Orders");}}
+                              >
+                                <Package className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Completed</span>
+                              </div>
+                              
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Order History");}}
+                              >
+                                <Clock className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">History</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => console.log("View Favorites")}
-                      >
-                        <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
-                      </div>
-                      
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => console.log("View Messages")}
-                      >
-                        <MessageSquare className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Messages</span>
+                      {/* Favorites Dropdown */}
+                      <div className="relative">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                          onClick={() => setFavoritesDropdownOpen(!favoritesDropdownOpen)}
+                        >
+                          <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
+                          <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${favoritesDropdownOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                        
+                        {favoritesDropdownOpen && (
+                          <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
+                            <div className="text-white text-sm font-medium mb-2">Favorites</div>
+                            <div className="space-y-1">
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Favorite Items");}}
+                              >
+                                <Heart className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Favorite Items</span>
+                              </div>
+                              
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Favorite Shops");}}
+                              >
+                                <Users className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Favorite Shops</span>
+                              </div>
+                              
+                              <div 
+                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
+                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Saved Searches");}}
+                              >
+                                <Search className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Saved Searches</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
