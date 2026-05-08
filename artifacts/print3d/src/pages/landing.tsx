@@ -52,7 +52,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
 import { useListListings, useListUsers } from "@/lib/workspace-stub";
-import { Link } from "wouter";
 
 export default function Landing() {
   const listings = useListListings();
@@ -135,13 +134,13 @@ export default function Landing() {
         <main className="flex-grow">
           {/* Hero Section */}
           <section className="bg-zinc-950">
-            <div className="container mx-auto px-4 py-4">
+            <div className="container mx-auto pl-12 pr-4 py-4">
             </div>
           </section>
 
           {/* Featured Products Section */}
           <section className="bg-zinc-950 pt-0">
-            <div className="container mx-auto px-4 pt-2 pb-16">
+            <div className="container mx-auto pl-12 pr-4 pt-2 pb-16">
               {/* Featured Section */}
               <div className="mb-8">
                 <div className="text-center mb-8">
@@ -167,13 +166,13 @@ export default function Landing() {
               <div className="mb-6 relative">
                 {/* Vertical Icon Toggle Bar */}
                 <motion.div 
-                  className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-r-lg p-2"
+                  className="fixed left-0 top-20 z-50 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-r-lg p-2"
                   onMouseEnter={() => setIsSidebarOpen(true)}
-                  initial={{ width: "40px" }}
+                  initial={{ width: "40px", height: "auto" }}
                   whileHover={{ width: "200px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-3 overflow-hidden">
+                  <div className="flex flex-col gap-2 overflow-hidden max-h-[calc(100vh-120px)] overflow-y-auto">
                     {/* Filter button - opens full sidebar */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors"
@@ -244,7 +243,7 @@ export default function Landing() {
                   animate={{ x: isSidebarOpen ? 0 : -320 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   onMouseLeave={() => setIsSidebarOpen(false)}
-                  className="fixed left-0 top-0 h-full w-80 bg-zinc-900 border-r border-zinc-800 z-40 overflow-y-auto"
+                  className="fixed left-0 top-0 h-full w-80 bg-zinc-900 border-r border-zinc-800 z-45 overflow-y-auto"
                 >
                   <div className="p-6">
                     {/* Sidebar Header */}
