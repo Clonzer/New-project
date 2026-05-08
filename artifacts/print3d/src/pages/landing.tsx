@@ -125,7 +125,8 @@ export default function Landing() {
                     <h2 className="text-2xl font-bold text-white mb-6">
                       Trending Designs & Top Rated Shops
                     </h2>
-                    </motion.div>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
 
@@ -386,7 +387,6 @@ export default function Landing() {
                   </motion.div>
                 ))}
               </div>
-            </div>
           </section>
         </main>
         <Footer />
