@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.favorites (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     item_id UUID REFERENCES public.listings(id) ON DELETE CASCADE,
-    shop_id UUID REFERENCES public.sellers(id) ON DELETE CASCADE,
+    shop_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     favorite_type VARCHAR(20) NOT NULL CHECK (favorite_type IN ('item', 'shop')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
