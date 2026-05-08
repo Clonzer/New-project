@@ -57,7 +57,6 @@ export default function Landing() {
   const listings = useListListings();
   const users = useListUsers();
   const [filterType, setFilterType] = useState("all");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -162,22 +161,17 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Collapsible Filter Sidebar */}
+              {/* Vertical Icon Bar */}
               <div className="mb-6 relative">
-                {/* Vertical Icon Toggle Bar */}
                 <motion.div 
                   className="fixed left-0 top-20 z-50 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700 rounded-r-lg p-2"
-                  onMouseEnter={() => setIsSidebarOpen(true)}
                   initial={{ width: "40px", height: "auto" }}
                   whileHover={{ width: "200px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <div className="flex flex-col gap-2 overflow-hidden max-h-[calc(100vh-120px)] overflow-y-auto">
-                    {/* Filter button - opens full sidebar */}
-                    <div 
-                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors"
-                      onMouseEnter={() => setIsSidebarOpen(true)}
-                    >
+                    {/* Filter button */}
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
                       <Filter className="w-5 h-5 text-zinc-300 min-w-[20px]" />
                       <span className="text-white text-sm whitespace-nowrap">Filters</span>
                     </div>
@@ -236,179 +230,6 @@ export default function Landing() {
                     </Link>
                   </div>
                 </motion.div>
-
-                {/* Sidebar */}
-                <motion.div
-                  initial={false}
-                  animate={{ x: isSidebarOpen ? 0 : -320 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  onMouseLeave={() => setIsSidebarOpen(false)}
-                  className="fixed left-0 top-0 h-full w-80 bg-zinc-900 border-r border-zinc-800 z-45 overflow-y-auto"
-                >
-                  <div className="p-6">
-                    {/* Sidebar Header */}
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                        <Filter className="w-5 h-5" />
-                        Filters
-                      </h3>
-                      <button
-                        onClick={() => setIsSidebarOpen(false)}
-                        className="text-zinc-400 hover:text-white transition-colors"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {/* Navigation Section */}
-                    <div className="space-y-4">
-                      {/* Navigation Links */}
-                      <div className="grid grid-cols-3 gap-3">
-                        <Link href="/" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <Home className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">Home</span>
-                        </Link>
-                        <Link href="/about" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <Info className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">About</span>
-                        </Link>
-                        <Link href="/contact" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <Mail className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">Contact</span>
-                        </Link>
-                        <Link href="/pricing" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <DollarSign className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">Pricing</span>
-                        </Link>
-                        <Link href="/help" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <HelpCircle className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">Help</span>
-                        </Link>
-                        <Link href="/blog" className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors">
-                          <FileText className="w-5 h-5 text-zinc-300" />
-                          <span className="text-xs text-zinc-400">Blog</span>
-                        </Link>
-                      </div>
-
-                      {/* Filter Icons Only */}
-                      <div className="border-t border-zinc-800 pt-4">
-                        <h4 className="text-white font-medium mb-3 text-sm">Quick Filters</h4>
-                        <div className="grid grid-cols-4 gap-3">
-                          <button
-                            onClick={() => setFilterType("all")}
-                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
-                              filterType === "all" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                            }`}
-                          >
-                            <Grid3x3 className="w-5 h-5" />
-                            <span className="text-xs">All</span>
-                          </button>
-                          <button
-                            onClick={() => setFilterType("shops")}
-                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
-                              filterType === "shops" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                            }`}
-                          >
-                            <Users className="w-5 h-5" />
-                            <span className="text-xs">Shops</span>
-                          </button>
-                          <button
-                            onClick={() => setFilterType("models")}
-                            className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
-                              filterType === "models" ? "bg-pink-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                            }`}
-                          >
-                            <Package className="w-5 h-5" />
-                            <span className="text-xs">Items</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Settings className="w-5 h-5" />
-                            <span className="text-xs">More</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Category Icons */}
-                      <div className="border-t border-zinc-800 pt-4">
-                        <h4 className="text-white font-medium mb-3 text-sm">Categories</h4>
-                        <div className="grid grid-cols-4 gap-3">
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Package className="w-5 h-5" />
-                            <span className="text-xs">3D Print</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Zap className="w-5 h-5" />
-                            <span className="text-xs">Laser</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Wrench className="w-5 h-5" />
-                            <span className="text-xs">CNC</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Eye className="w-5 h-5" />
-                            <span className="text-xs">3D Scan</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Cpu className="w-5 h-5" />
-                            <span className="text-xs">Electronics</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Palette className="w-5 h-5" />
-                            <span className="text-xs">Design</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Hammer className="w-5 h-5" />
-                            <span className="text-xs">Tools</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Brush className="w-5 h-5" />
-                            <span className="text-xs">Art</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Camera className="w-5 h-5" />
-                            <span className="text-xs">Photo</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Music className="w-5 h-5" />
-                            <span className="text-xs">Audio</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Gamepad2 className="w-5 h-5" />
-                            <span className="text-xs">Gaming</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Car className="w-5 h-5" />
-                            <span className="text-xs">Auto</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Heart className="w-5 h-5" />
-                            <span className="text-xs">Medical</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Bone className="w-5 h-5" />
-                            <span className="text-xs">Dental</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Building className="w-5 h-5" />
-                            <span className="text-xs">Arch</span>
-                          </button>
-                          <button className="flex flex-col items-center gap-2 p-3 bg-zinc-800 rounded-lg text-zinc-300 hover:bg-zinc-700 transition-colors">
-                            <Factory className="w-5 h-5" />
-                            <span className="text-xs">Industrial</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Overlay */}
-                {isSidebarOpen && (
-                  <div
-                    className="fixed inset-0 bg-black/50 z-30"
-                    onClick={() => setIsSidebarOpen(false)}
-                  />
-                )}
               </div>
 
               {/* Products Grid - First Row */}
