@@ -172,132 +172,82 @@ export default function Landing() {
                   whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-2 h-full overflow-hidden py-3 group-hover:overflow-y-auto" style={{scrollbarWidth: 'thin', scrollbarColor: '#52734D #27272a'}}>
-                    {/* Filter button - opens full sidebar */}
-                    <div 
-                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden"
-                      onMouseEnter={() => setIsSidebarOpen(true)}
-                    >
-                      <Filter className="w-5 h-5 text-zinc-300 min-w-[20px] flex-shrink-0" />
-                      <span className="text-white text-sm whitespace-nowrap overflow-hidden">Filters</span>
+                  <div className="flex flex-col gap-3 h-full py-4 justify-center">
+                    {/* Filter button */}
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <Filter className="w-5 h-5 text-zinc-300 flex-shrink-0" />
+                      <span className="text-white text-sm whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Filters</span>
                     </div>
                     
-                    {/* Price Filter Section */}
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
+                    {/* Price Range */}
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
                       <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                      <span className="text-white text-xs whitespace-nowrap">Price Range</span>
-                      <ChevronDown className="w-3 h-3 text-zinc-400" />
+                      <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
+                      <ChevronDown className="w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200" />
                     </div>
 
                     {/* Main Filters */}
-                    <div className="border-t border-zinc-800 pt-2 mt-2">
-                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Filters</div>
-                      <div className="space-y-1">
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
-                            filterType === "all" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("all")}
-                        >
-                          <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">All</span>
-                        </div>
-                        
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
-                            filterType === "shops" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("shops")}
-                        >
-                          <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Shops</span>
-                        </div>
-                        
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
-                            filterType === "models" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("models")}
-                        >
-                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Items</span>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "all" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("all")}
+                      >
+                        <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">All</span>
+                      </div>
+                      
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "shops" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("shops")}
+                      >
+                        <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Shops</span>
+                      </div>
+                      
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "models" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("models")}
+                      >
+                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Items</span>
                       </div>
                     </div>
 
                     {/* Categories */}
-                    <div className="border-t border-zinc-800 pt-2 mt-2">
-                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Categories</div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">3D Print</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Zap className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Laser</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Wrench className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">CNC</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Cpu className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Electronics</span>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">3D Print</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Zap className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Laser</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Wrench className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">CNC</span>
                       </div>
                     </div>
 
                     {/* Navigation */}
-                    <div className="border-t border-zinc-800 pt-2 mt-2">
-                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Navigation</div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Home className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Home</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Info className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">About</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <Mail className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Contact</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Pricing</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <HelpCircle className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Help</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
-                          <FileText className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Blog</span>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Home className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Home</span>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
-                      <Package className="w-5 h-5 text-zinc-300 min-w-[20px]" />
-                      <span className="text-white text-sm whitespace-nowrap">3D Print</span>
-                    </div>
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
-                      <Zap className="w-5 h-5 text-zinc-300 min-w-[20px]" />
-                      <span className="text-white text-sm whitespace-nowrap">Laser</span>
-                    </div>
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
-                      <Wrench className="w-5 h-5 text-zinc-300 min-w-[20px]" />
-                      <span className="text-white text-sm whitespace-nowrap">CNC</span>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Info className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">About</span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
