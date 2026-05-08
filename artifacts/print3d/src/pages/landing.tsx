@@ -60,6 +60,9 @@ export default function Landing() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [priceDropdownOpen, setPriceDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -100,11 +103,28 @@ export default function Landing() {
 
   console.log("Marketplace items count:", marketplaceItems.length);
 
-  // Filter items based on type
+  // Filter items based on type, category, and price
   const filteredItems = marketplaceItems.filter(item => {
+    // Type filter
     if (filterType === "shops") return item.type === "maker";
     if (filterType === "models") return item.type === "product";
-    return true; // Show all (both products and shops)
+    
+    // Category filter
+    if (selectedCategory !== "all") {
+      const itemCategory = item.category || item.tags?.[0]?.toLowerCase() || "";
+      if (!itemCategory.includes(selectedCategory.replace("-", ""))) {
+        return false;
+      }
+    }
+    
+    // Price filter
+    if (minPrice || maxPrice) {
+      const itemPrice = parseFloat(item.price || item.hourlyRate || "0");
+      if (minPrice && itemPrice < parseFloat(minPrice)) return false;
+      if (maxPrice && itemPrice > parseFloat(maxPrice)) return false;
+    }
+    
+    return true; // "all" shows everything
   });
 
   console.log("Filter type:", filterType);
@@ -179,11 +199,47 @@ export default function Landing() {
                       <span className="text-white text-sm whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Filters</span>
                     </div>
                     
-                    {/* Price Range */}
-                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
-                      <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                      <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
-                      <ChevronDown className="w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200" />
+                    {/* Price Range Dropdown */}
+                    <div className="relative">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => setPriceDropdownOpen(!priceDropdownOpen)}
+                      >
+                        <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
+                        <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${priceDropdownOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                      
+                      {priceDropdownOpen && (
+                        <div className="absolute left-full ml-2 top-0 bg-zinc-800 border border-zinc-700 rounded-lg p-3 w-48 z-50 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-zinc-400 text-xs">$</span>
+                              <input
+                                type="number"
+                                placeholder="Min"
+                                value={minPrice}
+                                onChange={(e) => setMinPrice(e.target.value)}
+                                className="bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500"
+                              />
+                              <span className="text-white text-xs">-</span>
+                              <input
+                                type="number"
+                                placeholder="Max"
+                                value={maxPrice}
+                                onChange={(e) => setMaxPrice(e.target.value)}
+                                className="bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500"
+                              />
+                            </div>
+                            <button 
+                              onClick={() => setPriceDropdownOpen(false)}
+                              className="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1 rounded transition-colors w-full"
+                            >
+                              Apply Filter
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Main Filters */}
@@ -219,22 +275,82 @@ export default function Landing() {
                       </div>
                     </div>
 
-                    {/* Categories */}
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
-                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">3D Print</span>
+                    {/* Categories Dropdown */}
+                    <div className="relative">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                      >
+                        <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Categories</span>
+                        <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
-                        <Zap className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Laser</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
-                        <Wrench className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">CNC</span>
-                      </div>
+                      {categoryDropdownOpen && (
+                        <div className="absolute left-full ml-2 top-0 bg-zinc-800 border border-zinc-700 rounded-lg p-2 w-40 z-50 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
+                          <div className="space-y-1">
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "3d-print" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("3d-print"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">3D Print</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "laser" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("laser"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Zap className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">Laser</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "cnc" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("cnc"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Wrench className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">CNC</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "electronics" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("electronics"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Cpu className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">Electronics</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "design" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("design"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Palette className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">Design</span>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                                selectedCategory === "tools" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                              }`}
+                              onClick={() => {setSelectedCategory("tools"); setCategoryDropdownOpen(false);}}
+                            >
+                              <Hammer className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                              <span className="text-white text-xs whitespace-nowrap">Tools</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Navigation */}
@@ -247,6 +363,26 @@ export default function Landing() {
                       <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
                         <Info className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">About</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <Mail className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Contact</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Pricing</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <HelpCircle className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Help</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                        <FileText className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Blog</span>
                       </div>
                     </div>
                   </div>
