@@ -165,136 +165,158 @@ export default function Landing() {
               {/* Enhanced Vertical Icon Bar */}
               <div className="mb-6 relative">
                 <motion.div 
-                  className="fixed left-0 top-0 z-50 bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-sm border-r border-zinc-700 p-2"
-                  initial={{ width: "50px", height: "100vh" }}
-                  whileHover={{ width: "250px" }}
+                  className="fixed left-0 top-20 z-50 bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 p-2"
+                  initial={{ width: "48px", height: "calc(100vh - 80px)" }}
+                  whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-1 h-full overflow-y-auto py-4">
+                  <div className="flex flex-col gap-2 h-full overflow-y-auto py-3">
                     {/* Filter button - opens full sidebar */}
                     <div 
-                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors"
+                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden"
                       onMouseEnter={() => setIsSidebarOpen(true)}
                     >
-                      <Filter className="w-5 h-5 text-zinc-300 min-w-[20px]" />
-                      <span className="text-white text-sm whitespace-nowrap">Filters</span>
+                      <Filter className="w-5 h-5 text-zinc-300 min-w-[20px] flex-shrink-0" />
+                      <span className="text-white text-sm whitespace-nowrap overflow-hidden">Filters</span>
                     </div>
                     
-                    {/* Enhanced Navigation Tabs */}
-                    <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
-                        filterType === "all" ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500"
-                      }`}
-                      onClick={() => setFilterType("all")}
-                    >
-                      <Grid3x3 className="w-5 h-5 min-w-[20px]" />
-                      <span className="text-sm whitespace-nowrap">All</span>
-                    </div>
-                    
-                    <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
-                        filterType === "shops" ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500"
-                      }`}
-                      onClick={() => setFilterType("shops")}
-                    >
-                      <Users className="w-5 h-5 min-w-[20px]" />
-                      <span className="text-sm whitespace-nowrap">Shops</span>
-                    </div>
-                    
-                    <div 
-                      className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 ${
-                        filterType === "models" ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg" : "hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-500"
-                      }`}
-                      onClick={() => setFilterType("models")}
-                    >
-                      <Package className="w-5 h-5 min-w-[20px]" />
-                      <span className="text-sm whitespace-nowrap">Items</span>
+                    {/* Price Filter Section */}
+                    <div className="border-t border-zinc-800 pt-2 mt-2">
+                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Price Range</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <span className="text-zinc-400 text-xs">$</span>
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">All Prices</span>
+                        </div>
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <span className="text-zinc-400 text-xs">$</span>
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">0-25</span>
+                        </div>
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <span className="text-zinc-400 text-xs">$</span>
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">25-50</span>
+                        </div>
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <span className="text-zinc-400 text-xs">$</span>
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">50-100</span>
+                        </div>
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <span className="text-zinc-400 text-xs">$</span>
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">100+</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* New Category Tabs */}
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-500">
-                      <Zap className="w-5 h-5 min-w-[20px] text-orange-400" />
-                      <span className="text-sm whitespace-nowrap">Laser</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500">
-                      <Wrench className="w-5 h-5 min-w-[20px] text-purple-400" />
-                      <span className="text-sm whitespace-nowrap">CNC</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-blue-500">
-                      <Cpu className="w-5 h-5 min-w-[20px] text-indigo-400" />
-                      <span className="text-sm whitespace-nowrap">Electronics</span>
-                    </div>
-
-                    {/* Navigation Tabs */}
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-orange-500">
-                      <Home className="w-5 h-5 min-w-[20px] text-yellow-400" />
-                      <span className="text-sm whitespace-nowrap">Home</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-teal-500 hover:to-green-500">
-                      <Info className="w-5 h-5 min-w-[20px] text-teal-400" />
-                      <span className="text-sm whitespace-nowrap">About</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500">
-                      <Mail className="w-5 h-5 min-w-[20px] text-red-400" />
-                      <span className="text-sm whitespace-nowrap">Contact</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500">
-                      <DollarSign className="w-5 h-5 min-w-[20px] text-cyan-400" />
-                      <span className="text-sm whitespace-nowrap">Pricing</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-500 hover:to-purple-500">
-                      <HelpCircle className="w-5 h-5 min-w-[20px] text-violet-400" />
-                      <span className="text-sm whitespace-nowrap">Help</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500">
-                      <FileText className="w-5 h-5 min-w-[20px] text-emerald-400" />
-                      <span className="text-sm whitespace-nowrap">Blog</span>
+                    {/* Main Filters */}
+                    <div className="border-t border-zinc-800 pt-2 mt-2">
+                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Filters</div>
+                      <div className="space-y-1">
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
+                            filterType === "all" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("all")}
+                        >
+                          <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">All</span>
+                        </div>
+                        
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
+                            filterType === "shops" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("shops")}
+                        >
+                          <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Shops</span>
+                        </div>
+                        
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors overflow-hidden ${
+                            filterType === "models" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("models")}
+                        >
+                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Items</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Special Features */}
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-amber-500 hover:to-yellow-500">
-                      <Star className="w-5 h-5 min-w-[20px] text-amber-400" />
-                      <span className="text-sm whitespace-nowrap">Featured</span>
+                    {/* Categories */}
+                    <div className="border-t border-zinc-800 pt-2 mt-2">
+                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Categories</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">3D Print</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Zap className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Laser</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Wrench className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">CNC</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Cpu className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Electronics</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Navigation */}
+                    <div className="border-t border-zinc-800 pt-2 mt-2">
+                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Navigation</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Home className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Home</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Info className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">About</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <Mail className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Contact</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Pricing</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <HelpCircle className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Help</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                          <FileText className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">Blog</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-rose-500 hover:to-pink-500">
-                      <TrendingUp className="w-5 h-5 min-w-[20px] text-rose-400" />
-                      <span className="text-sm whitespace-nowrap">Trending</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 cursor-pointer rounded p-1 transition-all duration-300 hover:bg-gradient-to-r hover:from-slate-500 hover:to-gray-500">
-                      <Settings className="w-5 h-5 min-w-[20px] text-slate-400" />
-                      <span className="text-sm whitespace-nowrap">Settings</span>
-                    </div>
-                    
-                    {/* Category shortcuts */}
                     <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
                       <Package className="w-5 h-5 text-zinc-300 min-w-[20px]" />
                       <span className="text-white text-sm whitespace-nowrap">3D Print</span>
                     </div>
-                    
                     <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
                       <Zap className="w-5 h-5 text-zinc-300 min-w-[20px]" />
                       <span className="text-white text-sm whitespace-nowrap">Laser</span>
                     </div>
-                    
                     <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
                       <Wrench className="w-5 h-5 text-zinc-300 min-w-[20px]" />
                       <span className="text-white text-sm whitespace-nowrap">CNC</span>
                     </div>
-                    
-                    {/* Navigation */}
-                    <Link href="/" className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors">
-                      <Home className="w-5 h-5 text-zinc-300 min-w-[20px]" />
-                      <span className="text-white text-sm whitespace-nowrap">Home</span>
-                    </Link>
                   </div>
                 </motion.div>
 
