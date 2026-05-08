@@ -382,9 +382,15 @@ export default function Landing() {
                             <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
                           </div>
                         </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </section>
         </main>
         <Footer />
       </div>
     </>
-}
+  );
