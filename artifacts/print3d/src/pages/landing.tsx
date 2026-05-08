@@ -167,12 +167,12 @@ export default function Landing() {
               {/* Enhanced Vertical Icon Bar */}
               <div className="mb-6 relative">
                 <motion.div 
-                  className="fixed left-0 top-0 z-50 bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 p-2"
+                  className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 p-2 group"
                   initial={{ width: "48px", height: "100vh" }}
                   whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-2 h-full overflow-y-auto py-3" style={{scrollbarWidth: 'thin', scrollbarColor: '#52734D #27272a'}}>
+                  <div className="flex flex-col gap-2 h-full overflow-hidden py-3 group-hover:overflow-y-auto" style={{scrollbarWidth: 'thin', scrollbarColor: '#52734D #27272a'}}>
                     {/* Filter button - opens full sidebar */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden"
