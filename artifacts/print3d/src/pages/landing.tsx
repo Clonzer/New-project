@@ -196,7 +196,10 @@ export default function Landing() {
                   whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-3 h-full py-4 justify-center">
+                  <div className="flex flex-col gap-3 h-full pt-8 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 group-hover:scrollbar-thumb-zinc-500">
+                    {/* Top spacing to ensure scrolling */}
+                    <div className="h-8"></div>
+                    
                     {/* Filter button */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
@@ -505,6 +508,9 @@ export default function Landing() {
                         )}
                       </div>
                     </div>
+                    
+                    {/* Bottom spacing to ensure scrolling */}
+                    <div className="h-8"></div>
                   </div>
                 </motion.div>
               </div>
