@@ -107,7 +107,7 @@ export default function Landing() {
           </section>
 
           {/* Featured Products Section */}
-          <div className="bg-zinc-950 pt-0">
+          <section className="bg-zinc-950 pt-0">
             <div className="container mx-auto px-4 pt-2 pb-16">
               {/* Featured Section */}
               <div className="mb-8">
@@ -387,7 +387,7 @@ export default function Landing() {
                   </motion.div>
                 ))}
               </div>
-          </div>
+          </section>
         </main>
         <Footer />
       </div>
