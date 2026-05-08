@@ -58,6 +58,8 @@ export default function Landing() {
   const users = useListUsers();
   const [filterType, setFilterType] = useState("all");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -184,9 +186,26 @@ export default function Landing() {
                     <div className="border-t border-zinc-800 pt-2 mt-2">
                       <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Price Range</div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
+                        <div className="flex items-center gap-2 p-1 transition-colors overflow-hidden">
                           <span className="text-zinc-400 text-xs">$</span>
-                          <span className="text-white text-xs whitespace-nowrap overflow-hidden">All Prices</span>
+                          <input
+                            type="number"
+                            placeholder="Min"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                            className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20"
+                          />
+                          <span className="text-white text-xs">-</span>
+                          <input
+                            type="number"
+                            placeholder="Max"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                            className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20"
+                          />
+                          <button className="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                            Apply
+                          </button>
                         </div>
                         <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden">
                           <span className="text-zinc-400 text-xs">$</span>
