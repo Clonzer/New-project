@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
-import { Navbar } from "@/components/layout/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, 
@@ -121,8 +120,7 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-orange-900 via-zinc-800 to-orange-950">
       
       <main className="flex-grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">

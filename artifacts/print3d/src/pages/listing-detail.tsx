@@ -1,5 +1,4 @@
 import { useParams } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/shared/ListingCard";
 import { Button } from "@/components/ui/button";
@@ -144,8 +143,7 @@ export default function ListingDetail() {
       />
       <StructuredData schema={[productSchema, breadcrumbSchema]} />
       
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-900/20 via-black to-orange-950/20">
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back button */}

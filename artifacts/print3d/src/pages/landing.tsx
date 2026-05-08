@@ -328,7 +328,7 @@ export default function Landing() {
                           <div className="space-y-1">
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "3d-print" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "3d-print" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("3d-print"); setCategoryDropdownOpen(false);}}
                             >
@@ -338,7 +338,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "laser" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "laser" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("laser"); setCategoryDropdownOpen(false);}}
                             >
@@ -348,7 +348,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "cnc" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "cnc" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("cnc"); setCategoryDropdownOpen(false);}}
                             >
@@ -358,7 +358,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "electronics" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "electronics" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("electronics"); setCategoryDropdownOpen(false);}}
                             >
@@ -368,7 +368,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "design" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "design" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("design"); setCategoryDropdownOpen(false);}}
                             >
@@ -378,7 +378,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "tools" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "tools" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("tools"); setCategoryDropdownOpen(false);}}
                             >
@@ -388,7 +388,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "art" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "art" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("art"); setCategoryDropdownOpen(false);}}
                             >
@@ -398,7 +398,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "automotive" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "automotive" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("automotive"); setCategoryDropdownOpen(false);}}
                             >
@@ -408,7 +408,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "medical" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                selectedCategory === "medical" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("medical"); setCategoryDropdownOpen(false);}}
                             >

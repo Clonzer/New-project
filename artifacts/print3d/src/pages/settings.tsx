@@ -348,7 +348,7 @@ export default function Settings() {
                         className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                           activeSection === section.id
                             ? "bg-gradient-to-r from-primary/80 to-primary/60 text-white border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                            : "text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent"
+                            : "text-zinc-400 hover:text-white hover:bg-orange-500/20 border border-transparent"
                         }`}
                       >
                         <span className="flex items-center gap-3">
