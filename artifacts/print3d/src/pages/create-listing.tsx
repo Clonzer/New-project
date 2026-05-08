@@ -160,7 +160,7 @@ export default function CreateListing() {
   const { data: myListings } = useListListings(user?.id ? { sellerId: user.id } : undefined);
   const listingCount = myListings?.listings?.length || 0;
   const createCheck = canCreateListing(user, listingCount);
-  const limits = getPlanLimits(user?.planTier);
+  const limits = getPlanLimits(user?.planTier) || { maxListings: 3 }; // Fallback to starter limits
   const hasReachedLimit = !createCheck.allowed && createCheck.reason?.includes("limit");
 
   // Equipment data
@@ -1198,7 +1198,7 @@ export default function CreateListing() {
                     Listing Limit Reached
                   </h2>
                   <p className="text-zinc-400 mb-2 max-w-md mx-auto">
-                    You've used all <span className="text-white font-semibold">{limits.maxListings}</span> listings included in your <span className="text-white font-semibold">{getPlanDisplayName(user?.planTier)}</span> plan.
+                    You've used all <span className="text-white font-semibold">{limits?.maxListings || 3}</span> listings included in your <span className="text-white font-semibold">{getPlanDisplayName(user?.planTier)}</span> plan.
                   </p>
                   <p className="text-zinc-500 text-sm mb-6">
                     Upgrade to Pro for 20 listings, or Elite for unlimited listings.
