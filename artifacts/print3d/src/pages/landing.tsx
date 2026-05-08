@@ -212,43 +212,30 @@ export default function Landing() {
                       </div>
                       
                       {priceDropdownOpen && (
-                        <div className="bg-zinc-800/95 backdrop-blur-sm border border-zinc-700 rounded-lg p-4 mx-2 my-2">
-                          <div className="space-y-3">
-                            <div className="text-white text-sm font-medium">Set Price Range</div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="text-zinc-400 text-xs block mb-1">Min Price</label>
-                                <input
-                                  type="number"
-                                  placeholder="0"
-                                  value={minPrice}
-                                  onChange={(e) => setMinPrice(e.target.value)}
-                                  className="bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white text-sm w-full focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-zinc-400 text-xs block mb-1">Max Price</label>
-                                <input
-                                  type="number"
-                                  placeholder="1000"
-                                  value={maxPrice}
-                                  onChange={(e) => setMaxPrice(e.target.value)}
-                                  className="bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white text-sm w-full focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
+                        <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-3 mx-1 my-1 shadow-lg">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-zinc-400 text-xs">$</span>
+                              <input
+                                type="number"
+                                placeholder="Min"
+                                value={minPrice}
+                                onChange={(e) => setMinPrice(e.target.value)}
+                                className="bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500"
+                              />
+                              <span className="text-white text-xs">-</span>
+                              <input
+                                type="number"
+                                placeholder="Max"
+                                value={maxPrice}
+                                onChange={(e) => setMaxPrice(e.target.value)}
+                                className="bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500"
+                              />
                               <button 
-                                onClick={() => {setPriceDropdownOpen(false);}}
-                                className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white text-sm px-3 py-2 rounded transition-colors"
+                                onClick={() => setPriceDropdownOpen(false)}
+                                className="bg-pink-600 hover:bg-pink-700 text-white text-xs px-2 py-1 rounded transition-colors ml-2"
                               >
-                                Cancel
-                              </button>
-                              <button 
-                                onClick={() => {setPriceDropdownOpen(false);}}
-                                className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white text-sm px-3 py-2 rounded transition-all"
-                              >
-                                Apply Filter
+                                Apply
                               </button>
                             </div>
                           </div>
@@ -301,89 +288,74 @@ export default function Landing() {
                       </div>
                       
                       {categoryDropdownOpen && (
-                        <div className="bg-zinc-800/95 backdrop-blur-sm border border-zinc-700 rounded-lg p-3 mx-2 my-2">
-                          <div className="text-white text-sm font-medium mb-3">Select Category</div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "3d-print" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                        <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-2 mx-1 my-1 shadow-lg">
+                          <div className="space-y-1">
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "3d-print" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("3d-print"); setCategoryDropdownOpen(false);}}
                             >
-                              <Package className="w-4 h-4 flex-shrink-0" />
+                              <Package className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">3D Print</span>
-                            </button>
+                            </div>
                             
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "laser" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "laser" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("laser"); setCategoryDropdownOpen(false);}}
                             >
-                              <Zap className="w-4 h-4 flex-shrink-0" />
+                              <Zap className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">Laser</span>
-                            </button>
+                            </div>
                             
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "cnc" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "cnc" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("cnc"); setCategoryDropdownOpen(false);}}
                             >
-                              <Wrench className="w-4 h-4 flex-shrink-0" />
+                              <Wrench className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">CNC</span>
-                            </button>
+                            </div>
                             
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "electronics" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "electronics" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("electronics"); setCategoryDropdownOpen(false);}}
                             >
-                              <Cpu className="w-4 h-4 flex-shrink-0" />
+                              <Cpu className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">Electronics</span>
-                            </button>
+                            </div>
                             
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "design" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "design" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("design"); setCategoryDropdownOpen(false);}}
                             >
-                              <Palette className="w-4 h-4 flex-shrink-0" />
+                              <Palette className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">Design</span>
-                            </button>
+                            </div>
                             
-                            <button
-                              className={`flex items-center gap-2 rounded p-2 transition-colors ${
-                                selectedCategory === "tools" ? "bg-gradient-to-r from-pink-600/20 to-purple-600/20 text-pink-300 border border-pink-500/30" : "bg-zinc-700 hover:bg-zinc-600 text-zinc-300"
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-1 transition-colors ${
+                                selectedCategory === "tools" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setSelectedCategory("tools"); setCategoryDropdownOpen(false);}}
                             >
-                              <Hammer className="w-4 h-4 flex-shrink-0" />
+                              <Hammer className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">Tools</span>
-                            </button>
+                            </div>
                           </div>
-                          <button
-                            onClick={() => setCategoryDropdownOpen(false)}
-                            className="w-full mt-3 bg-zinc-700 hover:bg-zinc-600 text-white text-xs px-3 py-2 rounded transition-colors"
-                          >
-                            Close
-                          </button>
                         </div>
                       )}
                     </div>
 
                     {/* Store Functions */}
                     <div className="flex flex-col gap-2">
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => console.log("Open My Shop")}
-                      >
-                        <ShoppingBag className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Shop</span>
-                      </div>
-                      
                       <div 
                         className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
                         onClick={() => console.log("View Orders")}
@@ -414,14 +386,6 @@ export default function Landing() {
                       >
                         <MessageSquare className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Messages</span>
-                      </div>
-                      
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => console.log("View Analytics")}
-                      >
-                        <TrendingUp className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Analytics</span>
                       </div>
                     </div>
                   </div>
