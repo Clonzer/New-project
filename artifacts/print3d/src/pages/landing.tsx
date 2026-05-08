@@ -118,13 +118,13 @@ export default function Landing() {
                     transition={{ duration: 0.6 }}
                   >
                     <div className="mb-6">
-                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full mb-6">
-                      <Sparkles className="w-5 h-5" />
-                      <span className="font-bold">Featured This Week</span>
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-6">
-                      Trending Designs & Top Rated Shops
-                    </h2>
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full mb-6">
+                        <Sparkles className="w-5 h-5" />
+                        <span className="font-bold">Featured This Week</span>
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-6">
+                        Trending Designs & Top Rated Shops
+                      </h2>
                     </div>
                   </motion.div>
                 </div>
