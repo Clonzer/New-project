@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   Search, 
   Star, 
@@ -58,6 +59,16 @@ export default function Landing() {
   const listings = useListListings();
   const users = useListUsers();
   const [filterType, setFilterType] = useState("all");
+  const { isAuthenticated } = useAuth();
+
+  // Helper function to navigate with auth check
+  const navigateWithAuth = (path: string) => {
+    if (isAuthenticated) {
+      window.location.href = path;
+    } else {
+      window.location.href = '/register';
+    }
+  };
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -438,26 +449,26 @@ export default function Landing() {
                             <div className="space-y-1">
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Active Orders");}}
+                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders');}}
                               >
-                                <ShoppingBag className="w-3 h-3 flex-shrink-0" />
+                                <Package className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-xs">Active Orders</span>
                               </div>
                               
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Completed Orders");}}
+                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders/history');}}
                               >
-                                <Package className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Completed</span>
+                                <Clock className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Order History</span>
                               </div>
                               
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); console.log("View Order History");}}
+                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders/returns');}}
                               >
-                                <Clock className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">History</span>
+                                <ArrowUpDown className="w-3 h-3 flex-shrink-0" />
+                                <span className="text-xs">Returns</span>
                               </div>
                             </div>
                           </div>
@@ -481,7 +492,7 @@ export default function Landing() {
                             <div className="space-y-1">
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Favorite Items");}}
+                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/items');}}
                               >
                                 <Heart className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-xs">Favorite Items</span>
@@ -489,7 +500,7 @@ export default function Landing() {
                               
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Favorite Shops");}}
+                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/shops');}}
                               >
                                 <Users className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-xs">Favorite Shops</span>
@@ -497,7 +508,7 @@ export default function Landing() {
                               
                               <div 
                                 className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); console.log("View Saved Searches");}}
+                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/searches');}}
                               >
                                 <Search className="w-3 h-3 flex-shrink-0" />
                                 <span className="text-xs">Saved Searches</span>
