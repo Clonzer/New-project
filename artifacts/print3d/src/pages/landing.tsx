@@ -7,13 +7,19 @@ import {
   Users, 
   Eye,
   ChevronRight,
+  ChevronLeft,
+  ChevronDown,
   Shield,
   Package,
   Crown,
   TrendingUp,
   Zap,
   Award,
-  Sparkles
+  Sparkles,
+  Filter,
+  Grid3x3,
+  DollarSign,
+  ArrowUpDown
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -26,6 +32,7 @@ export default function Landing() {
   const listings = useListListings();
   const users = useListUsers();
   const [filterType, setFilterType] = useState("all");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -130,58 +137,164 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Filter Bar */}
-              <div className="mb-6">
-                <div className="flex flex-wrap gap-2 items-center justify-center">
-                  <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
-                    <span className="text-zinc-400 text-sm font-medium">Type:</span>
-                    <select 
-                      value={filterType} 
-                      onChange={(e) => setFilterType(e.target.value)}
-                      className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer"
-                    >
-                      <option value="all">All Items</option>
-                      <option value="shops">Shops Only</option>
-                      <option value="models">Products Only</option>
-                    </select>
-                  </div>
-                  
-                  <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
-                    <span className="text-zinc-400 text-sm font-medium">Category:</span>
-                    <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
-                      <option value="all">All Categories</option>
-                      <option value="3d-printing">3D Printing</option>
-                      <option value="laser-cutting">Laser Cutting</option>
-                      <option value="cnc-machining">CNC Machining</option>
-                      <option value="3d-scanning">3D Scanning</option>
-                      <option value="design-services">Design Services</option>
-                      <option value="assembly">Assembly</option>
-                    </select>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
-                    <span className="text-zinc-400 text-sm font-medium">Sort:</span>
-                    <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
-                      <option value="recent">Most Recent</option>
-                      <option value="popular">Most Popular</option>
-                      <option value="price-low">Price: Low to High</option>
-                      <option value="price-high">Price: High to Low</option>
-                      <option value="rating">Highest Rated</option>
-                    </select>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2">
-                    <span className="text-zinc-400 text-sm font-medium">Price Range:</span>
-                    <select className="bg-transparent border-none text-white text-sm focus:outline-none cursor-pointer">
-                      <option value="all">All Prices</option>
-                      <option value="0-25">$0 - $25</option>
-                      <option value="25-50">$25 - $50</option>
-                      <option value="50-100">$50 - $100</option>
-                      <option value="100-200">$100 - $200</option>
-                      <option value="200+">$200+</option>
-                    </select>
-                  </div>
+              {/* Collapsible Filter Sidebar */}
+              <div className="mb-6 relative">
+                {/* Sidebar Toggle Button */}
+                <div 
+                  className="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 bg-zinc-800 border border-zinc-700 rounded-r-lg p-2 cursor-pointer group"
+                  onMouseEnter={() => setIsSidebarOpen(true)}
+                >
+                  <ChevronRight className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
                 </div>
+
+                {/* Sidebar */}
+                <motion.div
+                  initial={false}
+                  animate={{ x: isSidebarOpen ? 0 : -320 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  onMouseLeave={() => setIsSidebarOpen(false)}
+                  className="fixed left-0 top-0 h-full w-80 bg-zinc-900 border-r border-zinc-800 z-40 overflow-y-auto"
+                >
+                  <div className="p-6">
+                    {/* Sidebar Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                        <Filter className="w-5 h-5" />
+                        Filters
+                      </h3>
+                      <button
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="text-zinc-400 hover:text-white transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Filter Sections */}
+                    <div className="space-y-6">
+                      {/* Type Filter */}
+                      <div>
+                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                          <Grid3x3 className="w-4 h-4" />
+                          Type
+                        </h4>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input
+                              type="radio"
+                              name="type"
+                              value="all"
+                              checked={filterType === "all"}
+                              onChange={(e) => setFilterType(e.target.value)}
+                              className="text-pink-500 focus:ring-pink-500"
+                            />
+                            <span>All Items</span>
+                          </label>
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input
+                              type="radio"
+                              name="type"
+                              value="shops"
+                              checked={filterType === "shops"}
+                              onChange={(e) => setFilterType(e.target.value)}
+                              className="text-pink-500 focus:ring-pink-500"
+                            />
+                            <span>Shops Only</span>
+                          </label>
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input
+                              type="radio"
+                              name="type"
+                              value="models"
+                              checked={filterType === "models"}
+                              onChange={(e) => setFilterType(e.target.value)}
+                              className="text-pink-500 focus:ring-pink-500"
+                            />
+                            <span>Products Only</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Category Filter */}
+                      <div>
+                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                          <Package className="w-4 h-4" />
+                          Category
+                        </h4>
+                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
+                          <option value="all">All Categories</option>
+                          <option value="3d-printing">3D Printing</option>
+                          <option value="laser-cutting">Laser Cutting</option>
+                          <option value="cnc-machining">CNC Machining</option>
+                          <option value="3d-scanning">3D Scanning</option>
+                          <option value="design-services">Design Services</option>
+                          <option value="assembly">Assembly</option>
+                        </select>
+                      </div>
+
+                      {/* Sort Filter */}
+                      <div>
+                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                          <ArrowUpDown className="w-4 h-4" />
+                          Sort By
+                        </h4>
+                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
+                          <option value="recent">Most Recent</option>
+                          <option value="popular">Most Popular</option>
+                          <option value="price-low">Price: Low to High</option>
+                          <option value="price-high">Price: High to Low</option>
+                          <option value="rating">Highest Rated</option>
+                        </select>
+                      </div>
+
+                      {/* Price Range Filter */}
+                      <div>
+                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                          <DollarSign className="w-4 h-4" />
+                          Price Range
+                        </h4>
+                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-pink-500">
+                          <option value="all">All Prices</option>
+                          <option value="0-25">$0 - $25</option>
+                          <option value="25-50">$25 - $50</option>
+                          <option value="50-100">$50 - $100</option>
+                          <option value="100-200">$100 - $200</option>
+                          <option value="200+">$200+</option>
+                        </select>
+                      </div>
+
+                      {/* Shop Types */}
+                      <div>
+                        <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Shop Types
+                        </h4>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
+                            <span>Verified Shops</span>
+                          </label>
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
+                            <span>Premium Sellers</span>
+                          </label>
+                          <label className="flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer">
+                            <input type="checkbox" className="text-pink-500 focus:ring-pink-500" />
+                            <span>Fast Delivery</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Overlay */}
+                {isSidebarOpen && (
+                  <div
+                    className="fixed inset-0 bg-black/50 z-30"
+                    onClick={() => setIsSidebarOpen(false)}
+                  />
+                )}
               </div>
 
               {/* Products Grid - First Row */}
