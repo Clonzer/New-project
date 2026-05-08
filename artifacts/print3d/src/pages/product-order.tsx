@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useSearch, useLocation } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";

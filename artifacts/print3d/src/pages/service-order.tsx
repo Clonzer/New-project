@@ -3,7 +3,6 @@ import { useSearch, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
@@ -209,10 +208,8 @@ export default function ServiceOrder() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
-      <main className="flex-grow pt-24 pb-16">
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="mb-8">
             <Button

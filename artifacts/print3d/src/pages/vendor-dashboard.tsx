@@ -316,7 +316,7 @@ export function VendorDashboard() {
       case "maintenance":
         return "text-yellow-400 bg-yellow-400/10 border-yellow-400/30";
       case "pending":
-        return "text-blue-400 bg-blue-400/10 border-blue-400/30";
+        return "text-orange-400 bg-orange-400/10 border-orange-400/30";
       case "out-of-service":
       case "cancelled":
         return "text-red-400 bg-red-400/10 border-red-400/30";
@@ -431,7 +431,7 @@ export function VendorDashboard() {
                 {[
                   { label: "Total Orders", value: mockOrders.length, icon: ShoppingCart, color: "cyan" },
                   { label: "Pending", value: mockOrders.filter(o => o.status === "pending").length, icon: Clock, color: "yellow" },
-                  { label: "Processing", value: mockOrders.filter(o => o.status === "processing").length, icon: Package, color: "blue" },
+                  { label: "Processing", value: mockOrders.filter(o => o.status === "processing").length, icon: Package, color: "orange" },
                   { label: "Shipped", value: mockOrders.filter(o => o.status === "shipped").length, icon: CheckCircle, color: "green" }
                 ].map((stat, index) => (
                   <div key={index} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
@@ -847,7 +847,7 @@ export function VendorDashboard() {
                     <span className="text-purple-400 text-sm">Total Orders</span>
                   </div>
                   <p className="text-3xl font-bold text-white">{mockAnalytics.totalOrders}</p>
-                  <p className="text-green-400 text-sm mt-1">+8.3% from last month</p>
+                  <p className="text-orange-400 text-sm mt-1">+8.3% from last month</p>
                 </div>
                 <div className="bg-gradient-to-br from-pink-500/10 to-pink-500/5 border border-pink-500/20 rounded-xl p-6">
                   <div className="flex items-center gap-3 mb-2">

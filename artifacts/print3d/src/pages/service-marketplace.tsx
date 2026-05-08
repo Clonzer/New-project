@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/Navbar";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { useAuth } from "@/hooks/use-auth";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -12,7 +11,6 @@ export default function ServiceMarketplace() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-        <Navbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center glass-panel p-12 rounded-3xl">
             <Package className="w-12 h-12 text-zinc-400 mx-auto mb-4" />
@@ -26,7 +24,6 @@ export default function ServiceMarketplace() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      <Navbar />
       
       <main className="flex-grow pt-10 pb-24">
         <div className="container mx-auto px-4">

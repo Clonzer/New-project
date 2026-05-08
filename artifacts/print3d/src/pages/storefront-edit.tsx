@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -305,7 +303,6 @@ export default function StorefrontEdit() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <p className="text-zinc-400 mb-4">Please sign in to edit your storefront.</p>
@@ -321,8 +318,6 @@ export default function StorefrontEdit() {
 
   return (
     <div className="min-h-screen flex flex-col bg-black">
-      <Navbar />
-      
       <main className="flex-grow pt-8 pb-24">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Header */}

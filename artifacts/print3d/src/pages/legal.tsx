@@ -1,10 +1,8 @@
 import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
 
 export function TermsPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto max-w-4xl px-4">
           <h1 className="mb-6 text-4xl font-display font-bold text-white">Terms of Service</h1>
@@ -25,7 +23,6 @@ export function TermsPage() {
 export function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <main className="flex-grow pt-12 pb-24">
         <div className="container mx-auto max-w-4xl px-4">
           <h1 className="mb-6 text-4xl font-display font-bold text-white">Privacy Policy</h1>

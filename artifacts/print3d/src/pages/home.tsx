@@ -35,7 +35,6 @@ import {
   Globe,
   ChevronDown
 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -175,7 +174,7 @@ export default function Home() {
             repeat: Infinity, 
             ease: "linear" 
           }}
-          className="absolute top-[20%] left-[15%] w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] rounded-full opacity-20 blur-[150px] bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600"
+          className="absolute top-[20%] left-[15%] w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] rounded-full opacity-20 blur-[150px] bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-600"
         />
         
         <motion.div 
@@ -201,7 +200,7 @@ export default function Home() {
             repeat: Infinity, 
             ease: "easeInOut" 
           }}
-          className="absolute bottom-[20%] left-[10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full opacity-25 blur-[100px] bg-gradient-to-tr from-orange-400 via-pink-500 to-purple-600"
+          className="absolute bottom-[20%] left-[10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full opacity-25 blur-[100px] bg-gradient-to-tr from-orange-400 via-amber-500 to-yellow-600"
         />
         
         <motion.div 
@@ -214,7 +213,7 @@ export default function Home() {
             repeat: Infinity, 
             ease: "easeInOut" 
           }}
-          className="absolute top-[35%] left-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500"
+          className="absolute top-[35%] left-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-yellow-400 via-orange-500 to-amber-500"
         />
         
         {/* Enhanced noise and grid overlay */}
@@ -247,7 +246,6 @@ export default function Home() {
           />
         ))}
       </div>
-      <Navbar />
 
       <main className="flex-grow relative z-10">
         <section className="relative pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
@@ -266,7 +264,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-gradient-to-r from-orange-500/20 to-orange-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-orange-500/25"
               >
-                <Sparkles className="w-4 h-4 text-pink-300" />
+                <Sparkles className="w-4 h-4 text-amber-300" />
                 <span className="bg-gradient-to-r from-orange-300 to-orange-400 bg-clip-text text-transparent">Storefront marketplace</span>
               </motion.span>
               <motion.h1 
@@ -281,12 +279,12 @@ export default function Home() {
                       backgroundPosition: ["0% 50%", "100% 50%"], 
                     }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent"
                     style={{ backgroundSize: "200% 100%" }}
                   >
                     Your 3D Printing Marketplace
                   </motion.span>
-                  <span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent opacity-90">Marketplace</span>
+                  <span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent opacity-90">Marketplace</span>
                 </span>
               </motion.h1>
               <motion.p 
@@ -313,7 +311,7 @@ export default function Home() {
                   <Link href="/explore">
                     <Button 
                       size="lg" 
-                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group border-0 relative overflow-hidden"
+                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 hover:from-cyan-600 hover:via-blue-600 hover:to-indigo-600 text-white shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 group border-0 relative overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                       <span className="relative flex items-center gap-3">
@@ -366,7 +364,7 @@ export default function Home() {
               </Badge>
               <div className="flex items-center justify-center gap-4 mb-6">
                 <h2 className="text-4xl md:text-5xl font-black text-white">
-                  Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
+                  Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
                 </h2>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -401,9 +399,9 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
               >
                 <Link href={`/explore-all?filter=shops${selectedCategory !== 'all' ? `&category=${selectedCategory}` : ''}`}>
-                  <Card className="bg-gradient-to-br from-pink-600/30 via-purple-600/30 to-indigo-600/30 border-pink-500/40 hover:border-pink-400/60 hover:from-pink-600/40 hover:via-purple-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30">
+                  <Card className="bg-gradient-to-br from-cyan-600/30 via-blue-600/30 to-indigo-600/30 border-cyan-500/40 hover:border-cyan-400/60 hover:from-cyan-600/40 hover:via-blue-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30">
                     <CardContent className="p-8 text-center">
-                      <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                      <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                         <Users className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-3xl font-black text-white mb-3">Explore All Shops</h3>
@@ -454,7 +452,7 @@ export default function Home() {
                 <Crown className="w-3 h-3 mr-1" /> Platform Features
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Synthix</span></span>
+                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Synthix</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 The most trusted platform for 3D printing services and products
@@ -469,7 +467,7 @@ export default function Home() {
               >
                 {[
                   { number: "10,000+", label: "Active Makers", icon: Users, color: "from-emerald-400 via-teal-400 to-cyan-400" },
-                  { number: "50,000+", label: "Products Listed", icon: Package, color: "from-purple-400 via-pink-400 to-rose-400" },
+                  { number: "50,000+", label: "Products Listed", icon: Package, color: "from-cyan-400 via-blue-400 to-indigo-400" },
                   { number: "99.9%", label: "Success Rate", icon: CheckCircle, color: "from-amber-400 via-orange-400 to-red-400" }
                 ].map((stat, index) => (
                   <motion.div
@@ -516,7 +514,7 @@ export default function Home() {
                   icon: Users,
                   title: "Community Driven",
                   description: "Join 50,000+ satisfied customers and talented makers",
-                  color: "from-purple-400 via-pink-400 to-rose-400",
+                  color: "from-cyan-400 via-blue-400 to-indigo-400",
                   badge: "5-Star Rated"
                 },
                 {
@@ -530,7 +528,7 @@ export default function Home() {
                   icon: Gem,
                   title: "Premium Materials",
                   description: "Access to industry-leading filaments and resins",
-                  color: "from-rose-400 via-pink-400 to-purple-400",
+                  color: "from-blue-400 via-cyan-400 to-indigo-400",
                   badge: "Pro Grade"
                 }
               ].map((feature, index) => (
@@ -541,10 +539,10 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -6 }}
                 >
-                  <Card className="bg-black/40 border-white/10 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm relative">
+                  <Card className="bg-black/40 border-white/10 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm relative">
                     {feature.badge && (
                       <div className="absolute top-4 right-4 z-20">
-                        <Badge className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+                        <Badge className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
                           {feature.badge}
                         </Badge>
                       </div>
@@ -577,11 +575,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
                 <Boxes className="w-3 h-3 mr-1" /> Simple Process
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Works</span></span>
+                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Works</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Get your 3D prints in three simple steps
@@ -619,7 +617,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   className="relative"
                 >
-                  <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full relative overflow-hidden shadow-2xl backdrop-blur-sm">
+                  <Card className="bg-black/40 border-zinc-800 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 h-full relative overflow-hidden shadow-2xl backdrop-blur-sm">
                     <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
                     <CardHeader className="pt-8">
                       <div className="flex items-center gap-4 mb-4">
@@ -656,17 +654,17 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
                 <Palette className="w-3 h-3 mr-1" /> {currentCategoryText.badge} Category
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 {selectedCategory === 'all' ? (
                   <>
-                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span></span>
+                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Categories</span></span>
                   </>
                 ) : (
                   <>
-                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
+                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
                   </>
                 )}
               </h2>
@@ -680,9 +678,9 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-pink-400 via-purple-400 to-indigo-400" },
+                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-cyan-400 via-blue-400 to-indigo-400" },
                 { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-cyan-400 via-teal-400 to-emerald-400" },
-                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-rose-400 via-pink-400 to-purple-400" },
+                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-amber-400 via-orange-400 to-red-400" },
                 { icon: Lightbulb, title: "Cosplay Props", items: "950+ items", color: "from-amber-400 via-orange-400 to-red-400" },
                 { icon: Package, title: "Home Decor", items: "1,500+ items", color: "from-purple-400 via-violet-400 to-indigo-400" },
                 { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 via-amber-400 to-orange-400" },
@@ -702,13 +700,13 @@ export default function Home() {
                     href={`/explore-all?filter=models&category=${categoryValue}`}
                     onClick={() => setSelectedCategory(categoryValue)}
                   >
-                    <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
+                    <Card className="bg-black/40 border-zinc-800 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className={`w-14 h-14 bg-gradient-to-r ${category.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}>
                           <category.icon className="w-7 h-7 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-white font-bold text-xl group-hover:text-pink-400 transition-colors">{category.title}</h3>
+                          <h3 className="text-white font-bold text-xl group-hover:text-cyan-400 transition-colors">{category.title}</h3>
                           <p className="text-zinc-300 text-sm font-medium">{category.items}</p>
                         </div>
                       </CardContent>
@@ -730,11 +728,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
                 <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Customers Say</span></span>
+                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Customers Say</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Real reviews from real customers
@@ -807,7 +805,7 @@ export default function Home() {
         </section>
 
         {/* Section 6: CTA - Gradient Background */}
-        <section className="py-24 bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-600 relative overflow-hidden">
+        <section className="py-24 bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-600 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
           <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-20 blur-[100px] bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 animate-pulse" />
           <div className="absolute bottom-[-20%] right-[10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-20 blur-[80px] bg-gradient-to-tr from-cyan-400 via-teal-500 to-emerald-600 animate-pulse" style={{ animationDelay: '1s' }} />

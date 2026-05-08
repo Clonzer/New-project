@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { markAllNotificationsRead, listNotifications, NotificationItem } from "@/lib/notifications-api";
 import { Bell } from "lucide-react";

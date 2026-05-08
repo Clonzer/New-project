@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams, Link } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -265,7 +264,6 @@ export default function ServiceRequestDetail() {
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}

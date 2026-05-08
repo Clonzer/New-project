@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useListListings } from "@/lib/workspace-api-mock";
 import { ListingCard } from "@/components/shared/ListingCard";

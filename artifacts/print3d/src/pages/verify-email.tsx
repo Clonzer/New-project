@@ -153,8 +153,8 @@ export default function VerifyEmail() {
                   
                   {status === "resend" && (
                     <div className="relative">
-                      <Mail className="w-16 h-16 text-blue-400 mx-auto" />
-                      <div className="absolute inset-0 w-16 h-16 mx-auto rounded-full bg-blue-400/10 animate-pulse" />
+                      <Mail className="w-16 h-16 text-orange-400 mx-auto" />
+                      <div className="absolute inset-0 w-16 h-16 mx-auto rounded-full bg-orange-400/10 animate-pulse" />
                     </div>
                   )}
                 </div>
@@ -240,14 +240,14 @@ export default function VerifyEmail() {
 
                 {status === "resend" && (
                   <div className="space-y-4">
-                    <h1 className="text-2xl font-bold text-blue-400 mb-2">
+                    <h1 className="text-2xl font-bold text-orange-400 mb-2">
                       Email Sent
                     </h1>
                     <p className="text-zinc-300 mb-4">
                       {message}
                     </p>
-                    <div className="p-4 bg-blue-400/10 rounded-lg border border-blue-400/30">
-                      <div className="flex items-center gap-2 text-blue-300 text-sm">
+                    <div className="p-4 bg-orange-400/10 rounded-lg border border-orange-400/30">
+                      <div className="flex items-center gap-2 text-orange-300 text-sm">
                         <Mail className="w-4 h-4" />
                         Check your inbox for the new verification link
                       </div>

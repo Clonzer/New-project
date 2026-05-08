@@ -43,11 +43,9 @@ import {
   Building,
   Factory,
   Truck,
-  ShoppingBag,
   ShoppingCart,
   Clock,
-  Gift,
-  Tag
+  Gift
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -176,7 +174,7 @@ export default function Landing() {
                     transition={{ duration: 0.6 }}
                   >
                     <div className="mb-6">
-                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-full mb-6">
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-2 rounded-full mb-6">
                         <Sparkles className="w-5 h-5" />
                         <span className="font-bold">Featured This Week</span>
                       </div>
@@ -226,7 +224,7 @@ export default function Landing() {
                           <div className="space-y-1">
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                !minPrice && !maxPrice ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                !minPrice && !maxPrice ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice(""); setMaxPrice(""); setPriceDropdownOpen(false);}}
                             >
@@ -236,7 +234,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "0" && maxPrice === "25" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "0" && maxPrice === "25" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("0"); setMaxPrice("25"); setPriceDropdownOpen(false);}}
                             >
@@ -246,7 +244,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "25" && maxPrice === "50" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "25" && maxPrice === "50" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("25"); setMaxPrice("50"); setPriceDropdownOpen(false);}}
                             >
@@ -256,7 +254,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "50" && maxPrice === "100" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "50" && maxPrice === "100" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("50"); setMaxPrice("100"); setPriceDropdownOpen(false);}}
                             >
@@ -266,7 +264,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "100" && !maxPrice ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "100" && !maxPrice ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}
                             >
@@ -282,7 +280,7 @@ export default function Landing() {
                     <div className="flex flex-col gap-2">
                       <div 
                         className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "all" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          filterType === "all" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
                         }`}
                         onClick={() => setFilterType("all")}
                       >
@@ -292,7 +290,7 @@ export default function Landing() {
                       
                       <div 
                         className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "shops" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          filterType === "shops" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
                         }`}
                         onClick={() => setFilterType("shops")}
                       >
@@ -302,7 +300,7 @@ export default function Landing() {
                       
                       <div 
                         className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "models" ? "bg-pink-600/20 text-pink-300" : "hover:bg-zinc-700"
+                          filterType === "models" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
                         }`}
                         onClick={() => setFilterType("models")}
                       >
@@ -527,7 +525,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
                             // Maker card with banner and avatar
@@ -581,7 +579,7 @@ export default function Landing() {
                               <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
                               <p className="text-zinc-400 text-xs">{item.subtitle}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
+                                <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
                                   {item.type}
                                 </Badge>
                                 {item.sellerName && (
@@ -608,7 +606,7 @@ export default function Landing() {
                                 <span className="text-zinc-400 text-xs">{item.views}</span>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
                           </div>
                         </div>
                       </div>
@@ -629,7 +627,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-pink-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
                             // Maker card with banner and avatar
@@ -683,7 +681,7 @@ export default function Landing() {
                               <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
                               <p className="text-zinc-400 text-xs">{item.subtitle}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-pink-500/20 text-pink-300 border-pink-500/30">
+                                <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
                                   {item.type}
                                 </Badge>
                                 {item.sellerName && (
@@ -710,7 +708,7 @@ export default function Landing() {
                                 <span className="text-zinc-400 text-xs">{item.views}</span>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-pink-400 transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
                           </div>
                         </div>
                       </div>

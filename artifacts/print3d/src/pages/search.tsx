@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useSearch, Link } from "wouter";
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useListSellers, useListListings } from "@/lib/workspace-api-mock";
 import { SellerCard } from "@/components/shared/SellerCard";

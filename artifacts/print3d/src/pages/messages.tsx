@@ -3,7 +3,6 @@ import { useLocation, Link } from "wouter";
 import { useListUsers } from "@/lib/workspace-api-mock";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus, Search, Send } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
