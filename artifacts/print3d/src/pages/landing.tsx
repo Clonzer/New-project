@@ -136,13 +136,13 @@ export default function Landing() {
         <main className="flex-grow">
           {/* Hero Section */}
           <section className="bg-zinc-950">
-            <div className="container mx-auto pl-12 pr-4 py-4">
+            <div className="container mx-auto pl-20 pr-4 py-4">
             </div>
           </section>
 
           {/* Featured Products Section */}
           <section className="bg-zinc-950 pt-0">
-            <div className="container mx-auto pl-12 pr-4 pt-2 pb-16">
+            <div className="container mx-auto pl-20 pr-4 pt-2 pb-16">
               {/* Featured Section */}
               <div className="mb-8">
                 <div className="text-center mb-8">
@@ -172,7 +172,7 @@ export default function Landing() {
                   whileHover={{ width: "220px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <div className="flex flex-col gap-2 h-full overflow-hidden py-3 group-hover:overflow-y-auto">
+                  <div className="flex flex-col gap-2 h-full overflow-y-auto py-3">
                     {/* Filter button - opens full sidebar */}
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden"
@@ -183,47 +183,10 @@ export default function Landing() {
                     </div>
                     
                     {/* Price Filter Section */}
-                    <div className="border-t border-zinc-800 pt-2 mt-2 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
-                      <div className="text-zinc-400 text-xs font-medium mb-2 px-1">Price Range</div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 p-1 transition-colors overflow-hidden group">
-                          <span className="text-zinc-400 text-xs">$</span>
-                          <input
-                            type="number"
-                            placeholder="Min"
-                            value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
-                            className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200"
-                          />
-                          <span className="text-white text-xs opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">-</span>
-                          <input
-                            type="number"
-                            placeholder="Max"
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
-                            className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-white text-xs w-16 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/20 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200"
-                          />
-                          <button className="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3 py-1 rounded transition-colors opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
-                            Apply
-                          </button>
-                        </div>
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
-                          <span className="text-zinc-400 text-xs">$</span>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">0-25</span>
-                        </div>
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
-                          <span className="text-zinc-400 text-xs">$</span>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">25-50</span>
-                        </div>
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
-                          <span className="text-zinc-400 text-xs">$</span>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">50-100</span>
-                        </div>
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
-                          <span className="text-zinc-400 text-xs">$</span>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">100+</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-1 transition-colors overflow-hidden group">
+                      <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                      <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
+                      <ChevronDown className="w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200" />
                     </div>
 
                     {/* Main Filters */}
