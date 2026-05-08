@@ -211,7 +211,7 @@ export default function Landing() {
                       </div>
                       
                       {priceDropdownOpen && (
-                        <div className="absolute left-full ml-2 top-0 bg-zinc-800 border border-zinc-700 rounded-lg p-3 w-48 z-50 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
+                        <div className="absolute left-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg p-3 w-48 z-50">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <span className="text-zinc-400 text-xs">$</span>
@@ -287,7 +287,7 @@ export default function Landing() {
                       </div>
                       
                       {categoryDropdownOpen && (
-                        <div className="absolute left-full ml-2 top-0 bg-zinc-800 border border-zinc-700 rounded-lg p-2 w-40 z-50 opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-200">
+                        <div className="absolute left-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg p-2 w-40 z-50">
                           <div className="space-y-1">
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
@@ -355,32 +355,50 @@ export default function Landing() {
 
                     {/* Navigation */}
                     <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to Home")}
+                      >
                         <Home className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Home</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to About")}
+                      >
                         <Info className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">About</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to Contact")}
+                      >
                         <Mail className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Contact</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to Pricing")}
+                      >
                         <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Pricing</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to Help")}
+                      >
                         <HelpCircle className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Help</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Navigate to Blog")}
+                      >
                         <FileText className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Blog</span>
                       </div>
