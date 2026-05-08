@@ -12,7 +12,7 @@ export function Listings({ myListings, handleDeleteListing }) {
   const listingCount = myListings?.listings?.length || 0;
   const createCheck = canCreateListing(user, listingCount);
   const remaining = getRemainingListings(user, listingCount);
-  const limits = getPlanLimits(user?.planTier) || { maxListings: 3 }; // Fallback to starter limits
+  const limits = getPlanLimits(user?.planTier);
 
   const renderAddButton = () => {
     if (createCheck.allowed) {

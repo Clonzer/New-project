@@ -46,7 +46,7 @@ export const PLAN_LIMITS = {
 } as const;
 
 export function getPlanLimits(tier: PlanTier | undefined) {
-  return PLAN_LIMITS[tier || "starter"];
+  return PLAN_LIMITS[tier || "starter"] || PLAN_LIMITS.starter;
 }
 
 export function canCreateListing(

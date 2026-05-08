@@ -75,9 +75,7 @@ export default function Landing() {
   const [priceDropdownOpen, setPriceDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
-  const [favoritesDropdownOpen, setFavoritesDropdownOpen] = useState(false);
-
+  
   // Debug logging
   console.log("Listings data:", listings.data);
   console.log("Users data:", users.data);
@@ -432,90 +430,22 @@ export default function Landing() {
 
                     {/* Store Functions */}
                     <div className="flex flex-col gap-2">
-                      {/* My Orders Dropdown */}
-                      <div className="relative">
-                        <div 
-                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                          onClick={() => setOrdersDropdownOpen(!ordersDropdownOpen)}
-                        >
-                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
-                          <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${ordersDropdownOpen ? 'rotate-180' : ''}`} />
-                        </div>
-                        
-                        {ordersDropdownOpen && (
-                          <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
-                            <div className="text-white text-sm font-medium mb-2">My Orders</div>
-                            <div className="space-y-1">
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders');}}
-                              >
-                                <Package className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Active Orders</span>
-                              </div>
-                              
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders/history');}}
-                              >
-                                <Clock className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Order History</span>
-                              </div>
-                              
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setOrdersDropdownOpen(false); navigateWithAuth('/dashboard/orders/returns');}}
-                              >
-                                <ArrowUpDown className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Returns</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                      {/* My Orders Button */}
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => navigateWithAuth('/dashboard/orders')}
+                      >
+                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
                       </div>
                       
-                      {/* Favorites Dropdown */}
-                      <div className="relative">
-                        <div 
-                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                          onClick={() => setFavoritesDropdownOpen(!favoritesDropdownOpen)}
-                        >
-                          <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
-                          <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${favoritesDropdownOpen ? 'rotate-180' : ''}`} />
-                        </div>
-                        
-                        {favoritesDropdownOpen && (
-                          <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
-                            <div className="text-white text-sm font-medium mb-2">Favorites</div>
-                            <div className="space-y-1">
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/items');}}
-                              >
-                                <Heart className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Favorite Items</span>
-                              </div>
-                              
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/shops');}}
-                              >
-                                <Users className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Favorite Shops</span>
-                              </div>
-                              
-                              <div 
-                                className="flex items-center gap-2 cursor-pointer rounded p-2 transition-colors hover:bg-zinc-700 text-zinc-300"
-                                onClick={() => {setFavoritesDropdownOpen(false); navigateWithAuth('/dashboard/favorites/searches');}}
-                              >
-                                <Search className="w-3 h-3 flex-shrink-0" />
-                                <span className="text-xs">Saved Searches</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                      {/* Favorites Button */}
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => navigateWithAuth('/dashboard/favorites')}
+                      >
+                        <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
                       </div>
                     </div>
                     

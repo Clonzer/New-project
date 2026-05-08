@@ -160,7 +160,7 @@ export default function CreateListing() {
   const { data: myListings } = useListListings(user?.id ? { sellerId: user.id } : undefined);
   const listingCount = myListings?.listings?.length || 0;
   const createCheck = canCreateListing(user, listingCount);
-  const limits = getPlanLimits(user?.planTier) || { maxListings: 3 }; // Fallback to starter limits
+  const limits = getPlanLimits(user?.planTier);
   const hasReachedLimit = !createCheck.allowed && createCheck.reason?.includes("limit");
 
   // Equipment data
