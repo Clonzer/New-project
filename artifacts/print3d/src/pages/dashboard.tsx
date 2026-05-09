@@ -69,9 +69,9 @@ export default function DashboardWithSidebar() {
   const pendingOrders = safeOrders.filter(order => order.status === 'pending').length;
   const completedOrders = safeOrders.filter(order => order.status === 'delivered').length;
 
-  const recentOrders = safeOrders.slice(0, 8);
-  const topListings = safeListings.slice(0, 6);
-  const recentReviews = safeReviews.slice(0, 5);
+  const recentOrders = Array.isArray(safeOrders) ? safeOrders.slice(0, 8) : [];
+  const topListings = Array.isArray(safeListings) ? safeListings.slice(0, 6) : [];
+  const recentReviews = Array.isArray(safeReviews) ? safeReviews.slice(0, 5) : [];
 
   const equipmentStatus = safePrinters.reduce((acc, printer) => {
     acc[printer.status] = (acc[printer.status] || 0) + 1;
@@ -84,9 +84,12 @@ export default function DashboardWithSidebar() {
 
   // Get active section from hash
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    if (hash && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews'].includes(hash)) {
-      setActiveSection(hash);
+    const hash = window.location.hash;
+    if (typeof hash === 'string') {
+      const hashValue = hash.slice(1);
+      if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews'].includes(hashValue)) {
+        setActiveSection(hashValue);
+      }
     }
   }, []);
 
@@ -229,7 +232,7 @@ export default function DashboardWithSidebar() {
                       </div>
                       <div>
                         <p className="text-white text-sm font-medium">
-                          {order.listings?.title || `Order #${order.id.slice(0, 8)}`}
+                          {order.listings?.title || `Order #${(order.id || '').slice(0, 8)}`}
                         </p>
                         <p className="text-zinc-400 text-xs">
                           ${order.total_amount} • {new Date(order.created_at).toLocaleDateString()}
@@ -449,7 +452,7 @@ export default function DashboardWithSidebar() {
                         </div>
                         <div>
                           <h4 className="font-semibold text-white text-lg">
-                            {order.listings?.title || `Order #${order.id.slice(0, 8)}`}
+                            {order.listings?.title || `Order #${(order.id || '').slice(0, 8)}`}
                           </h4>
                           <p className="text-zinc-400">
                             Order ID: {order.id} • {new Date(order.created_at).toLocaleDateString()}
@@ -628,11 +631,11 @@ export default function DashboardWithSidebar() {
                       <div>
                         <p className="text-zinc-400 text-sm mb-2">Materials:</p>
                         <div className="flex flex-wrap gap-1">
-                          {printer.materials.slice(0, 3).map((material, index) => (
+                          {Array.isArray(printer.materials) ? printer.materials.slice(0, 3).map((material, index) => (
                             <Badge key={index} variant="outline" className="text-xs bg-zinc-800 border-zinc-700 text-zinc-300">
                               {material}
                             </Badge>
-                          ))}
+                          )) : null}
                           {printer.materials.length > 3 && (
                             <Badge variant="outline" className="text-xs bg-zinc-800 border-zinc-700 text-zinc-300">
                               +{printer.materials.length - 3}
@@ -879,7 +882,7 @@ export default function DashboardWithSidebar() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {topListings.slice(0, 5).map((listing, index) => (
+            {Array.isArray(topListings) ? topListings.slice(0, 5).map((listing, index) => (
               <div key={listing.id} className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
                 <div className="flex items-center gap-4">
                   <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center">
@@ -897,7 +900,7 @@ export default function DashboardWithSidebar() {
                   <p className="text-zinc-400 text-xs">Total Revenue</p>
                 </div>
               </div>
-            ))}
+            )) : null}
           </div>
         </CardContent>
       </Card>
