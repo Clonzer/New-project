@@ -153,19 +153,24 @@ export function SimpleSidebar() {
       className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
       initial={{ width: "80px" }}
       whileHover={{ width: "280px" }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 25,
+        mass: 0.8
+      }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="flex flex-col h-full pt-20 pb-4">
+      <div className="flex flex-col h-full pt-16 pb-2">
         {/* User Info */}
-        <div className="px-4 py-4 border-b border-zinc-800">
-          <div className="flex items-center gap-4">
+        <div className="px-3 py-3 border-b border-zinc-800">
+          <div className="flex items-center gap-3">
             {user?.avatarUrl ? (
               <img 
                 src={user.avatarUrl} 
                 alt="Profile" 
-                className="w-12 h-12 rounded-full object-cover shadow-lg shadow-orange-500/25 flex-shrink-0"
+                className="w-10 h-10 rounded-full object-cover shadow-lg shadow-orange-500/25 flex-shrink-0"
                 onError={(e) => {
                   // Fallback to gradient if image fails to load
                   e.currentTarget.style.display = 'none';
@@ -173,14 +178,14 @@ export function SimpleSidebar() {
                 }}
               />
             ) : null}
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/25 flex-shrink-0">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0">
               {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
             </div>
             <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <p className="text-white font-semibold text-base truncate">
+              <p className="text-white font-semibold text-sm truncate">
                 {user?.displayName || user?.username || "User"}
               </p>
-              <p className="text-zinc-400 text-sm truncate">
+              <p className="text-zinc-400 text-xs truncate">
                 {user?.email || "user@example.com"}
               </p>
               <div className="flex items-center gap-2 mt-1">
@@ -189,21 +194,21 @@ export function SimpleSidebar() {
               </div>
               
               {/* Accepting Orders Toggle */}
-              <div className="flex items-center justify-between mt-3 p-2 bg-zinc-800/50 rounded-lg">
+              <div className="flex items-center justify-between mt-2 p-2 bg-zinc-800/50 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4 text-zinc-400" />
+                  <Package className="w-3 h-3 text-zinc-400" />
                   <span className="text-xs text-zinc-300">Accepting Orders</span>
                 </div>
                 <button
                   onClick={handleToggleAcceptingOrders}
                   disabled={isUpdating}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
                     acceptingOrders ? 'bg-green-600' : 'bg-zinc-600'
                   } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <span
-                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                      acceptingOrders ? 'translate-x-5' : 'translate-x-1'
+                    className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${
+                      acceptingOrders ? 'translate-x-4' : 'translate-x-1'
                     }`}
                   />
                 </button>
@@ -213,8 +218,8 @@ export function SimpleSidebar() {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-6">
-          <div className="space-y-2">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-4">
+          <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -266,10 +271,10 @@ export function SimpleSidebar() {
             onClick={() => {
               window.location.href = '/help';
             }}
-            className="flex items-center justify-center group-hover:justify-start px-2 py-3 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
+            className="flex items-center justify-center group-hover:justify-start px-2 py-2 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
           >
             <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
-              <HelpCircle className="w-5 h-5 text-zinc-400" />
+              <HelpCircle className="w-4 h-4 text-zinc-400" />
             </div>
             <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
               <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
