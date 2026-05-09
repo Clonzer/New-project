@@ -59,6 +59,7 @@ import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequest
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
 import { MobileDashboardNav, CondensedDashboardTabs } from "@/components/dashboard/MobileDashboardNav";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
   const cls = "w-5 h-5 text-white";
@@ -1209,10 +1210,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-zinc-950">
+      <DashboardSidebar />
+      
+      <main className="pl-20 flex-grow pt-4 pb-28">
+        <div className="min-h-screen flex flex-col">
 
-      {/* Dialogs */}
-      <RegisterPrinterDialog
+          {/* Dialogs */}
+          <RegisterPrinterDialog
         open={showAddPrinter}
         onClose={() => setShowAddPrinter(false)}
         userId={user.id}
@@ -1235,8 +1240,6 @@ export default function Dashboard() {
         onSubmit={(data) => handleUpdateEquipmentGroup(editingEquipmentGroup.id, data)}
         initialData={editingEquipmentGroup}
       />
-
-      <main className="flex-grow pt-4 pb-28">
         <div className="container mx-auto px-4">
 
           {/* Action Buttons Bar */}
@@ -1815,6 +1818,7 @@ export default function Dashboard() {
             )}
           </Tabs>
         </div>
+      </div>
       </main>
     </div>
   );
