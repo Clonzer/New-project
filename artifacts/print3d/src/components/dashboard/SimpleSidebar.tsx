@@ -1,24 +1,29 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import {
-  TrendingUp,
+  DollarSign,
   Package,
+  TrendingUp,
+  Users,
+  Clock,
+  Star,
+  Eye,
   ShoppingCart,
   Settings,
   ChevronRight,
   Wrench,
   BarChart3,
-  Star,
   Heart,
   CreditCard,
   Truck,
   User,
   HelpCircle,
   Store,
-  Toggle
+  Menu,
+  X
 } from "lucide-react";
 
 interface NavItem {
@@ -92,6 +97,7 @@ export function SimpleSidebar() {
   const [location] = useLocation();
   const { user, refreshUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [acceptingOrders, setAcceptingOrders] = useState(user?.acceptingOrders ?? true);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -157,140 +163,228 @@ export function SimpleSidebar() {
   }, [user?.acceptingOrders]);
 
   return (
-    <motion.div 
-      className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
-      initial={{ width: "80px" }}
-      whileHover={{ width: "280px" }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 25,
-        mass: 0.8
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="flex flex-col h-full pt-16 pb-2">
-        {/* User Info */}
-        <div className="px-3 py-3 border-b border-zinc-800">
+    <>
+      {/* Desktop Sidebar */}
+      <motion.div 
+        className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group lg:block hidden"
+        initial={{ width: "80px" }}
+        whileHover={{ width: "280px" }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 25,
+          mass: 0.8
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="flex flex-col h-full pt-16 pb-2">
+          {/* User Info */}
+          <div className="px-3 py-3 border-b border-zinc-800">
+            <div className="flex items-center gap-3">
+              {user?.avatarUrl ? (
+                <img 
+                  src={user.avatarUrl} 
+                  alt="Profile" 
+                  className="w-10 h-10 rounded-full object-cover shadow-lg shadow-orange-500/25 flex-shrink-0"
+                  onError={(e) => {
+                    // Fallback to gradient if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0">
+                {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
+              </div>
+              <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p className="text-white font-semibold text-sm truncate">
+                  {user?.displayName || user?.username || "User"}
+                </p>
+                <p className="text-zinc-400 text-xs truncate">
+                  {user?.email || "user@example.com"}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-xs text-green-400">Online</span>
+                </div>
+                
+                {/* Accepting Orders Toggle */}
+                <div className="flex items-center justify-between mt-2 p-2 bg-zinc-800/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-3 h-3 text-zinc-400" />
+                    <span className="text-xs text-zinc-300">Accepting Orders</span>
+                  </div>
+                  <button
+                    onClick={handleToggleAcceptingOrders}
+                    disabled={isUpdating}
+                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
+                      acceptingOrders ? 'bg-green-600' : 'bg-zinc-600'
+                    } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <span
+                      className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${
+                        acceptingOrders ? 'translate-x-4' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-4">
+            <div className="space-y-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+                
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      if (item.path.startsWith('/dashboard#')) {
+                        // For dashboard sections, update hash
+                        const section = item.path.replace('/dashboard#', '');
+                        window.location.hash = section;
+                      } else {
+                        // For other routes, use wouter navigation
+                        window.location.href = item.path;
+                      }
+                    }}
+                    className={`w-full flex items-center justify-center group-hover:justify-start px-2 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
+                      active
+                        ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
+                        : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
+                    }`}
+                  >
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${
+                      active ? "bg-orange-500/20" : "bg-zinc-700/50"
+                    }`}>
+                      <Icon className={`w-5 h-5 ${
+                        active ? "text-orange-300" : "text-zinc-400"
+                      }`} />
+                    </div>
+                    <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
+                      <p className="text-sm font-semibold text-white truncate mb-1">
+                        {item.label}
+                      </p>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Help Section */}
+          <div className="border-t border-zinc-800 p-2">
+            <div 
+              onClick={() => {
+                window.location.href = '/help';
+              }}
+              className="flex items-center justify-center group-hover:justify-start px-2 py-2 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
+            >
+              <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
+                <HelpCircle className="w-4 h-4 text-zinc-400" />
+              </div>
+              <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
+                <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
+                <p className="text-xs text-zinc-400">Get help and contact support</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Mobile Navigation */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
+        <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             {user?.avatarUrl ? (
               <img 
                 src={user.avatarUrl} 
                 alt="Profile" 
-                className="w-10 h-10 rounded-full object-cover shadow-lg shadow-orange-500/25 flex-shrink-0"
-                onError={(e) => {
-                  // Fallback to gradient if image fails to load
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                }}
+                className="w-8 h-8 rounded-full object-cover"
               />
-            ) : null}
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0">
-              {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
-            </div>
-            <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
+              </div>
+            )}
+            <div>
               <p className="text-white font-semibold text-sm truncate">
                 {user?.displayName || user?.username || "User"}
               </p>
-              <p className="text-zinc-400 text-xs truncate">
-                {user?.email || "user@example.com"}
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-xs text-green-400">Online</span>
-              </div>
-              
-              {/* Accepting Orders Toggle */}
-              <div className="flex items-center justify-between mt-2 p-2 bg-zinc-800/50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Package className="w-3 h-3 text-zinc-400" />
-                  <span className="text-xs text-zinc-300">Accepting Orders</span>
-                </div>
-                <button
-                  onClick={handleToggleAcceptingOrders}
-                  disabled={isUpdating}
-                  className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
-                    acceptingOrders ? 'bg-green-600' : 'bg-zinc-600'
-                  } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                  <span
-                    className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${
-                      acceptingOrders ? 'translate-x-4' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
             </div>
           </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-4">
-          <div className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.path);
-              
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => {
-                    if (item.path.startsWith('/dashboard#')) {
-                      // For dashboard sections, update hash
-                      const section = item.path.replace('/dashboard#', '');
-                      window.location.hash = section;
-                    } else {
-                      // For other routes, use wouter navigation
-                      window.location.href = item.path;
-                    }
-                  }}
-                  className={`w-full flex items-center justify-center group-hover:justify-start px-2 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
-                    active
-                      ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
-                      : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg flex-shrink-0 ${
-                    active ? "bg-orange-500/20" : "bg-zinc-700/50"
-                  }`}>
-                    <Icon className={`w-5 h-5 ${
-                      active ? "text-orange-300" : "text-zinc-400"
-                    }`} />
-                  </div>
-                  <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
-                    <p className="text-sm font-semibold text-white truncate mb-1">
-                      {item.label}
-                    </p>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Help Section */}
-        <div className="border-t border-zinc-800 p-2">
-          <div 
-            onClick={() => {
-              window.location.href = '/help';
-            }}
-            className="flex items-center justify-center group-hover:justify-start px-2 py-2 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors"
           >
-            <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
-              <HelpCircle className="w-4 h-4 text-zinc-400" />
-            </div>
-            <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
-              <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
-              <p className="text-xs text-zinc-400">Get help and contact support</p>
-            </div>
-          </div>
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+        
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="border-t border-zinc-800"
+            >
+              <div className="p-4 space-y-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        if (item.path.startsWith('/dashboard#')) {
+                          const section = item.path.replace('/dashboard#', '');
+                          window.location.hash = section;
+                        } else {
+                          window.location.href = item.path;
+                        }
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                        active
+                          ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
+                          : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 flex-shrink-0 ${
+                        active ? "text-orange-300" : "text-zinc-400"
+                      }`} />
+                      <div className="flex-1">
+                        <p className={`text-sm font-medium ${
+                          active ? "text-orange-300" : "text-white"
+                        }`}>
+                          {item.label}
+                        </p>
+                        <p className={`text-xs ${
+                          active ? "text-orange-300/60" : "text-zinc-400"
+                        }`}>
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </motion.div>
+    </>
   );
 }

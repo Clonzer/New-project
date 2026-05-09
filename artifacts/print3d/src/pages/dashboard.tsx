@@ -1125,7 +1125,7 @@ export default function DashboardWithSidebar() {
       <SimpleSidebar />
       
       {/* Main Content */}
-      <div className="ml-20 group-hover:ml-72 p-8 transition-all duration-300">
+      <div className="ml-0 lg:ml-20 group-hover:lg:ml-72 p-4 md:p-8 transition-all duration-300 mt-16 lg:mt-0">
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 20 }}

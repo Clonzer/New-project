@@ -167,7 +167,7 @@ export default function Cart() {
               </Card>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
               <div className="lg:col-span-2 space-y-4">
                 {missingIds.length > 0 && (
                   <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-sm text-yellow-200">
@@ -186,8 +186,8 @@ export default function Cart() {
                   >
                     <Card className="bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 p-4 transition-all">
                       <CardContent className="pt-0">
-                        <div className="flex gap-4">
-                          <div className="w-24 h-24 rounded-xl overflow-hidden bg-zinc-800 shrink-0">
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-zinc-800 shrink-0 mx-auto sm:mx-0">
                             {listing.imageUrl ? (
                               <img src={listing.imageUrl} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -196,37 +196,40 @@ export default function Cart() {
                               </div>
                             )}
                           </div>
-                          <div className="flex-grow min-w-0">
+                          <div className="flex-grow min-w-0 text-center sm:text-left">
                             <p className="font-semibold text-white truncate">{listing.title}</p>
                             <p className="text-xs text-zinc-500 mb-2">by {listing.sellerName}</p>
-                            <p className="text-sm text-zinc-400">
+                            <p className="text-sm text-zinc-400 mb-3">
                               {formatPrice(listing.basePrice)} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
                             </p>
-                            <div className="flex items-center gap-3 mt-3">
-                              <span className="text-xs text-zinc-500">Qty</span>
-                              <Input
-                                type="number"
-                                min={1}
-                                max={100}
-                                className="w-20 h-9 bg-zinc-800 border-zinc-700 text-white"
-                                value={line.quantity}
-                                onChange={(event) => {
-                                  const quantity = parseInt(event.target.value, 10);
-                                  if (!Number.isFinite(quantity)) return;
-                                  setLineQuantity(listing.id, quantity);
-                                  syncLines(readCart());
-                                }}
-                              />
+                            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-zinc-500">Qty</span>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  max={100}
+                                  className="w-16 h-8 bg-zinc-800 border-zinc-700 text-white text-center"
+                                  value={line.quantity}
+                                  onChange={(event) => {
+                                    const quantity = parseInt(event.target.value, 10);
+                                    if (!Number.isFinite(quantity)) return;
+                                    setLineQuantity(listing.id, quantity);
+                                    syncLines(readCart());
+                                  }}
+                                />
+                              </div>
                               <Button
                                 variant="ghost"
-                                size="icon"
+                                size="sm"
                                 className="text-red-400 hover:text-red-300"
                                 onClick={() => {
                                   removeFromCart(listing.id);
                                   syncLines(readCart());
                                 }}
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Remove
                               </Button>
                             </div>
                           </div>
