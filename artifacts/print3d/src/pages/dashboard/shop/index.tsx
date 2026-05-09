@@ -39,7 +39,7 @@ const ShopManagement = () => {
       title: "Total Listings",
       value: listingCount.toString(),
       icon: Package,
-      color: "from-blue-600 to-cyan-600",
+      color: "from-orange-600 to-amber-600",
       change: activeListings > 0 ? `${activeListings} active` : "No active listings",
       changeType: activeListings > 0 ? "positive" : "neutral"
     },
@@ -77,7 +77,7 @@ const ShopManagement = () => {
       icon: Package,
       path: "/dashboard/shop/listings",
       count: listingCount,
-      color: "bg-blue-600/20 text-blue-300 border-blue-500/30",
+      color: "bg-orange-600/20 text-orange-300 border-orange-500/30",
       action: {
         label: "Add Listing",
         icon: Plus,

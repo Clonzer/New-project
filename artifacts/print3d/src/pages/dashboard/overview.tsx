@@ -91,7 +91,7 @@ const DashboardOverview = () => {
       title: "Total Listings",
       value: totalListings,
       icon: Package,
-      color: "from-blue-600 to-cyan-600",
+      color: "from-orange-600 to-amber-600",
       change: activeListings > 0 ? `+${activeListings} active` : "No active listings",
       changeType: activeListings > 0 ? 'positive' : 'neutral',
       subtitle: `${activeListings} active`
@@ -125,7 +125,7 @@ const DashboardOverview = () => {
       title: "Total Views",
       value: totalViews.toLocaleString(),
       icon: Eye,
-      color: "from-indigo-600 to-purple-600",
+      color: "from-orange-500 to-yellow-600",
       change: "+24% vs last month",
       changeType: 'positive',
       subtitle: "All time"
@@ -147,7 +147,7 @@ const DashboardOverview = () => {
       description: "Add a new product to your shop",
       icon: Package,
       path: "/create-listing",
-      color: "bg-blue-600/20 text-blue-300 border-blue-500/30"
+      color: "bg-orange-600/20 text-orange-300 border-orange-500/30"
     },
     {
       title: "Add Equipment",
@@ -169,7 +169,7 @@ const DashboardOverview = () => {
       description: "Customer communications",
       icon: MessageSquare,
       path: "/messages",
-      color: "bg-cyan-600/20 text-cyan-300 border-cyan-500/30",
+      color: "bg-orange-500/20 text-orange-300 border-orange-400/30",
       badge: unreadMessages > 0 ? unreadMessages.toString() : undefined
     }
   ];
@@ -210,35 +210,37 @@ const DashboardOverview = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-10"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Dashboard Overview</h1>
-              <p className="text-zinc-400">Welcome back! Here's what's happening with your business.</p>
+              <h1 className="text-4xl font-bold text-white mb-3 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                Dashboard Overview
+              </h1>
+              <p className="text-zinc-400 text-lg">Welcome back! Here's what's happening with your business.</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-zinc-900/50 p-1 rounded-lg border border-zinc-800">
               <Button
-                variant={timeRange === '7d' ? 'default' : 'outline'}
+                variant={timeRange === '7d' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setTimeRange('7d')}
-                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
               >
                 7 days
               </Button>
               <Button
-                variant={timeRange === '30d' ? 'default' : 'outline'}
+                variant={timeRange === '30d' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setTimeRange('30d')}
-                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
               >
                 30 days
               </Button>
               <Button
-                variant={timeRange === '90d' ? 'default' : 'outline'}
+                variant={timeRange === '90d' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setTimeRange('90d')}
-                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
               >
                 90 days
               </Button>
@@ -247,36 +249,41 @@ const DashboardOverview = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-all duration-300"
+              transition={{ delay: index * 0.08 }}
+              className="relative group bg-gradient-to-br from-zinc-900/80 to-zinc-800/60 border border-zinc-700/50 rounded-2xl p-6 hover:border-zinc-600/50 hover:shadow-xl hover:shadow-zinc-900/20 transition-all duration-300 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+              {/* Gradient background effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
+                    <stat.icon className="w-7 h-7 text-white" />
+                  </div>
+                  {stat.change && (
+                    <Badge className={`${stat.changeType === 'positive' ? 'bg-green-500/20 text-green-300 border-green-400/30' : stat.changeType === 'negative' ? 'bg-red-500/20 text-red-300 border-red-400/30' : 'bg-zinc-600/20 text-zinc-300 border-zinc-500/30'} text-xs`}>
+                      {stat.change}
+                    </Badge>
+                  )}
                 </div>
-                {stat.change && (
-                  <Badge className={`${stat.changeType === 'positive' ? 'bg-green-600/20 text-green-300 border-green-500/30' : stat.changeType === 'negative' ? 'bg-red-600/20 text-red-300 border-red-500/30' : 'bg-zinc-600/20 text-zinc-300 border-zinc-500/30'}`}>
-                    {stat.change}
-                  </Badge>
+                <h3 className="text-3xl font-bold text-white mb-2">{stat.value}</h3>
+                <p className="text-zinc-400 text-sm font-medium">{stat.title}</p>
+                {stat.subtitle && (
+                  <p className="text-zinc-500 text-xs mt-2">{stat.subtitle}</p>
                 )}
               </div>
-              <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
-              <p className="text-zinc-400 text-sm">{stat.title}</p>
-              {stat.subtitle && (
-                <p className="text-zinc-500 text-xs mt-1">{stat.subtitle}</p>
-              )}
             </motion.div>
           ))}
         </div>
 
         {/* Quick Actions & Recent Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -284,10 +291,12 @@ const DashboardOverview = () => {
             transition={{ delay: 0.3 }}
             className="lg:col-span-1"
           >
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Zap className="w-5 h-5" />
+            <Card className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/60 border-zinc-700/50 shadow-xl shadow-zinc-900/20">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-white flex items-center gap-3 text-xl">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
                   Quick Actions
                 </CardTitle>
               </CardHeader>
@@ -298,22 +307,24 @@ const DashboardOverview = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + index * 0.1 }}
-                      className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 hover:bg-zinc-800/50 cursor-pointer ${action.color}`}
+                      className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:bg-zinc-800/50 cursor-pointer group ${action.color}`}
                     >
                       <div className="flex items-center gap-3">
-                        <action.icon className="w-5 h-5" />
+                        <div className="w-10 h-10 rounded-lg bg-zinc-800/50 flex items-center justify-center group-hover:bg-zinc-700/50 transition-colors">
+                          <action.icon className="w-5 h-5" />
+                        </div>
                         <div>
-                          <p className="font-medium text-white">{action.title}</p>
+                          <p className="font-semibold text-white group-hover:text-orange-300 transition-colors">{action.title}</p>
                           <p className="text-sm opacity-80">{action.description}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {action.badge && (
-                          <Badge className="bg-red-600/20 text-red-300 border-red-500/30">
+                          <Badge className="bg-red-500/20 text-red-300 border-red-400/30 text-xs">
                             {action.badge}
                           </Badge>
                         )}
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                       </div>
                     </motion.div>
                   </Link>
@@ -329,15 +340,17 @@ const DashboardOverview = () => {
             transition={{ delay: 0.4 }}
             className="lg:col-span-2"
           >
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShoppingCart className="w-5 h-5" />
+            <Card className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/60 border-zinc-700/50 shadow-xl shadow-zinc-900/20">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-white flex items-center justify-between text-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-white" />
+                    </div>
                     Recent Orders
                   </div>
                   <Link href="/dashboard/orders">
-                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800/50">
                       View All
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
@@ -355,23 +368,23 @@ const DashboardOverview = () => {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.5 + index * 0.1 }}
-                          className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 transition-colors"
+                          className="flex items-center justify-between p-4 bg-zinc-800/30 rounded-xl hover:bg-zinc-800/50 transition-all duration-300 group"
                         >
                           <div className="flex items-center gap-4">
-                            <div className={`w-8 h-8 rounded-lg ${getStatusColor(order.status)} flex items-center justify-center`}>
-                              <StatusIcon className="w-4 h-4" />
+                            <div className={`w-10 h-10 rounded-xl ${getStatusColor(order.status)} flex items-center justify-center shadow-lg`}>
+                              <StatusIcon className="w-5 h-5" />
                             </div>
                             <div>
-                              <p className="text-white font-medium">#{order.id}</p>
+                              <p className="text-white font-semibold group-hover:text-orange-300 transition-colors">#{order.id}</p>
                               <p className="text-zinc-400 text-sm">{order.customer} • {order.type}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className="text-white font-medium">{order.amount}</p>
+                              <p className="text-white font-semibold">{order.amount}</p>
                               <p className="text-zinc-400 text-sm">{order.date}</p>
                             </div>
-                            <Badge className={getStatusColor(order.status)}>
+                            <Badge className={`${getStatusColor(order.status)} text-xs`}>
                               {order.status}
                             </Badge>
                           </div>
@@ -380,9 +393,11 @@ const DashboardOverview = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <ShoppingCart className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                    <p className="text-zinc-400">No orders yet</p>
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+                      <ShoppingCart className="w-8 h-8 text-zinc-600" />
+                    </div>
+                    <p className="text-zinc-400 font-medium">No orders yet</p>
                     <p className="text-zinc-500 text-sm mt-2">Your orders will appear here</p>
                   </div>
                 )}
@@ -398,36 +413,44 @@ const DashboardOverview = () => {
           transition={{ delay: 0.6 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
+          <Card className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/60 border-zinc-700/50 shadow-xl shadow-zinc-900/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
                 Sales Performance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex items-center justify-center text-zinc-500">
+              <div className="h-72 flex items-center justify-center text-zinc-500">
                 <div className="text-center">
-                  <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Sales chart coming soon</p>
+                  <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+                    <Activity className="w-8 h-8 opacity-50" />
+                  </div>
+                  <p className="font-medium">Sales chart coming soon</p>
                   <p className="text-sm mt-2">Track your revenue over time</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-900/50 border-zinc-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Target className="w-5 h-5" />
+          <Card className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/60 border-zinc-700/50 shadow-xl shadow-zinc-900/20">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-white" />
+                </div>
                 Listing Performance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex items-center justify-center text-zinc-500">
+              <div className="h-72 flex items-center justify-center text-zinc-500">
                 <div className="text-center">
-                  <Eye className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Views and engagement chart coming soon</p>
+                  <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+                    <Eye className="w-8 h-8 opacity-50" />
+                  </div>
+                  <p className="font-medium">Views and engagement chart coming soon</p>
                   <p className="text-sm mt-2">Monitor listing performance</p>
                 </div>
               </div>

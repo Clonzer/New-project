@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
 
 export function DashboardSidebar() {
   const [location] = useLocation();
-  const [expandedSections, setExpandedSections] = useState<string[]>(["shop"]);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -116,7 +116,7 @@ export function DashboardSidebar() {
                     item.children
                       ? "hover:bg-zinc-700/50"
                       : isActive(item.path || "")
-                      ? "bg-primary/20 text-primary border border-primary/30"
+                      ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
                       : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
                   }`}
                 >
@@ -147,7 +147,7 @@ export function DashboardSidebar() {
                           <a
                             className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
                               isActive(child.path)
-                                ? "bg-primary/10 text-primary border-l-2 border-primary"
+                                ? "bg-orange-600/10 text-orange-300 border-l-2 border-orange-500/30"
                                 : "hover:bg-zinc-700/30 text-zinc-400 hover:text-white"
                             }`}
                           >

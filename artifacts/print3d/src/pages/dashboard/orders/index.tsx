@@ -43,7 +43,7 @@ const OrdersAndSales = () => {
       icon: Package,
       path: "/dashboard/orders",
       count: purchaseOrders.length,
-      color: "bg-blue-600/20 text-blue-300 border-blue-500/30",
+      color: "bg-orange-600/20 text-orange-300 border-orange-500/30",
       stats: {
         pending: pendingOrders.filter(o => o.buyer_id === user?.id).length,
         processing: processingOrders.filter(o => o.buyer_id === user?.id).length,
