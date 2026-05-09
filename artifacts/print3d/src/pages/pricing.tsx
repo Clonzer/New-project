@@ -285,10 +285,9 @@ export default function Pricing() {
       />
       <MarketplaceStructuredData />
 
-      <div className="min-h-screen flex flex-col bg-black">
-        <AnimatedBackground />
+      <div className="min-h-screen flex flex-col bg-zinc-950">
         
-        <main className="flex-1 relative z-10">
+        <main className="flex-1">
           {/* Hero Section */}
           <section className="pt-28 pb-12">
             <div className="container mx-auto px-4">

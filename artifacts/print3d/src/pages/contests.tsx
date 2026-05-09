@@ -429,26 +429,22 @@ export default function Contests() {
       <StructuredData schema={[breadcrumbSchema]} />
       <MarketplaceStructuredData />
       
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900/20 via-black to-cyan-900/20">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative pt-20 pb-12 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.2),transparent_50%)]" />
-          <div className="absolute top-10 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute top-10 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-pulse delay-500" />
-          
-          <div className="container mx-auto px-4 relative z-10">
+        <section className="pt-20 pb-12">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 mb-6">
-                <Trophy className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Compete & Win</span>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-500/30 bg-orange-600/20 mb-6">
+                <Trophy className="w-4 h-4 text-orange-400" />
+                <span className="text-sm font-medium text-orange-300">Compete & Win</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-4">
-                Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-primary to-cyan-400">Contests</span>
+                Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">Contests</span>
               </h1>
               <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
                 Compete with makers worldwide, showcase your skills, and win exclusive rewards.
@@ -479,31 +475,31 @@ export default function Contests() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid w-full grid-cols-4 bg-zinc-900/80 border border-white/10 p-1.5 rounded-2xl">
+            <TabsList className="grid w-full grid-cols-4 bg-zinc-900/50 border border-zinc-800 p-1.5 rounded-2xl">
               <TabsTrigger
                 value="active"
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/25 transition-all"
               >
                 <Target className="w-4 h-4 mr-2" />
                 Active
               </TabsTrigger>
               <TabsTrigger
                 value="leaderboard"
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/25 transition-all"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Leaderboard
               </TabsTrigger>
               <TabsTrigger
                 value="completed"
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/25 transition-all"
               >
                 <Award className="w-4 h-4 mr-2" />
                 Winners
               </TabsTrigger>
               <TabsTrigger
                 value="upcoming"
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all"
+                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/25 transition-all"
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Upcoming

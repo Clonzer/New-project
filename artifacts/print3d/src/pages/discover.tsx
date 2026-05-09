@@ -640,11 +640,8 @@ export default function Discover() {
         <div className="container mx-auto px-4">
           {/* Hero Banner */}
           <div className="mb-8">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-violet-900/30 via-black to-cyan-900/30 p-8 md:p-12">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.2),transparent_50%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(6,182,212,0.15),transparent_50%)]" />
-
-              <div className="relative z-10">
+            <Card className="bg-zinc-900/50 border-zinc-800 p-8 md:p-12">
+              <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                   <div className="flex-1">
                     <div className="inline-flex items-center gap-2 mb-4">
@@ -659,8 +656,8 @@ export default function Discover() {
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Tabs */}
