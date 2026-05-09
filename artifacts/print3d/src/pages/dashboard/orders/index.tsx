@@ -18,88 +18,78 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
-import { useListOrders } from "@/lib/workspace-stub";
+import { useGetOrders } from "@/lib/workspace-stub";
 
 const OrdersAndSales = () => {
   const { user } = useAuth();
-  const { data: orders } = useListOrders();
+  const { data: orders } = useGetOrders();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Calculate real order statistics
+  const purchaseOrders = orders?.filter(o => o.buyer_id === user?.id) || [];
+  const salesOrders = orders?.filter(o => o.seller_id === user?.id) || [];
+  const pendingOrders = orders?.filter(o => o.status === 'pending') || [];
+  const processingOrders = orders?.filter(o => o.status === 'processing') || [];
+  const completedOrders = orders?.filter(o => o.status === 'completed') || [];
+  const totalRevenue = salesOrders.reduce((acc, order) => acc + (order.total || 0), 0);
+  const avgOrderValue = salesOrders.length > 0 ? totalRevenue / salesOrders.length : 0;
 
   const sections = [
     {
       id: "orders",
-      title: "Orders",
-      description: "Manage incoming orders and fulfillment",
+      title: "Purchase Orders",
+      description: "Orders you've placed",
       icon: Package,
       path: "/dashboard/orders",
-      count: orders?.orders?.filter(o => o.type === "purchase")?.length || 0,
+      count: purchaseOrders.length,
       color: "bg-blue-600/20 text-blue-300 border-blue-500/30",
       stats: {
-        pending: 3,
-        processing: 5,
-        completed: 12
+        pending: pendingOrders.filter(o => o.buyer_id === user?.id).length,
+        processing: processingOrders.filter(o => o.buyer_id === user?.id).length,
+        completed: completedOrders.filter(o => o.buyer_id === user?.id).length
       }
     },
     {
       id: "sales",
       title: "Sales",
-      description: "Track your sales performance",
+      description: "Orders you've fulfilled",
       icon: TrendingUp,
       path: "/dashboard/sales",
-      count: orders?.orders?.filter(o => o.type === "sale")?.length || 0,
+      count: salesOrders.length,
       color: "bg-green-600/20 text-green-300 border-green-500/30",
       stats: {
-        revenue: "$2,456",
-        orders: 18,
-        avgOrder: "$136.44"
+        revenue: `$${totalRevenue.toFixed(2)}`,
+        orders: salesOrders.length,
+        avgOrder: `$${avgOrderValue.toFixed(2)}`
       }
     },
     {
-      id: "custom-orders",
-      title: "Custom Orders",
-      description: "Handle custom project requests",
-      icon: Edit,
-      path: "/dashboard/custom-orders",
-      count: 7,
-      color: "bg-purple-600/20 text-purple-300 border-purple-500/30",
+      id: "pending",
+      title: "Pending Actions",
+      description: "Orders requiring your attention",
+      icon: Clock,
+      path: "/dashboard/orders?filter=pending",
+      count: pendingOrders.length,
+      color: "bg-orange-600/20 text-orange-300 border-orange-500/30",
       stats: {
-        pending: 2,
-        inProgress: 3,
-        completed: 2
+        pending: pendingOrders.length,
+        processing: processingOrders.length,
+        completed: completedOrders.length
       }
     }
   ];
 
-  const recentOrders = [
-    {
-      id: "ORD-001",
-      customer: "John Doe",
-      product: "Custom 3D Print",
-      amount: "$45.00",
-      status: "processing",
-      date: "2024-01-15",
-      type: "sale"
-    },
-    {
-      id: "ORD-002",
-      customer: "Jane Smith",
-      product: "Laser Cut Sign",
-      amount: "$78.00",
-      status: "pending",
-      date: "2024-01-14",
-      type: "sale"
-    },
-    {
-      id: "ORD-003",
-      customer: "Mike Johnson",
-      product: "CNC Machined Part",
-      amount: "$125.00",
-      status: "completed",
-      date: "2024-01-13",
-      type: "sale"
-    }
-  ];
+  // Use real recent orders data
+  const recentOrders = orders?.slice(0, 5).map(order => ({
+    id: order.id,
+    customer: order.buyer_email || (order.buyer_id === user?.id ? 'You' : 'Customer'),
+    product: order.listing_title || 'Order Item',
+    amount: `$${(order.total || 0).toFixed(2)}`,
+    status: order.status || 'pending',
+    date: new Date(order.created_at).toLocaleDateString(),
+    type: order.buyer_id === user?.id ? 'purchase' : 'sale'
+  })) || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {

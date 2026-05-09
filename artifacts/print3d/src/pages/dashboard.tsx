@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/supabase-auth-context";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import DashboardOverview from "./dashboard/overview";
 import ShopManagement from "./dashboard/shop";
 import OrdersAndSales from "./dashboard/orders";
 import CustomerActivity from "./dashboard/customer";
@@ -22,12 +23,7 @@ export default function Dashboard() {
   const [location] = useLocation();
   const { user, isLoading } = useAuth();
 
-  // Redirect to shop management if at dashboard root
-  useEffect(() => {
-    if (location === "/dashboard" || location === "/dashboard/") {
-      window.location.href = "/dashboard/shop";
-    }
-  }, [location]);
+  // Show overview for dashboard root
 
   // Show loading state
   if (isLoading) {
@@ -59,7 +55,13 @@ export default function Dashboard() {
   }
 
   // Route based on location
-  if (location.startsWith("/dashboard/shop")) {
+  if (location === "/dashboard" || location === "/dashboard/") {
+    return (
+      <DashboardLayout>
+        <DashboardOverview />
+      </DashboardLayout>
+    );
+  } else if (location.startsWith("/dashboard/shop")) {
     return (
       <DashboardLayout>
         <ShopManagement />
@@ -88,7 +90,7 @@ export default function Dashboard() {
   // Default fallback for any dashboard route
   return (
     <DashboardLayout>
-      <ShopManagement />
+      <DashboardOverview />
     </DashboardLayout>
   );
 }

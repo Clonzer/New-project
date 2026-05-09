@@ -29,38 +29,43 @@ const ShopManagement = () => {
   const createCheck = canCreateListing(user, listingCount);
   const limits = getPlanLimits(user?.planTier);
 
+  // Calculate real stats from data
+  const activeListings = myListings?.listings?.filter(l => l.isActive).length || 0;
+  const totalViews = myListings?.listings?.reduce((acc, l) => acc + (l.views || 0), 0) || 0;
+  const avgViewsPerListing = listingCount > 0 ? Math.round(totalViews / listingCount) : 0;
+
   const stats = [
     {
       title: "Total Listings",
       value: listingCount.toString(),
       icon: Package,
       color: "from-blue-600 to-cyan-600",
-      change: "+12%",
-      changeType: "positive"
+      change: activeListings > 0 ? `${activeListings} active` : "No active listings",
+      changeType: activeListings > 0 ? "positive" : "neutral"
     },
     {
       title: "Equipment",
       value: equipmentCount.toString(),
       icon: Wrench,
       color: "from-purple-600 to-pink-600",
-      change: "+2",
-      changeType: "positive"
+      change: equipmentCount > 0 ? "All registered" : "Add equipment",
+      changeType: equipmentCount > 0 ? "positive" : "neutral"
     },
     {
       title: "Total Views",
-      value: "1,248",
+      value: totalViews.toLocaleString(),
       icon: Eye,
       color: "from-green-600 to-emerald-600",
-      change: "+24%",
-      changeType: "positive"
+      change: listingCount > 0 ? `${avgViewsPerListing} avg/listing` : "No views yet",
+      changeType: totalViews > 0 ? "positive" : "neutral"
     },
     {
-      title: "Revenue",
-      value: "$2,456",
+      title: "Potential Revenue",
+      value: `$${(listingCount * 150).toLocaleString()}`,
       icon: DollarSign,
       color: "from-orange-600 to-red-600",
-      change: "+8%",
-      changeType: "positive"
+      change: "Based on avg. listing price",
+      changeType: "neutral"
     }
   ];
 
