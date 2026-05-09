@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "wouter";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
-  BarChart3, Calendar, Filter, Search
+  BarChart3, Calendar, Filter, Search, Image, FileText,
+  CreditCard as PaymentIcon, Shield, Store as StoreIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +45,28 @@ export default function DashboardWithSidebar() {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Store setup guide state
+  const [setupTasks, setSetupTasks] = useState([
+    { id: 'profile', title: 'Complete Your Profile', description: 'Add your shop name, logo, and description', link: '/settings', completed: false, icon: User },
+    { id: 'listings', title: 'Create Your First Listing', description: 'Add your first 3D printing service or product', link: '/create-listing', completed: false, icon: Package },
+    { id: 'equipment', title: 'Register Your Equipment', description: 'Add your 3D printers and capabilities', link: '/equipment', completed: false, icon: PrinterIcon },
+    { id: 'payment', title: 'Set Up Payment Method', description: 'Configure your Stripe payment account', link: '/settings/payments', completed: false, icon: PaymentIcon },
+    { id: 'shipping', title: 'Configure Shipping', description: 'Set up your shipping rates and methods', link: '/settings/shipping', completed: false, icon: Truck },
+    { id: 'policies', title: 'Create Shop Policies', description: 'Add your return, refund, and privacy policies', link: '/settings/policies', completed: false, icon: Shield },
+  ]);
+  
+  // Handle task completion
+  const handleTaskToggle = (taskId: string) => {
+    setSetupTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
+  };
+  
+  // Calculate completion progress
+  const completedTasks = setupTasks.filter(task => task.completed).length;
+  const totalTasks = setupTasks.length;
+  const completionPercentage = (completedTasks / totalTasks) * 100;
   
   // Queries
   const { data: orders = [], isLoading: ordersLoading } = useListOrders({ userId: user?.id });
@@ -188,33 +212,67 @@ export default function DashboardWithSidebar() {
         </Card>
       </div>
 
-      {/* Quick Actions & Recent Activity */}
+      {/* Store Setup Guide & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Quick Actions */}
+        {/* Store Setup Guide */}
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader className="pb-4">
             <CardTitle className="text-white flex items-center gap-2">
-              <Plus className="w-5 h-5" />
-              Quick Actions
+              <StoreIcon className="w-5 h-5" />
+              Store Setup Guide
             </CardTitle>
+            <div className="mt-2">
+              <div className="flex items-center justify-between text-sm text-zinc-400 mb-2">
+                <span>Progress</span>
+                <span>{completedTasks}/{totalTasks} Complete</span>
+              </div>
+              <Progress value={completionPercentage} className="h-2" />
+            </div>
           </CardHeader>
-          <CardContent className="pt-0 space-y-4">
-            <Link href="/create-listing">
-              <Button className="w-full justify-start h-12" variant="outline">
-                <Package className="w-4 h-4 mr-3" />
-                Add New Listing
-              </Button>
-            </Link>
-            <Button className="w-full justify-start h-12" variant="outline">
-              <PrinterIcon className="w-4 h-4 mr-3" />
-              Register Equipment
-            </Button>
-            <Link href="/settings">
-              <Button className="w-full justify-start h-12" variant="outline">
-                <Settings className="w-4 h-4 mr-3" />
-                Shop Settings
-              </Button>
-            </Link>
+          <CardContent className="pt-0 space-y-3">
+            {setupTasks.map((task) => {
+              const Icon = task.icon;
+              return (
+                <div
+                  key={task.id}
+                  className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                    task.completed 
+                      ? 'bg-green-500/5 border-green-500/20' 
+                      : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600'
+                  }`}
+                >
+                  <div className="pt-1">
+                    <Checkbox
+                      checked={task.completed}
+                      onCheckedChange={() => handleTaskToggle(task.id)}
+                      className="w-4 h-4"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <Link href={task.link}>
+                      <div className="flex items-center gap-2 group cursor-pointer">
+                        <Icon className={`w-4 h-4 flex-shrink-0 ${
+                          task.completed ? 'text-green-400' : 'text-zinc-400 group-hover:text-white'
+                        }`} />
+                        <div className="flex-1">
+                          <p className={`text-sm font-medium ${
+                            task.completed ? 'text-green-400 line-through' : 'text-white group-hover:text-orange-300'
+                          }`}>
+                            {task.title}
+                          </p>
+                          <p className={`text-xs ${
+                            task.completed ? 'text-green-400/60' : 'text-zinc-400'
+                          }`}>
+                            {task.description}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-orange-300 transition-colors" />
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
