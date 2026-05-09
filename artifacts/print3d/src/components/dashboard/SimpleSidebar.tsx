@@ -165,7 +165,7 @@ export function SimpleSidebar() {
               <img 
                 src={user.avatarUrl} 
                 alt="Profile" 
-                className="w-12 h-12 rounded-full object-cover shadow-lg shadow-orange-500/25"
+                className="w-12 h-12 rounded-full object-cover shadow-lg shadow-orange-500/25 flex-shrink-0"
                 onError={(e) => {
                   // Fallback to gradient if image fails to load
                   e.currentTarget.style.display = 'none';
@@ -173,7 +173,7 @@ export function SimpleSidebar() {
                 }}
               />
             ) : null}
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/25">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/25 flex-shrink-0">
               {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
             </div>
             <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -214,7 +214,7 @@ export function SimpleSidebar() {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-6">
-          <div className="space-y-1">
+          <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -232,7 +232,7 @@ export function SimpleSidebar() {
                       window.location.href = item.path;
                     }
                   }}
-                  className={`w-full flex items-center px-2 py-3 rounded-lg transition-all duration-200 cursor-pointer group ${
+                  className={`w-full flex items-center justify-center group-hover:justify-start px-2 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
                     active
                       ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
                       : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
@@ -245,7 +245,7 @@ export function SimpleSidebar() {
                       active ? "text-orange-300" : "text-zinc-400"
                     }`} />
                   </div>
-                  <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3">
+                  <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
                     <p className="text-sm font-semibold text-white truncate mb-1">
                       {item.label}
                     </p>
@@ -253,7 +253,7 @@ export function SimpleSidebar() {
                       {item.description}
                     </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
                 </div>
               );
             })}
@@ -266,12 +266,12 @@ export function SimpleSidebar() {
             onClick={() => {
               window.location.href = '/help';
             }}
-            className="flex items-center px-2 py-3 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
+            className="flex items-center justify-center group-hover:justify-start px-2 py-3 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
           >
             <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
               <HelpCircle className="w-5 h-5 text-zinc-400" />
             </div>
-            <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3">
+            <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
               <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
               <p className="text-xs text-zinc-400">Get help and contact support</p>
             </div>
