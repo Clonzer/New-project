@@ -192,13 +192,13 @@ export default function DashboardWithSidebar() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Quick Actions */}
         <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-white flex items-center gap-2">
               <Plus className="w-5 h-5" />
               Quick Actions
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="pt-0 space-y-4">
             <Link href="/create-listing">
               <Button className="w-full justify-start h-12" variant="outline">
                 <Package className="w-4 h-4 mr-3" />
