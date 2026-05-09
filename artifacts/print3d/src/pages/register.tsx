@@ -70,7 +70,7 @@ function StepDots({ step, total }: { step: number; total: number }) {
         <div
           key={i}
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            i < step ? "w-8 bg-primary" : i === step ? "w-8 bg-primary/60" : "w-4 bg-white/20"
+            i < step ? "w-8 bg-orange-600" : i === step ? "w-8 bg-orange-600/60" : "w-4 bg-white/20"
           }`}
         />
       ))}
@@ -430,7 +430,7 @@ export default function Register() {
                           <textarea
                             placeholder="Additive, woodworking, metal, design services — what you offer and your experience..."
                             rows={4}
-                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                            className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none text-sm"
                             {...field}
                           />
                         </FormControl>
@@ -540,7 +540,7 @@ export default function Register() {
                           <button
                             type="button"
                             onClick={() => setSelectedBrand("Other")}
-                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
                           >
                             <p className="text-white font-semibold text-sm">Other / Custom</p>
                             <p className="text-zinc-500 text-xs mt-1">Add your own brand</p>
@@ -669,7 +669,7 @@ export default function Register() {
                               <p className="text-white font-semibold text-sm leading-tight">{p.brand}</p>
                               <p className="text-zinc-400 text-xs mt-0.5 line-clamp-2">{p.model || "Custom"}</p>
                               <span className={`mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                                p.category === "printing_3d" && p.technology === "FDM" ? "bg-blue-500/15 text-blue-400"
+                                p.category === "printing_3d" && p.technology === "FDM" ? "bg-orange-500/15 text-orange-400"
                                 : p.category === "printing_3d" && p.technology === "SLA" ? "bg-orange-500/15 text-orange-400"
                                 : p.category === "printing_3d" ? "bg-purple-500/15 text-purple-400"
                                 : "bg-white/10 text-zinc-300"
@@ -695,7 +695,7 @@ export default function Register() {
                                 allowsHourlyRate: true,
                               } as any);
                             }}
-                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                            className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
                           >
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                               <Plus className="w-5 h-5 text-white" />
@@ -715,7 +715,7 @@ export default function Register() {
                           <ChevronLeft className="w-4 h-4" /> Change model
                         </button>
 
-                        <div className="flex items-center gap-3 mb-6 p-4 bg-primary/10 border border-primary/25 rounded-2xl">
+                        <div className="flex items-center gap-3 mb-6 p-4 bg-orange-600/10 border border-orange-500/25 rounded-2xl">
                           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${selectedPrinter.gradient} flex items-center justify-center shrink-0`}>
                             {selectedPrinter.category === "printing_3d" ? <PrinterIcon className="w-6 h-6 text-white" /> : <Hammer className="w-6 h-6 text-white" />}
                           </div>
@@ -829,7 +829,7 @@ export default function Register() {
                                   <textarea
                                     placeholder="Lead times, certifications, what buyers should know..."
                                     rows={3}
-                                    className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                                    className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none text-sm"
                                     {...field}
                                   />
                                 </FormControl>
@@ -844,7 +844,7 @@ export default function Register() {
                               >
                                 <ChevronLeft className="w-4 h-4" /> Back
                               </button>
-                              <NeonButton type="submit" glowColor="primary" className="flex-grow rounded-xl py-3" disabled={createPrinter.isPending}>
+                              <NeonButton type="submit" glowColor="orange" className="flex-grow rounded-xl py-3" disabled={createPrinter.isPending}>
                                 {createPrinter.isPending ? "Registering..." : "Complete setup 🎉"}
                               </NeonButton>
                             </div>

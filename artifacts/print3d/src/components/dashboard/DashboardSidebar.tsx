@@ -39,42 +39,51 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
+    id: "overview",
+    label: "Dashboard",
+    icon: TrendingUp,
+    path: "/dashboard#overview"
+  },
+  {
+    id: "admin",
+    label: "Admin",
+    icon: Settings,
+    path: "/dashboard#admin"
+  },
+  {
     id: "shop",
     label: "Shop Management",
     icon: Store,
     children: [
-      { id: "store-orders", label: "Store & Orders", icon: Package, path: "/dashboard" },
-      { id: "printers", label: "My Equipment", icon: Wrench, path: "/dashboard" },
-      { id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard" },
+      { id: "store-orders", label: "Store & Orders", icon: Package, path: "/dashboard#store-orders" },
+      { id: "services", label: "My Services", icon: Edit, path: "/dashboard#services" },
+      { id: "printers", label: "My Equipment", icon: Wrench, path: "/dashboard#printers" },
+      { id: "shipping", label: "Shipping Profiles", icon: Truck, path: "/dashboard#shipping" },
     ]
   },
   {
-    id: "orders",
-    label: "Orders & Sales",
-    icon: ShoppingCart,
+    id: "marketplace",
+    label: "Marketplace",
+    icon: Briefcase,
     children: [
-      { id: "store-orders", label: "Store & Orders", icon: Package, path: "/dashboard" },
-      { id: "services", label: "My Services", icon: Edit, path: "/dashboard" },
-      { id: "printers", label: "My Equipment", icon: Wrench, path: "/dashboard" },
+      { id: "marketplace", label: "Service Marketplace", icon: Briefcase, path: "/dashboard#marketplace" },
+      { id: "reviews", label: "My Reviews", icon: Star, path: "/dashboard#reviews" },
+      { id: "rank", label: "Rank & Achievements", icon: Trophy, path: "/dashboard#rank" },
     ]
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    icon: BarChart3,
+    path: "/dashboard#analytics"
   },
   {
     id: "customer",
-    label: "Customer Activity",
+    label: "Customer",
     icon: User,
     children: [
-      { id: "messages", label: "Messages", icon: MessageSquare, path: "/dashboard" },
-      { id: "promotions", label: "Promotions", icon: TrendingUp, path: "/dashboard" },
-      { id: "favorites", label: "Favorites", icon: Heart, path: "/dashboard" },
-    ]
-  },
-  {
-    id: "account",
-    label: "Account & Settings",
-    icon: Settings,
-    children: [
-      { id: "shipping", label: "Shipping Profiles", icon: Truck, path: "/dashboard" },
-      { id: "reviews", label: "My Reviews", icon: Star, path: "/dashboard" },
+      { id: "promotions", label: "Promotions", icon: TrendingUp, path: "/dashboard#promotions" },
+      { id: "favorites", label: "Favorites", icon: Heart, path: "/favorites" },
     ]
   }
 ];
@@ -97,8 +106,14 @@ export function DashboardSidebar() {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleTabClick = (tabId: string) => {
-    // Direct navigation based on tab ID
+  const handleTabClick = (tabId: string, path?: string) => {
+    // If path is provided, navigate directly
+    if (path) {
+      window.location.href = path;
+      return;
+    }
+    
+    // Otherwise use hash-based navigation
     switch(tabId) {
       case 'overview':
       case 'admin':
@@ -110,8 +125,11 @@ export function DashboardSidebar() {
       case 'shipping':
       case 'analytics':
       case 'rank':
-        // For now, just navigate to dashboard with hash
+      case 'promotions':
         window.location.href = `/dashboard#${tabId}`;
+        break;
+      case 'favorites':
+        window.location.href = '/favorites';
         break;
       default:
         window.location.href = '/dashboard';
@@ -150,7 +168,7 @@ export function DashboardSidebar() {
             return (
               <div key={item.id} className="mb-2">
                 <button
-                  onClick={() => item.children ? toggleSection(item.id) : null}
+                  onClick={() => item.children ? toggleSection(item.id) : handleTabClick(item.id, item.path)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                     item.children
                       ? "hover:bg-zinc-700/50"
@@ -184,7 +202,7 @@ export function DashboardSidebar() {
                       return (
                         <button
                           key={child.id}
-                          onClick={() => handleTabClick(child.id)}
+                          onClick={() => handleTabClick(child.id, child.path)}
                           className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left ${
                             isActive(child.path)
                               ? "bg-orange-600/10 text-orange-300 border-l-2 border-orange-500/30"

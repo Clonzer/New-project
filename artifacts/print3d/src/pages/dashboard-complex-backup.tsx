@@ -1,0 +1,1569 @@
+import { useEffect, useState, useRef } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
+import {
+  useListOrders, useListListings, useListPrinters, useUpdateOrderStatus,
+  useCreatePrinter, useUpdatePrinter, useDeletePrinter, useCreateListing,
+  useListReviews, getListOrdersQueryKey, getListListingsQueryKey, getListPrintersQueryKey, getListReviewsQueryKey,
+  useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
+  useDeleteListing,
+} from "@/lib/workspace-stub";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import {
+  Package, Plus, Printer as PrinterIcon, Settings, TrendingUp, DollarSign,
+  Clock, CheckCircle2, Truck, XCircle, AlertCircle, ArrowRight, ChevronLeft,
+  Hammer, Wrench, PenLine, Sparkles, Trophy, Info, Edit, Trash2, Store,
+  ShoppingBag, MessageSquare, Megaphone, Wallet, CreditCard, Receipt, Briefcase,
+  HelpCircle, Heart,
+} from "lucide-react";
+import {
+  EQUIPMENT_CATEGORY_CHOICES,
+  brandsForCategory,
+  catalogItemsForCategoryAndBrand,
+  categoryLabel,
+  type EquipmentCategoryId,
+  type CatalogEquipmentItem,
+} from "@/lib/equipment-catalog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { NeonButton } from "@/components/ui/neon-button";
+import { Link } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
+import { OwnerAdminPanel } from "@/components/dashboard/OwnerAdminPanel";
+import { Analytics } from "@/components/dashboard/Analytics";
+import { Overview } from "@/components/dashboard/Overview";
+import { Purchases } from "@/components/dashboard/Purchases";
+import { Reviews } from "@/components/dashboard/Reviews";
+import { Sales } from "@/components/dashboard/Sales";
+import { Listings } from "@/components/dashboard/Listings";
+import { Equipment } from "@/components/dashboard/Equipment";
+import { Favorites } from "@/components/dashboard/Favorites";
+import { Orders } from "@/components/dashboard/Orders";
+import { ShippingProfiles } from "@/components/dashboard/ShippingProfiles";
+import { SponsoredShopsInjection } from "@/components/sections/SponsoredShopsInjection";
+import CustomOrders from "@/components/dashboard/CustomOrders";
+import { RankProgress } from "@/components/rank/RankProgress";
+import { RankBadge } from "@/components/rank/RankBadge";
+import { getUserXpStats, type UserXpStats } from "@/lib/xp-service";
+import { RANKS } from "@/lib/rank-system";
+import { Progress } from "@/components/ui/progress";
+import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
+import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
+import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
+import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+
+function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
+  const cls = "w-5 h-5 text-white";
+  if (cat === "printing_3d") return <PrinterIcon className={cls} />;
+  if (cat === "woodworking") return <Hammer className={cls} />;
+  if (cat === "metalworking") return <Wrench className={cls} />;
+  if (cat === "services") return <PenLine className={cls} />;
+  return <Sparkles className={cls} />;
+}
+
+const CATEGORIES = ["Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture", "Toys", "Tools", "Home Decor", "Gadgets", "Automotive", "Electronics", "Fashion", "Gaming", "Education", "Prototypes", "Replacement Parts", "Figures", "Models", "Props", "Signage", "Fixtures", "Custom", "Other"];
+
+const SERVICE_CATEGORIES = ["Woodworking", "Steel Work", "Metalworking", "CNC Services", "Welding", "Fabrication", "Custom Design", "3D Modeling", "CAD Design", "Laser Cutting", "Waterjet Cutting", "Powder Coating", "Finishing", "Assembly", "Prototyping", "Consulting", "Other"];
+
+const TAGS = [
+  "3D Printable", "Articulated", "Flexible", "Painted", "Unpainted", "Assembled", "Kit", "Customizable",
+  "Large Format", "Small Scale", "Detailed", "Simple", "Complex", "Rugged", "Delicate", "Waterproof",
+  "Heat Resistant", "Food Safe", "Biodegradable", "Recycled", "Premium", "Budget", "Quick Ship",
+  "Made to Order", "Ready to Ship", "Limited Edition", "Exclusive", "Best Seller", "New",
+  "On Sale", "Gift", "Collectible", "Display", "Functional", "Decorative", "Educational",
+  "Gaming", "Cosplay", "Prop", "Replacement", "Upgrade", "Accessory", "Part", "Assembly",
+  "Tool", "Holder", "Stand", "Mount", "Bracket", "Case", "Cover", "Protector", "Adapter",
+  "Connector", "Joint", "Hinge", "Latch", "Clip", "Clamp", "Fastener", "Screw", "Nut", "Bolt"
+];
+
+// ─── Register equipment dialog (multi-category) ─────────────────────────────
+function RegisterPrinterDialog({ open, onClose, userId, onSuccess }: {
+  open: boolean; onClose: () => void; userId: string; onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const createPrinter = useCreatePrinter();
+  const [equipCategory, setEquipCategory] = useState<EquipmentCategoryId | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [selected, setSelected] = useState<CatalogEquipmentItem | null>(null);
+  const [pricePerHour, setPricePerHour] = useState("");
+  const [pricePerGram, setPricePerGram] = useState("");
+  const [description, setDescription] = useState("");
+  const [customBrand, setCustomBrand] = useState("");
+  const [customModel, setCustomModel] = useState("");
+  const [customTech, setCustomTech] = useState("");
+  const [customMaterials, setCustomMaterials] = useState("");
+  const [customVolume, setCustomVolume] = useState("");
+  const [customToolType, setCustomToolType] = useState("");
+
+  const reset = () => {
+    setEquipCategory(null); setSelectedBrand(null); setSelected(null); setPricePerHour(""); setPricePerGram(""); setDescription("");
+    setCustomBrand(""); setCustomModel(""); setCustomTech(""); setCustomMaterials(""); setCustomVolume("");
+    setCustomToolType("");
+  };
+
+  const handleClose = () => { reset(); onClose(); };
+
+  const is3d = selected?.category === "printing_3d";
+  const isOther = Boolean(selected?.isOther);
+  const allowsHourlyRate = is3d || selected?.allowsHourlyRate !== false;
+
+  const handleSubmit = async () => {
+    if (!selected) return;
+    if (isOther && !is3d && !customToolType.trim()) {
+      toast({ title: "Add a short name", description: "Describe the tool, machine, or service type.", variant: "destructive" });
+      return;
+    }
+    const materials = isOther
+      ? customMaterials.split(",").map(m => m.trim()).filter(Boolean)
+      : [...selected.materials];
+    const toolOrServiceTypeVal = isOther
+      ? (is3d ? null : customToolType.trim() || null)
+      : (selected.toolOrServiceType ?? null);
+    try {
+      await createPrinter.mutateAsync({
+        data: {
+          userId,
+          equipmentCategory: selected.category,
+          toolOrServiceType: toolOrServiceTypeVal,
+          name: isOther
+            ? `${customBrand} ${customModel}`.trim() || (is3d ? "My 3D printer" : "My equipment")
+            : `${selected.brand} ${selected.model}`.trim(),
+          brand: isOther ? customBrand || "Other" : selected.brand,
+          model: isOther ? customModel || "" : selected.model,
+          technology: (is3d && isOther ? customTech || "FDM" : selected.technology) as any,
+          materials,
+          buildVolume: isOther ? customVolume || null : selected.buildVolume || null,
+          pricePerHour: allowsHourlyRate && pricePerHour ? parseFloat(pricePerHour) : null,
+          pricePerGram: is3d && pricePerGram ? parseFloat(pricePerGram) : null,
+          description: description || null,
+        },
+      });
+      toast({ title: "Equipment registered!", description: "Buyers can see this on your shop." });
+      handleClose();
+      onSuccess();
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({ title: "Failed to register equipment", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && handleClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">Add equipment</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">3D printers, shop tools, metal fab, design services — list what you actually run.</DialogDescription>
+        </DialogHeader>
+
+        <AnimatePresence mode="wait">
+          {!equipCategory ? (
+            <motion.div key="cat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <p className="text-zinc-400 text-sm mb-4">Choose a category first.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {EQUIPMENT_CATEGORY_CHOICES.map(c => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setEquipCategory(c.id);
+                      setSelectedBrand(null);
+                    }}
+                    className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
+                  >
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      <EquipmentCategoryIcon cat={c.id} />
+                    </div>
+                    <p className="text-white font-semibold text-sm">{c.title}</p>
+                    <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{c.blurb}</p>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          ) : !selectedBrand ? (
+            <motion.div key="brand" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Button type="button" variant="ghost" onClick={() => setSelectedBrand(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to categories
+              </Button>
+              <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} - choose a brand first.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {brandsForCategory(equipCategory).map((brand) => (
+                  <button
+                    key={brand}
+                    type="button"
+                    onClick={() => setSelectedBrand(brand)}
+                    className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
+                  >
+                    <p className="text-white font-semibold text-sm">{brand}</p>
+                    <p className="text-zinc-500 text-xs mt-1">
+                      {catalogItemsForCategoryAndBrand(equipCategory, brand).length} models
+                    </p>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedBrand("Other")}
+                  className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
+                >
+                  <p className="text-white font-semibold text-sm">Other / Custom</p>
+                  <p className="text-zinc-500 text-xs mt-1">Add your own brand</p>
+                </button>
+              </div>
+            </motion.div>
+          ) : selectedBrand === "Other" ? (
+            <motion.div key="custom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Button type="button" variant="ghost" onClick={() => setSelectedBrand(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to brands
+              </Button>
+              <p className="text-zinc-400 text-sm mb-4">Enter your custom brand details.</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Brand Name *</label>
+                  <Input value={customBrand} onChange={e => setCustomBrand(e.target.value)} placeholder="e.g. Creality, Prusa, Custom" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-300 block mb-1.5">Model Name *</label>
+                  <Input value={customModel} onChange={e => setCustomModel(e.target.value)} placeholder="e.g. Ender 3, MK3S" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                </div>
+                {is3d && (
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Technology</label>
+                    <Select value={customTech || "FDM"} onValueChange={setCustomTech}>
+                      <SelectTrigger className="bg-black/30 border-white/10 text-white h-11 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black/90 border-white/10">
+                        <SelectItem value="FDM">FDM (Fused Deposition Modeling)</SelectItem>
+                        <SelectItem value="SLA">SLA (Stereolithography)</SelectItem>
+                        <SelectItem value="SLS">SLS (Selective Laser Sintering)</SelectItem>
+                        <SelectItem value="DLP">DLP (Digital Light Processing)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (!customBrand.trim() || !customModel.trim()) {
+                    toast({ title: "Required fields", description: "Brand and model name are required.", variant: "destructive" });
+                    return;
+                  }
+                  setSelected({
+                    id: "custom",
+                    category: equipCategory,
+                    brand: customBrand,
+                    model: customModel,
+                    technology: is3d ? (customTech as any) || "FDM" : undefined,
+                    materials: [],
+                    buildVolume: null,
+                    gradient: "from-zinc-600 to-zinc-800",
+                    isOther: true,
+                    allowsHourlyRate: true,
+                  } as any);
+                }}
+                className="w-full mt-6 bg-orange-600 text-white hover:bg-orange-700 rounded-xl"
+              >
+                Continue
+              </Button>
+            </motion.div>
+          ) : !selected ? (
+            <motion.div key="pick" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Button type="button" variant="ghost" onClick={() => setEquipCategory(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Back to all categories
+              </Button>
+              <p className="text-zinc-400 text-sm mb-4">{categoryLabel(equipCategory)} — pick a common setup or Other.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {catalogItemsForCategoryAndBrand(equipCategory, selectedBrand).map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setSelected(p)}
+                    className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
+                  >
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      {p.category === "printing_3d" ? <PrinterIcon className="w-5 h-5 text-white" /> : <Wrench className="w-5 h-5 text-white" />}
+                    </div>
+                    <p className="text-white font-semibold text-sm leading-tight">{p.brand}</p>
+                    <p className="text-zinc-400 text-xs mt-0.5 line-clamp-2">{p.model || "Custom"}</p>
+                    <span className={`mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                      p.category === "printing_3d" && p.technology === "FDM" ? "bg-orange-500/15 text-orange-400"
+                      : p.category === "printing_3d" && p.technology === "SLA" ? "bg-orange-500/15 text-orange-400"
+                      : p.category === "printing_3d" ? "bg-purple-500/15 text-purple-400"
+                      : "bg-white/10 text-zinc-300"
+                    }`}>
+                      {p.category === "printing_3d" ? p.technology : (p.toolOrServiceType || "Shop")}
+                    </span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCustomBrand(selectedBrand === "Other" ? customBrand : selectedBrand);
+                    setSelected({
+                      id: "custom",
+                      category: equipCategory,
+                      brand: selectedBrand === "Other" ? customBrand : selectedBrand,
+                      model: "",
+                      technology: is3d ? "FDM" : undefined,
+                      materials: [],
+                      buildVolume: null,
+                      gradient: "from-zinc-600 to-zinc-800",
+                      isOther: true,
+                      allowsHourlyRate: true,
+                    } as any);
+                  }}
+                  className="group glass-panel rounded-2xl border border-dashed border-zinc-600 p-4 text-left hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-600 to-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="text-white font-semibold text-sm leading-tight">Other / Custom</p>
+                  <p className="text-zinc-400 text-xs mt-0.5 line-clamp-2">Add your own model</p>
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div key="details" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+              <Button type="button" variant="ghost" onClick={() => setSelected(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-white/5 mb-4 -ml-2">
+                <ChevronLeft className="w-4 h-4" /> Change model
+              </Button>
+
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-orange-600/10 border border-orange-500/25 mb-5">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${selected.gradient} flex items-center justify-center shrink-0`}>
+                  {selected.category === "printing_3d" ? <PrinterIcon className="w-6 h-6 text-white" /> : <Hammer className="w-6 h-6 text-white" />}
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500 uppercase tracking-wide">{categoryLabel(selected.category)}</p>
+                  <p className="text-white font-bold">{selected.brand} {selected.model || "Custom"}</p>
+                  <p className="text-xs text-zinc-400">
+                    {is3d ? `${selected.technology} · ${selected.buildVolume || "Custom"}` : (selected.buildVolume || "Capacity on request")}
+                  </p>
+                </div>
+              </div>
+
+              {isOther && (
+                <div className="space-y-3 mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-sm text-zinc-400 font-medium mb-2">{is3d ? "Printer details" : "Equipment details"}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-zinc-400 block mb-1">Brand / maker</label>
+                      <Input value={customBrand} onChange={e => setCustomBrand(e.target.value)} placeholder="e.g. DeWalt" className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-zinc-400 block mb-1">Model / name</label>
+                      <Input value={customModel} onChange={e => setCustomModel(e.target.value)} placeholder="e.g. Model or service title" className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                    </div>
+                    {is3d && (
+                      <>
+                        <div>
+                          <label className="text-xs text-zinc-400 block mb-1">Process</label>
+                          <Input value={customTech} onChange={e => setCustomTech(e.target.value)} placeholder="FDM, SLA, MSLA..." className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-zinc-400 block mb-1">Build volume</label>
+                          <Input value={customVolume} onChange={e => setCustomVolume(e.target.value)} placeholder="300×300×400 mm" className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                        </div>
+                      </>
+                    )}
+                    {!is3d && (
+                      <>
+                        <div className="col-span-2">
+                          <label className="text-xs text-zinc-400 block mb-1">Tool or service type *</label>
+                          <Input value={customToolType} onChange={e => setCustomToolType(e.target.value)} placeholder="e.g. CNC router, TIG welding, laser cutting" className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                        </div>
+                        <div className="col-span-2">
+                          <label className="text-xs text-zinc-400 block mb-1">Work area / capacity</label>
+                          <Input value={customVolume} onChange={e => setCustomVolume(e.target.value)} placeholder="Table size, travel, tonnage, etc." className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-400 block mb-1">{is3d ? "Materials (comma-separated)" : "Materials / capabilities (comma-separated)"}</label>
+                    <Input value={customMaterials} onChange={e => setCustomMaterials(e.target.value)} placeholder={is3d ? "PLA, PETG, aluminum..." : "Steel, hardwood, acrylic..."} className="bg-black/30 border-white/10 text-white h-10 text-sm rounded-xl" />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {allowsHourlyRate && (
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Hourly rate ($)</label>
+                    <Input type="number" step="0.01" value={pricePerHour} onChange={e => setPricePerHour(e.target.value)} placeholder="e.g. 45" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                  </div>
+                )}
+                {is3d && (
+                  <div>
+                    <label className="text-sm text-zinc-300 block mb-1.5">Price per gram ($) <span className="text-zinc-600">3D only</span></label>
+                    <Input type="number" step="0.001" value={pricePerGram} onChange={e => setPricePerGram(e.target.value)} placeholder="e.g. 0.05" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-5">
+                <label className="text-sm text-zinc-300 block mb-1.5">Notes (optional)</label>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Certifications, lead times, what buyers should know..."
+                  rows={3}
+                  className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none text-sm"
+                />
+              </div>
+
+              <NeonButton
+                glowColor="orange"
+                className="w-full rounded-xl py-3"
+                onClick={handleSubmit}
+                disabled={createPrinter.isPending}
+              >
+                {createPrinter.isPending ? "Saving..." : "Save equipment"}
+              </NeonButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditPrinterDialog({ open, onClose, printer, onSuccess }: {
+  open: boolean; onClose: () => void; printer: any; onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const updatePrinter = useUpdatePrinter();
+  const [pricePerHour, setPricePerHour] = useState("");
+  const [pricePerGram, setPricePerGram] = useState("");
+  const [description, setDescription] = useState("");
+  const [materials, setMaterials] = useState("");
+
+  useEffect(() => {
+    if (printer) {
+      setPricePerHour(printer.price_per_hour?.toString() || "");
+      setPricePerGram(printer.price_per_gram?.toString() || "");
+      setDescription(printer.description || "");
+      setMaterials(Array.isArray(printer.materials) ? printer.materials.join(", ") : printer.materials || "");
+    }
+  }, [printer]);
+
+  const handleSubmit = async () => {
+    if (!printer) return;
+    try {
+      await updatePrinter.mutateAsync({
+        printerId: printer.id,
+        data: {
+          pricePerHour: pricePerHour ? parseFloat(pricePerHour) : null,
+          pricePerGram: pricePerGram ? parseFloat(pricePerGram) : null,
+          description: description || null,
+          materials: materials ? materials.split(",").map(m => m.trim()).filter(Boolean) : null,
+        },
+      });
+      toast({ title: "Equipment updated!", description: "Your changes have been saved." });
+      onClose();
+      onSuccess();
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({ title: "Failed to update equipment", variant: "destructive" });
+    }
+  };
+
+  const is3d = printer?.equipment_category === "printing_3d";
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">Edit Equipment</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm font-normal pt-1">
+            {printer?.name} - {printer?.brand} {printer?.model}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Hourly rate ($)</label>
+              <Input type="number" step="0.01" value={pricePerHour} onChange={e => setPricePerHour(e.target.value)} placeholder="e.g. 45" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+            {is3d && (
+              <div>
+                <label className="text-sm text-zinc-300 block mb-1.5">Price per gram ($)</label>
+                <Input type="number" step="0.001" value={pricePerGram} onChange={e => setPricePerGram(e.target.value)} placeholder="e.g. 0.05" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Materials (comma-separated)</label>
+            <Input value={materials} onChange={e => setMaterials(e.target.value)} placeholder="PLA, PETG, aluminum..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Notes (optional)</label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Certifications, lead times, what buyers should know..."
+              rows={3}
+              className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none text-sm"
+            />
+          </div>
+
+          <NeonButton
+            glowColor="orange"
+            className="w-full rounded-xl py-3"
+            onClick={handleSubmit}
+            disabled={updatePrinter.isPending}
+          >
+            {updatePrinter.isPending ? "Saving..." : "Save changes"}
+          </NeonButton>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Add Listing Dialog ───────────────────────────────────────────────────────
+function AddListingDialog({ open, onClose, sellerId, onSuccess }: {
+  open: boolean; onClose: () => void; sellerId: number; onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const createListing = useCreateListing();
+  const [form, setForm] = useState({
+    title: "", category: "Functional", imageUrl: "", basePrice: "", shippingCost: "",
+    estimatedDaysMin: "3", estimatedDaysMax: "7", material: "", description: "", tags: "", stock: "",
+    listingType: "product", serviceCategory: "", serviceType: "",
+  });
+
+  const handleChange = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = async () => {
+    if (!form.title || !form.basePrice) {
+      toast({ title: "Title and price are required", variant: "destructive" }); return;
+    }
+    try {
+      const ship = form.shippingCost.trim() === "" ? 0 : parseFloat(form.shippingCost);
+      await createListing.mutateAsync({
+        data: {
+          sellerId,
+          title: form.title,
+          description: form.description || null,
+          category: form.category,
+          tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
+          imageUrl: form.imageUrl || null,
+          basePrice: parseFloat(form.basePrice),
+          shippingCost: Number.isFinite(ship) ? ship : 0,
+          estimatedDaysMin: parseInt(form.estimatedDaysMin),
+          estimatedDaysMax: parseInt(form.estimatedDaysMax),
+          material: form.material || null,
+          color: null,
+          listingType: form.listingType,
+          serviceCategory: form.serviceCategory || null,
+          serviceType: form.serviceType || null,
+        },
+      });
+      toast({ title: "Listing added!", description: "Your model is now live in the catalog." });
+      onClose();
+      onSuccess();
+    } catch (error) {
+      toast({ title: "Failed to create listing", description: getApiErrorMessageWithSupport(error, "creating your listing"), variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">Add Catalog Listing</DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm">Create a new catalog listing for your shop.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Listing Type</label>
+            <div className="flex gap-2">
+              <button onClick={() => handleChange("listingType", "product")} className={`flex-1 px-4 py-2 rounded-lg text-sm transition-all ${form.listingType === "product" ? "bg-orange-600 text-white border border-orange-600" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                Product
+              </button>
+              <button onClick={() => handleChange("listingType", "service")} className={`flex-1 px-4 py-2 rounded-lg text-sm transition-all ${form.listingType === "service" ? "bg-orange-600 text-white border border-orange-600" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                Service
+              </button>
+            </div>
+          </div>
+          {form.listingType === "service" && (
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Service Category</label>
+              <div className="flex flex-wrap gap-2">
+                {["Woodworking", "Steel Work", "Metalworking", "CNC Services", "Welding", "Fabrication", "Custom Design", "Other"].map(cat => (
+                  <button key={cat} onClick={() => handleChange("serviceCategory", cat)} className={`px-3 py-1.5 rounded-full text-xs transition-all ${form.serviceCategory === cat ? "bg-orange-600 text-white border border-orange-600" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Title *</label>
+            <Input value={form.title} onChange={e => handleChange("title", e.target.value)} placeholder="e.g. Articulated Dragon" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Category</label>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => handleChange("category", cat)} className={`px-3 py-1.5 rounded-full text-xs transition-all ${form.category === cat ? "bg-orange-600 text-white border border-orange-600" : "glass-panel border border-white/10 text-zinc-400 hover:text-white"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Base Price ($) *</label>
+              <Input type="number" step="0.01" value={form.basePrice} onChange={e => handleChange("basePrice", e.target.value)} placeholder="e.g. 24.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Stock Quantity</label>
+              <Input type="number" value={form.stock} onChange={e => handleChange("stock", e.target.value)} placeholder="e.g. 10" className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Shipping ($)</label>
+            <div className="flex gap-2">
+              <Input type="number" step="0.01" value={form.shippingCost} onChange={e => handleChange("shippingCost", e.target.value)} placeholder="e.g. 5.99" className="bg-black/30 border-white/10 text-white h-11 rounded-xl flex-1" />
+              <Button type="button" variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+                Use Profile
+              </Button>
+            </div>
+            <p className="text-xs text-zinc-500 mt-1">Configure shipping profiles in the Shipping Profiles tab</p>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Primary Material</label>
+            <Input value={form.material} onChange={e => handleChange("material", e.target.value)} placeholder="PLA, PETG..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Est. Days Min</label>
+              <Input type="number" value={form.estimatedDaysMin} onChange={e => handleChange("estimatedDaysMin", e.target.value)} className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+            <div>
+              <label className="text-sm text-zinc-300 block mb-1.5">Est. Days Max</label>
+              <Input type="number" value={form.estimatedDaysMax} onChange={e => handleChange("estimatedDaysMax", e.target.value)} className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Listing image</label>
+            <Input
+              type="file"
+              accept="image/*"
+              className="bg-black/30 border-white/10 text-white h-11 rounded-xl text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500/20 file:px-3 file:py-1 file:text-xs file:text-white"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                const r = new FileReader();
+                r.onload = () => handleChange("imageUrl", typeof r.result === "string" ? r.result : "");
+                r.readAsDataURL(f);
+              }}
+            />
+            {form.imageUrl && form.imageUrl.startsWith("data:") && (
+              <p className="text-xs text-emerald-400 mt-1">Image attached (uploaded)</p>
+            )}
+            <label className="text-sm text-zinc-500 block mt-3 mb-1">Or paste image URL</label>
+            <Input value={form.imageUrl.startsWith("data:") ? "" : form.imageUrl} onChange={e => handleChange("imageUrl", e.target.value)} placeholder="https://..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Tags (comma-separated)</label>
+            <Input value={form.tags} onChange={e => handleChange("tags", e.target.value)} placeholder="dragon, articulated, flexible..." className="bg-black/30 border-white/10 text-white h-11 rounded-xl" />
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Description (optional)</label>
+            <textarea
+              value={form.description}
+              onChange={e => handleChange("description", e.target.value)}
+              rows={3}
+              placeholder="Describe the model, print settings, etc."
+              className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none text-sm"
+            />
+          </div>
+          <NeonButton glowColor="orange" className="w-full rounded-xl py-3" onClick={handleSubmit} disabled={createListing.isPending}>
+            {createListing.isPending ? "Creating..." : "Add to Catalog"}
+          </NeonButton>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Equipment Group Dialog ──────────────────────────────────────────────────
+function EquipmentGroupDialog({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  initialData 
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: { name: string; description?: string; category: string }) => void;
+  initialData?: any;
+}) {
+  const [form, setForm] = useState({
+    name: initialData?.name || "",
+    description: initialData?.description || "",
+    category: initialData?.category || "printing_3d"
+  });
+
+  const handleSubmit = () => {
+    if (!form.name.trim() || !form.category) return;
+    onSubmit(form);
+  };
+
+  const reset = () => {
+    setForm({
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      category: initialData?.category || "printing_3d"
+    });
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && handleClose()}>
+      <DialogContent className="bg-zinc-950 border border-white/10 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">
+            {initialData ? "Edit Equipment Group" : "Create Equipment Group"}
+          </DialogTitle>
+          <DialogDescription className="text-zinc-500 text-sm">
+            {initialData ? "Update the equipment group details." : "Organize your equipment into groups for better product transparency."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Group Name *</label>
+            <Input 
+              value={form.name} 
+              onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g. Professional FDM Printers"
+              className="bg-black/30 border-white/10 text-white h-11 rounded-xl" 
+            />
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Category *</label>
+            <Select value={form.category} onValueChange={value => setForm(prev => ({ ...prev, category: value }))}>
+              <SelectTrigger className="bg-black/30 border-white/10 text-white h-11 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-900 border-white/10">
+                <SelectItem value="printing_3d">3D Printing</SelectItem>
+                <SelectItem value="woodworking">Woodworking</SelectItem>
+                <SelectItem value="metalworking">Metalworking</SelectItem>
+                <SelectItem value="services">Services</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-300 block mb-1.5">Description (Optional)</label>
+            <Textarea 
+              value={form.description} 
+              onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe what this group contains..."
+              className="bg-black/30 border-white/10 text-white rounded-xl min-h-[80px]" 
+            />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <Button variant="outline" onClick={handleClose} className="flex-1 border-white/10 text-zinc-300 hover:bg-white/5">
+              Cancel
+            </Button>
+            <NeonButton 
+              glowColor="orange" 
+              onClick={handleSubmit} 
+              disabled={!form.name.trim() || !form.category}
+              className="flex-1 rounded-xl"
+            >
+              {initialData ? "Update Group" : "Create Group"}
+            </NeonButton>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
+export default function Dashboard() {
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Helper function to check if user is a seller
+  function isSeller(role?: string) { return role === "seller" || role === "both"; }
+  const isSellerUser = isSeller(user?.role);
+
+  const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+  const [togglingPrinterId, setTogglingPrinterId] = useState<number | null>(null);
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
+  const [showAddPrinter, setShowAddPrinter] = useState(false);
+  const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
+  const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
+  const [editingPrinter, setEditingPrinter] = useState<any>(null);
+  const [defaultTab, setDefaultTab] = useState("overview");
+  const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
+  const [acceptingOrders, setAcceptingOrders] = useState<boolean | null>(null);
+  const [storeVisible, setStoreVisible] = useState<boolean | null>(null);
+  const [storeSetupComplete, setStoreSetupComplete] = useState<boolean | null>(null);
+  const [showStoreSetup, setShowStoreSetup] = useState(false);
+  const [xpStats, setXpStats] = useState<UserXpStats | null>(null);
+
+  // Listen for hash changes for navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1); // Remove #
+      if (hash && ['overview', 'admin', 'store-orders', 'reviews', 'marketplace', 'services', 'printers', 'shipping', 'analytics', 'rank', 'promotions'].includes(hash)) {
+        setDefaultTab(hash);
+      }
+    };
+
+    // Check hash on initial load
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  // Fetch XP stats
+  useEffect(() => {
+    const fetchXpStats = async () => {
+      if (!user?.id) return;
+      try {
+        const stats = await getUserXpStats(user.id);
+        setXpStats(stats);
+      } catch (e) {
+        console.error('Error fetching XP stats:', e);
+      }
+    };
+    fetchXpStats();
+  }, [user?.id]);
+
+  // Fetch accepting orders status from database
+  useEffect(() => {
+    const fetchAcceptingStatus = async () => {
+      if (!user?.id || !isSellerUser) {
+        console.log('Fetch skipped - no user or not seller', { userId: user?.id, isSellerUser });
+        return;
+      }
+
+      console.log('Fetching order acceptance status for user', user.id);
+      try {
+        // Fetch accepting_orders from users table - consistent with storefront
+        let userAcceptingOrders = true; // default to true
+        try {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('accepting_orders')
+            .eq('id', user.id)
+            .single();
+
+          if (!userError && userData) {
+            userAcceptingOrders = userData.accepting_orders !== false; // default to true if not set
+          }
+        } catch (userErr) {
+          console.warn('Could not fetch accepting_orders from users table:', userErr);
+        }
+        setAcceptingOrders(userAcceptingOrders);
+
+        // Fetch shop_mode from profiles table
+        let profileShopMode = 'both';
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('shop_mode')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (!profileError && profileData) {
+            profileShopMode = profileData.shop_mode || 'both';
+          }
+        } catch (profileErr) {
+          console.warn('Could not fetch shop_mode:', profileErr);
+        }
+        setStoreVisible(profileShopMode !== 'none');
+
+        console.log('Set visibility states:', {
+          accepting_orders: sellerAcceptingOrders,
+          shop_mode: profileShopMode,
+          computedAccepting: sellerAcceptingOrders,
+          computedVisible: profileShopMode !== 'none'
+        });
+      } catch (err) {
+        console.error('Exception fetching seller status:', err);
+        // Default to false if fetch fails - safer to not accept orders
+        setAcceptingOrders(false);
+        setStoreVisible(true);
+      }
+    };
+
+    fetchAcceptingStatus();
+  }, [user?.id, isSellerUser]);
+
+  // Check if user has completed store setup
+  useEffect(() => {
+    const checkStoreSetup = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('sellers')
+          .select('store_setup_complete')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data && !error) {
+          setStoreSetupComplete(data.store_setup_complete === true);
+        } else {
+          // No seller record yet - setup not complete
+          setStoreSetupComplete(false);
+        }
+      } catch {
+        setStoreSetupComplete(false);
+      }
+    };
+    
+    checkStoreSetup();
+  }, [user?.id]);
+
+  // Save accepting orders status to database
+  const toggleAcceptingOrders = async () => {
+    // Don't toggle if we haven't loaded initial value yet
+    if (acceptingOrders === null || !user?.id) return;
+    
+    const newValue = !acceptingOrders;
+    
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ accepting_orders: newValue })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      setAcceptingOrders(newValue);
+      
+      toast({
+        title: newValue ? "Now Accepting Orders" : "Not Accepting Orders",
+        description: newValue
+          ? "Customers can place orders with your shop"
+          : "Customers cannot place new orders",
+      });
+    } catch (error) {
+      // Revert on error
+      setAcceptingOrders(!newValue);
+      toast({
+        title: "Error",
+        description: "Could not update order acceptance status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Save store visibility status to database
+  const toggleStoreVisibility = async () => {
+    console.log('toggleStoreVisibility called', { storeVisible, userId: user?.id });
+    // Don't toggle if we haven't loaded the initial value yet
+    if (storeVisible === null || !user?.id) {
+      console.log('Toggle blocked - storeVisible is null or no user');
+      return;
+    }
+
+    const newValue = !storeVisible;
+    console.log('Toggling visibility from', storeVisible, 'to', newValue);
+
+    try {
+      // shop_mode is TEXT ('catalog', 'custom', 'both', 'none') - use 'none' for hidden
+      const newShopMode = newValue ? 'both' : 'none';
+      const { error } = await supabase
+        .from('profiles')
+        .update({ shop_mode: newShopMode })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Supabase error updating visibility:', error);
+        throw error;
+      }
+
+      setStoreVisible(newValue);
+      console.log('Visibility updated successfully to', newValue);
+
+      toast({
+        title: newValue ? "Store Visible" : "Store Hidden",
+        description: newValue
+          ? "Your store is now visible in the marketplace."
+          : "Your store is now hidden from the marketplace.",
+      });
+    } catch (error) {
+      console.error('Failed to update store visibility:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update store visibility. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get("checkout");
+    const plan = params.get("plan");
+    const sponsorship = params.get("sponsorship");
+    const savedTab = localStorage.getItem('dashboardTab');
+    const viewParam = params.get("view") as "purchases" | "store" | null;
+
+    if (viewParam) {
+      setDashboardView(viewParam);
+    }
+
+    if (savedTab) {
+      setDefaultTab(savedTab);
+      localStorage.removeItem('dashboardTab');
+    } else {
+      setDefaultTab(isSellerUser ? "store-orders" : "overview");
+    }
+
+    if (checkout === "success") {
+      if (plan) {
+        // Auto-apply plan tier
+        toast({
+          title: "Plan upgraded successfully!",
+          description: `Your account has been upgraded to the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan.`,
+        });
+      } else if (sponsorship) {
+        // Auto-apply sponsorship
+        toast({
+          title: "Sponsorship activated!",
+          description: "Your sponsorship is now active and will expire automatically.",
+        });
+      } else {
+        toast({
+          title: "Payment received",
+          description: "Your order will appear here as soon as Stripe confirms the checkout webhook.",
+        });
+      }
+      params.delete("checkout");
+      params.delete("plan");
+      params.delete("sponsorship");
+      const next = params.toString();
+      window.history.replaceState({}, "", next ? `/dashboard?${next}` : "/dashboard");
+    }
+  }, [toast]);
+
+  const purchaseParams = { buyerId: user?.id };
+  const salesParams = { sellerId: user?.id };
+  const listingParams = { sellerId: user?.id, userId: user?.id };
+  const printerParams = { userId: user?.id };
+  const writtenReviewParams = { reviewerId: user?.id };
+  const receivedReviewParams = { revieweeId: user?.id };
+  const { data: myPurchases, refetch: refetchPurchases } = useListOrders(purchaseParams, {
+    query: { enabled: !!user, queryKey: getListOrdersQueryKey(purchaseParams) },
+  });
+  const { data: mySales, refetch: refetchSales } = useListOrders(salesParams, {
+    query: { enabled: !!user && isSeller(user?.role), queryKey: getListOrdersQueryKey(salesParams) },
+  });
+  const { data: myListings, refetch: refetchListings } = useListListings(listingParams, {
+    query: { enabled: !!user && isSeller(user?.role), queryKey: getListListingsQueryKey(listingParams) },
+  });
+  const { data: myPrinters, refetch: refetchPrinters } = useListPrinters(printerParams, {
+    query: { enabled: !!user && isSeller(user?.role), queryKey: getListPrintersQueryKey(printerParams) },
+  });
+  const { data: myEquipmentGroups, refetch: refetchEquipmentGroups } = useListEquipmentGroups({
+    query: { enabled: !!user && isSeller(user?.role) },
+  });
+  const { data: myReviews } = useListReviews(writtenReviewParams, {
+    query: { enabled: !!user, queryKey: getListReviewsQueryKey(writtenReviewParams) },
+  });
+  const { data: reviewsReceived } = useListReviews(receivedReviewParams, {
+    query: { enabled: !!user && isSeller(user?.role), queryKey: getListReviewsQueryKey(receivedReviewParams) },
+  });
+
+  const updateStatus = useUpdateOrderStatus();
+  const updatePrinter = useUpdatePrinter();
+  const deletePrinter = useDeletePrinter();
+  const createEquipmentGroup = useCreateEquipmentGroup();
+  const updateEquipmentGroup = useUpdateEquipmentGroup();
+  const deleteEquipmentGroup = useDeleteEquipmentGroup();
+  const deleteListing = useDeleteListing();
+
+  const advanceStatus = async (orderId: number, nextStatus: string) => {
+    setUpdatingOrderId(orderId);
+    try {
+      await updateStatus.mutateAsync({ orderId, data: { status: nextStatus as any } });
+      toast({ title: "Order updated!", description: `Status changed to ${nextStatus}.` });
+      refetchSales(); refetchPurchases();
+    } catch {
+      toast({ title: "Update failed", variant: "destructive" });
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
+  const removePrinter = async (printerId: number) => {
+    setDeletingPrinterId(printerId);
+    try {
+      await deletePrinter.mutateAsync({ printerId });
+      toast({ title: "Equipment removed", description: "This item is no longer on your shop." });
+      refetchPrinters();
+    } catch {
+      toast({ title: "Could not remove printer", variant: "destructive" });
+    } finally {
+      setDeletingPrinterId(null);
+    }
+  };
+
+  const togglePrinter = async (printerId: string, currentActive: boolean) => {
+    setTogglingPrinterId(printerId);
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { isActive: !currentActive } });
+      toast({ title: !currentActive ? "Equipment activated!" : "Equipment hidden", description: !currentActive ? "Buyers can see this on your shop." : "This item is hidden from your public shop." });
+      refetchPrinters();
+    } catch {
+      toast({ title: "Failed to update printer", variant: "destructive" });
+    } finally {
+      setTogglingPrinterId(null);
+    }
+  };
+
+  const handleUpdateEquipmentStatus = async (printerId: string, status: string) => {
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { equipmentStatus: status } });
+      toast({ title: "Equipment status updated", description: `Equipment marked as ${status}` });
+      refetchPrinters();
+    } catch {
+      toast({ title: "Failed to update equipment status", variant: "destructive" });
+    }
+  };
+
+  const handleCreateEquipmentGroup = async (data: { name: string; description?: string; category: string }) => {
+    try {
+      await createEquipmentGroup.mutateAsync({ data });
+      toast({ title: "Equipment group created!", description: "You can now assign equipment to this group." });
+      refetchEquipmentGroups();
+      setShowAddEquipmentGroup(false);
+    } catch (error) {
+      toast({ title: "Failed to create equipment group", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateEquipmentGroup = async (groupId: number, data: { name: string; description?: string; category: string }) => {
+    try {
+      await updateEquipmentGroup.mutateAsync({ groupId, data });
+      toast({ title: "Equipment group updated!", description: "Changes have been saved." });
+      refetchEquipmentGroups();
+      setEditingEquipmentGroup(null);
+    } catch (error) {
+      toast({ title: "Failed to update equipment group", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteEquipmentGroup = async (groupId: number) => {
+    if (!confirm("Are you sure you want to delete this equipment group? Equipment assigned to it will be unassigned.")) return;
+    try {
+      await deleteEquipmentGroup.mutateAsync({ groupId });
+      toast({ title: "Equipment group deleted!", description: "Equipment has been unassigned." });
+      refetchEquipmentGroups();
+    } catch (error) {
+      toast({ title: "Failed to delete equipment group", variant: "destructive" });
+    }
+  };
+
+  const handleAssignToGroup = async (printerId: string, groupId: string | null) => {
+    try {
+      await updatePrinter.mutateAsync({ printerId, data: { equipmentGroupId: groupId } });
+      refetchPrinters();
+    } catch (error) {
+      toast({ title: "Failed to assign to group", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteListing = async (listingId: number) => {
+    try {
+      await deleteListing.mutateAsync({ listingId });
+      toast({ title: "Listing deleted!", description: "Your listing has been removed from the catalog." });
+      refetchListings();
+    } catch (error) {
+      toast({ title: "Failed to delete listing", variant: "destructive" });
+    }
+  };
+
+  const totalRevenue = (mySales?.orders ?? []).filter(o => o.status === "delivered" || o.status === "shipped").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0);
+  const pendingRevenue = (mySales?.orders ?? []).filter(o => o.status === "pending" || o.status === "accepted" || o.status === "printing").reduce((sum, o) => sum + (o.totalPrice - o.platformFee), 0);
+  const totalFeesPaid = (mySales?.orders ?? []).reduce((sum, o) => sum + o.platformFee, 0);
+  const averageOrderValue = (mySales?.orders ?? []).length ? totalRevenue / (mySales?.orders ?? []).length : 0;
+  const activeEquipmentCount = myPrinters?.filter((printer) => printer.is_active).length ?? 0;
+  const totalCatalogItems = myListings?.listings?.length ?? 0;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center glass-panel p-12 rounded-3xl">
+            <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">Sign in required</h2>
+            <p className="text-zinc-400 mb-6">Please sign in to access your dashboard.</p>
+            <Link href="/login"><NeonButton glowColor="primary">Sign In</NeonButton></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={dashboardRef} data-dashboard className="min-h-screen bg-zinc-950">
+      <DashboardSidebar />
+      
+      <main className="pl-20 flex-grow pt-4 pb-28">
+        <div className="min-h-screen flex flex-col">
+
+          {/* Dialogs */}
+          <RegisterPrinterDialog
+        open={showAddPrinter}
+        onClose={() => setShowAddPrinter(false)}
+        userId={user.id}
+        onSuccess={refetchPrinters}
+      />
+      <EditPrinterDialog
+        open={!!editingPrinter}
+        onClose={() => setEditingPrinter(null)}
+        printer={editingPrinter}
+        onSuccess={refetchPrinters}
+      />
+      <EquipmentGroupDialog
+        open={showAddEquipmentGroup}
+        onClose={() => setShowAddEquipmentGroup(false)}
+        onSubmit={handleCreateEquipmentGroup}
+      />
+      <EquipmentGroupDialog
+        open={!!editingEquipmentGroup}
+        onClose={() => setEditingEquipmentGroup(null)}
+        onSubmit={(data) => handleUpdateEquipmentGroup(editingEquipmentGroup.id, data)}
+        initialData={editingEquipmentGroup}
+      />
+        <div className="container mx-auto px-4">
+
+          {/* Action Buttons Bar */}
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 mb-4">
+            <Link href="/dashboard-help">
+              <Button variant="outline" size="icon" className="rounded-full border-white/10 bg-black/30 hover:bg-white/10 text-zinc-400 hover:text-white h-9 w-9 sm:h-10 sm:w-10">
+                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            </Link>
+            {isSellerUser && (
+              <>
+                <Link href="/storefront/edit">
+                  <Button variant="outline" className="h-9 sm:h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] active:bg-primary/20 active:border-primary active:shadow-[0_0_20px_rgba(139,92,246,0.5)] rounded-full px-3 sm:px-4 transition-all duration-200 text-xs sm:text-sm">
+                    <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-primary" /> <span className="hidden sm:inline">Edit</span> Storefront
+                  </Button>
+                </Link>
+                <Link href="/pricing#sponsorships">
+                  <Button className="h-9 sm:h-10 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] active:shadow-[0_0_25px_rgba(139,92,246,0.6)] text-white font-semibold rounded-full px-3 sm:px-5 transition-all duration-200 text-xs sm:text-sm whitespace-nowrap">
+                    <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Buy</span> Sponsorship
+                  </Button>
+                </Link>
+              </>
+            )}
+            <Link href="/settings">
+              <Button variant="outline" className="h-9 sm:h-10 glass-panel text-white border-white/10 hover:bg-white/5 hover:border-zinc-400 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] active:bg-white/10 active:border-white active:shadow-[0_0_15px_rgba(255,255,255,0.2)] rounded-full px-3 sm:px-4 transition-all duration-200 text-xs sm:text-sm">
+                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" /> Settings
+              </Button>
+            </Link>
+          </div>
+
+          {/* Header */}
+          <div className="glass-panel rounded-xl sm:rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Welcome Row */}
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white">
+                      Welcome back, <span className="text-primary">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                    </h1>
+                    {/* Rank Badge with Progress */}
+                    {xpStats && (
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <RankBadge rankId={xpStats.currentRankId} size="md" />
+                          <span className="text-sm text-zinc-400 hidden sm:inline">
+                            {xpStats.totalXp.toLocaleString()} XP
+                          </span>
+                        </div>
+                        {/* Rank Progress Bar */}
+                        {(() => {
+                          const currentRank = RANKS.find(r => r.id === xpStats.currentRankId) || RANKS[0];
+                          const nextRank = RANKS.find(r => r.minXp > xpStats.totalXp);
+                          if (!nextRank) return null;
+                          const progress = Math.min(100, Math.max(0, 
+                            ((xpStats.totalXp - currentRank.minXp) / (nextRank.minXp - currentRank.minXp)) * 100
+                          ));
+                          const xpNeeded = nextRank.minXp - xpStats.totalXp;
+                          return (
+                            <div className="flex items-center gap-2 min-w-[150px]">
+                              <Progress value={progress} className="h-1.5 flex-1 bg-white/10" />
+                              <span className="text-[10px] text-zinc-500 whitespace-nowrap">
+                                {xpNeeded.toLocaleString()} XP to {nextRank.name}
+                              </span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                    {user.isOwner ? (
+                      <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs uppercase tracking-[0.22em] text-amber-200">
+                        Owner
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* View Toggle for users with both roles */}
+                {user?.role === "both" && (
+                  <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 h-9 sm:h-10 shrink-0">
+                    <button
+                      onClick={() => setDashboardView("purchases")}
+                      className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        dashboardView === "purchases"
+                          ? "bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/30 ring-2 ring-primary/50 scale-[1.02]"
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <Package className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "purchases" ? "text-white" : ""}`} />
+                      My Purchases
+                    </button>
+                    <button
+                      onClick={() => setDashboardView("store")}
+                      className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 h-7 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        dashboardView === "store"
+                          ? "bg-gradient-to-r from-accent to-accent/80 text-white shadow-lg shadow-accent/30 ring-2 ring-accent/50 scale-[1.02]"
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <Store className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dashboardView === "store" ? "text-white" : ""}`} />
+                      My Store
+                    </button>
+                  </div>
+                )}
+
+                {!isSellerUser && (
+                  <Link href="/register">
+                    <Button className="h-9 sm:h-10 rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)] px-4 sm:px-5 text-xs sm:text-sm shrink-0">Join Now</Button>
+                  </Link>
+                )}
+              </div>
+
+              {/* Visibility Toggles Row - For Sellers */}
+              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3 border-t border-white/10">
+                  <span className="text-xs sm:text-sm text-zinc-500 font-medium">Store Status:</span>
+
+                  {/* Accepting Orders Toggle */}
+                  {acceptingOrders !== null && (
+                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 h-8 sm:h-9">
+                      <Switch
+                        checked={acceptingOrders}
+                        onCheckedChange={toggleAcceptingOrders}
+                        disabled={acceptingOrders === null}
+                        className="data-[state=checked]:bg-emerald-500 scale-75 sm:scale-90"
+                      />
+                      <span className={`text-xs font-medium ${acceptingOrders ? "text-emerald-400" : "text-zinc-500"}`}>
+                        {acceptingOrders ? "Accepting Orders" : "Orders Closed"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Status Indicator - Only show accepting orders status */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <div className={`h-2 w-2 rounded-full ${acceptingOrders ? "bg-emerald-500 animate-pulse" : "bg-yellow-500"}`} />
+                    <span className="text-xs text-zinc-400 hidden sm:inline">
+                      {acceptingOrders ? "Accepting orders" : "Orders closed"}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+
+          {/* Seller Stats - hidden when in purchases view for both role users */}
+          {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+              {[
+                { label: "Released Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "text-emerald-300", panel: "bg-emerald-500/8 border-emerald-400/15" },
+                { label: "Pending Revenue",  value: `$${pendingRevenue.toFixed(2)}`, icon: Clock, color: "text-yellow-300", panel: "bg-yellow-500/8 border-yellow-400/15" },
+                { label: "Total Sales",      value: (mySales?.orders?.length ?? 0), icon: TrendingUp, color: "text-sky-300", panel: "bg-sky-500/8 border-sky-400/15" },
+                { label: "Platform Fees",    value: `$${totalFeesPaid.toFixed(2)}`, icon: Package, color: "text-zinc-200", panel: "bg-white/5 border-white/10" },
+              ].map((stat, i) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className={`rounded-2xl border p-5 backdrop-blur-xl shadow-none ${stat.panel}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</p>
+                      <Icon className={`w-4 h-4 ${stat.color}`} />
+                    </div>
+                    <p className={`text-2xl font-display font-bold ${stat.color}`}>{stat.value}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Bottom Navigation removed - using sidebar instead */}
+
+          {/* Dashboard content based on sidebar navigation */}
+          <div className="w-full">
+            {/* SELLER TABS */}
+            {isSellerUser && (
+              <>
+                {defaultTab === "overview" && (
+                  <Overview 
+                    user={user}
+                    mySales={mySales}
+                    averageOrderValue={averageOrderValue}
+                    activeEquipmentCount={activeEquipmentCount}
+                    totalCatalogItems={totalCatalogItems}
+                    setShowAddPrinter={setShowAddPrinter}
+                  />
+                )}
+
+                {user.isOwner && defaultTab === "admin" && (
+                  <OwnerAdminPanel />
+                )}
+
+                {defaultTab === "store-orders" && (
+                  <div className="space-y-8">
+                    {/* Store Listings Section - SELLER ONLY */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Store className="w-6 h-6 text-orange-500" />
+                        My Store
+                      </h2>
+                      <Listings
+                        myListings={myListings || { listings: [] }}
+                        handleDeleteListing={handleDeleteListing}
+                      />
+                    </div>
+
+                    {/* Sales Management - SELLER ONLY */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <TrendingUp className="w-6 h-6 text-orange-500" />
+                        Sales Management
+                      </h2>
+                      <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+                    </div>
+                  </div>
+                )}
+
+                {defaultTab === "reviews" && (
+                  <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
+                )}
+
+                {defaultTab === "marketplace" && (
+                  <ServiceRequestMarketplace />
+                )}
+
+                {defaultTab === "services" && (
+                  <CustomOrders user={user} />
+                )}
+
+                {defaultTab === "printers" && (
+                  <Equipment
+                    myEquipmentGroups={myEquipmentGroups}
+                    myPrinters={myPrinters}
+                    setShowAddEquipmentGroup={setShowAddEquipmentGroup}
+                    setEditingEquipmentGroup={setEditingEquipmentGroup}
+                    handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
+                    setShowAddPrinter={setShowAddPrinter}
+                    setEditingPrinter={setEditingPrinter}
+                    handleAssignToGroup={handleAssignToGroup}
+                    togglingPrinterId={togglingPrinterId}
+                    togglePrinter={togglePrinter}
+                    deletingPrinterId={deletingPrinterId}
+                    removePrinter={removePrinter}
+                    handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
+                  />
+                )}
+
+                {defaultTab === "shipping" && (
+                  <ShippingProfiles />
+                )}
+
+                {defaultTab === "analytics" && (
+                  <Analytics />
+                )}
+
+                {defaultTab === "rank" && (
+                  <Rank user={user} xpStats={xpStats} />
+                )}
+              </>
+            )}
+
+            {/* BUYER TABS */}
+            {!isSellerUser || user?.role === "both" ? (
+              <>
+                {defaultTab === "store-orders" && (
+                  <div className="space-y-8">
+                    {/* Orders Section - BUYER FOCUS */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Package className="w-6 h-6 text-orange-500" />
+                        My Orders
+                      </h2>
+                      <Purchases myPurchases={myPurchases} isSellerUser={false} />
+                    </div>
+
+                    {/* Custom Orders - BUYER FOCUS */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Briefcase className="w-6 h-6 text-orange-500" />
+                        Custom Orders
+                      </h2>
+                      <BuyerCustomOrders user={user} />
+                    </div>
+                  </div>
+                )}
+
+                {defaultTab === "promotions" && (
+                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div className="p-6 border-b border-white/10 bg-white/5">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Megaphone className="w-5 h-5 text-orange-500" />
+                        Promotions
+                      </h2>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-zinc-400">Promotions and offers coming soon...</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        </div>
+      </div>
+      </main>
+    </div>
+  );
+}

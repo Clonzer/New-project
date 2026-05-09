@@ -309,7 +309,7 @@ export function RegistrationForm({
             />
           </div>
 
-          <NeonButton type="submit" glowColor="primary" className="w-full rounded-xl py-3" disabled={submitting}>
+          <NeonButton type="submit" glowColor="orange" className="w-full rounded-xl py-3" disabled={submitting}>
             {submitting ? "Creating account…" : "Create account"}
           </NeonButton>
         </form>

@@ -177,7 +177,7 @@ export function LoginForm({
             )}
           />
 
-          <NeonButton type="submit" glowColor="primary" className="w-full rounded-xl py-3" disabled={submitting}>
+          <NeonButton type="submit" glowColor="orange" className="w-full rounded-xl py-3" disabled={submitting}>
             {submitting ? "Signing in…" : submitLabel}
           </NeonButton>
 
@@ -223,7 +223,7 @@ export function LoginForm({
                 className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
               />
               <NeonButton
-                glowColor="primary"
+                glowColor="orange"
                 className="w-full rounded-xl py-3"
                 onClick={async () => {
                   if (!codeEmail) {
@@ -254,7 +254,7 @@ export function LoginForm({
                 className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
               />
               <NeonButton
-                glowColor="primary"
+                glowColor="orange"
                 className="w-full rounded-xl py-3"
                 onClick={async () => {
                   setSubmitting(true);
@@ -338,7 +338,7 @@ export function LoginForm({
             className="bg-black/30 border-white/10 text-white h-11 rounded-xl"
           />
           {recoveryMessage ? <p className="text-sm text-zinc-300">{recoveryMessage}</p> : null}
-          <NeonButton glowColor="primary" className="w-full rounded-xl py-3" onClick={() => void resetPassword()} disabled={recovering}>
+          <NeonButton glowColor="orange" className="w-full rounded-xl py-3" onClick={() => void resetPassword()} disabled={recovering}>
             {recovering ? "Updating..." : "Reset password"}
           </NeonButton>
         </div>

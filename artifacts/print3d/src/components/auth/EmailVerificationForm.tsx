@@ -82,14 +82,14 @@ export function EmailVerificationForm() {
     <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-white">
-          <Shield className="w-5 h-5 text-primary" />
+          <Shield className="w-5 h-5 text-orange-500" />
           Verify Your Email
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center">
-            <Mail className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-600/20 to-orange-500/20 flex items-center justify-center">
+            <Mail className="w-8 h-8 text-orange-500" />
           </div>
           <p className="text-zinc-300 mb-2">
             Verify your email to unlock all marketplace features
@@ -118,7 +118,7 @@ export function EmailVerificationForm() {
           <Button
             onClick={handleSendVerification}
             disabled={isSending || !email.trim()}
-            className="w-full bg-gradient-to-r from-primary to-violet-600 hover:from-primary/80 hover:to-violet-500 text-white border-0 h-11"
+            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white border-0 h-11"
           >
             {isSending ? (
               <>
