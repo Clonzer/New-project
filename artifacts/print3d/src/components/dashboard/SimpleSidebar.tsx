@@ -145,32 +145,42 @@ export function SimpleSidebar() {
               const active = isActive(item.path);
               
               return (
-                <Link key={item.id} href={item.path}>
-                  <div
-                    className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 cursor-pointer ${
-                      active
-                        ? "bg-orange-600/20 text-orange-300 border border-orange-500/30 shadow-lg shadow-orange-500/10"
-                        : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white hover:shadow-md"
-                    }`}
-                  >
-                    <div className={`p-3 rounded-xl ${
-                      active ? "bg-orange-500/20 shadow-md shadow-orange-500/20" : "bg-zinc-700/50"
-                    }`}>
-                      <Icon className={`w-6 h-6 ${
-                        active ? "text-orange-300" : "text-zinc-400"
-                      }`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate mb-1">
-                        {item.label}
-                      </p>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-zinc-500 flex-shrink-0" />
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    if (item.path.startsWith('/dashboard#')) {
+                      // For dashboard sections, update hash
+                      window.location.hash = item.path.replace('/dashboard#', '');
+                      // Trigger a re-render
+                      window.dispatchEvent(new HashChangeEvent("hashchange"));
+                    } else {
+                      // For other routes, use wouter navigation
+                      window.location.href = item.path;
+                    }
+                  }}
+                  className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 cursor-pointer ${
+                    active
+                      ? "bg-orange-600/20 text-orange-300 border border-orange-500/30 shadow-lg shadow-orange-500/10"
+                      : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white hover:shadow-md"
+                  }`}
+                >
+                  <div className={`p-3 rounded-xl ${
+                    active ? "bg-orange-500/20 shadow-md shadow-orange-500/20" : "bg-zinc-700/50"
+                  }`}>
+                    <Icon className={`w-6 h-6 ${
+                      active ? "text-orange-300" : "text-zinc-400"
+                    }`} />
                   </div>
-                </Link>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate mb-1">
+                      {item.label}
+                    </p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-zinc-500 flex-shrink-0" />
+                </div>
               );
             })}
           </div>
@@ -178,17 +188,20 @@ export function SimpleSidebar() {
 
         {/* Help Section */}
         <div className="border-t border-zinc-800 p-3">
-          <Link href="/help">
-            <div className="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer">
-              <div className="p-3 rounded-xl bg-zinc-700/50">
-                <HelpCircle className="w-6 h-6 text-zinc-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
-                <p className="text-xs text-zinc-400">Get help and contact support</p>
-              </div>
+          <div 
+            onClick={() => {
+              window.location.href = '/help';
+            }}
+            className="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer"
+          >
+            <div className="p-3 rounded-xl bg-zinc-700/50">
+              <HelpCircle className="w-6 h-6 text-zinc-400" />
             </div>
-          </Link>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
+              <p className="text-xs text-zinc-400">Get help and contact support</p>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
