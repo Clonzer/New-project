@@ -817,7 +817,7 @@ export default function Dashboard() {
   const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
   const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
   const [editingPrinter, setEditingPrinter] = useState<any>(null);
-  const [defaultTab, setDefaultTab] = useState(isSellerUser ? "store-orders" : "overview");
+  const [defaultTab, setDefaultTab] = useState("overview");
   const [dashboardView, setDashboardView] = useState<"purchases" | "store">(isSellerUser ? "store" : "purchases");
   const [acceptingOrders, setAcceptingOrders] = useState<boolean | null>(null);
   const [storeVisible, setStoreVisible] = useState<boolean | null>(null);
@@ -829,7 +829,7 @@ export default function Dashboard() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1); // Remove #
-      if (hash && ['overview', 'admin', 'store-orders', 'reviews', 'marketplace', 'services', 'printers', 'shipping', 'analytics', 'rank', 'messages', 'promotions'].includes(hash)) {
+      if (hash && ['overview', 'admin', 'store-orders', 'reviews', 'marketplace', 'services', 'printers', 'shipping', 'analytics', 'rank', 'promotions'].includes(hash)) {
         setDefaultTab(hash);
       }
     };
@@ -1433,111 +1433,114 @@ export default function Dashboard() {
 
           {/* Dashboard content based on sidebar navigation */}
           <div className="w-full">
-            {isSellerUser && (user?.role !== "both" || dashboardView === "store") && defaultTab === "overview" && (
-              <Overview 
-                user={user}
-                mySales={mySales}
-                averageOrderValue={averageOrderValue}
-                activeEquipmentCount={activeEquipmentCount}
-                totalCatalogItems={totalCatalogItems}
-                setShowAddPrinter={setShowAddPrinter}
-              />
-            )}
+            {/* SELLER TABS */}
+            {isSellerUser && (
+              <>
+                {defaultTab === "overview" && (
+                  <Overview 
+                    user={user}
+                    mySales={mySales}
+                    averageOrderValue={averageOrderValue}
+                    activeEquipmentCount={activeEquipmentCount}
+                    totalCatalogItems={totalCatalogItems}
+                    setShowAddPrinter={setShowAddPrinter}
+                  />
+                )}
 
-            {user.isOwner && (user?.role !== "both" || dashboardView === "store") && defaultTab === "admin" && (
-              <OwnerAdminPanel />
-            )}
+                {user.isOwner && defaultTab === "admin" && (
+                  <OwnerAdminPanel />
+                )}
 
-            {defaultTab === "store-orders" && (
-              <div className="space-y-8">
-                {/* Store Listings Section */}
-                {isSellerUser && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                      <Store className="w-6 h-6 text-orange-500" />
-                      My Store
-                    </h2>
-                    <Listings
-                      myListings={myListings || { listings: [] }}
-                      handleDeleteListing={handleDeleteListing}
-                    />
+                {defaultTab === "store-orders" && (
+                  <div className="space-y-8">
+                    {/* Store Listings Section - SELLER ONLY */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Store className="w-6 h-6 text-orange-500" />
+                        My Store
+                      </h2>
+                      <Listings
+                        myListings={myListings || { listings: [] }}
+                        handleDeleteListing={handleDeleteListing}
+                      />
+                    </div>
+
+                    {/* Sales Management - SELLER ONLY */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <TrendingUp className="w-6 h-6 text-orange-500" />
+                        Sales Management
+                      </h2>
+                      <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
+                    </div>
                   </div>
                 )}
 
-                {/* Orders Section */}
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <Package className="w-6 h-6 text-orange-500" />
-                      Orders
-                  </h2>
-                  <Purchases myPurchases={myPurchases} isSellerUser={isSellerUser} />
-                  <div className="mt-8">
-                    <BuyerCustomOrders user={user} />
-                  </div>
-                  {isSellerUser && (
-                    <div className="mt-8">
-                      <Sales mySales={mySales} updatingOrderId={updatingOrderId} advanceStatus={advanceStatus} />
-                    </div>
-                  )}
-                </div>
-              </div>
+                {defaultTab === "reviews" && (
+                  <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
+                )}
+
+                {defaultTab === "marketplace" && (
+                  <ServiceRequestMarketplace />
+                )}
+
+                {defaultTab === "services" && (
+                  <CustomOrders user={user} />
+                )}
+
+                {defaultTab === "printers" && (
+                  <Equipment
+                    myEquipmentGroups={myEquipmentGroups}
+                    myPrinters={myPrinters}
+                    setShowAddEquipmentGroup={setShowAddEquipmentGroup}
+                    setEditingEquipmentGroup={setEditingEquipmentGroup}
+                    handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
+                    setShowAddPrinter={setShowAddPrinter}
+                    setEditingPrinter={setEditingPrinter}
+                    handleAssignToGroup={handleAssignToGroup}
+                    togglingPrinterId={togglingPrinterId}
+                    togglePrinter={togglePrinter}
+                    deletingPrinterId={deletingPrinterId}
+                    removePrinter={removePrinter}
+                    handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
+                  />
+                )}
+
+                {defaultTab === "shipping" && (
+                  <ShippingProfiles />
+                )}
+
+                {defaultTab === "analytics" && (
+                  <Analytics />
+                )}
+
+                {defaultTab === "rank" && (
+                  <Rank user={user} xpStats={xpStats} />
+                )}
+              </>
             )}
 
-            {isSellerUser && defaultTab === "reviews" && (
-              <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
-            )}
-
-            {isSellerUser && defaultTab === "marketplace" && (
-              <ServiceRequestMarketplace />
-            )}
-
-            {isSellerUser && defaultTab === "services" && (
-              <CustomOrders user={user} />
-            )}
-
-            {isSellerUser && defaultTab === "printers" && (
-              <Equipment
-                myEquipmentGroups={myEquipmentGroups}
-                myPrinters={myPrinters}
-                setShowAddEquipmentGroup={setShowAddEquipmentGroup}
-                setEditingEquipmentGroup={setEditingEquipmentGroup}
-                handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
-                setShowAddPrinter={setShowAddPrinter}
-                setEditingPrinter={setEditingPrinter}
-                handleAssignToGroup={handleAssignToGroup}
-                togglingPrinterId={togglingPrinterId}
-                togglePrinter={togglePrinter}
-                deletingPrinterId={deletingPrinterId}
-                removePrinter={removePrinter}
-                handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
-              />
-            )}
-
-            {isSellerUser && defaultTab === "shipping" && (
-              <ShippingProfiles />
-            )}
-
-            {isSellerUser && defaultTab === "analytics" && (
-              <Analytics />
-            )}
-
-            {isSellerUser && defaultTab === "rank" && (
-              <Rank user={user} xpStats={xpStats} />
-            )}
-
-            {/* Buyer tabs - shown when in purchases view */}
-            {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
+            {/* BUYER TABS */}
+            {!isSellerUser || user?.role === "both" ? (
               <>
-                {defaultTab === "messages" && (
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-orange-500" />
-                        Messages
+                {defaultTab === "store-orders" && (
+                  <div className="space-y-8">
+                    {/* Orders Section - BUYER FOCUS */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Package className="w-6 h-6 text-orange-500" />
+                        My Orders
                       </h2>
+                      <Purchases myPurchases={myPurchases} isSellerUser={false} />
                     </div>
-                    <div className="p-6">
-                      <p className="text-zinc-400">Messaging system coming soon...</p>
+
+                    {/* Custom Orders - BUYER FOCUS */}
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <Briefcase className="w-6 h-6 text-orange-500" />
+                        Custom Orders
+                      </h2>
+                      <BuyerCustomOrders user={user} />
                     </div>
                   </div>
                 )}
@@ -1556,7 +1559,7 @@ export default function Dashboard() {
                   </div>
                 )}
               </>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

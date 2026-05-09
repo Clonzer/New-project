@@ -75,23 +75,27 @@ const navItems: NavItem[] = [
     children: [
       { id: "shipping", label: "Shipping Profiles", icon: Truck, path: "/dashboard" },
       { id: "reviews", label: "My Reviews", icon: Star, path: "/dashboard" },
-      { id: "settings", label: "Account Settings", icon: Settings, path: "/settings" },
     ]
   }
 ];
 
 export function DashboardSidebar() {
   const [location] = useLocation();
-  const [expandedSections, setExpandedSections] = useState<string[]>(["shop"]);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const { user } = useAuth();
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev =>
-      prev.includes(sectionId)
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
+    setExpandedSections(prev => {
+      // If this section is already expanded, collapse it
+      if (prev.includes(sectionId)) {
+        return [];
+      }
+      // Otherwise, expand only this section
+      return [sectionId];
+    });
   };
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleTabClick = (tabId: string) => {
     // Direct navigation based on tab ID
@@ -114,6 +118,15 @@ export function DashboardSidebar() {
     }
   };
 
+  const handleMouseEnter = () => {
+    setIsExpanded(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsExpanded(false);
+    setExpandedSections([]); // Close all dropdowns when sidebar collapses
+  };
+
   const isActive = (path: string) => {
     return location === path || location.startsWith(path + "/");
   };
@@ -124,6 +137,9 @@ export function DashboardSidebar() {
       initial={{ width: "60px" }}
       whileHover={{ width: "280px" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      data-sidebar
     >
       <div className="flex flex-col h-full pt-20 pb-4">
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2">
