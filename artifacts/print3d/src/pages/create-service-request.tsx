@@ -219,8 +219,9 @@ export default function CreateServiceRequest() {
   return (
     <div className="min-h-screen bg-zinc-950">
       <Navbar />
+      <Navbar />
       
-      <main className="pt-24 pb-16">
+      <main className="pt-48 pb-16">
         <div className="container mx-auto px-4 max-w-3xl">
           {/* Header */}
           <motion.div 
