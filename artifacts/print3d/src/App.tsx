@@ -148,6 +148,7 @@ function Router() {
       <Route path="/search" component={SearchPage} />
       <Route path="/compare-shops" component={CompareShops} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/dashboard/:path" component={DashboardPage} />
       <Route path="/dashboard-help" component={DashboardHelpPage} />
       <Route path="/vendor-dashboard" component={VendorDashboardPage} />
       <Route path="/register" component={Register} />
