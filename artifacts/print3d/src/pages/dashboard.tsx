@@ -15,7 +15,7 @@ import {
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
   BarChart3, Calendar, Filter, Search, Image, FileText,
-  CreditCard as PaymentIcon, Shield, Store as StoreIcon, User
+  CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
