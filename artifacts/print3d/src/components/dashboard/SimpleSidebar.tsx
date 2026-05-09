@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 import {
   TrendingUp,
   Package,
@@ -16,7 +17,8 @@ import {
   Truck,
   User,
   HelpCircle,
-  Store
+  Store,
+  Toggle
 } from "lucide-react";
 
 interface NavItem {
@@ -88,8 +90,10 @@ const navItems: NavItem[] = [
 
 export function SimpleSidebar() {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [acceptingOrders, setAcceptingOrders] = useState(user?.acceptingOrders ?? true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleMouseEnter = () => {
     setIsExpanded(true);
@@ -105,6 +109,44 @@ export function SimpleSidebar() {
     }
     return location === path || location.startsWith(path + "/");
   };
+
+  const handleToggleAcceptingOrders = async () => {
+    if (!user?.id || isUpdating) return;
+    
+    setIsUpdating(true);
+    try {
+      const newValue = !acceptingOrders;
+      
+      // Update database
+      const { error } = await supabase
+        .from('users')
+        .update({ accepting_orders: newValue })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setAcceptingOrders(newValue);
+      
+      // Refresh user data to get updated state
+      if (refreshUser) {
+        await refreshUser();
+      }
+    } catch (error) {
+      console.error('Error updating accepting orders status:', error);
+      // Revert on error
+      setAcceptingOrders(!acceptingOrders);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Update local state when user data changes
+  useEffect(() => {
+    if (user?.acceptingOrders !== undefined) {
+      setAcceptingOrders(user.acceptingOrders);
+    }
+  }, [user?.acceptingOrders]);
 
   return (
     <motion.div 
@@ -142,6 +184,27 @@ export function SimpleSidebar() {
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 <span className="text-xs text-green-400">Online</span>
+              </div>
+              
+              {/* Accepting Orders Toggle */}
+              <div className="flex items-center justify-between mt-3 p-2 bg-zinc-800/50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4 text-zinc-400" />
+                  <span className="text-xs text-zinc-300">Accepting Orders</span>
+                </div>
+                <button
+                  onClick={handleToggleAcceptingOrders}
+                  disabled={isUpdating}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    acceptingOrders ? 'bg-green-600' : 'bg-zinc-600'
+                  } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <span
+                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                      acceptingOrders ? 'translate-x-5' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
           </div>
