@@ -534,13 +534,13 @@ export default function Contests() {
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ y: -4 }}
                     >
-                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-primary/40 transition-all duration-300 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10">
+                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-orange-500/40 transition-all duration-300 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-orange-500/10">
                         <div className="relative">
-                          <div className="h-52 bg-gradient-to-br from-primary/40 via-purple-500/30 to-accent/40 relative overflow-hidden">
+                          <div className="h-52 bg-gradient-to-br from-orange-600/40 via-orange-500/30 to-orange-400/40 relative overflow-hidden">
                             {/* Animated mesh background */}
                             <div className="absolute inset-0 opacity-30">
-                              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.4),transparent_50%)]"></div>
-                              <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,rgba(6,182,212,0.4),transparent_50%)]"></div>
+                              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,rgba(251,146,60,0.4),transparent_50%)]"></div>
+                              <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,rgba(251,191,36,0.4),transparent_50%)]"></div>
                               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==')] opacity-20"></div>
                             </div>
                             {/* Floating decorative elements */}
@@ -820,9 +820,9 @@ export default function Contests() {
                           transition={{ delay: index * 0.1 }}
                           whileHover={{ y: -4 }}
                         >
-                          <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-yellow-500/20 hover:border-yellow-500/40 transition-all overflow-hidden shadow-xl">
+                          <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-orange-500/20 hover:border-orange-500/40 transition-all overflow-hidden shadow-xl">
                             {/* Winner Banner */}
-                            <div className="h-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400" />
+                            <div className="h-2 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600" />
 
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-4">
@@ -915,15 +915,15 @@ export default function Contests() {
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ y: -4 }}
                     >
-                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-primary/30 transition-all overflow-hidden shadow-xl">
+                      <Card className="group bg-gradient-to-br from-zinc-900/90 to-zinc-900/50 border-white/10 hover:border-orange-500/30 transition-all overflow-hidden shadow-xl">
                         <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
-                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.2),transparent_50%)]"></div>
+                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(251,146,60,0.2),transparent_50%)]"></div>
                           <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                             className="absolute top-4 right-4 opacity-20"
                           >
-                            <Sparkles className="w-12 h-12 text-primary" />
+                            <Sparkles className="w-12 h-12 text-orange-400" />
                           </motion.div>
                           <div className="absolute bottom-4 left-4">
                             <Badge className="bg-zinc-800/80 text-zinc-300 border-white/10">
