@@ -805,25 +805,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Listen for tab changes from sidebar
-  useEffect(() => {
-    const handleTabChange = (event: CustomEvent) => {
-      setDefaultTab(event.detail);
-    };
-
-    window.addEventListener('setTab', handleTabChange as EventListener);
-    
-    // Expose dashboard component to global scope for sidebar access
-    (window as any).__dashboardComponent = {
-      setDefaultTab
-    };
-
-    return () => {
-      window.removeEventListener('setTab', handleTabChange as EventListener);
-      delete (window as any).__dashboardComponent;
-    };
-  }, [setDefaultTab]);
-
   // Helper function to check if user is a seller
   function isSeller(role?: string) { return role === "seller" || role === "both"; }
   const isSellerUser = isSeller(user?.role);
@@ -842,6 +823,25 @@ export default function Dashboard() {
   const [storeSetupComplete, setStoreSetupComplete] = useState<boolean | null>(null);
   const [showStoreSetup, setShowStoreSetup] = useState(false);
   const [xpStats, setXpStats] = useState<UserXpStats | null>(null);
+
+  // Listen for tab changes from sidebar
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      setDefaultTab(event.detail);
+    };
+
+    window.addEventListener('setTab', handleTabChange as EventListener);
+    
+    // Expose dashboard component to global scope for sidebar access
+    (window as any).__dashboardComponent = {
+      setDefaultTab
+    };
+
+    return () => {
+      window.removeEventListener('setTab', handleTabChange as EventListener);
+      delete (window as any).__dashboardComponent;
+    };
+  }, []); // Remove setDefaultTab dependency to avoid circular dependency
 
   // Fetch XP stats
   useEffect(() => {
