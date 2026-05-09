@@ -801,12 +801,86 @@ export function useGetOrders() {
   return { data, isLoading, error };
 }
 
-export function useListOrders() {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+export function useListOrders(options?: { userId?: string | number }) {
+  const [data, setData] = useState<any[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchOrders = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) {
+        setData([]);
+        return;
+      }
+
+      let query = supabase
+        .from('orders')
+        .select(`
+          *,
+          listings (
+            id,
+            title,
+            price,
+            images
+          ),
+          buyers (
+            id,
+            display_name,
+            username,
+            email
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      // Filter by user ID (either as buyer or seller)
+      if (options?.userId) {
+        query = query.or(`buyer_id.eq.${options.userId},seller_id.eq.${options.userId}`);
+      } else {
+        query = query.or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
+      }
+
+      const { data: ordersData, error: fetchError } = await query;
+
+      if (fetchError) throw fetchError;
+      
+      // Transform the data to match the expected format
+      const transformedOrders = (ordersData || []).map((order: any) => ({
+        id: order.id,
+        buyer_id: order.buyer_id,
+        seller_id: order.seller_id,
+        listing_id: order.listing_id,
+        quantity: order.quantity || 1,
+        total_amount: order.total_amount || order.price,
+        status: order.status || 'pending',
+        tracking_number: order.tracking_number,
+        notes: order.notes,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        listings: order.listings,
+        buyer: order.buyers,
+        // Add calculated fields
+        price: order.total_amount || order.price,
+        amount: order.total_amount || order.price,
+      }));
+
+      setData(transformedOrders);
+    } catch (e) {
+      const err = e as Error;
+      setError(err);
+      console.error('Error fetching orders:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [options?.userId]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  return { data, isLoading, error, refetch: fetchOrders };
 }
 
 export function useGetMessages() {
@@ -913,39 +987,77 @@ export function useGetPrinters(userId?: string | number) {
   return { data, isLoading, error };
 }
 
-export function useListReviews(options?: { revieweeId?: string | number }) {
-  const [data, setData] = useState<any>(null);
+export function useListReviews(options?: { userId?: string | number }) {
+  const [data, setData] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        let query = supabase
-          .from('reviews')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (options?.revieweeId) {
-          query = query.eq('reviewee_id', options.revieweeId);
-        }
-
-        const result = await query;
-        if (result.error) throw result.error;
-        setData({ reviews: result.data || [] });
-      } catch (err) {
-        setError(err as Error);
-        setData({ reviews: [] });
-      } finally {
-        setIsLoading(false);
+  const fetchReviews = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) {
+        setData([]);
+        return;
       }
-    };
-    fetchReviews();
-  }, [options?.revieweeId]);
 
-  return { data, isLoading, error };
+      let query = supabase
+        .from('reviews')
+        .select(`
+          *,
+          reviewers (
+            id,
+            display_name,
+            username
+          ),
+          listings (
+            id,
+            title
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      // Filter by user ID (as reviewee - seller receiving reviews)
+      if (options?.userId) {
+        query = query.eq('reviewee_id', options.userId);
+      } else {
+        query = query.eq('reviewee_id', user.id);
+      }
+
+      const result = await query;
+      if (result.error) throw result.error;
+      
+      // Transform the data to match the expected format
+      const transformedReviews = (result.data || []).map((review: any) => ({
+        id: review.id,
+        reviewee_id: review.reviewee_id,
+        reviewer_id: review.reviewer_id,
+        listing_id: review.listing_id,
+        rating: review.rating,
+        comment: review.comment,
+        created_at: review.created_at,
+        updated_at: review.updated_at,
+        reviewer_name: review.reviewers?.display_name || review.reviewers?.username || 'Anonymous',
+        reviewer: review.reviewers,
+        listing_title: review.listings?.title,
+        listings: review.listings,
+      }));
+
+      setData(transformedReviews);
+    } catch (err) {
+      setError(err as Error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [options?.userId]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  return { data, isLoading, error, refetch: fetchReviews };
 }
 
 export function useListPrinters(options?: { userId?: string | number }) {

@@ -58,11 +58,11 @@ export default function DashboardWithSidebar() {
 
   // Calculate metrics
   const averageOrderValue = safeOrders.length > 0 
-    ? safeOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0) / safeOrders.length 
+    ? safeOrders.reduce((sum, order) => sum + (order.total_amount || order.price || 0), 0) / safeOrders.length 
     : 0;
   
-  const totalRevenue = safeOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
-  const activeEquipmentCount = safePrinters.filter(p => p.status === 'active').length;
+  const totalRevenue = safeOrders.reduce((sum, order) => sum + (order.total_amount || order.price || 0), 0);
+  const activeEquipmentCount = safePrinters.filter(p => p.status === 'active' || p.status === 'online').length;
   const openOrders = safeOrders.filter(order => 
     order.status !== 'delivered' && order.status !== 'cancelled'
   ).length;
@@ -235,7 +235,7 @@ export default function DashboardWithSidebar() {
                           {order.listings?.title || `Order #${(order.id || '').slice(0, 8)}`}
                         </p>
                         <p className="text-zinc-400 text-xs">
-                          ${order.total_amount} • {new Date(order.created_at).toLocaleDateString()}
+                          ${order.total_amount || order.price || 0} • {new Date(order.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -471,7 +471,7 @@ export default function DashboardWithSidebar() {
                         <div>
                           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Order Details</p>
                           <p className="text-white font-medium">Quantity: {order.quantity}</p>
-                          <p className="text-zinc-400 text-sm">Total: ${order.total_amount}</p>
+                          <p className="text-zinc-400 text-sm">Total: ${order.total_amount || order.price || 0}</p>
                         </div>
                         <div>
                           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Status</p>
@@ -605,7 +605,7 @@ export default function DashboardWithSidebar() {
                         <PrinterIcon className="w-6 h-6 text-blue-400" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-white">{printer.name}</h4>
+                        <p className="text-white font-medium">{printer.name}</p>
                         <p className="text-zinc-400 text-sm">
                           {printer.brand} {printer.model}
                         </p>
@@ -774,8 +774,8 @@ export default function DashboardWithSidebar() {
                 
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-lg font-bold text-white">${listing.base_price}</p>
-                    <p className="text-xs text-zinc-400">{listing.listing_type}</p>
+                    <p className="text-lg font-bold text-white">${listing.basePrice || listing.price || 0}</p>
+                    <p className="text-xs text-zinc-400">{listing.listingType || listing.listing_type || 'product'}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-zinc-400">{listing.orders_count || 0} orders</p>
@@ -890,12 +890,12 @@ export default function DashboardWithSidebar() {
                   </div>
                   <div>
                     <p className="text-white font-medium">{listing.title}</p>
-                    <p className="text-zinc-400 text-sm">${listing.base_price} • {listing.orders_count || 0} orders</p>
+                    <p className="text-zinc-400 text-sm">${listing.basePrice || listing.price || 0} • {listing.orders_count || 0} orders</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-green-400 font-medium">
-                    ${((listing.orders_count || 0) * listing.base_price).toFixed(2)}
+                    ${((listing.orders_count || 0) * (listing.basePrice || listing.price || 0)).toFixed(2)}
                   </p>
                   <p className="text-zinc-400 text-xs">Total Revenue</p>
                 </div>
