@@ -94,9 +94,9 @@ export default function DashboardWithSidebar() {
   }, []);
 
   const renderOverview = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <Card className="bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 transition-colors">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -175,7 +175,7 @@ export default function DashboardWithSidebar() {
       </div>
 
       {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Quick Actions */}
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader>
@@ -249,7 +249,7 @@ export default function DashboardWithSidebar() {
       </div>
 
       {/* Performance Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Listings */}
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader>
@@ -1053,12 +1053,13 @@ export default function DashboardWithSidebar() {
       <SimpleSidebar />
       
       {/* Main Content */}
-      <div className="ml-20 p-6">
+      <div className="ml-20 p-8">
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
+          className="max-w-7xl mx-auto"
         >
           {renderContent()}
         </motion.div>
