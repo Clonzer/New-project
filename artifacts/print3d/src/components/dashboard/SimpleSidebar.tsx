@@ -108,17 +108,27 @@ export function SimpleSidebar() {
 
   return (
     <motion.div 
-      className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
-      initial={{ width: "80px" }}
-      whileHover={{ width: "360px" }}
+      className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen"
+      initial={{ width: "280px" }}
+      animate={{ width: "280px" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col h-full pt-20 pb-4">
         {/* User Info */}
         <div className="px-4 py-4 border-b border-zinc-800">
           <div className="flex items-center gap-4">
+            {user?.avatarUrl ? (
+              <img 
+                src={user.avatarUrl} 
+                alt="Profile" 
+                className="w-12 h-12 rounded-full object-cover shadow-lg shadow-orange-500/25"
+                onError={(e) => {
+                  // Fallback to gradient if image fails to load
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+            ) : null}
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/25">
               {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
             </div>

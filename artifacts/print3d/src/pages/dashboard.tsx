@@ -1053,7 +1053,7 @@ export default function DashboardWithSidebar() {
       <SimpleSidebar />
       
       {/* Main Content */}
-      <div className="ml-20 p-8">
+      <div className="ml-72 p-8">
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 20 }}
