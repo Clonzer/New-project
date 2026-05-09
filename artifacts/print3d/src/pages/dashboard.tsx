@@ -1,8 +1,11 @@
 import { useEffect } from "react";
-import { useLocation, Link } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/supabase-auth-context";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import ShopManagement from "./dashboard/shop";
+import OrdersAndSales from "./dashboard/orders";
+import CustomerActivity from "./dashboard/customer";
+import AccountSettings from "./dashboard/account";
 
 function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +21,13 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 export default function Dashboard() {
   const [location] = useLocation();
   const { user, isLoading } = useAuth();
+
+  // Redirect to shop management if at dashboard root
+  useEffect(() => {
+    if (location === "/dashboard" || location === "/dashboard/") {
+      window.location.href = "/dashboard/shop";
+    }
+  }, [location]);
 
   // Show loading state
   if (isLoading) {
@@ -37,22 +47,45 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center h-full">
           <h1 className="text-2xl font-bold text-white mb-4">Authentication Required</h1>
           <p className="text-zinc-400 mb-6">Please log in to access the dashboard.</p>
-          <Link href="/login">
-            <a className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors">
-              Go to Login
-            </a>
-          </Link>
+          <a 
+            href="/login" 
+            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors"
+          >
+            Go to Login
+          </a>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Handle routing for authenticated users
-  if (location === "/dashboard" || location === "/dashboard/") {
-    window.location.href = "/dashboard/shop";
-    return null;
+  // Route based on location
+  if (location.startsWith("/dashboard/shop")) {
+    return (
+      <DashboardLayout>
+        <ShopManagement />
+      </DashboardLayout>
+    );
+  } else if (location.startsWith("/dashboard/orders")) {
+    return (
+      <DashboardLayout>
+        <OrdersAndSales />
+      </DashboardLayout>
+    );
+  } else if (location.startsWith("/dashboard/customer")) {
+    return (
+      <DashboardLayout>
+        <CustomerActivity />
+      </DashboardLayout>
+    );
+  } else if (location.startsWith("/dashboard/account")) {
+    return (
+      <DashboardLayout>
+        <AccountSettings />
+      </DashboardLayout>
+    );
   }
 
+  // Default fallback for any dashboard route
   return (
     <DashboardLayout>
       <ShopManagement />
