@@ -44,20 +44,25 @@ export default function Dashboard() {
   const { data: listings = [], isLoading: listingsLoading } = useListListings({ userId: user?.id });
   const { data: printers = [], isLoading: printersLoading } = useListPrinters({ userId: user?.id });
 
+  // Ensure data is not null
+  const safeOrders = orders || [];
+  const safeListings = listings || [];
+  const safePrinters = printers || [];
+
   // Calculate metrics
-  const averageOrderValue = orders.length > 0 
-    ? orders.reduce((sum, order) => sum + (order.total_amount || 0), 0) / orders.length 
+  const averageOrderValue = safeOrders.length > 0 
+    ? safeOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0) / safeOrders.length 
     : 0;
   
-  const activeEquipmentCount = printers.filter(p => p.status === 'active').length;
-  const openOrders = orders.filter(order => 
+  const activeEquipmentCount = safePrinters.filter(p => p.status === 'active').length;
+  const openOrders = safeOrders.filter(order => 
     order.status !== 'delivered' && order.status !== 'cancelled'
   ).length;
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  const pendingOrders = safeOrders.filter(order => order.status === 'pending').length;
 
-  const recentOrders = orders.slice(0, 5);
+  const recentOrders = safeOrders.slice(0, 5);
 
-  const equipmentStatus = printers.reduce((acc, printer) => {
+  const equipmentStatus = safePrinters.reduce((acc, printer) => {
     acc[printer.status] = (acc[printer.status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -135,7 +140,7 @@ export default function Dashboard() {
                     </div>
                     <span className="text-zinc-400 text-sm">Catalog Items</span>
                   </div>
-                  <p className="text-2xl font-bold text-white">{listings.length}</p>
+                  <p className="text-2xl font-bold text-white">{safeListings.length}</p>
                 </CardContent>
               </Card>
 
@@ -227,7 +232,7 @@ export default function Dashboard() {
               <p className="text-zinc-400 text-sm">Manage your orders and track shipments</p>
             </CardHeader>
             <CardContent>
-              {orders.length === 0 ? (
+              {safeOrders.length === 0 ? (
                 <div className="text-center py-12">
                   <Package className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">No orders yet</h3>
@@ -238,7 +243,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {orders.map((order) => (
+                  {safeOrders.map((order) => (
                     <div key={order.id} className="border border-zinc-800 rounded-lg p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -307,7 +312,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {printers.length === 0 ? (
+              {safePrinters.length === 0 ? (
                 <div className="text-center py-12">
                   <PrinterIcon className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">No equipment registered</h3>
@@ -319,7 +324,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {printers.map((printer) => (
+                  {safePrinters.map((printer) => (
                     <div key={printer.id} className="border border-zinc-800 rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
