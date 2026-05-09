@@ -200,8 +200,8 @@ export function Finance() {
                 <p className="text-sm text-zinc-400">Completed Orders</p>
                 <p className="text-2xl font-bold text-white">{stats.completedOrders}</p>
               </div>
-              <div className="p-3 rounded-full bg-blue-500/20">
-                <Receipt className="w-6 h-6 text-blue-400" />
+              <div className="p-3 rounded-full bg-orange-500/20">
+                <Receipt className="w-6 h-6 text-orange-400" />
               </div>
             </div>
           </CardContent>

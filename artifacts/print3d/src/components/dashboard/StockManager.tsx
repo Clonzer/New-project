@@ -211,8 +211,8 @@ export function StockManager({
         )}
       </div>
 
-      <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4">
-        <p className="text-sm text-blue-200">
+      <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-4">
+        <p className="text-sm text-orange-200">
           💡 <strong>Tip:</strong> Enable stock tracking to prevent customer orders when inventory runs out. Enable "Track Stock" next to each listing.
         </p>
       </div>

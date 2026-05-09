@@ -227,7 +227,7 @@ export function ServiceRequestMarketplace() {
                   <h4 className="font-medium text-white">{request.title}</h4>
                   <Badge variant="outline" className={`
                     ${request.status === 'pending' ? 'border-yellow-500/30 text-yellow-400' : ''}
-                    ${request.status === 'quoted' ? 'border-blue-500/30 text-blue-400' : ''}
+                    ${request.status === 'quoted' ? 'border-orange-500/30 text-orange-400' : ''}
                     ${request.status === 'accepted' ? 'border-green-500/30 text-green-400' : ''}
                   `}>
                     {request.status}

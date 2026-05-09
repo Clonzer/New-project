@@ -7,7 +7,7 @@ import { Package, ArrowRight, Clock, CheckCircle2, Printer as PrinterIcon, Truck
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; next?: string; nextLabel?: string }> = {
   pending:   { label: "Pending",   color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock,         next: "accepted",  nextLabel: "Accept Job" },
-  accepted:  { label: "Accepted",  color: "bg-blue-500/10 text-blue-400 border-blue-500/20",       icon: CheckCircle2,  next: "printing",  nextLabel: "Start production" },
+  accepted:  { label: "Accepted",  color: "bg-orange-500/10 text-orange-400 border-orange-500/20",       icon: CheckCircle2,  next: "printing",  nextLabel: "Start production" },
   printing:  { label: "In production", color: "bg-primary/10 text-primary border-primary/30",    icon: PrinterIcon,   next: "shipped",   nextLabel: "Mark Shipped" },
   shipped:   { label: "Shipped",   color: "bg-accent/10 text-accent border-accent/30",             icon: Truck,         next: "delivered", nextLabel: "Confirm Delivered" },
   delivered: { label: "Delivered", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: CheckCircle2 },

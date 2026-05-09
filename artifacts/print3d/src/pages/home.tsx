@@ -500,7 +500,7 @@ export default function Home() {
                   icon: Clock,
                   title: "Lightning Fast",
                   description: "Average 48-hour delivery with real-time tracking",
-                  color: "from-blue-400 via-indigo-400 to-purple-400",
+                  color: "from-orange-400 via-orange-500 to-yellow-400",
                   badge: "Express Delivery"
                 },
                 {
@@ -528,7 +528,7 @@ export default function Home() {
                   icon: Gem,
                   title: "Premium Materials",
                   description: "Access to industry-leading filaments and resins",
-                  color: "from-blue-400 via-cyan-400 to-indigo-400",
+                  color: "from-orange-400 via-orange-500 to-yellow-400",
                   badge: "Pro Grade"
                 }
               ].map((feature, index) => (
@@ -542,7 +542,7 @@ export default function Home() {
                   <Card className="bg-black/40 border-white/10 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm relative">
                     {feature.badge && (
                       <div className="absolute top-4 right-4 z-20">
-                        <Badge className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+                        <Badge className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
                           {feature.badge}
                         </Badge>
                       </div>
@@ -575,11 +575,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Boxes className="w-3 h-3 mr-1" /> Simple Process
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Works</span></span>
+                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Works</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Get your 3D prints in three simple steps
@@ -654,17 +654,17 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Palette className="w-3 h-3 mr-1" /> {currentCategoryText.badge} Category
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 {selectedCategory === 'all' ? (
                   <>
-                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Categories</span></span>
+                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Categories</span></span>
                   </>
                 ) : (
                   <>
-                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
+                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
                   </>
                 )}
               </h2>
@@ -728,11 +728,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-cyan-500/30 text-cyan-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
                 <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Customers Say</span></span>
+                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Customers Say</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Real reviews from real customers

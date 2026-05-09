@@ -26,7 +26,7 @@ import { createOrder, updateOrderStatus, cancelOrder } from "@/lib/workspace-stu
 
 const STATUS_CONFIG = {
   pending: { label: "Pending", color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock },
-  accepted: { label: "Accepted", color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: CheckCircle2 },
+  accepted: { label: "Accepted", color: "bg-orange-500/10 text-orange-400 border-orange-500/20", icon: CheckCircle2 },
   printing: { label: "In Production", color: "bg-primary/10 text-primary border-primary/30", icon: Package },
   shipped: { label: "Shipped", color: "bg-accent/10 text-accent border-accent/30", icon: Truck },
   delivered: { label: "Delivered", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: CheckCircle2 },

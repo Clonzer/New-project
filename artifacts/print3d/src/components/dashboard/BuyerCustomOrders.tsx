@@ -88,7 +88,7 @@ export default function BuyerCustomOrders({ user }: { user: any }) {
       case 'pending':
         return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">Pending Quote</span>;
       case 'quoted':
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">Quote Received</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-300 border border-orange-500/20">Quote Received</span>;
       case 'accepted':
         return <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Accepted</span>;
       case 'rejected':

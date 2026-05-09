@@ -373,7 +373,7 @@ export function Navbar() {
             </div>
           ) : (
             <Link href="/register">
-              <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] px-4 py-2 text-sm h-9 border border-cyan-400/30 hidden sm:flex">
+              <Button className="rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-400 hover:to-orange-500 font-semibold shadow-[0_0_20px_rgba(249,115,22,0.4)] px-4 py-2 text-sm h-9 border border-orange-400/30 hidden sm:flex">
                 Join Now
               </Button>
             </Link>
@@ -494,7 +494,7 @@ export function Navbar() {
               {!user ? (
                 <div className="mt-6">
                   <Link href="/register" onClick={() => setMenuOpen(false)}>
-                    <Button className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.4)] border border-cyan-400/30 py-3">
+                    <Button className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-400 hover:to-orange-500 font-semibold shadow-[0_0_20px_rgba(249,115,22,0.4)] border border-orange-400/30 py-3">
                       Join Now
                     </Button>
                   </Link>

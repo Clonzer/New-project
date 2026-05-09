@@ -407,8 +407,8 @@ export function Analytics({ shopId, timeRange = "30d" }: AnalyticsProps) {
                 <Area
                   type="monotone"
                   dataKey="views"
-                  fill="#3b82f6"
-                  stroke="#60a5fa"
+                  fill="#F97316"
+                  stroke="#FB923C"
                   strokeWidth={2}
                   name="Views"
                 />

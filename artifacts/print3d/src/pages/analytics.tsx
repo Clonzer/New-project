@@ -392,7 +392,7 @@ export default function Analytics() {
                           labelStyle={{ color: '#F3F4F6' }}
                         />
                         <Area type="monotone" dataKey="revenue" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
-                        <Area type="monotone" dataKey="orders" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                        <Area type="monotone" dataKey="orders" stroke="#F97316" fill="#F97316" fillOpacity={0.3} />
                         <Legend />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -532,7 +532,7 @@ export default function Analytics() {
                         labelStyle={{ color: '#F3F4F6' }}
                       />
                       <Legend />
-                      <Line type="monotone" dataKey="activeUsers" stroke="#3B82F6" strokeWidth={2} />
+                      <Line type="monotone" dataKey="activeUsers" stroke="#F97316" strokeWidth={2} />
                       <Line type="monotone" dataKey="newUsers" stroke="#10B981" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>

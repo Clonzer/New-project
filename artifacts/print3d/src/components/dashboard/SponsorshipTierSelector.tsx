@@ -208,8 +208,8 @@ export function SponsorshipTierSelector({
                 </p>
               </div>
 
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                <p className="text-sm text-blue-200">
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                <p className="text-sm text-orange-200">
                   Your subscription will renew automatically. You can cancel anytime from your account settings. Read our{" "}
                   <a href="/terms" className="underline hover:no-underline">
                     subscription terms

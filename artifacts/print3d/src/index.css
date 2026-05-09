@@ -12,17 +12,17 @@
   --popover-foreground: 0 0% 98%;
   --popover-border: 240 10% 15%;
   
-  /* Primary - Vibrant blue */
-  --primary: 217 91% 60%;
+  /* Primary - Vibrant orange */
+  --primary: 25 95% 53%;
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 217 91% 60%;
+  --primary-glow: 25 95% 53%;
   
   /* Secondary - Subtle elevated surfaces */
   --secondary: 240 8% 12%;
   --secondary-foreground: 0 0% 96%;
   
-  /* Accent - Blue gradient for contrast */
-  --accent: 210 100% 65%;
+  /* Accent - Warm orange gradient for contrast */
+  --accent: 15 91% 57%;
   --accent-foreground: 0 0% 100%;
   
   /* Muted - Elegant grays */
@@ -40,7 +40,7 @@
   /* Borders and inputs */
   --border: 240 8% 18%;
   --input: 240 8% 14%;
-  --ring: 217 91% 60%;
+  --ring: 25 95% 53%;
   --radius: 0.875rem;
   
   /* Typography */
@@ -48,8 +48,8 @@
   --font-display: 'Outfit', sans-serif;
   
   /* Glow and effect colors */
-  --glow-primary: rgba(59, 130, 246, 0.5);
-  --glow-accent: rgba(59, 130, 246, 0.7);
+  --glow-primary: rgba(251, 146, 60, 0.5);
+  --glow-accent: rgba(251, 146, 60, 0.7);
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
 }
@@ -73,16 +73,16 @@ html, body {
 
 body {
   background-image: 
-    /* Primary blue glow - top left */
-    radial-gradient(ellipse 80% 50% at 10% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-    /* Secondary blue glow - top right */
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(59, 130, 246, 0.1) 0%, transparent 45%),
-    /* Blue accent - bottom */
-    radial-gradient(ellipse 50% 30% at 50% 90%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-    /* Deep blue depth - bottom left */
-    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 40%),
-    /* Light blue depth - bottom right */
-    radial-gradient(ellipse 50% 50% at 85% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 45%);
+    /* Primary orange glow - top left */
+    radial-gradient(ellipse 80% 50% at 10% 20%, rgba(251, 146, 60, 0.12) 0%, transparent 50%),
+    /* Secondary orange glow - top right */
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(251, 146, 60, 0.1) 0%, transparent 45%),
+    /* Warm orange accent - bottom */
+    radial-gradient(ellipse 50% 30% at 50% 90%, rgba(251, 146, 60, 0.06) 0%, transparent 50%),
+    /* Deep orange depth - bottom left */
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(234, 88, 12, 0.1) 0%, transparent 40%),
+    /* Light orange depth - bottom right */
+    radial-gradient(ellipse 50% 50% at 85% 75%, rgba(251, 146, 60, 0.08) 0%, transparent 45%);
   background-attachment: fixed;
 }
 
@@ -117,27 +117,27 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glow effects */
 .glow-primary {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 20px rgba(251, 146, 60, 0.3), 0 0 40px rgba(251, 146, 60, 0.1);
 }
 
 .glow-accent {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 20px rgba(251, 146, 60, 0.3), 0 0 40px rgba(251, 146, 60, 0.1);
 }
 
 .glow-subtle {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 30px rgba(251, 146, 60, 0.15);
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(210 100% 65%) 100%);
+  background: linear-gradient(135deg, hsl(25 95% 68%) 0%, hsl(15 91% 57%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-animated {
-  background: linear-gradient(90deg, hsl(217 91% 60%), hsl(210 100% 65%), hsl(217 91% 60%));
+  background: linear-gradient(90deg, hsl(25 95% 68%), hsl(15 91% 57%), hsl(25 95% 68%));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

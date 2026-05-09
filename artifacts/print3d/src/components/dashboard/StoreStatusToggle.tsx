@@ -166,7 +166,7 @@ export function StoreStatusToggle() {
           whileTap={{ scale: 0.99 }}
           className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${
             acceptingOrders
-              ? "border-blue-500/30 bg-blue-500/10"
+              ? "border-orange-500/30 bg-orange-500/10"
               : "border-zinc-700 bg-zinc-800/50"
           }`}
         >
@@ -174,14 +174,14 @@ export function StoreStatusToggle() {
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-lg ${
                 acceptingOrders
-                  ? "bg-blue-500/20"
+                  ? "bg-orange-500/20"
                   : "bg-zinc-700"
               }`}
             >
               {isUpdatingOrders ? (
                 <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
               ) : acceptingOrders ? (
-                <ShoppingCart className="h-5 w-5 text-blue-400" />
+                <ShoppingCart className="h-5 w-5 text-orange-400" />
               ) : (
                 <Ban className="h-5 w-5 text-zinc-400" />
               )}
@@ -197,7 +197,7 @@ export function StoreStatusToggle() {
           </div>
           <div
             className={`relative h-6 w-11 rounded-full transition-colors ${
-              acceptingOrders ? "bg-blue-500" : "bg-zinc-600"
+              acceptingOrders ? "bg-orange-500" : "bg-zinc-600"
             }`}
           >
             <motion.div

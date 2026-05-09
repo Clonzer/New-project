@@ -238,7 +238,7 @@ export default function CustomOrders({ user }: { user: any }) {
       case 'pending':
         return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">Pending</span>;
       case 'quoted':
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">Quoted</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-300 border border-orange-500/20">Quoted</span>;
       case 'accepted':
         return <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Accepted</span>;
       case 'rejected':
@@ -337,7 +337,7 @@ export default function CustomOrders({ user }: { user: any }) {
                   </div>
 
                   {request.status === 'quoted' && request.quote_message && (
-                    <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
                       <span className="text-zinc-500 text-sm">Your quote message:</span>
                       <p className="text-white text-sm mt-1">{request.quote_message}</p>
                     </div>
@@ -377,7 +377,7 @@ export default function CustomOrders({ user }: { user: any }) {
                       <Button
                         variant="outline"
                         onClick={() => openEditDialog(request)}
-                        className="rounded-xl glass-panel text-white border-blue-500/30 hover:bg-blue-500/10 hover:border-blue-500/50"
+                        className="rounded-xl glass-panel text-white border-orange-500/30 hover:bg-orange-500/10 hover:border-orange-500/50"
                       >
                         <Pencil className="w-4 h-4 mr-2" />
                         Edit Quote

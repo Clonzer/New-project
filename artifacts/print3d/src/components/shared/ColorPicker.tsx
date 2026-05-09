@@ -15,10 +15,10 @@ const DEFAULT_COLORS = [
   { name: "White", value: "#FFFFFF", class: "bg-white border border-zinc-600" },
   { name: "Gray", value: "#6B7280", class: "bg-gray-500" },
   { name: "Red", value: "#EF4444", class: "bg-red-500" },
-  { name: "Blue", value: "#3B82F6", class: "bg-blue-500" },
+  { name: "Orange", value: "#F97316", class: "bg-orange-500" },
   { name: "Green", value: "#10B981", class: "bg-emerald-500" },
   { name: "Yellow", value: "#F59E0B", class: "bg-amber-500" },
-  { name: "Orange", value: "#F97316", class: "bg-orange-500" },
+  { name: "Blue", value: "#3B82F6", class: "bg-blue-500" },
   { name: "Purple", value: "#8B5CF6", class: "bg-violet-500" },
   { name: "Pink", value: "#EC4899", class: "bg-pink-500" },
   { name: "Brown", value: "#92400E", class: "bg-amber-800" },
@@ -28,8 +28,8 @@ const DEFAULT_COLORS = [
 export function ColorPicker({ value, onChange, allowCustom = true }: ColorPickerProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [showCustom, setShowCustom] = useState(false);
-  const [customColor, setCustomColor] = useState("#3B82F6");
-  const [hue, setHue] = useState(210);
+  const [customColor, setCustomColor] = useState("#F97316");
+  const [hue, setHue] = useState(25);
   const [saturation, setSaturation] = useState(100);
   const [lightness, setLightness] = useState(50);
   const saturationRef = useRef<HTMLDivElement>(null);
