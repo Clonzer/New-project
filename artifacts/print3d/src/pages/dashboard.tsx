@@ -98,13 +98,17 @@ export default function Dashboard() {
 
   // Redirect to shop management if at dashboard root
   useEffect(() => {
+    console.log("Dashboard location:", location);
     if (location === "/dashboard" || location === "/dashboard/") {
+      console.log("Redirecting to shop management");
       window.location.href = "/dashboard/shop";
     }
   }, [location]);
 
   // Handle routing based on current path
   const renderContent = () => {
+    console.log("Dashboard renderContent for location:", location);
+    
     if (location.startsWith("/dashboard/shop")) {
       return <ShopManagement />;
     } else if (location.startsWith("/dashboard/orders")) {
@@ -135,7 +139,8 @@ export default function Dashboard() {
       return <ShippingProfiles />;
     }
     
-    // Default to shop management
+    // Default to shop management for any other dashboard route
+    console.log("Defaulting to ShopManagement for unknown route");
     return <ShopManagement />;
   };
 
