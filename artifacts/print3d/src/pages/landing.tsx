@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Search, 
@@ -75,6 +75,8 @@ export default function Landing() {
   const [priceDropdownOpen, setPriceDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
   
   // Debug logging
   console.log("Listings data:", listings.data);
@@ -184,7 +186,7 @@ export default function Landing() {
                     transition={{ duration: 0.6 }}
                   >
                     <div className="mb-6">
-                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-2 rounded-full mb-6">
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded-full mb-6">
                         <Sparkles className="w-5 h-5" />
                         <span className="font-bold">Featured This Week</span>
                       </div>
@@ -199,9 +201,16 @@ export default function Landing() {
               {/* Enhanced Vertical Icon Bar */}
               <div className="mb-6 relative">
                 <motion.div 
+                  ref={sidebarRef}
                   className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 p-2 group"
                   initial={{ width: "48px", height: "100vh" }}
                   whileHover={{ width: "220px" }}
+                  onHoverStart={() => setIsSidebarExpanded(true)}
+                  onHoverEnd={() => {
+                    setIsSidebarExpanded(false);
+                    setPriceDropdownOpen(false);
+                    setCategoryDropdownOpen(false);
+                  }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <div className="flex flex-col gap-3 h-full pt-8 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 group-hover:scrollbar-thumb-zinc-500">
@@ -209,12 +218,22 @@ export default function Landing() {
                     <div className="h-8"></div>
                     
                     {/* Filter button */}
-                    <div 
-                      className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                      onClick={() => console.log("Open advanced filters")}
-                    >
-                      <Filter className="w-5 h-5 text-zinc-300 flex-shrink-0" />
-                      <span className="text-white text-sm whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Filters</span>
+                    <div className="relative group/item">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                        onClick={() => console.log("Open advanced filters")}
+                      >
+                        <div className="relative">
+                          <Filter className="w-5 h-5 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              Filters
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-white text-sm whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Filters</span>
+                      </div>
                     </div>
                     
                     {/* Price Range Dropdown */}
@@ -223,7 +242,15 @@ export default function Landing() {
                         className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
                         onClick={() => setPriceDropdownOpen(!priceDropdownOpen)}
                       >
-                        <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <div className="relative">
+                          <DollarSign className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              Price Range
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
+                        </div>
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Price Range</span>
                         <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${priceDropdownOpen ? 'rotate-180' : ''}`} />
                       </div>
@@ -234,7 +261,7 @@ export default function Landing() {
                           <div className="space-y-1">
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                !minPrice && !maxPrice ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
+                                !minPrice && !maxPrice ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice(""); setMaxPrice(""); setPriceDropdownOpen(false);}}
                             >
@@ -244,7 +271,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "0" && maxPrice === "25" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "0" && maxPrice === "25" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("0"); setMaxPrice("25"); setPriceDropdownOpen(false);}}
                             >
@@ -254,7 +281,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "25" && maxPrice === "50" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "25" && maxPrice === "50" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("25"); setMaxPrice("50"); setPriceDropdownOpen(false);}}
                             >
@@ -264,7 +291,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "50" && maxPrice === "100" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "50" && maxPrice === "100" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("50"); setMaxPrice("100"); setPriceDropdownOpen(false);}}
                             >
@@ -274,7 +301,7 @@ export default function Landing() {
                             
                             <div 
                               className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                minPrice === "100" && !maxPrice ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700 text-zinc-300"
+                                minPrice === "100" && !maxPrice ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
                               onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}
                             >
@@ -288,34 +315,64 @@ export default function Landing() {
 
                     {/* Main Filters */}
                     <div className="flex flex-col gap-2">
-                      <div 
-                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "all" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
-                        }`}
-                        onClick={() => setFilterType("all")}
-                      >
-                        <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">All</span>
+                      <div className="relative group/item">
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                            filterType === "all" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("all")}
+                        >
+                          <div className="relative">
+                            <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                            {isSidebarExpanded && (
+                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                All Items
+                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">All</span>
+                        </div>
                       </div>
-                      
-                      <div 
-                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "shops" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
-                        }`}
-                        onClick={() => setFilterType("shops")}
-                      >
-                        <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Shops</span>
+                       
+                      <div className="relative group/item">
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                            filterType === "shops" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("shops")}
+                        >
+                          <div className="relative">
+                            <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                            {isSidebarExpanded && (
+                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                Shops
+                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Shops</span>
+                        </div>
                       </div>
-                      
-                      <div 
-                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                          filterType === "models" ? "bg-cyan-600/20 text-cyan-300" : "hover:bg-zinc-700"
-                        }`}
-                        onClick={() => setFilterType("models")}
-                      >
-                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Items</span>
+                       
+                      <div className="relative group/item">
+                        <div 
+                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                            filterType === "models" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                          }`}
+                          onClick={() => setFilterType("models")}
+                        >
+                          <div className="relative">
+                            <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                            {isSidebarExpanded && (
+                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                Items
+                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Items</span>
+                        </div>
                       </div>
                     </div>
 
@@ -325,7 +382,15 @@ export default function Landing() {
                         className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
                         onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                       >
-                        <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                        <div className="relative">
+                          <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              Categories
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
+                        </div>
                         <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Categories</span>
                         <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
                       </div>
@@ -431,21 +496,41 @@ export default function Landing() {
                     {/* Store Functions */}
                     <div className="flex flex-col gap-2">
                       {/* My Orders Button */}
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => navigateWithAuth('/dashboard/orders')}
-                      >
-                        <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
+                      <div className="relative group/item">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                          onClick={() => navigateWithAuth('/dashboard/orders')}
+                        >
+                          <div className="relative">
+                            <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                            {isSidebarExpanded && (
+                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                My Orders
+                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
+                        </div>
                       </div>
-                      
+                       
                       {/* Favorites Button */}
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => navigateWithAuth('/dashboard/favorites')}
-                      >
-                        <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
+                      <div className="relative group/item">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
+                          onClick={() => navigateWithAuth('/dashboard/favorites')}
+                        >
+                          <div className="relative">
+                            <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                            {isSidebarExpanded && (
+                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                Favorites
+                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
+                        </div>
                       </div>
                     </div>
                     
@@ -467,7 +552,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
                             // Maker card with banner and avatar
@@ -521,7 +606,7 @@ export default function Landing() {
                               <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
                               <p className="text-zinc-400 text-xs">{item.subtitle}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
+                                <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
                                   {item.type}
                                 </Badge>
                                 {item.sellerName && (
@@ -548,7 +633,7 @@ export default function Landing() {
                                 <span className="text-zinc-400 text-xs">{item.views}</span>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
                           </div>
                         </div>
                       </div>
@@ -569,7 +654,7 @@ export default function Landing() {
                     className="group"
                   >
                     <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
+                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
                             // Maker card with banner and avatar
@@ -623,7 +708,7 @@ export default function Landing() {
                               <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
                               <p className="text-zinc-400 text-xs">{item.subtitle}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
+                                <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
                                   {item.type}
                                 </Badge>
                                 {item.sellerName && (
@@ -650,7 +735,7 @@ export default function Landing() {
                                 <span className="text-zinc-400 text-xs">{item.views}</span>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
                           </div>
                         </div>
                       </div>

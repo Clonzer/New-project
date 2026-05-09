@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import {
@@ -824,6 +824,30 @@ export default function Dashboard() {
   const [showStoreSetup, setShowStoreSetup] = useState(false);
   const [xpStats, setXpStats] = useState<UserXpStats | null>(null);
 
+  // Listen for custom events from sidebar
+  useEffect(() => {
+    const handleSetTab = (event: CustomEvent) => {
+      setDefaultTab(event.detail);
+    };
+
+    const dashboardElement = dashboardRef.current;
+    if (dashboardElement) {
+      dashboardElement.addEventListener('setTab', handleSetTab as EventListener);
+      // Store component reference for sidebar fallback
+      (window as any).__dashboardComponent = {
+        setDefaultTab: (tabId: string) => setDefaultTab(tabId)
+      };
+    }
+
+    return () => {
+      if (dashboardElement) {
+        dashboardElement.removeEventListener('setTab', handleSetTab as EventListener);
+      }
+      // Clean up global reference
+      delete (window as any).__dashboardComponent;
+    };
+  }, []);
+
   // Listen for tab changes from sidebar
   useEffect(() => {
     const handleTabChange = (event: CustomEvent) => {
@@ -1228,7 +1252,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div ref={dashboardRef} data-dashboard className="min-h-screen bg-zinc-950">
       <DashboardSidebar />
       
       <main className="pl-20 flex-grow pt-4 pb-28">
@@ -1434,24 +1458,24 @@ export default function Dashboard() {
             onValueChange={(value) => setDefaultTab(value)}
             className="w-full"
           >
-            {/* Desktop tabs removed - using mobile navigation on all screens */}
-            <TabsList className="hidden">
+            {/* Tabs for desktop navigation */}
+            <TabsList className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-1 mb-6">
               {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
               {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-                <TabsTrigger value="overview" data-tour="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                <TabsTrigger value="overview" data-tour="overview" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Overview
                 </TabsTrigger>
               )}
               {user.isOwner && (user?.role !== "both" || dashboardView === "store") ? (
-                <TabsTrigger value="admin" data-tour="admin" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                <TabsTrigger value="admin" data-tour="admin" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                   <Settings className="w-4 h-4 mr-2" />
                   Admin
                 </TabsTrigger>
               ) : null}
 
               {/* Combined Store & Orders tab - shown for all users */}
-              <TabsTrigger value="store-orders" data-tour="store-orders" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+              <TabsTrigger value="store-orders" data-tour="store-orders" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                 <Store className="w-4 h-4 mr-2" />
                 Store & Orders
               </TabsTrigger>
@@ -1459,31 +1483,31 @@ export default function Dashboard() {
               {/* Seller tabs - shown for all seller users */}
               {isSellerUser && (
                 <>
-                  <TabsTrigger value="reviews" data-tour="reviews" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="reviews" data-tour="reviews" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <CheckCircle2 className="w-4 h-4 mr-2" />
                     My Reviews
                   </TabsTrigger>
-                  <TabsTrigger value="marketplace" data-tour="marketplace" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="marketplace" data-tour="marketplace" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <Briefcase className="w-4 h-4 mr-2" />
                     Service Marketplace
                   </TabsTrigger>
-                  <TabsTrigger value="services" data-tour="services" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="services" data-tour="services" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <PenLine className="w-4 h-4 mr-2" />
                     My Services
                   </TabsTrigger>
-                  <TabsTrigger value="printers" data-tour="printers" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="printers" data-tour="printers" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <PrinterIcon className="w-4 h-4 mr-2" />
                     My Equipment
                   </TabsTrigger>
-                  <TabsTrigger value="shipping" data-tour="shipping" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="shipping" data-tour="shipping" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <Truck className="w-4 h-4 mr-2" />
                     Shipping Profiles
                   </TabsTrigger>
-                  <TabsTrigger value="analytics" data-tour="analytics" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="analytics" data-tour="analytics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Analytics
                   </TabsTrigger>
-                  <TabsTrigger value="rank" data-tour="rank" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="rank" data-tour="rank" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <Trophy className="w-4 h-4 mr-2" />
                     Rank
                   </TabsTrigger>
@@ -1493,15 +1517,15 @@ export default function Dashboard() {
               {/* Buyer tabs - shown for all buyer users */}
               {!isSellerUser || user?.role === "both" ? (
                 <>
-                  <TabsTrigger value="messages" data-tour="messages" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="messages" data-tour="messages" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Messages
                   </TabsTrigger>
-                  <TabsTrigger value="promotions" data-tour="promotions" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-[0_0_25px_rgba(255,255,255,0.5)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-white/50 px-6 py-3 font-semibold text-sm transition-all duration-200">
+                  <TabsTrigger value="promotions" data-tour="promotions" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
                     <Megaphone className="w-4 h-4 mr-2" />
                     Promotions
                   </TabsTrigger>
-                                  </>
+                </>
               ) : null}
             </TabsList>
 
