@@ -34,7 +34,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function SimpleDashboard() {
+export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'equipment'>('overview');
