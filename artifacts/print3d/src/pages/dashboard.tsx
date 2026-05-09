@@ -82,15 +82,29 @@ export default function DashboardWithSidebar() {
     ? safeReviews.reduce((sum, review) => sum + (review.rating || 0), 0) / safeReviews.length
     : 0;
 
-  // Get active section from hash
+  // Get active section from hash and listen for hash changes
   useEffect(() => {
-    const hash = window.location.hash;
-    if (typeof hash === 'string') {
-      const hashValue = hash.slice(1);
-      if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews'].includes(hashValue)) {
-        setActiveSection(hashValue);
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (typeof hash === 'string') {
+        const hashValue = hash.slice(1);
+        if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews'].includes(hashValue)) {
+          setActiveSection(hashValue);
+        } else if (!hashValue) {
+          setActiveSection('overview');
+        }
       }
-    }
+    };
+
+    // Initial hash check
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   const renderOverview = () => (

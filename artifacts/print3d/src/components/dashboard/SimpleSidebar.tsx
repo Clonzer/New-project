@@ -225,9 +225,8 @@ export function SimpleSidebar() {
                   onClick={() => {
                     if (item.path.startsWith('/dashboard#')) {
                       // For dashboard sections, update hash
-                      window.location.hash = item.path.replace('/dashboard#', '');
-                      // Trigger a re-render
-                      window.dispatchEvent(new HashChangeEvent("hashchange"));
+                      const section = item.path.replace('/dashboard#', '');
+                      window.location.hash = section;
                     } else {
                       // For other routes, use wouter navigation
                       window.location.href = item.path;
