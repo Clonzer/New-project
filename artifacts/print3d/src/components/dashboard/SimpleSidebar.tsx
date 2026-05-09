@@ -104,9 +104,17 @@ export function SimpleSidebar() {
   };
 
   const isActive = (path: string) => {
+    const currentHash = window.location.hash.slice(1);
+    
     if (path === "/dashboard") {
-      return location === "/dashboard" || location.startsWith("/dashboard#");
+      return location === "/dashboard" || (!currentHash && location.startsWith("/dashboard"));
     }
+    
+    if (path.startsWith("/dashboard#")) {
+      const section = path.replace("/dashboard#", "");
+      return currentHash === section;
+    }
+    
     return location === path || location.startsWith(path + "/");
   };
 
