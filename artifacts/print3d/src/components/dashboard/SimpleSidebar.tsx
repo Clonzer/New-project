@@ -150,10 +150,12 @@ export function SimpleSidebar() {
 
   return (
     <motion.div 
-      className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen"
-      initial={{ width: "280px" }}
-      animate={{ width: "280px" }}
+      className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
+      initial={{ width: "80px" }}
+      whileHover={{ width: "280px" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col h-full pt-20 pb-4">
         {/* User Info */}
@@ -174,7 +176,7 @@ export function SimpleSidebar() {
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/25">
               {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <p className="text-white font-semibold text-base truncate">
                 {user?.displayName || user?.username || "User"}
               </p>
@@ -211,8 +213,8 @@ export function SimpleSidebar() {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-3 py-6">
-          <div className="space-y-2">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800 px-2 py-6">
+          <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -231,20 +233,20 @@ export function SimpleSidebar() {
                       window.location.href = item.path;
                     }
                   }}
-                  className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 cursor-pointer ${
+                  className={`w-full flex items-center px-2 py-3 rounded-lg transition-all duration-200 cursor-pointer group ${
                     active
-                      ? "bg-orange-600/20 text-orange-300 border border-orange-500/30 shadow-lg shadow-orange-500/10"
-                      : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white hover:shadow-md"
+                      ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
+                      : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
                   }`}
                 >
-                  <div className={`p-3 rounded-xl ${
-                    active ? "bg-orange-500/20 shadow-md shadow-orange-500/20" : "bg-zinc-700/50"
+                  <div className={`p-2 rounded-lg flex-shrink-0 ${
+                    active ? "bg-orange-500/20" : "bg-zinc-700/50"
                   }`}>
-                    <Icon className={`w-6 h-6 ${
+                    <Icon className={`w-5 h-5 ${
                       active ? "text-orange-300" : "text-zinc-400"
                     }`} />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3">
                     <p className="text-sm font-semibold text-white truncate mb-1">
                       {item.label}
                     </p>
@@ -252,7 +254,7 @@ export function SimpleSidebar() {
                       {item.description}
                     </p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-zinc-500 flex-shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               );
             })}
@@ -260,17 +262,17 @@ export function SimpleSidebar() {
         </div>
 
         {/* Help Section */}
-        <div className="border-t border-zinc-800 p-3">
+        <div className="border-t border-zinc-800 p-2">
           <div 
             onClick={() => {
               window.location.href = '/help';
             }}
-            className="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer"
+            className="flex items-center px-2 py-3 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
           >
-            <div className="p-3 rounded-xl bg-zinc-700/50">
-              <HelpCircle className="w-6 h-6 text-zinc-400" />
+            <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
+              <HelpCircle className="w-5 h-5 text-zinc-400" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3">
               <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
               <p className="text-xs text-zinc-400">Get help and contact support</p>
             </div>
