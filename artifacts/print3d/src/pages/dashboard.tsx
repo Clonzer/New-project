@@ -23,7 +23,12 @@ export default function Dashboard() {
   const [location] = useLocation();
   const { user, isLoading } = useAuth();
 
-  // Show overview for dashboard root
+  // Redirect to shop management if at dashboard root
+  useEffect(() => {
+    if (location === "/dashboard" || location === "/dashboard/") {
+      window.location.href = "/dashboard/shop";
+    }
+  }, [location]);
 
   // Show loading state
   if (isLoading) {
@@ -55,13 +60,7 @@ export default function Dashboard() {
   }
 
   // Route based on location
-  if (location === "/dashboard" || location === "/dashboard/") {
-    return (
-      <DashboardLayout>
-        <DashboardOverview />
-      </DashboardLayout>
-    );
-  } else if (location.startsWith("/dashboard/shop")) {
+  if (location.startsWith("/dashboard/shop")) {
     return (
       <DashboardLayout>
         <ShopManagement />
@@ -90,7 +89,7 @@ export default function Dashboard() {
   // Default fallback for any dashboard route
   return (
     <DashboardLayout>
-      <DashboardOverview />
+      <ShopManagement />
     </DashboardLayout>
   );
 }

@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
 
 export function DashboardSidebar() {
   const [location] = useLocation();
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["shop"]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
