@@ -443,6 +443,69 @@ export default function Settings() {
                         </div>
                       </div>
 
+                      {/* Banner Section */}
+                      <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500/5 to-pink-500/5 border border-orange-500/20">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <Image className="w-5 h-5 text-orange-400" />
+                            <h3 className="text-lg font-semibold text-white">Shop Banner</h3>
+                          </div>
+                          
+                          <div className="relative">
+                            <div className="w-full h-32 rounded-xl bg-gradient-to-br from-orange-600/20 to-pink-600/20 border border-orange-500/30 overflow-hidden">
+                              {form.bannerUrl ? (
+                                <img src={form.bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <div className="text-center">
+                                    <Image className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+                                    <p className="text-orange-300 text-sm">No banner image</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <label className="absolute top-2 right-2 w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-700 transition-colors">
+                              <Camera className="w-4 h-4 text-white" />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (!file) return;
+                                  if (file.size > 6 * 1024 * 1024) {
+                                    toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onload = () => {
+                                    setForm((current) => ({
+                                      ...current,
+                                      bannerUrl: typeof reader.result === "string" ? reader.result : current.bannerUrl,
+                                    }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                              />
+                            </label>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Badge variant="secondary" className="bg-orange-600/20 text-orange-300 border-orange-500/30">
+                              <Upload className="w-3 h-3 mr-1" />
+                              Recommended: 1200x400px
+                            </Badge>
+                            <Badge variant="outline" className="border-white/20">
+                              Max 6MB
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-zinc-400 text-sm">
+                            Upload a banner image for your shop. This will be displayed at the top of your storefront.
+                          </p>
+                        </div>
+                      </div>
+
                     <div className="grid gap-4 lg:grid-cols-3">
                       <div>
                         <label className="block text-sm text-zinc-400 mb-1.5">Country</label>

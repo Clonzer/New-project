@@ -357,6 +357,7 @@ export function useUpdateUser(): MutationReturn {
           instagram_handle: data.instagramHandle,
           support_email: data.supportEmail,
           seller_tags: data.sellerTags,
+          banner_url: data.bannerUrl,
         })
         .eq('id', userId);
 
