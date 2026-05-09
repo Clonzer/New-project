@@ -221,12 +221,9 @@ export function SellerCard({
               ))}
             </div>
           ) : (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                New Shop
-              </span>
-              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
-                Open
+            <div className="mb-4">
+              <span className="rounded-full border border-orange-500/30 bg-orange-600/20 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-orange-300">
+                Available
               </span>
             </div>
           )}
@@ -253,12 +250,17 @@ export function SellerCard({
           </div>
           
           <div className="mt-4 flex gap-2">
-            {seller.shopMode === "catalog" || seller.shopMode === "both" || seller.shop_mode === "catalog" || seller.shop_mode === "both" ? (
-              <Badge variant="outline" className="text-xs bg-transparent border-primary/30 text-primary font-normal">Catalog</Badge>
-            ) : null}
-            {seller.shopMode === "custom" || seller.shopMode === "both" || seller.shop_mode === "custom" || seller.shop_mode === "both" ? (
-              <Badge variant="outline" className="text-xs bg-transparent border-accent/30 text-accent font-normal">Custom Jobs</Badge>
-            ) : null}
+            {(() => {
+              const shopMode = seller.shopMode || seller.shop_mode;
+              if (shopMode === "both") {
+                return <Badge variant="outline" className="text-xs bg-transparent border-orange-500/30 text-orange-300 font-normal">Catalog & Custom</Badge>;
+              } else if (shopMode === "catalog") {
+                return <Badge variant="outline" className="text-xs bg-transparent border-primary/30 text-primary font-normal">Catalog</Badge>;
+              } else if (shopMode === "custom") {
+                return <Badge variant="outline" className="text-xs bg-transparent border-accent/30 text-accent font-normal">Custom Jobs</Badge>;
+              }
+              return null;
+            })()}
           </div>
 
           <div className="mt-5 flex gap-2">
