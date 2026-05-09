@@ -74,11 +74,11 @@ export default function DashboardWithSidebar() {
   const { data: printers = [], isLoading: printersLoading } = useListPrinters({ userId: user?.id });
   const { data: reviews = [], isLoading: reviewsLoading } = useListReviews({ userId: user?.id });
 
-  // Ensure data is not null
-  const safeOrders = orders || [];
-  const safeListings = listings || [];
-  const safePrinters = printers || [];
-  const safeReviews = reviews || [];
+  // Ensure data is not null and is an array
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeListings = Array.isArray(listings) ? listings : [];
+  const safePrinters = Array.isArray(printers) ? printers : [];
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
 
   // Calculate metrics
   const averageOrderValue = safeOrders.length > 0 
@@ -94,8 +94,8 @@ export default function DashboardWithSidebar() {
   const completedOrders = safeOrders.filter(order => order.status === 'delivered').length;
 
   const recentOrders = Array.isArray(safeOrders) ? safeOrders.slice(0, 8) : [];
-  const topListings = Array.isArray(safeListings) ? safeListings.slice(0, 6) : [];
-  const recentReviews = Array.isArray(safeReviews) ? safeReviews.slice(0, 5) : [];
+  const topListings = safeListings.length > 0 ? safeListings.slice(0, 6) : [];
+  const recentReviews = safeReviews.length > 0 ? safeReviews.slice(0, 5) : [];
 
   const equipmentStatus = safePrinters.reduce((acc, printer) => {
     acc[printer.status] = (acc[printer.status] || 0) + 1;
@@ -776,7 +776,7 @@ export default function DashboardWithSidebar() {
               <div>
                 <p className="text-zinc-400 text-xs">Total Views</p>
                 <p className="text-xl font-bold text-white">
-                  {safeListings.reduce((sum, l) => sum + (l.views || 0), 0)}
+                  {safeListings.length > 0 ? safeListings.reduce((sum, l) => sum + (l.views || 0), 0) : 0}
                 </p>
               </div>
             </div>
@@ -791,7 +791,7 @@ export default function DashboardWithSidebar() {
               <div>
                 <p className="text-zinc-400 text-xs">Total Orders</p>
                 <p className="text-xl font-bold text-white">
-                  {safeListings.reduce((sum, l) => sum + (l.orders_count || 0), 0)}
+                  {safeListings.length > 0 ? safeListings.reduce((sum, l) => sum + (l.orders_count || 0), 0) : 0}
                 </p>
               </div>
             </div>
@@ -806,7 +806,7 @@ export default function DashboardWithSidebar() {
               <div>
                 <p className="text-zinc-400 text-xs">Avg Price</p>
                 <p className="text-xl font-bold text-white">
-                  ${safeListings.length > 0 ? (safeListings.reduce((sum, l) => sum + l.base_price, 0) / safeListings.length).toFixed(2) : '0'}
+                  ${safeListings.length > 0 ? (safeListings.reduce((sum, l) => sum + (l.base_price || 0), 0) / safeListings.length).toFixed(2) : '0'}
                 </p>
               </div>
             </div>
