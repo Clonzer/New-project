@@ -555,7 +555,7 @@ export default function Landing() {
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
-                            // Maker card with banner and avatar
+                            // Enhanced Maker card with banner and avatar
                             <>
                               {item.banner ? (
                                 <img 
@@ -564,23 +564,47 @@ export default function Landing() {
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
+                                <div className="w-full h-full bg-gradient-to-br from-orange-600/20 to-pink-600/20" />
                               )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent" />
-                              {item.image && (
-                                <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
-                                    <img 
-                                      src={item.image} 
-                                      alt={item.title}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                  <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
-                                    <span className="text-white text-xs font-medium">{item.title}</span>
+                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
+                              
+                              {/* Shop info overlay */}
+                              <div className="absolute bottom-0 left-0 right-0 p-3">
+                                <div className="flex items-center gap-3">
+                                  {item.image ? (
+                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 border-2 border-orange-500/50 shadow-lg shadow-orange-500/25">
+                                      <img 
+                                        src={item.image} 
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/25">
+                                      {item.title?.charAt(0) || "S"}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-white font-bold text-sm truncate">{item.title}</h4>
+                                    <p className="text-zinc-300 text-xs truncate">{item.subtitle}</p>
                                   </div>
                                 </div>
-                              )}
+                                
+                                {/* Shop stats */}
+                                <div className="flex items-center gap-3 mt-2">
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                    <span className="text-white text-xs font-medium">{item.rating}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Eye className="w-3 h-3 text-zinc-400" />
+                                    <span className="text-zinc-400 text-xs">{item.views}</span>
+                                  </div>
+                                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs">
+                                    Shop
+                                  </Badge>
+                                </div>
+                              </div>
                             </>
                           ) : (
                             // Product card
@@ -657,7 +681,7 @@ export default function Landing() {
                       <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
                         <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
                           {item.type === "maker" ? (
-                            // Maker card with banner and avatar
+                            // Enhanced Maker card with banner and avatar
                             <>
                               {item.banner ? (
                                 <img 
@@ -666,23 +690,47 @@ export default function Landing() {
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
+                                <div className="w-full h-full bg-gradient-to-br from-orange-600/20 to-pink-600/20" />
                               )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent" />
-                              {item.image && (
-                                <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
-                                    <img 
-                                      src={item.image} 
-                                      alt={item.title}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                  <div className="bg-zinc-900/80 backdrop-blur-sm px-2 py-1 rounded">
-                                    <span className="text-white text-xs font-medium">{item.title}</span>
+                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
+                              
+                              {/* Shop info overlay */}
+                              <div className="absolute bottom-0 left-0 right-0 p-3">
+                                <div className="flex items-center gap-3">
+                                  {item.image ? (
+                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 border-2 border-orange-500/50 shadow-lg shadow-orange-500/25">
+                                      <img 
+                                        src={item.image} 
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/25">
+                                      {item.title?.charAt(0) || "S"}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-white font-bold text-sm truncate">{item.title}</h4>
+                                    <p className="text-zinc-300 text-xs truncate">{item.subtitle}</p>
                                   </div>
                                 </div>
-                              )}
+                                
+                                {/* Shop stats */}
+                                <div className="flex items-center gap-3 mt-2">
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                    <span className="text-white text-xs font-medium">{item.rating}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Eye className="w-3 h-3 text-zinc-400" />
+                                    <span className="text-zinc-400 text-xs">{item.views}</span>
+                                  </div>
+                                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs">
+                                    Shop
+                                  </Badge>
+                                </div>
+                              </div>
                             </>
                           ) : (
                             // Product card
