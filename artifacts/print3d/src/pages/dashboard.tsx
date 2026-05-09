@@ -58,7 +58,6 @@ import BuyerCustomOrders from "@/components/dashboard/BuyerCustomOrders";
 import { ServiceRequestMarketplace } from "@/components/dashboard/ServiceRequestMarketplace";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { StoreSetupWizard } from "@/components/dashboard/StoreSetupWizard";
-import { MobileDashboardNav, CondensedDashboardTabs } from "@/components/dashboard/MobileDashboardNav";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 function EquipmentCategoryIcon({ cat }: { cat: EquipmentCategoryId }) {
@@ -806,6 +805,25 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Listen for tab changes from sidebar
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      setDefaultTab(event.detail);
+    };
+
+    window.addEventListener('setTab', handleTabChange as EventListener);
+    
+    // Expose dashboard component to global scope for sidebar access
+    (window as any).__dashboardComponent = {
+      setDefaultTab
+    };
+
+    return () => {
+      window.removeEventListener('setTab', handleTabChange as EventListener);
+      delete (window as any).__dashboardComponent;
+    };
+  }, [setDefaultTab]);
+
   // Helper function to check if user is a seller
   function isSeller(role?: string) { return role === "seller" || role === "both"; }
   const isSellerUser = isSeller(user?.role);
@@ -1409,26 +1427,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Bottom Navigation - Used on all screen sizes */}
-          <MobileDashboardNav
-            activeTab={user?.role === "both" ? (dashboardView === "purchases" ? "store-orders" : defaultTab) : defaultTab}
-            onTabChange={(tab) => {
-              // Direct state update instead of clicking hidden elements
-              if (user?.role === "both") {
-                if (["store-orders", "reviews", "service-requests", "sponsorship"].includes(tab)) {
-                  setDashboardView("purchases");
-                } else {
-                  setDashboardView("store");
-                }
-              }
-              setDefaultTab(tab);
-            }}
-            isSeller={isSellerUser}
-            isOwner={user?.isOwner}
-            isBoth={user?.role === "both"}
-            dashboardView={dashboardView}
-            onViewChange={setDashboardView}
-          />
+          {/* Bottom Navigation removed - using sidebar instead */}
 
           <Tabs
             value={user?.role === "both" ? (dashboardView === "purchases" ? "store-orders" : defaultTab) : defaultTab}

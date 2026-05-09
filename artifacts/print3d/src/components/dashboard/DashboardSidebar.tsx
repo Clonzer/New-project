@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
 import {
   Store,
@@ -42,9 +43,9 @@ const navItems: NavItem[] = [
     label: "Shop Management",
     icon: Store,
     children: [
-      { id: "listings", label: "My Listings", icon: Package, path: "/dashboard/shop/listings" },
-      { id: "equipment", label: "Equipment", icon: Wrench, path: "/dashboard/shop/equipment" },
-      { id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard/shop/analytics" },
+      { id: "store-orders", label: "Store & Orders", icon: Package, path: "/dashboard" },
+      { id: "printers", label: "My Equipment", icon: Wrench, path: "/dashboard" },
+      { id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard" },
     ]
   },
   {
@@ -52,9 +53,9 @@ const navItems: NavItem[] = [
     label: "Orders & Sales",
     icon: ShoppingCart,
     children: [
-      { id: "orders", label: "Orders", icon: Package, path: "/dashboard/orders" },
-      { id: "sales", label: "Sales", icon: TrendingUp, path: "/dashboard/sales" },
-      { id: "custom-orders", label: "Custom Orders", icon: Edit, path: "/dashboard/custom-orders" },
+      { id: "store-orders", label: "Store & Orders", icon: Package, path: "/dashboard" },
+      { id: "services", label: "My Services", icon: Edit, path: "/dashboard" },
+      { id: "printers", label: "My Equipment", icon: Wrench, path: "/dashboard" },
     ]
   },
   {
@@ -62,9 +63,9 @@ const navItems: NavItem[] = [
     label: "Customer Activity",
     icon: User,
     children: [
-      { id: "purchases", label: "Purchases", icon: ShoppingCart, path: "/dashboard/purchases" },
-      { id: "reviews", label: "Reviews", icon: Star, path: "/dashboard/reviews" },
-      { id: "favorites", label: "Favorites", icon: Heart, path: "/dashboard/favorites" },
+      { id: "messages", label: "Messages", icon: MessageSquare, path: "/dashboard" },
+      { id: "promotions", label: "Promotions", icon: TrendingUp, path: "/dashboard" },
+      { id: "favorites", label: "Favorites", icon: Heart, path: "/dashboard" },
     ]
   },
   {
@@ -72,9 +73,9 @@ const navItems: NavItem[] = [
     label: "Account & Settings",
     icon: Settings,
     children: [
-      { id: "payment-methods", label: "Payment Methods", icon: CreditCard, path: "/dashboard/payment-methods" },
-      { id: "shipping-profiles", label: "Shipping Profiles", icon: Truck, path: "/dashboard/shipping-profiles" },
-      { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" },
+      { id: "shipping", label: "Shipping Profiles", icon: Truck, path: "/dashboard" },
+      { id: "reviews", label: "My Reviews", icon: Star, path: "/dashboard" },
+      { id: "settings", label: "Account Settings", icon: Settings, path: "/settings" },
     ]
   }
 ];
@@ -82,6 +83,7 @@ const navItems: NavItem[] = [
 export function DashboardSidebar() {
   const [location] = useLocation();
   const [expandedSections, setExpandedSections] = useState<string[]>(["shop"]);
+  const { user } = useAuth();
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -89,6 +91,21 @@ export function DashboardSidebar() {
         ? prev.filter(id => id !== sectionId)
         : [...prev, sectionId]
     );
+  };
+
+  const handleTabClick = (tabId: string) => {
+    // Find the dashboard component and set the tab
+    const dashboardElement = document.querySelector('[data-dashboard]');
+    if (dashboardElement) {
+      const event = new CustomEvent('setTab', { detail: tabId });
+      dashboardElement.dispatchEvent(event);
+    }
+    
+    // Fallback: try to access the dashboard state directly
+    const dashboardComponent = (window as any).__dashboardComponent;
+    if (dashboardComponent && dashboardComponent.setDefaultTab) {
+      dashboardComponent.setDefaultTab(tabId);
+    }
   };
 
   const isActive = (path: string) => {
@@ -143,18 +160,18 @@ export function DashboardSidebar() {
                     {item.children.map((child) => {
                       const ChildIcon = child.icon;
                       return (
-                        <Link key={child.id} href={child.path}>
-                          <a
-                            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                              isActive(child.path)
-                                ? "bg-orange-600/10 text-orange-300 border-l-2 border-orange-500/30"
-                                : "hover:bg-zinc-700/30 text-zinc-400 hover:text-white"
-                            }`}
-                          >
-                            <ChildIcon className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm whitespace-nowrap">{child.label}</span>
-                          </a>
-                        </Link>
+                        <button
+                          key={child.id}
+                          onClick={() => handleTabClick(child.id)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left ${
+                            isActive(child.path)
+                              ? "bg-orange-600/10 text-orange-300 border-l-2 border-orange-500/30"
+                              : "hover:bg-zinc-700/30 text-zinc-400 hover:text-white"
+                          }`}
+                        >
+                          <ChildIcon className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm whitespace-nowrap">{child.label}</span>
+                        </button>
                       );
                     })}
                   </motion.div>
