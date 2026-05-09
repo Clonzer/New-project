@@ -825,48 +825,25 @@ export default function Dashboard() {
   const [showStoreSetup, setShowStoreSetup] = useState(false);
   const [xpStats, setXpStats] = useState<UserXpStats | null>(null);
 
-  // Listen for custom events from sidebar
+  // Listen for hash changes for navigation
   useEffect(() => {
-    const handleSetTab = (event: CustomEvent) => {
-      setDefaultTab(event.detail);
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1); // Remove #
+      if (hash && ['overview', 'admin', 'store-orders', 'reviews', 'marketplace', 'services', 'printers', 'shipping', 'analytics', 'rank', 'messages', 'promotions'].includes(hash)) {
+        setDefaultTab(hash);
+      }
     };
 
-    const dashboardElement = dashboardRef.current;
-    if (dashboardElement) {
-      dashboardElement.addEventListener('setTab', handleSetTab as EventListener);
-      // Store component reference for sidebar fallback
-      (window as any).__dashboardComponent = {
-        setDefaultTab: (tabId: string) => setDefaultTab(tabId)
-      };
-    }
-
+    // Check hash on initial load
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
     return () => {
-      if (dashboardElement) {
-        dashboardElement.removeEventListener('setTab', handleSetTab as EventListener);
-      }
-      // Clean up global reference
-      delete (window as any).__dashboardComponent;
+      window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
-
-  // Listen for tab changes from sidebar
-  useEffect(() => {
-    const handleTabChange = (event: CustomEvent) => {
-      setDefaultTab(event.detail);
-    };
-
-    window.addEventListener('setTab', handleTabChange as EventListener);
-    
-    // Expose dashboard component to global scope for sidebar access
-    (window as any).__dashboardComponent = {
-      setDefaultTab
-    };
-
-    return () => {
-      window.removeEventListener('setTab', handleTabChange as EventListener);
-      delete (window as any).__dashboardComponent;
-    };
-  }, []); // Remove setDefaultTab dependency to avoid circular dependency
 
   // Fetch XP stats
   useEffect(() => {
@@ -1454,108 +1431,30 @@ export default function Dashboard() {
 
           {/* Bottom Navigation removed - using sidebar instead */}
 
-          <Tabs
-            value={user?.role === "both" ? (dashboardView === "purchases" ? "store-orders" : defaultTab) : defaultTab}
-            onValueChange={(value) => setDefaultTab(value)}
-            className="w-full"
-          >
-            {/* Tabs for desktop navigation */}
-            <TabsList className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-1 mb-6">
-              {/* Seller tabs - shown when NOT in purchases view (regular sellers or store view for both) */}
-              {isSellerUser && (user?.role !== "both" || dashboardView === "store") && (
-                <TabsTrigger value="overview" data-tour="overview" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Overview
-                </TabsTrigger>
-              )}
-              {user.isOwner && (user?.role !== "both" || dashboardView === "store") ? (
-                <TabsTrigger value="admin" data-tour="admin" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin
-                </TabsTrigger>
-              ) : null}
-
-              {/* Combined Store & Orders tab - shown for all users */}
-              <TabsTrigger value="store-orders" data-tour="store-orders" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                <Store className="w-4 h-4 mr-2" />
-                Store & Orders
-              </TabsTrigger>
-
-              {/* Seller tabs - shown for all seller users */}
-              {isSellerUser && (
-                <>
-                  <TabsTrigger value="reviews" data-tour="reviews" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    My Reviews
-                  </TabsTrigger>
-                  <TabsTrigger value="marketplace" data-tour="marketplace" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    Service Marketplace
-                  </TabsTrigger>
-                  <TabsTrigger value="services" data-tour="services" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <PenLine className="w-4 h-4 mr-2" />
-                    My Services
-                  </TabsTrigger>
-                  <TabsTrigger value="printers" data-tour="printers" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <PrinterIcon className="w-4 h-4 mr-2" />
-                    My Equipment
-                  </TabsTrigger>
-                  <TabsTrigger value="shipping" data-tour="shipping" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <Truck className="w-4 h-4 mr-2" />
-                    Shipping Profiles
-                  </TabsTrigger>
-                  <TabsTrigger value="analytics" data-tour="analytics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Analytics
-                  </TabsTrigger>
-                  <TabsTrigger value="rank" data-tour="rank" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Rank
-                  </TabsTrigger>
-                </>
-              )}
-
-              {/* Buyer tabs - shown for all buyer users */}
-              {!isSellerUser || user?.role === "both" ? (
-                <>
-                  <TabsTrigger value="messages" data-tour="messages" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Messages
-                  </TabsTrigger>
-                  <TabsTrigger value="promotions" data-tour="promotions" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-[0_0_15px_rgba(249,115,22,0.3)] data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-500/50 px-4 py-2 font-semibold text-sm transition-all duration-200">
-                    <Megaphone className="w-4 h-4 mr-2" />
-                    Promotions
-                  </TabsTrigger>
-                </>
-              ) : null}
-            </TabsList>
-
-            {isSellerUser && (
-              <TabsContent value="overview" className="mt-0">
-                <Overview 
-                  user={user}
-                  mySales={mySales}
-                  averageOrderValue={averageOrderValue}
-                  activeEquipmentCount={activeEquipmentCount}
-                  totalCatalogItems={totalCatalogItems}
-                  setShowAddPrinter={setShowAddPrinter}
-                />
-              </TabsContent>
+          {/* Dashboard content based on sidebar navigation */}
+          <div className="w-full">
+            {isSellerUser && (user?.role !== "both" || dashboardView === "store") && defaultTab === "overview" && (
+              <Overview 
+                user={user}
+                mySales={mySales}
+                averageOrderValue={averageOrderValue}
+                activeEquipmentCount={activeEquipmentCount}
+                totalCatalogItems={totalCatalogItems}
+                setShowAddPrinter={setShowAddPrinter}
+              />
             )}
 
-            {user.isOwner ? (
-              <TabsContent value="admin" className="mt-0">
-                <OwnerAdminPanel />
-              </TabsContent>
-            ) : null}
+            {user.isOwner && (user?.role !== "both" || dashboardView === "store") && defaultTab === "admin" && (
+              <OwnerAdminPanel />
+            )}
 
-            <TabsContent value="store-orders" className="mt-0">
+            {defaultTab === "store-orders" && (
               <div className="space-y-8">
                 {/* Store Listings Section */}
                 {isSellerUser && (
                   <div>
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                      <Store className="w-6 h-6 text-primary" />
+                      <Store className="w-6 h-6 text-orange-500" />
                       My Store
                     </h2>
                     <Listings
@@ -1568,7 +1467,7 @@ export default function Dashboard() {
                 {/* Orders Section */}
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <Package className="w-6 h-6 text-primary" />
+                    <Package className="w-6 h-6 text-orange-500" />
                       Orders
                   </h2>
                   <Purchases myPurchases={myPurchases} isSellerUser={isSellerUser} />
@@ -1582,265 +1481,83 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-            </TabsContent>
-
-            {isSellerUser && (
-              <TabsContent value="reviews" className="mt-0">
-                <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
-              </TabsContent>
             )}
 
-            {isSellerUser && (
-              <TabsContent value="marketplace" className="mt-0">
-                <ServiceRequestMarketplace />
-              </TabsContent>
+            {isSellerUser && defaultTab === "reviews" && (
+              <Reviews myReviews={myReviews} reviewsReceived={reviewsReceived} />
             )}
 
-            {isSellerUser && (
-              <TabsContent value="services" className="mt-0">
-                <CustomOrders user={user} />
-              </TabsContent>
+            {isSellerUser && defaultTab === "marketplace" && (
+              <ServiceRequestMarketplace />
             )}
 
-            {isSellerUser && (
-              <TabsContent value="printers" className="mt-0">
-                <Equipment
-                  myEquipmentGroups={myEquipmentGroups}
-                  myPrinters={myPrinters}
-                  setShowAddEquipmentGroup={setShowAddEquipmentGroup}
-                  setEditingEquipmentGroup={setEditingEquipmentGroup}
-                  handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
-                  setShowAddPrinter={setShowAddPrinter}
-                  setEditingPrinter={setEditingPrinter}
-                  handleAssignToGroup={handleAssignToGroup}
-                  togglingPrinterId={togglingPrinterId}
-                  togglePrinter={togglePrinter}
-                  deletingPrinterId={deletingPrinterId}
-                  removePrinter={removePrinter}
-                  handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
-                />
-              </TabsContent>
+            {isSellerUser && defaultTab === "services" && (
+              <CustomOrders user={user} />
             )}
 
-            {isSellerUser && (
-              <TabsContent value="shipping" className="mt-0">
-                <ShippingProfiles />
-              </TabsContent>
+            {isSellerUser && defaultTab === "printers" && (
+              <Equipment
+                myEquipmentGroups={myEquipmentGroups}
+                myPrinters={myPrinters}
+                setShowAddEquipmentGroup={setShowAddEquipmentGroup}
+                setEditingEquipmentGroup={setEditingEquipmentGroup}
+                handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
+                setShowAddPrinter={setShowAddPrinter}
+                setEditingPrinter={setEditingPrinter}
+                handleAssignToGroup={handleAssignToGroup}
+                togglingPrinterId={togglingPrinterId}
+                togglePrinter={togglePrinter}
+                deletingPrinterId={deletingPrinterId}
+                removePrinter={removePrinter}
+                handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
+              />
+            )}
+
+            {isSellerUser && defaultTab === "shipping" && (
+              <ShippingProfiles />
+            )}
+
+            {isSellerUser && defaultTab === "analytics" && (
+              <Analytics />
+            )}
+
+            {isSellerUser && defaultTab === "rank" && (
+              <Rank user={user} xpStats={xpStats} />
             )}
 
             {/* Buyer tabs - shown when in purchases view */}
             {(!isSellerUser || user?.role === "both") && dashboardView === "purchases" && (
               <>
-                <TabsContent value="messages" className="mt-0">
+                {defaultTab === "messages" && (
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                     <div className="p-6 border-b border-white/10 bg-white/5">
                       <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-primary" />
+                        <MessageSquare className="w-5 h-5 text-orange-500" />
                         Messages
                       </h2>
-                      <p className="text-zinc-400 mt-1">Your conversations with sellers</p>
                     </div>
                     <div className="p-6">
-                      <p className="text-zinc-500">No messages yet.</p>
+                      <p className="text-zinc-400">Messaging system coming soon...</p>
                     </div>
                   </div>
-                </TabsContent>
+                )}
 
-                              </>
-            )}
-
-            {/* Analytics Tab */}
-            {isSellerUser && (
-              <TabsContent value="analytics" className="mt-0">
-                <Analytics shopId={user?.id} timeRange="30d" />
-              </TabsContent>
-            )}
-
-            {/* Orders Tab - Redirect to Dashboard */}
-            {user?.id && (
-              <TabsContent value="orders" className="mt-0">
-                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                  <div className="p-6 border-b border-white/10 bg-white/5">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Package className="w-5 h-5 text-primary" />
-                      Orders
-                    </h2>
-                    <p className="text-zinc-400 mt-1">Your orders are now managed from the main dashboard</p>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-zinc-500 mb-4">Please navigate to the main dashboard to manage your orders.</p>
-                    <Button 
-                      onClick={() => setDefaultTab("store-orders")}
-                      className="bg-primary text-white hover:bg-primary/90"
-                    >
-                      Go to Dashboard
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-            )}
-
-            {/* Favorites Tab - Redirect to Dashboard */}
-            {user?.id && (
-              <TabsContent value="favorites" className="mt-0">
-                <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                  <div className="p-6 border-b border-white/10 bg-white/5">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-primary" />
-                      Favorites
-                    </h2>
-                    <p className="text-zinc-400 mt-1">Your favorites are now managed from the main dashboard</p>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-zinc-500 mb-4">Please navigate to the main dashboard to manage your favorites.</p>
-                    <Button 
-                      onClick={() => setDefaultTab("store-orders")}
-                      className="bg-primary text-white hover:bg-primary/90"
-                    >
-                      Go to Dashboard
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-            )}
-
-            {/* Rank Tab */}
-            {user?.id && (
-              <TabsContent value="rank" className="mt-0">
-                <RankProgress userId={user.id} />
-              </TabsContent>
-            )}
-
-            {/* Promotions Tab */}
-            {isSellerUser && (
-              <TabsContent value="promotions" className="mt-0">
-                <div className="space-y-8">
+                {defaultTab === "promotions" && (
                   <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
                     <div className="p-6 border-b border-white/10 bg-white/5">
                       <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Megaphone className="w-5 h-5 text-primary" />
-                        Promotions & Marketing
+                        <Megaphone className="w-5 h-5 text-orange-500" />
+                        Promotions
                       </h2>
-                      <p className="text-sm text-zinc-500 mt-1">Manage your sponsorships and promotional campaigns.</p>
                     </div>
                     <div className="p-6">
-                      <SponsoredShopsInjection 
-                        maxShops={3} 
-                        showHeader={false}
-                        className="mb-6"
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Link href="/pricing#sponsorships">
-                          <div className="glass-panel rounded-2xl border border-white/10 p-6 hover:border-primary/30 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-                                <Trophy className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-white">Buy Sponsorship</h3>
-                                <p className="text-xs text-zinc-400">Get featured on homepage</p>
-                              </div>
-                            </div>
-                            <p className="text-sm text-zinc-500">Increase your shop visibility with sponsored placements.</p>
-                          </div>
-                        </Link>
-                        <Link href="/contests">
-                          <div className="glass-panel rounded-2xl border border-white/10 p-6 hover:border-primary/30 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
-                                <Sparkles className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-white">Join Contests</h3>
-                                <p className="text-xs text-zinc-400">Win prizes and badges</p>
-                              </div>
-                            </div>
-                            <p className="text-sm text-zinc-500">Participate in contests to win rewards and gain recognition.</p>
-                          </div>
-                        </Link>
-                      </div>
+                      <p className="text-zinc-400">Promotions and offers coming soon...</p>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
+                )}
+              </>
             )}
-
-            {/* Finance Tab */}
-            {isSellerUser && (
-              <TabsContent value="finance" className="mt-0">
-                <div className="space-y-8">
-                  <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden">
-                    <div className="p-6 border-b border-white/10 bg-white/5">
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Wallet className="w-5 h-5 text-primary" />
-                        Financial Overview
-                      </h2>
-                      <p className="text-sm text-zinc-500 mt-1">Track your earnings, payments, and transaction history.</p>
-                    </div>
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-emerald-500/5">
-                          <div className="flex items-center gap-2 mb-2">
-                            <DollarSign className="w-5 h-5 text-emerald-400" />
-                            <span className="text-sm text-zinc-400">Total Revenue</span>
-                          </div>
-                          <p className="text-2xl font-bold text-emerald-400">${totalRevenue.toFixed(2)}</p>
-                        </div>
-                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-yellow-500/5">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Clock className="w-5 h-5 text-yellow-400" />
-                            <span className="text-sm text-zinc-400">Pending</span>
-                          </div>
-                          <p className="text-2xl font-bold text-yellow-400">${pendingRevenue.toFixed(2)}</p>
-                        </div>
-                        <div className="glass-panel rounded-2xl border border-white/10 p-5 bg-red-500/5">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Receipt className="w-5 h-5 text-red-400" />
-                            <span className="text-sm text-zinc-400">Fees Paid</span>
-                          </div>
-                          <p className="text-2xl font-bold text-red-400">${totalFeesPaid.toFixed(2)}</p>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-white/10 pt-6">
-                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-primary" />
-                          Recent Transactions
-                        </h3>
-                        {mySales?.orders && mySales.orders.length > 0 ? (
-                          <div className="space-y-3">
-                            {mySales.orders.slice(0, 5).map((order) => (
-                              <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                                    <Package className="w-5 h-5 text-primary" />
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-white">Order #{order.id}</p>
-                                    <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-sm font-medium text-emerald-400">+${(order.totalPrice - order.platformFee).toFixed(2)}</p>
-                                  <p className="text-xs text-zinc-500">Fee: ${order.platformFee.toFixed(2)}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8">
-                            <Receipt className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                            <p className="text-zinc-400">No transactions yet</p>
-                            <p className="text-sm text-zinc-500 mt-1">Your sales will appear here.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            )}
-          </Tabs>
+          </div>
         </div>
       </div>
       </main>

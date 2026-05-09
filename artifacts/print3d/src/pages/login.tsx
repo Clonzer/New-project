@@ -60,8 +60,34 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-orange-600/20 to-orange-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-tr from-orange-500/15 to-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      
+      {/* Animated gradient orbs */}
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 180, 360],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className="absolute top-1/3 right-1/3 w-64 h-64 bg-gradient-to-r from-orange-600/20 to-amber-500/20 rounded-full blur-2xl pointer-events-none"
+      />
+      <motion.div
+        animate={{
+          scale: [1.1, 0.9, 1.1],
+          rotate: [360, 180, 0],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className="absolute bottom-1/3 left-1/3 w-72 h-72 bg-gradient-to-l from-amber-500/15 to-orange-600/15 rounded-full blur-2xl pointer-events-none"
+      />
       
 
       <main className="flex-grow flex items-center justify-center p-4 relative z-10">
@@ -77,7 +103,7 @@ export default function Login() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary/30"
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-orange-500/30"
               >
                 <span className="text-2xl font-bold text-white">S</span>
               </motion.div>

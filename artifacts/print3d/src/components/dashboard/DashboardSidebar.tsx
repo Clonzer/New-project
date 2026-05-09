@@ -94,17 +94,23 @@ export function DashboardSidebar() {
   };
 
   const handleTabClick = (tabId: string) => {
-    // Find the dashboard component and set the tab
-    const dashboardElement = document.querySelector('[data-dashboard]');
-    if (dashboardElement) {
-      const event = new CustomEvent('setTab', { detail: tabId });
-      dashboardElement.dispatchEvent(event);
-    }
-    
-    // Fallback: try to access the dashboard state directly
-    const dashboardComponent = (window as any).__dashboardComponent;
-    if (dashboardComponent && dashboardComponent.setDefaultTab) {
-      dashboardComponent.setDefaultTab(tabId);
+    // Direct navigation based on tab ID
+    switch(tabId) {
+      case 'overview':
+      case 'admin':
+      case 'store-orders':
+      case 'reviews':
+      case 'marketplace':
+      case 'services':
+      case 'printers':
+      case 'shipping':
+      case 'analytics':
+      case 'rank':
+        // For now, just navigate to dashboard with hash
+        window.location.href = `/dashboard#${tabId}`;
+        break;
+      default:
+        window.location.href = '/dashboard';
     }
   };
 

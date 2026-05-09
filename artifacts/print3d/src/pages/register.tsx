@@ -185,13 +185,13 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(6,182,212,0.15),transparent)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(249,115,22,0.15),transparent)] pointer-events-none" />
       
       {/* Animated Gradient - Bottom Right */}
       <motion.div
         className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
         style={{
-          background: "linear-gradient(135deg, rgba(6,182,212,0.4) 0%, rgba(236,72,153,0.4) 50%, rgba(99,102,241,0.4) 100%)",
+          background: "linear-gradient(135deg, rgba(249,115,22,0.4) 0%, rgba(236,72,153,0.4) 50%, rgba(249,115,22,0.4) 100%)",
         }}
         animate={{
           scale: [1, 1.2, 1],
@@ -208,7 +208,7 @@ export default function Register() {
       <motion.div
         className="absolute -bottom-48 -right-48 w-[32rem] h-[32rem] rounded-full blur-3xl pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(249,115,22,0.2) 0%, transparent 70%)",
         }}
         animate={{
           scale: [1, 1.3, 1],
@@ -241,9 +241,9 @@ export default function Register() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 mb-6"
+                    className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-600/20 to-orange-500/20 border border-orange-500/30 mb-6"
                   >
-                    <Zap className="w-10 h-10 text-primary" />
+                    <Zap className="w-10 h-10 text-orange-500" />
                   </motion.div>
                   <motion.h1
                     initial={{ opacity: 0, y: 10 }}
@@ -251,7 +251,7 @@ export default function Register() {
                     transition={{ delay: 0.15 }}
                     className="text-5xl font-display font-bold text-white mb-3"
                   >
-                    Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Synthix</span>
+                    Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-500">Synthix</span>
                   </motion.h1>
                   <motion.p
                     initial={{ opacity: 0 }}
@@ -273,22 +273,22 @@ export default function Register() {
                   {/* Sign Up Card */}
                   <button
                     onClick={() => setAuthMode('signup')}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 text-left transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:scale-[1.02]"
+                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 text-left transition-all duration-300 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] hover:scale-[1.02]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="relative flex items-center gap-5">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 group-hover:border-cyan-400/50 transition-colors">
-                        <UserPlus className="h-7 w-7 text-cyan-400" />
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-600/20 to-orange-500/20 border border-orange-500/30 group-hover:border-orange-400/50 transition-colors">
+                        <UserPlus className="h-7 w-7 text-orange-400" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors mb-1">
+                        <h3 className="text-xl font-semibold text-white group-hover:text-orange-400 transition-colors mb-1">
                           Create Account
                         </h3>
                         <p className="text-sm text-zinc-400 group-hover:text-zinc-300">
                           Join thousands of makers and buyers. Set up your shop or start ordering today.
                         </p>
                       </div>
-                      <ArrowRight className="h-6 w-6 text-zinc-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="h-6 w-6 text-zinc-500 group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
                     </div>
                   </button>
 
@@ -404,8 +404,8 @@ export default function Register() {
                 className="rounded-3xl border border-white/10 bg-zinc-900/80 p-12 md:p-16"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
-                    <Store className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 rounded-xl bg-orange-600/15 border border-orange-500/25 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-orange-500" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Set up your shop</h2>
@@ -452,7 +452,7 @@ export default function Register() {
                             onClick={() => shopForm.setValue("shopMode", opt.value)}
                             className={`p-3 rounded-xl border text-center transition-all ${
                               shopForm.watch("shopMode") === opt.value
-                                ? "border-primary bg-primary/15 text-white"
+                                ? "border-orange-600 bg-orange-600/15 text-white"
                                 : "border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
                             }`}
                           >
@@ -468,7 +468,7 @@ export default function Register() {
                       <Button type="button" variant="outline" onClick={() => setLocation("/dashboard")} className="flex items-center gap-2 border-white/10 text-zinc-400 hover:text-white hover:bg-white/5">
                         <ChevronLeft className="w-4 h-4" /> Skip for now
                       </Button>
-                      <NeonButton type="submit" glowColor="primary" className="flex-grow rounded-xl py-3" disabled={updateUser.isPending}>
+                      <NeonButton type="submit" glowColor="orange" className="flex-grow rounded-xl py-3" disabled={updateUser.isPending}>
                         {updateUser.isPending ? "Saving…" : "Next — add equipment"} <ChevronRight className="w-4 h-4 ml-1 inline" />
                       </NeonButton>
                     </div>
@@ -502,7 +502,7 @@ export default function Register() {
                                 setEquipCategory(c.id);
                                 setSelectedBrand(null);
                               }}
-                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-600/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
                             >
                               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                                 <RegCategoryIcon cat={c.id} />
@@ -529,7 +529,7 @@ export default function Register() {
                               key={brand}
                               type="button"
                               onClick={() => setSelectedBrand(brand)}
-                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-600/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
                             >
                               <p className="text-white font-semibold text-sm">{brand}</p>
                               <p className="text-zinc-500 text-xs mt-1">
@@ -640,7 +640,7 @@ export default function Register() {
                               allowsHourlyRate: true,
                             } as any);
                           }}
-                          className="w-full mt-6 bg-primary text-white hover:bg-primary/90 rounded-xl"
+                          className="w-full mt-6 bg-orange-600 text-white hover:bg-orange-700 rounded-xl"
                         >
                           Continue
                         </Button>
@@ -661,7 +661,7 @@ export default function Register() {
                               key={p.id}
                               type="button"
                               onClick={() => setSelectedPrinter(p)}
-                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-primary/50 hover:shadow-[0_0_15px_rgba(139,92,246,0.15)] transition-all duration-200"
+                              className="group glass-panel rounded-2xl border border-white/10 p-4 text-left hover:border-orange-600/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all duration-200"
                             >
                               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                                 {p.category === "printing_3d" ? <PrinterIcon className="w-5 h-5 text-white" /> : <Wrench className="w-5 h-5 text-white" />}

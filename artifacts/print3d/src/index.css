@@ -86,11 +86,132 @@ body {
   background-attachment: fixed;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+/* Enhanced gradient animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradient-pulse {
+  0%, 100% { background-size: 100% 100%; }
+  50% { background-size: 150% 150%; }
+}
+
+@keyframes gradient-rotate {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Enhanced gradient utilities */
+.gradient-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.gradient-pulse {
+  animation: gradient-pulse 4s ease-in-out infinite;
+}
+
+.gradient-rotate {
+  animation: gradient-rotate 15s linear infinite;
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Enhanced gradient backgrounds */
+.gradient-orange-primary {
+  background: linear-gradient(135deg, #F97316, #FB923C, #FDBA74);
+}
+
+.gradient-orange-secondary {
+  background: linear-gradient(45deg, #EA580C, #F97316, #FB923C);
+}
+
+.gradient-orange-tertiary {
+  background: linear-gradient(90deg, #FB923C, #FDBA74, #FED7AA);
+}
+
+.gradient-warm-blend {
+  background: linear-gradient(120deg, #F97316, #FB923C, #F59E0B, #F97316);
+}
+
+/* Enhanced glow effects */
+.glow-orange-strong {
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.6), 0 0 60px rgba(249, 115, 22, 0.4), 0 0 90px rgba(249, 115, 22, 0.2);
+}
+
+.glow-orange-medium {
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.5), 0 0 40px rgba(249, 115, 22, 0.3), 0 0 60px rgba(249, 115, 22, 0.1);
+}
+
+.glow-orange-subtle {
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.4), 0 0 30px rgba(249, 115, 22, 0.2);
+}
+
+.glow-amber-warm {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 50px rgba(245, 158, 11, 0.3);
+}
+
+/* Enhanced glass effects with gradients */
+.glass-gradient {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(249, 115, 22, 0.05));
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.glass-gradient-strong {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(251, 146, 60, 0.08));
+  backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+/* Animated gradient borders */
+.border-gradient-animated {
+  position: relative;
+  background: linear-gradient(var(--background), var(--background)) padding-box,
+              linear-gradient(45deg, #F97316, #FB923C, #F59E0B, #F97316) border-box;
+  border: 2px solid transparent;
+}
+
+.border-gradient-animated::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #F97316, #FB923C, #F59E0B, #F97316);
+  border-radius: inherit;
+  z-index: -1;
+  animation: gradient-rotate 6s linear infinite;
 }
 
 /* Glassmorphism utility */
