@@ -13,7 +13,7 @@ import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
-  BarChart3, Calendar, Filter, Search
+  BarChart3, Calendar, Filter, Search, ShoppingCart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
