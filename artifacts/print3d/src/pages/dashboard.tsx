@@ -184,20 +184,20 @@ export default function DashboardWithSidebar() {
               Quick Actions
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <Link href="/create-listing">
-              <Button className="w-full justify-start" variant="outline">
-                <Package className="w-4 h-4 mr-2" />
+              <Button className="w-full justify-start h-11" variant="outline">
+                <Package className="w-4 h-4 mr-3" />
                 Add New Listing
               </Button>
             </Link>
-            <Button className="w-full justify-start" variant="outline">
-              <PrinterIcon className="w-4 h-4 mr-2" />
+            <Button className="w-full justify-start h-11" variant="outline">
+              <PrinterIcon className="w-4 h-4 mr-3" />
               Register Equipment
             </Button>
             <Link href="/settings">
-              <Button className="w-full justify-start" variant="outline">
-                <Settings className="w-4 h-4 mr-2" />
+              <Button className="w-full justify-start h-11" variant="outline">
+                <Settings className="w-4 h-4 mr-3" />
                 Shop Settings
               </Button>
             </Link>
