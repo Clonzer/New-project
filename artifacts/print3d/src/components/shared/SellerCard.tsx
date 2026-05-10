@@ -58,6 +58,9 @@ export function SellerCard({
   const { toast } = useToast();
   const [isCompared, setIsCompared] = useState(() => isComparedShop(Number(seller.id)));
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
+  
+  // Common seller data to avoid duplication
+  const shopName = seller.shopName || seller.store_name || 'Unknown Shop';
 
   // Fetch avatar directly from profiles if not provided
   useEffect(() => {
@@ -135,14 +138,13 @@ export function SellerCard({
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-zinc-600 to-zinc-800 overflow-hidden">
                   {(() => {
                     const avatarUrl = seller.avatarUrl || seller.avatar_url || fetchedAvatarUrl;
-                    const displayName = seller.displayName || seller.display_name || 'Shop';
-                    const initials = (seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'S').charAt(0).toUpperCase();
+                    const initials = shopName.charAt(0).toUpperCase();
                     
                     if (avatarUrl) {
                       return (
                         <img 
                           src={avatarUrl} 
-                          alt={displayName} 
+                          alt={shopName} 
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             // If image fails to load, show fallback
@@ -169,7 +171,7 @@ export function SellerCard({
               </div>
               <div>
                 <h3 className="font-display font-bold text-lg text-white group-hover:text-accent transition-colors">
-                  {seller.shopName || seller.store_name || seller.displayName || seller.display_name || 'Unknown Shop'}
+                  {shopName}
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
                   <MapPin className="w-3 h-3" />
@@ -186,9 +188,9 @@ export function SellerCard({
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md backdrop-blur-sm border border-white/5">
                   <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                   <span className="text-sm font-bold text-white">{seller.rating?.toFixed(1) || "New"}</span>
+                  <span className="text-[10px] text-zinc-400">({seller.reviewCount || 0})</span>
                 </div>
               </div>
-              <span className="text-[10px] text-zinc-500">{seller.reviewCount || 0} reviews</span>
               <ReportButton
                 itemType="profile"
                 itemId={String(seller.id)}
