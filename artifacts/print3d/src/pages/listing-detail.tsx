@@ -12,6 +12,8 @@ import { addToCart } from "@/lib/cart-storage";
 import { useGetListing, useListListings } from "@/lib/workspace-stub";
 import { BuyerPriceDisplay } from "@/components/shared/PricingCalculator";
 import { SEOMeta, StructuredData, generateProductSchema, generateBreadcrumbSchema } from "@/components/seo";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { buildListingPriceInsights } from "@/lib/listing-pricing";
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export default function ListingDetail() {
   const { toast } = useToast();
 
   const relatedListings = relatedData?.listings?.filter((l: any) => l.id !== id) || [];
+  const priceInsights = relatedListings.length ? buildListingPriceInsights(relatedListings) : new Map();
 
   const handleAddToCart = () => {
     if (!listing) return;
@@ -301,35 +304,45 @@ export default function ListingDetail() {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                {!isServiceListing && (
-                  <Button
-                    onClick={handleAddToCart}
-                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
-                    disabled={listing.stockQuantity === 0 || listing.seller?.acceptingOrders === false}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Add to Cart
-                  </Button>
-                )}
-                
-                {isServiceListing ? (
-                  <Button
-                    onClick={handleRequestJob}
-                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
-                  >
-                    <MessageSquare className="w-5 h-5 mr-2" />
-                    Request Job
-                  </Button>
-                ) : (
-                  <Link href={`/product-order?listingId=${listing.id}`} className="block">
-                    <Button 
-                      className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300"
-                      disabled={listing.seller?.acceptingOrders === false}
-                    >
-                      Order Now
-                    </Button>
-                  </Link>
-                )}
+                {/* Favorite Button */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    {!isServiceListing && (
+                      <Button
+                        onClick={handleAddToCart}
+                        className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
+                        disabled={listing.stockQuantity === 0 || listing.seller?.acceptingOrders === false}
+                      >
+                        <ShoppingCart className="w-5 h-5 mr-2" />
+                        Add to Cart
+                      </Button>
+                    )}
+                    
+                    {isServiceListing ? (
+                      <Button
+                        onClick={handleRequestJob}
+                        className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
+                      >
+                        <MessageSquare className="w-5 h-5 mr-2" />
+                        Request Job
+                      </Button>
+                    ) : (
+                      <Link href={`/product-order?listingId=${listing.id}`} className="block">
+                        <Button 
+                          className="w-full py-6 text-lg font-semibold bg-white/10 hover:bg-white/15 border-2 border-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300"
+                          disabled={listing.seller?.acceptingOrders === false}
+                        >
+                          Order Now
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                  <FavoriteButton 
+                    itemId={listing?.id?.toString() || ""}
+                    itemType="product"
+                    className="px-6 py-6 bg-zinc-800 border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                  />
+                </div>
 
                 {/* Write a Review Button */}
                 <Link href={`/shop/${listing.sellerId}?review=true`} className="block">
@@ -382,7 +395,7 @@ export default function ListingDetail() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedListings.map((relatedListing) => (
-                  <ListingCard key={relatedListing.id} listing={relatedListing} />
+                  <ListingCard key={relatedListing.id} listing={relatedListing} priceInsight={priceInsights.get(relatedListing.id)} />
                 ))}
               </div>
             </div>
@@ -401,7 +414,7 @@ export default function ListingDetail() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedListings.slice(0, 2).concat(relatedListings.slice(0, 2)).map((relatedListing, index) => (
-                <ListingCard key={`rec-${relatedListing.id}-${index}`} listing={relatedListing} />
+                <ListingCard key={`rec-${relatedListing.id}-${index}`} listing={relatedListing} priceInsight={priceInsights.get(relatedListing.id)} />
               ))}
             </div>
           </div>
@@ -419,7 +432,7 @@ export default function ListingDetail() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedListings.slice(1, 3).concat(relatedListings.slice(0, 1)).map((relatedListing, index) => (
-                <ListingCard key={`recent-${relatedListing.id}-${index}`} listing={relatedListing} />
+                <ListingCard key={`recent-${relatedListing.id}-${index}`} listing={relatedListing} priceInsight={priceInsights.get(relatedListing.id)} />
               ))}
             </div>
           </div>
@@ -427,17 +440,17 @@ export default function ListingDetail() {
           {/* Trending Now */}
           <div className="mb-16">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-emerald-400" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
               <div>
                 <h2 className="text-3xl font-bold text-white">Trending Now</h2>
-                <p className="text-zinc-400 text-sm mt-1">Popular items this week</p>
+                <p className="text-zinc-400 text-sm mt-1">Popular items in the community</p>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedListings.slice(0, 1).concat(relatedListings.slice(2, 4)).map((relatedListing, index) => (
-                <ListingCard key={`trending-${relatedListing.id}-${index}`} listing={relatedListing} />
+                <ListingCard key={`trending-${relatedListing.id}-${index}`} listing={relatedListing} priceInsight={priceInsights.get(relatedListing.id)} />
               ))}
             </div>
           </div>
