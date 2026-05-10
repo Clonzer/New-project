@@ -10,13 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "wouter";
+import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
   BarChart3, Calendar, Filter, Search, Image, FileText,
   CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight,
-  MessageSquare, ShoppingCart
+  MessageSquare, ShoppingCart, Crown, Zap, Rocket
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -69,6 +70,33 @@ export default function DashboardWithSidebar() {
     setSetupTasks(prev => prev.map(task => 
       task.id === taskId ? { ...task, completed: !task.completed } : task
     ));
+  };
+
+  // Handle sponsorship purchase
+  const handleSponsorshipPurchase = async () => {
+    try {
+      const { data, error } = await createSponsorshipCheckoutSession();
+      
+      if (error) {
+        toast({
+          title: "Sponsorship Error",
+          description: "Unable to start sponsorship purchase. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Sponsorship purchase error:", error);
+      toast({
+        title: "Purchase Error",
+        description: "Failed to process sponsorship purchase.",
+        variant: "destructive"
+      });
+    }
   };
   
   // Calculate completion progress
@@ -141,6 +169,22 @@ export default function DashboardWithSidebar() {
 
   const renderOverview = () => (
     <div className="space-y-8">
+      {/* Dashboard Header with Edit Storefront Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Dashboard Overview</h2>
+          <p className="text-zinc-400">Track your business performance and manage your shop</p>
+        </div>
+        {user?.role === 'seller' && (
+          <Link href="/storefront/edit">
+            <Button variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+              <StoreIcon className="w-4 h-4 mr-2" />
+              Edit Storefront
+            </Button>
+          </Link>
+        )}
+      </div>
+
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <Card className="bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 transition-colors">
@@ -219,6 +263,53 @@ export default function DashboardWithSidebar() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Sponsorship Promotion */}
+      <Card className="bg-gradient-to-r from-orange-600/20 to-pink-600/20 border-orange-500/30 hover:border-orange-400/50 transition-all duration-300">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600 to-pink-600 flex items-center justify-center">
+                <Crown className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Boost Your Visibility</h3>
+                <p className="text-zinc-400 text-sm">
+                  Get featured placements and priority ranking with sponsorships
+                </p>
+                <div className="flex items-center gap-4 mt-2 text-xs text-zinc-400">
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3 h-3 text-orange-400" />
+                    <span>Priority Placement</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Rocket className="w-3 h-3 text-pink-400" />
+                    <span>Enhanced Visibility</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3 text-blue-400" />
+                    <span>More Customers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={handleSponsorshipPurchase}
+                className="bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-medium px-6"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Buy Sponsorship
+              </Button>
+              <Link href="/pricing#sponsorships">
+                <Button variant="outline" size="sm" className="border-zinc-600 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Store Setup Guide & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1102,27 +1193,78 @@ export default function DashboardWithSidebar() {
           <p className="text-zinc-400">Comprehensive insights into your business performance</p>
         </div>
 
-        {/* Revenue Analytics */}
+        {/* Revenue Analytics - Subscription Only */}
         {revenueData.length > 0 && (
-          <RevenueTrendChart data={revenueData} timeRange="30d" />
+          <div className="relative">
+            {!canAccessAnalytics(user) && (
+              <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm z-10 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Lock className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+                  <p className="text-white font-medium mb-2">Revenue Analytics</p>
+                  <p className="text-zinc-400 text-sm mb-3">Upgrade to Pro for detailed revenue insights</p>
+                  <Link href="/pricing">
+                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                      <Crown className="w-4 h-4 mr-1" />
+                      Upgrade
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+            <RevenueTrendChart data={revenueData} timeRange="30d" />
+          </div>
         )}
 
-        {/* Order Status Analytics */}
+        {/* Order Status Analytics - Available for all */}
         {safeOrders.length > 0 && (
           <OrderStatusChart data={orderStatusData} />
         )}
 
-        {/* Customer Growth Analytics */}
+        {/* Customer Growth Analytics - Subscription Only */}
         {customerData.length > 0 && (
-          <CustomerGrowthChart data={customerData} timeRange="30d" />
+          <div className="relative">
+            {!canAccessAnalytics(user) && (
+              <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm z-10 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Lock className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+                  <p className="text-white font-medium mb-2">Customer Analytics</p>
+                  <p className="text-zinc-400 text-sm mb-3">Track customer growth and retention</p>
+                  <Link href="/pricing">
+                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                      <Crown className="w-4 h-4 mr-1" />
+                      Upgrade
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+            <CustomerGrowthChart data={customerData} timeRange="30d" />
+          </div>
         )}
 
-        {/* Subscription Analytics */}
-        <SubscriptionAnalytics 
-          data={subscriptionData} 
-          currentSubscriptions={currentSubscriptions}
-          metrics={subscriptionMetrics}
-        />
+        {/* Subscription Analytics - Enterprise Only */}
+        <div className="relative">
+          {!canAccessAnalytics(user) && (
+            <div className="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm z-10 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <Crown className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+                <p className="text-white font-medium mb-2">Advanced Analytics</p>
+                <p className="text-zinc-400 text-sm mb-3">Enterprise plan required for subscription metrics</p>
+                <Link href="/pricing">
+                  <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                    <Crown className="w-4 h-4 mr-1" />
+                    Upgrade to Enterprise
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+          <SubscriptionAnalytics 
+            data={subscriptionData} 
+            currentSubscriptions={currentSubscriptions}
+            metrics={subscriptionMetrics}
+          />
+        </div>
 
         {/* Equipment Utilization */}
         {safePrinters.length > 0 && (
