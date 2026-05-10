@@ -1,69 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, Search, Filter, Star, Store, Package, User } from "lucide-react";
+import { Heart, Search, Filter, Star, Store, Package, User, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SimpleSidebar } from "@/components/dashboard/SimpleSidebar";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { getUserFavorites, removeFromFavorites, FavoriteWithDetails } from "@/lib/favorites-api";
+import { Link } from "wouter";
 
 export default function Favorites() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "shops" | "products" | "services">("all");
+  const [filterType, setFilterType] = useState<"all" | "shop" | "product" | "service">("all");
+  const [favorites, setFavorites] = useState<FavoriteWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
 
-  // Mock data for favorites
-  const mockFavorites = [
-    {
-      id: 1,
-      type: "shop",
-      name: "Precision Prints",
-      description: "High-quality 3D printing and prototyping services",
-      rating: 4.8,
-      reviews: 127,
-      image: "/api/placeholder/200/200",
-      owner: "John Smith",
-      specialties: ["FDM", "SLA", "Resin"]
-    },
-    {
-      id: 2,
-      type: "product",
-      name: "Mechanical Keyboard Case",
-      description: "Custom ergonomic keyboard case with integrated wrist rest",
-      rating: 4.9,
-      reviews: 89,
-      image: "/api/placeholder/200/200",
-      shop: "Tech Accessories Co",
-      price: "$45.99"
-    },
-    {
-      id: 3,
-      type: "service",
-      name: "Rapid Prototyping",
-      description: "Fast turnaround prototyping for startups and makers",
-      rating: 4.7,
-      reviews: 203,
-      image: "/api/placeholder/200/200",
-      provider: "QuickFab Studio",
-      deliveryTime: "2-3 days"
-    },
-    {
-      id: 4,
-      type: "shop",
-      name: "Artisan Creations",
-      description: "Handcrafted 3D printed art and decorative items",
-      rating: 4.9,
-      reviews: 156,
-      image: "/api/placeholder/200/200",
-      owner: "Sarah Johnson",
-      specialties: ["Art", "Decor", "Custom"]
+  // Fetch favorites on component mount
+  useEffect(() => {
+    if (user?.id) {
+      fetchFavorites();
     }
-  ];
+  }, [user?.id]);
 
-  const filteredFavorites = mockFavorites.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterType === "all" || item.type === filterType;
+  const fetchFavorites = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setIsLoading(true);
+      const data = await getUserFavorites(user.id);
+      setFavorites(data);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load favorites. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveFavorite = async (itemId: string, itemType: 'shop' | 'product' | 'service') => {
+    if (!user?.id) return;
+
+    try {
+      setIsRemoving(itemId);
+      await removeFromFavorites(user.id, itemId, itemType);
+      
+      // Update local state
+      setFavorites(prev => prev.filter(fav => 
+        !(fav.item_id === itemId && fav.item_type === itemType)
+      ));
+
+      toast({
+        title: "Removed from Favorites",
+        description: "Item has been removed from your favorites."
+      });
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove from favorites. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRemoving(null);
+    }
+  };
+
+  const filteredFavorites = favorites.filter(item => {
+    const matchesSearch = item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterType === "all" || item.item_type === filterType;
     return matchesSearch && matchesFilter;
   });
 
@@ -120,7 +135,7 @@ export default function Favorites() {
               />
             </div>
             <div className="flex gap-2">
-              {["all", "shops", "products", "services"].map((type) => (
+              {["all", "shop", "product", "service"].map((type) => (
                 <Button
                   key={type}
                   variant={filterType === type ? "default" : "outline"}
@@ -138,9 +153,17 @@ export default function Favorites() {
           </div>
         </motion.div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
+          </div>
+        )}
+
         {/* Favorites Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredFavorites.map((item, index) => (
+        {!isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFavorites.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
@@ -152,17 +175,23 @@ export default function Favorites() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-zinc-700 flex items-center justify-center">
+                            {getTypeIcon(item.item_type)}
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge className={`text-xs ${getTypeColor(item.type)}`}>
-                            {getTypeIcon(item.type)}
-                            <span className="ml-1 capitalize">{item.type}</span>
+                          <Badge className={`text-xs ${getTypeColor(item.item_type)}`}>
+                            {getTypeIcon(item.item_type)}
+                            <span className="ml-1 capitalize">{item.item_type}</span>
                           </Badge>
                         </div>
                         <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors">
@@ -174,8 +203,14 @@ export default function Favorites() {
                       variant="ghost"
                       size="sm"
                       className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      onClick={() => handleRemoveFavorite(item.item_id, item.item_type)}
+                      disabled={isRemoving === item.item_id}
                     >
-                      <Heart className="w-4 h-4 fill-current" />
+                      {isRemoving === item.item_id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Heart className="w-4 h-4 fill-current" />
+                      )}
                     </Button>
                   </div>
                 </CardHeader>
@@ -187,11 +222,11 @@ export default function Favorites() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-white font-medium">{item.rating}</span>
-                      <span className="text-sm text-zinc-500">({item.reviews})</span>
+                      <span className="text-sm text-white font-medium">{item.rating?.toFixed(1) || 'N/A'}</span>
+                      <span className="text-sm text-zinc-500">({item.review_count || 0})</span>
                     </div>
                     {item.price && (
-                      <span className="text-lg font-bold text-orange-400">{item.price}</span>
+                      <span className="text-lg font-bold text-orange-400">${item.price}</span>
                     )}
                   </div>
 
@@ -224,9 +259,9 @@ export default function Favorites() {
                         ))}
                       </div>
                     )}
-                    {item.deliveryTime && (
+                    {item.delivery_time && (
                       <div className="text-sm text-orange-400">
-                        🚀 {item.deliveryTime}
+                        🚀 {item.delivery_time}
                       </div>
                     )}
                   </div>
@@ -243,7 +278,8 @@ export default function Favorites() {
               </Card>
             </motion.div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Empty State */}
         {filteredFavorites.length === 0 && (
