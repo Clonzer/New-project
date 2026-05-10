@@ -826,7 +826,7 @@ export function useListOrders(options?: { userId?: string | number }) {
             price,
             images
           ),
-          buyers (
+          users!buyer_id (
             id,
             display_name,
             username,
@@ -860,7 +860,7 @@ export function useListOrders(options?: { userId?: string | number }) {
         created_at: order.created_at,
         updated_at: order.updated_at,
         listings: order.listings,
-        buyer: order.buyers,
+        buyer: order.users,
         // Add calculated fields
         price: order.total_amount || order.price,
         amount: order.total_amount || order.price,
@@ -1006,7 +1006,7 @@ export function useListReviews(options?: { userId?: string | number }) {
         .from('reviews')
         .select(`
           *,
-          reviewers (
+          users!reviewer_id (
             id,
             display_name,
             username
@@ -1038,8 +1038,8 @@ export function useListReviews(options?: { userId?: string | number }) {
         comment: review.comment,
         created_at: review.created_at,
         updated_at: review.updated_at,
-        reviewer_name: review.reviewers?.display_name || review.reviewers?.username || 'Anonymous',
-        reviewer: review.reviewers,
+        reviewer_name: review.users?.display_name || review.users?.username || 'Anonymous',
+        reviewer: review.users,
         listing_title: review.listings?.title,
         listings: review.listings,
       }));
