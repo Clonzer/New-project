@@ -298,9 +298,11 @@ export default function Favorites() {
                 : "Start adding shops, products, and services to your favorites"}
             </p>
             {!searchQuery && filterType === "all" && (
-              <Button className="bg-orange-600 hover:bg-orange-700">
-                Browse Marketplace
-              </Button>
+              <Link href="/service-marketplace">
+                <Button className="bg-orange-600 hover:bg-orange-700">
+                  Browse Marketplace
+                </Button>
+              </Link>
             )}
           </motion.div>
         )}

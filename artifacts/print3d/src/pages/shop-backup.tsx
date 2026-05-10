@@ -476,7 +476,7 @@ export default function Shop() {
 
             {seller.sellerTags?.length ? (
               <div className="flex flex-wrap gap-2 mb-6">
-                {seller.sellerTags.map((tag: string) => (
+                {seller.sellerTags.map((tag) => (
                   <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-zinc-200">
                     {tag}
                   </span>
@@ -592,7 +592,7 @@ export default function Shop() {
 
             <TabsContent value="printers" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {printersData?.map((printer: any) => (
+                {printersData?.map((printer) => (
                   <div key={printer.id} className="glass-panel p-6 rounded-2xl border border-white/5 flex gap-6">
                     <div className="w-24 h-24 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0">
                       {printer.imageUrl ? (
@@ -644,7 +644,7 @@ export default function Shop() {
                     </NeonButton>
                   </div>
                 )}
-                {reviews?.map((review: any) => (
+                {reviews?.map((review) => (
                   <div key={review.id} className="glass-panel p-6 rounded-2xl border border-white/5">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
@@ -735,30 +735,30 @@ export default function Shop() {
                         rating: reviewRating,
                         comment: reviewComment,
                       })
-                      .select();
-                    
+                      .select()
+                      .single();
                     if (error) throw error;
-                    
-                    setReviews(prev => [data[0], ...prev]);
-                    setReviewDialogOpen(false);
-                    setReviewComment("");
-                    setReviewRating(5);
+                    if (data) {
+                      setReviews((prev) => [data, ...prev]);
+                    }
                     toast({
                       title: "Review submitted",
-                      description: "Thank you for sharing your feedback!",
+                      description: "Thank you for your feedback!",
                     });
+                    setReviewDialogOpen(false);
+                    setReviewRating(5);
+                    setReviewComment("");
                   } catch (error) {
-                    console.error('Error submitting review:', error);
                     toast({
-                      title: "Error",
-                      description: "Failed to submit review. Please try again.",
+                      title: "Failed to submit review",
+                      description: "Please try again later.",
                       variant: "destructive",
                     });
                   } finally {
                     setIsSubmittingReview(false);
                   }
                 }}
-                disabled={isSubmittingReview}
+                disabled={isSubmittingReview || !reviewComment.trim()}
               >
                 {isSubmittingReview ? "Submitting..." : "Submit Review"}
               </NeonButton>
@@ -766,6 +766,8 @@ export default function Shop() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Footer />
     </div>
     </>
   );

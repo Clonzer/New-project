@@ -113,7 +113,7 @@ export function SimpleSidebar() {
     const currentHash = window.location.hash.slice(1);
     
     if (path === "/dashboard") {
-      return location === "/dashboard" || (!currentHash && location.startsWith("/dashboard"));
+      return location === "/dashboard" && !currentHash;
     }
     
     if (path.startsWith("/dashboard#")) {
