@@ -590,22 +590,7 @@ export default function Landing() {
                                   </div>
                                 </div>
                                 
-                                {/* Shop stats */}
-                                <div className="flex items-center gap-3 mt-2">
-                                  <div className="flex items-center gap-1">
-                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                    <span className="text-white text-xs font-medium">{item.rating}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Eye className="w-3 h-3 text-zinc-400" />
-                                    <span className="text-zinc-400 text-xs">{item.views}</span>
-                                  </div>
-                                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs">
-                                    Shop
-                                  </Badge>
-                                </div>
-                              </div>
-                            </>
+                                                            </>
                           ) : (
                             // Product card
                             <>
@@ -716,22 +701,7 @@ export default function Landing() {
                                   </div>
                                 </div>
                                 
-                                {/* Shop stats */}
-                                <div className="flex items-center gap-3 mt-2">
-                                  <div className="flex items-center gap-1">
-                                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                    <span className="text-white text-xs font-medium">{item.rating}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Eye className="w-3 h-3 text-zinc-400" />
-                                    <span className="text-zinc-400 text-xs">{item.views}</span>
-                                  </div>
-                                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs">
-                                    Shop
-                                  </Badge>
-                                </div>
-                              </div>
-                            </>
+                                                            </>
                           ) : (
                             // Product card
                             <>
