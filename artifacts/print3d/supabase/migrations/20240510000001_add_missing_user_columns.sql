@@ -14,6 +14,19 @@ BEGIN
     END IF;
 END $$;
 
+-- Add instagram_handle column if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'instagram_handle'
+    ) THEN
+        ALTER TABLE users ADD COLUMN instagram_handle TEXT;
+        RAISE NOTICE 'Added instagram_handle column to users table';
+    END IF;
+END $$;
+
 -- Add tiktok_handle column if it doesn't exist
 DO $$
 BEGIN
