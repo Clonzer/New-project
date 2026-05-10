@@ -166,7 +166,7 @@ export function SimpleSidebar() {
     <>
       {/* Desktop Sidebar */}
       <motion.div 
-        className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group lg:block hidden"
+        className="fixed left-0 top-0 z-[50] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group lg:block hidden"
         initial={{ width: "80px" }}
         whileHover={{ width: "280px" }}
         transition={{ 
@@ -302,7 +302,7 @@ export function SimpleSidebar() {
       </motion.div>
 
       {/* Mobile Navigation */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-[70] bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             {user?.avatarUrl ? (
