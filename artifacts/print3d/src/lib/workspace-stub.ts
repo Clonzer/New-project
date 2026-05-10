@@ -820,7 +820,7 @@ export function useListOrders(options?: { userId?: string | number }) {
         .from('orders')
         .select(`
           *,
-          listings (
+          listings!listing_id (
             id,
             title,
             price,
@@ -1011,7 +1011,7 @@ export function useListReviews(options?: { userId?: string | number }) {
             display_name,
             username
           ),
-          listings (
+          listings!listing_id (
             id,
             title
           )
