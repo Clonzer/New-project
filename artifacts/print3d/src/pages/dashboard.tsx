@@ -15,11 +15,17 @@ import {
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
   BarChart3, Calendar, Filter, Search, Image, FileText,
-  CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight
+  CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight,
+  MessageSquare, ShoppingCart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { SimpleSidebar } from "@/components/dashboard/SimpleSidebar";
+import { RevenueTrendChart } from "@/components/analytics/RevenueTrendChart";
+import { OrderStatusChart } from "@/components/analytics/OrderStatusChart";
+import { SubscriptionAnalytics } from "@/components/analytics/SubscriptionAnalytics";
+import { CustomerGrowthChart } from "@/components/analytics/CustomerGrowthChart";
+import { EquipmentUtilizationChart } from "@/components/analytics/EquipmentUtilizationChart";
 
 const STATUS_CONFIG = {
   pending: { label: "Pending", color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock },
@@ -874,110 +880,154 @@ export default function DashboardWithSidebar() {
     </div>
   );
 
-  const renderAnalytics = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
-        <p className="text-zinc-400">Track your performance and gain insights</p>
+  const renderAnalytics = () => {
+    // Generate mock data for demonstration
+    const generateRevenueData = () => {
+      const data = [];
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        data.push({
+          date: date.toISOString().split('T')[0],
+          revenue: Math.random() * 2000 + 500,
+          orders: Math.floor(Math.random() * 20) + 5
+        });
+      }
+      return data;
+    };
+
+    const generateOrderStatusData = () => [
+      { status: 'pending', count: pendingOrders, percentage: safeOrders.length > 0 ? (pendingOrders / safeOrders.length) * 100 : 0, color: '#f59e0b', icon: Clock },
+      { status: 'accepted', count: safeOrders.filter(o => o.status === 'accepted').length, percentage: safeOrders.length > 0 ? (safeOrders.filter(o => o.status === 'accepted').length / safeOrders.length) * 100 : 0, color: '#f97316', icon: CheckCircle2 },
+      { status: 'printing', count: safeOrders.filter(o => o.status === 'printing').length, percentage: safeOrders.length > 0 ? (safeOrders.filter(o => o.status === 'printing').length / safeOrders.length) * 100 : 0, color: '#3b82f6', icon: Package },
+      { status: 'shipped', count: safeOrders.filter(o => o.status === 'shipped').length, percentage: safeOrders.length > 0 ? (safeOrders.filter(o => o.status === 'shipped').length / safeOrders.length) * 100 : 0, color: '#8b5cf6', icon: Truck },
+      { status: 'delivered', count: completedOrders, percentage: safeOrders.length > 0 ? (completedOrders / safeOrders.length) * 100 : 0, color: '#10b981', icon: CheckCircle2 },
+      { status: 'cancelled', count: safeOrders.filter(o => o.status === 'cancelled').length, percentage: safeOrders.length > 0 ? (safeOrders.filter(o => o.status === 'cancelled').length / safeOrders.length) * 100 : 0, color: '#ef4444', icon: XCircle }
+    ];
+
+    const generateCustomerData = () => {
+      const data = [];
+      let totalCustomers = 100;
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const newCustomers = Math.floor(Math.random() * 15) + 2;
+        totalCustomers += newCustomers;
+        data.push({
+          date: date.toISOString().split('T')[0],
+          newCustomers,
+          totalCustomers,
+          activeCustomers: Math.floor(totalCustomers * (0.7 + Math.random() * 0.2)),
+          returningCustomers: Math.floor(Math.random() * 10) + 1
+        });
+      }
+      return data;
+    };
+
+    const generateSubscriptionData = () => {
+      const data = [];
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        data.push({
+          month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          free: Math.floor(Math.random() * 50) + 100,
+          basic: Math.floor(Math.random() * 30) + 20,
+          pro: Math.floor(Math.random() * 20) + 10,
+          enterprise: Math.floor(Math.random() * 5) + 2,
+          totalRevenue: Math.random() * 5000 + 2000,
+          churnRate: Math.random() * 0.1 + 0.02,
+          newSubscriptions: Math.floor(Math.random() * 25) + 10
+        });
+      }
+      return data;
+    };
+
+    const generateEquipmentData = () => {
+      return safePrinters.map(printer => ({
+        equipmentId: printer.id,
+        name: printer.name,
+        type: printer.technology || 'Unknown',
+        utilizationRate: Math.random() * 60 + 20,
+        totalHours: 720,
+        activeHours: Math.random() * 500 + 100,
+        maintenanceHours: Math.random() * 50 + 10,
+        idleHours: Math.random() * 200 + 50,
+        jobsCompleted: Math.floor(Math.random() * 100) + 20,
+        averageJobTime: Math.random() * 4 + 1,
+        status: printer.status || 'active'
+      }));
+    };
+
+    const generateEquipmentTimeSeries = () => {
+      const data = [];
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        data.push({
+          date: date.toISOString().split('T')[0],
+          overallUtilization: Math.random() * 40 + 40,
+          activeEquipment: Math.floor(Math.random() * 3) + activeEquipmentCount - 1,
+          totalJobs: Math.floor(Math.random() * 50) + 10
+        });
+      }
+      return data;
+    };
+
+    const revenueData = generateRevenueData();
+    const orderStatusData = generateOrderStatusData();
+    const customerData = generateCustomerData();
+    const subscriptionData = generateSubscriptionData();
+    const equipmentData = generateEquipmentData();
+    const equipmentTimeSeries = generateEquipmentTimeSeries();
+
+    const currentSubscriptions = {
+      free: 150,
+      basic: 45,
+      pro: 25,
+      enterprise: 8
+    };
+
+    const subscriptionMetrics = {
+      monthlyRecurringRevenue: 1847.45,
+      averageRevenuePerUser: 12.34,
+      customerLifetimeValue: 456.78,
+      churnRate: 0.034,
+      subscriptionGrowthRate: 0.156
+    };
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
+          <p className="text-zinc-400">Comprehensive insights into your business performance</p>
+        </div>
+
+        {/* Revenue Analytics */}
+        <RevenueTrendChart data={revenueData} timeRange="30d" />
+
+        {/* Order Status Analytics */}
+        <OrderStatusChart data={orderStatusData} />
+
+        {/* Customer Growth Analytics */}
+        <CustomerGrowthChart data={customerData} timeRange="30d" />
+
+        {/* Subscription Analytics */}
+        <SubscriptionAnalytics 
+          data={subscriptionData} 
+          currentSubscriptions={currentSubscriptions}
+          metrics={subscriptionMetrics}
+        />
+
+        {/* Equipment Utilization */}
+        <EquipmentUtilizationChart 
+          equipmentData={equipmentData}
+          timeSeriesData={equipmentTimeSeries}
+          timeRange="7d"
+        />
       </div>
-
-      {/* Revenue Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white">Revenue Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Total Revenue</span>
-                <span className="text-2xl font-bold text-green-400">${totalRevenue.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Average Order Value</span>
-                <span className="text-xl font-bold text-white">${averageOrderValue.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Total Orders</span>
-                <span className="text-xl font-bold text-white">{safeOrders.length}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-400">Completion Rate</span>
-                <span className="text-xl font-bold text-white">
-                  {safeOrders.length > 0 ? Math.round((completedOrders / safeOrders.length) * 100) : 0}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-white">Performance Metrics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400">Order Completion</span>
-                  <span className="text-sm text-white">
-                    {safeOrders.length > 0 ? Math.round((completedOrders / safeOrders.length) * 100) : 0}%
-                  </span>
-                </div>
-                <Progress value={safeOrders.length > 0 ? (completedOrders / safeOrders.length) * 100 : 0} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400">Equipment Utilization</span>
-                  <span className="text-sm text-white">
-                    {safePrinters.length > 0 ? Math.round((activeEquipmentCount / safePrinters.length) * 100) : 0}%
-                  </span>
-                </div>
-                <Progress value={safePrinters.length > 0 ? (activeEquipmentCount / safePrinters.length) * 100 : 0} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-zinc-400">Customer Satisfaction</span>
-                  <span className="text-sm text-white">{averageRating.toFixed(1)}/5.0</span>
-                </div>
-                <Progress value={(averageRating / 5) * 100} className="h-2" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Performers */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Top Performing Listings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Array.isArray(topListings) ? topListings.slice(0, 5).map((listing, index) => (
-              <div key={listing.id} className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center">
-                    <span className="text-orange-400 font-bold">#{index + 1}</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">{listing.title}</p>
-                    <p className="text-zinc-400 text-sm">${listing.basePrice || listing.price || 0} • {listing.orders_count || 0} orders</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-green-400 font-medium">
-                    ${((listing.orders_count || 0) * (listing.basePrice || listing.price || 0)).toFixed(2)}
-                  </p>
-                  <p className="text-zinc-400 text-xs">Total Revenue</p>
-                </div>
-              </div>
-            )) : null}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+    );
+  };
 
   const renderReviews = () => (
     <div className="space-y-6">
@@ -1125,7 +1175,7 @@ export default function DashboardWithSidebar() {
       <SimpleSidebar />
       
       {/* Main Content */}
-      <div className="ml-0 lg:ml-20 group-hover:lg:ml-72 p-4 md:p-8 transition-all duration-300 mt-16 lg:mt-0">
+      <div className="ml-0 lg:ml-20 group-hover:lg:ml-72 p-4 md:p-8 transition-all duration-300 pt-20 lg:pt-4">
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 20 }}

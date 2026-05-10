@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SimpleSidebar } from "@/components/dashboard/SimpleSidebar";
 
 export default function Favorites() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,8 +86,12 @@ export default function Favorites() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-zinc-950">
+      <SimpleSidebar />
+      
+      {/* Main Content */}
+      <div className="ml-0 lg:ml-20 group-hover:lg:ml-72 p-4 md:p-8 transition-all duration-300 pt-20 lg:pt-4">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -263,6 +268,7 @@ export default function Favorites() {
             )}
           </motion.div>
         )}
+        </div>
       </div>
     </div>
   );
