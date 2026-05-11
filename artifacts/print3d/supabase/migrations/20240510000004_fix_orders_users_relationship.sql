@@ -17,8 +17,8 @@ BEGIN
             AND column_name = 'buyer_id'
             AND data_type = 'integer'
         ) THEN
-            ALTER TABLE orders DROP COLUMN buyer_id;
-            RAISE NOTICE 'Dropped integer buyer_id column';
+            ALTER TABLE orders DROP COLUMN buyer_id CASCADE;
+            RAISE NOTICE 'Dropped integer buyer_id column with CASCADE';
         END IF;
         
         -- Add buyer_id column as UUID if it doesn't exist
@@ -46,8 +46,8 @@ BEGIN
             AND column_name = 'seller_id'
             AND data_type = 'integer'
         ) THEN
-            ALTER TABLE orders DROP COLUMN seller_id;
-            RAISE NOTICE 'Dropped integer seller_id column';
+            ALTER TABLE orders DROP COLUMN seller_id CASCADE;
+            RAISE NOTICE 'Dropped integer seller_id column with CASCADE';
         END IF;
         
         -- Add seller_id column as UUID if it doesn't exist
@@ -85,6 +85,10 @@ BEGIN
         RAISE NOTICE 'Created buyer_id foreign key to auth.users';
     END IF;
 END $$;
+
+-- Recreate shipping_labels policy that depends on seller_id
+CREATE POLICY IF NOT EXISTS "Sellers can view their shipping labels" ON shipping_labels
+    FOR SELECT USING auth.uid() = sellers.user_id;
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_orders_buyer_id ON orders(buyer_id);
