@@ -489,8 +489,10 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
 
         if (options?.userId) {
           // Filter by seller's user_id directly
+          console.log('Filtering listings by userId:', options.userId);
           query = query.eq('seller_id', options.userId);
         } else if (options?.sellerId) {
+          console.log('Filtering listings by sellerId:', options.sellerId);
           query = query.eq('seller_id', options.sellerId);
         }
 
