@@ -94,14 +94,8 @@ export default function Shop() {
             avatar_url,
             banner_url,
             accepting_orders,
-            rating,
-            review_count,
-            seller_tags,
-            total_prints,
             shop_mode,
-            created_at,
-            email_verified_at,
-            is_verified
+            created_at
           `)
           .eq('id', shopId)
           .single();
