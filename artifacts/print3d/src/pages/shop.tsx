@@ -84,44 +84,21 @@ export default function Shop() {
       try {
         setLoadingSeller(true);
         const { data, error } = await supabase
-          .from('sellers')
+          .from('users')
           .select('*')
           .eq('id', shopId)
           .single();
         if (data && !error) {
-          // Get user_id - could be in id field or user_id field
-          const userId = data.user_id || data.id;
-          
-          // Fetch avatar_url from profiles table (same as auth context)
-          let avatarUrl = data.avatar_url || data.avatar || data.profile_image_url || null;
-          
-          // Ensure accepting_orders field is properly fetched from users table - consistent with dashboard
-          let acceptingOrders = true; // default to true
-          
-          if (userId) {
-            try {
-              const { data: userData } = await supabase
-                .from('users')
-                .select('accepting_orders')
-                .eq('id', userId)
-                .single();
-              if (userData?.accepting_orders !== undefined) {
-                acceptingOrders = userData.accepting_orders;
-              }
-            } catch {
-              // Ignore errors from users table fetch - use fallback
-            }
-          }
-          
           // Transform seller data to match expected format
           setSeller({
             ...data,
-            user_id: userId, // ensure we have the user_id
-            displayName: data.store_name || data.display_name || data.username,
-            shopName: data.store_name || data.username,
-            avatarUrl,
-            accepting_orders: acceptingOrders, // use the properly fetched value
-            bannerUrl: data.hero_image_url,
+            id: data.id,
+            user_id: data.id,
+            displayName: data.shop_name || data.display_name || data.username,
+            shopName: data.shop_name || data.display_name || data.username,
+            avatarUrl: data.avatar_url || data.avatar || data.profile_image_url || null,
+            accepting_orders: data.accepting_orders ?? true,
+            bannerUrl: data.banner_url || data.hero_image_url,
             location: data.location,
             rating: data.rating || 0,
             reviewCount: data.review_count || 0,
@@ -130,10 +107,10 @@ export default function Shop() {
             shopMode: data.shop_mode || 'both',
             bio: data.bio,
             joinedAt: data.created_at,
-            emailVerifiedAt: data.is_verified ? data.created_at : null,
+            emailVerifiedAt: data.email_verified_at || (data.is_verified ? data.created_at : null),
             shopAnnouncement: null,
             brandStory: null,
-                        websiteUrl: null,
+            websiteUrl: null,
             instagramHandle: null,
             supportEmail: null,
             tiktokHandle: null,
@@ -352,7 +329,7 @@ export default function Shop() {
             {/* Shop Info */}
             <div className="flex-grow">
               <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                {seller.shopName || seller.displayName}
+                {seller.shopName}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
                 {seller.location ? (
