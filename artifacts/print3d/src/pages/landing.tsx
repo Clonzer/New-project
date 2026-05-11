@@ -540,120 +540,9 @@ export default function Landing() {
                 </motion.div>
               </div>
 
-              {/* Products Grid - First Row */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-                {filteredItems.slice(0, 4).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -10 }}
-                    className="group"
-                  >
-                    <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
-                          {item.type === "maker" ? (
-                            // Enhanced Maker card with banner and avatar
-                            <>
-                              {item.banner ? (
-                                <img 
-                                  src={item.banner} 
-                                  alt={`${item.title} banner`}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-orange-600/20 to-pink-600/20" />
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
-                              
-                              {/* Shop info overlay */}
-                              <div className="absolute bottom-0 left-0 right-0 p-3">
-                                <div className="flex items-center gap-3">
-                                  {item.image ? (
-                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 border-2 border-orange-500/50 shadow-lg shadow-orange-500/25">
-                                      <img 
-                                        src={item.image} 
-                                        alt={item.title}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/25">
-                                      {item.title?.charAt(0) || "S"}
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="text-white font-bold text-sm truncate">{item.title}</h4>
-                                    <p className="text-zinc-300 text-xs truncate">{item.subtitle}</p>
-                                  </div>
-                                </div>
-                                
-                                                            </>
-                          ) : (
-                            // Product card
-                            <>
-                              {item.image ? (
-                                <img 
-                                  src={item.image} 
-                                  alt={item.title}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Package className="w-12 h-12 text-zinc-600" />
-                                </div>
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </>
-                          )}
-                        </div>
-                        <div className="p-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
-                              <p className="text-zinc-400 text-xs">{item.subtitle}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
-                                  {item.type}
-                                </Badge>
-                                {item.sellerName && (
-                                  <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
-                                )}
-                                {item.tags && item.tags.length > 0 && (
-                                  <div className="flex gap-1 flex-wrap">
-                                    {item.tags.slice(0, 2).map((tag, tagIndex) => (
-                                      <span key={tagIndex} className="text-zinc-500 text-xs bg-zinc-800 px-2 py-1 rounded">
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                <span className="text-white text-xs font-medium">{item.rating}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Eye className="w-3 h-3 text-zinc-400" />
-                                <span className="text-zinc-400 text-xs">{item.views}</span>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Products Grid - Remaining Items */}
+              {/* Products Grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {filteredItems.slice(4).map((item, index) => (
+                {filteredItems.map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -700,8 +589,8 @@ export default function Landing() {
                                     <p className="text-zinc-300 text-xs truncate">{item.subtitle}</p>
                                   </div>
                                 </div>
-                                
-                                                            </>
+                              </div>
+                            </>
                           ) : (
                             // Product card
                             <>
@@ -752,8 +641,8 @@ export default function Landing() {
                                 <Eye className="w-3 h-3 text-zinc-400" />
                                 <span className="text-zinc-400 text-xs">{item.views}</span>
                               </div>
+                              <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
                             </div>
-                            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
                           </div>
                         </div>
                       </div>
