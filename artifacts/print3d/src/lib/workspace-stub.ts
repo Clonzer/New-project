@@ -966,7 +966,26 @@ export function useGetPrinters(userId?: string | number) {
     const fetchPrinters = async () => {
       setIsLoading(true);
       try {
-        let query = supabase.from('printers').select('*');
+        let query = supabase.from('printers').select(`
+        id,
+        user_id,
+        name,
+        brand,
+        model,
+        equipment_category,
+        technology,
+        materials,
+        build_volume,
+        price_per_hour,
+        price_per_gram,
+        tool_or_service_type,
+        image_url,
+        is_active,
+        equipment_status,
+        equipment_group_id,
+        created_at,
+        updated_at
+      `);
         if (userId) {
           query = query.eq('user_id', userId);
         }
@@ -1077,7 +1096,26 @@ export function useListPrinters(options?: { userId?: string | number }) {
 
       const { data: printers, error: fetchError } = await supabase
         .from('printers')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          name,
+          brand,
+          model,
+          equipment_category,
+          technology,
+          materials,
+          build_volume,
+          price_per_hour,
+          price_per_gram,
+          tool_or_service_type,
+          image_url,
+          is_active,
+          equipment_status,
+          equipment_group_id,
+          created_at,
+          updated_at
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -1805,7 +1843,26 @@ export function useListEquipment() {
 
       const { data: equipment, error: fetchError } = await supabase
         .from('printers')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          name,
+          brand,
+          model,
+          equipment_category,
+          technology,
+          materials,
+          build_volume,
+          price_per_hour,
+          price_per_gram,
+          tool_or_service_type,
+          image_url,
+          is_active,
+          equipment_status,
+          equipment_group_id,
+          created_at,
+          updated_at
+        `)
         .eq('user_id', user.id);
 
       if (fetchError) throw fetchError;
