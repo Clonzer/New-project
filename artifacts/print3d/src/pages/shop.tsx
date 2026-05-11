@@ -85,7 +85,24 @@ export default function Shop() {
         setLoadingSeller(true);
         const { data, error } = await supabase
           .from('users')
-          .select('*')
+          .select(`
+            id,
+            display_name,
+            shop_name,
+            bio,
+            location,
+            avatar_url,
+            banner_url,
+            accepting_orders,
+            rating,
+            review_count,
+            seller_tags,
+            total_prints,
+            shop_mode,
+            created_at,
+            email_verified_at,
+            is_verified
+          `)
           .eq('id', shopId)
           .single();
         if (data && !error) {
@@ -157,7 +174,7 @@ export default function Shop() {
         const { data, error } = await supabase
           .from('printers')
           .select('*')
-          .eq('seller_id', shopId);
+          .eq('user_id', shopId);
         if (data && !error) {
           setPrintersData(data);
         }
