@@ -493,6 +493,8 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
               user_id
             )
           `)
+          .not('title', 'in', '(".kbj")')
+          .not('description', 'in', '(";oiuhu")')
           .order('created_at', { ascending: false });
 
         if (options?.userId) {
@@ -826,7 +828,7 @@ export function useListOrders(options?: { userId?: string | number }) {
             price,
             images
           ),
-          users!buyer_id (
+          auth.users!buyer_id (
             id,
             display_name,
             username,
