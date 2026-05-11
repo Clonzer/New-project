@@ -4,27 +4,65 @@
 -- First, check if orders table exists and has correct structure
 DO $$
 BEGIN
-    -- Add buyer_id column if it doesn't exist
-    IF NOT EXISTS (
+    -- Check if buyer_id column exists and get its data type
+    IF EXISTS (
         SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'orders' 
         AND column_name = 'buyer_id'
     ) THEN
-        ALTER TABLE orders ADD COLUMN buyer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
-        RAISE NOTICE 'Added buyer_id column to orders table';
+        -- Drop existing buyer_id column if it's the wrong type (integer)
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'orders' 
+            AND column_name = 'buyer_id'
+            AND data_type = 'integer'
+        ) THEN
+            ALTER TABLE orders DROP COLUMN buyer_id;
+            RAISE NOTICE 'Dropped integer buyer_id column';
+        END IF;
+        
+        -- Add buyer_id column as UUID if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'orders' 
+            AND column_name = 'buyer_id'
+            AND data_type = 'uuid'
+        ) THEN
+            ALTER TABLE orders ADD COLUMN buyer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+            RAISE NOTICE 'Added UUID buyer_id column to orders table';
+        END IF;
     END IF;
 
-    -- Add seller_id column if it doesn't exist
-    IF NOT EXISTS (
+    -- Check and fix seller_id column
+    IF EXISTS (
         SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'orders' 
         AND column_name = 'seller_id'
     ) THEN
-        ALTER TABLE orders ADD COLUMN seller_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
-        RAISE NOTICE 'Added seller_id column to orders table';
+        -- Drop existing seller_id column if it's the wrong type
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'orders' 
+            AND column_name = 'seller_id'
+            AND data_type = 'integer'
+        ) THEN
+            ALTER TABLE orders DROP COLUMN seller_id;
+            RAISE NOTICE 'Dropped integer seller_id column';
+        END IF;
+        
+        -- Add seller_id column as UUID if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'orders' 
+            AND column_name = 'seller_id'
+            AND data_type = 'uuid'
+        ) THEN
+            ALTER TABLE orders ADD COLUMN seller_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+            RAISE NOTICE 'Added UUID seller_id column to orders table';
+        END IF;
     END IF;
 
-    -- Drop old foreign key if it exists with wrong reference
+    -- Drop any existing foreign key constraints
     IF EXISTS (
         SELECT 1 FROM information_schema.table_constraints 
         WHERE table_name = 'orders' 
@@ -32,15 +70,15 @@ BEGIN
         AND constraint_type = 'FOREIGN KEY'
     ) THEN
         ALTER TABLE orders DROP CONSTRAINT orders_buyer_id_fkey;
-        RAISE NOTICE 'Dropped old buyer_id foreign key constraint';
+        RAISE NOTICE 'Dropped existing buyer_id foreign key constraint';
     END IF;
 
-    -- Recreate foreign key with correct reference to auth.users
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints 
+    -- Create proper foreign key constraint
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'orders' 
-        AND constraint_name = 'orders_buyer_id_fkey'
-        AND constraint_type = 'FOREIGN KEY'
+        AND column_name = 'buyer_id'
+        AND data_type = 'uuid'
     ) THEN
         ALTER TABLE orders ADD CONSTRAINT orders_buyer_id_fkey 
             FOREIGN KEY (buyer_id) REFERENCES auth.users(id) ON DELETE SET NULL;
