@@ -109,6 +109,10 @@ export function SimpleSidebar() {
     setIsExpanded(false);
   };
 
+  const handleTouchStart = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const isActive = (path: string) => {
     const currentHash = window.location.hash.slice(1);
     
@@ -164,11 +168,12 @@ export function SimpleSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Sidebar - Now visible on all screen sizes */}
       <motion.div 
-        className="fixed left-0 top-0 z-[50] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group lg:block hidden"
-        initial={{ width: "80px" }}
-        whileHover={{ width: "280px" }}
+        className="fixed left-0 top-0 z-[50] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
+        initial={{ width: "60px" }}
+        whileHover={{ width: isExpanded ? "60px" : "260px" }}
+        animate={{ width: isExpanded ? "260px" : "60px" }}
         transition={{ 
           type: "spring", 
           stiffness: 400, 
@@ -177,8 +182,13 @@ export function SimpleSidebar() {
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
       >
         <div className="flex flex-col h-full pt-16 pb-2">
+          {/* Mobile tap indicator */}
+          <div className="lg:hidden flex justify-center py-2">
+            <div className="w-8 h-1 bg-zinc-600 rounded-full opacity-50"></div>
+          </div>
           {/* User Info */}
           <div className="px-3 py-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
@@ -301,90 +311,6 @@ export function SimpleSidebar() {
         </div>
       </motion.div>
 
-      {/* Mobile Navigation */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-[70] bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            {user?.avatarUrl ? (
-              <img 
-                src={user.avatarUrl} 
-                alt="Profile" 
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
-              </div>
-            )}
-            <div>
-              <p className="text-white font-semibold text-sm truncate">
-                {user?.displayName || user?.username || "User"}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-        
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-t border-zinc-800"
-            >
-              <div className="p-4 space-y-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.path);
-                  
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        if (item.path.startsWith('/dashboard#')) {
-                          const section = item.path.replace('/dashboard#', '');
-                          window.location.hash = section;
-                        } else {
-                          window.location.href = item.path;
-                        }
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        active
-                          ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
-                          : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 flex-shrink-0 ${
-                        active ? "text-orange-300" : "text-zinc-400"
-                      }`} />
-                      <div className="flex-1">
-                        <p className={`text-sm font-medium ${
-                          active ? "text-orange-300" : "text-white"
-                        }`}>
-                          {item.label}
-                        </p>
-                        <p className={`text-xs ${
-                          active ? "text-orange-300/60" : "text-zinc-400"
-                        }`}>
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </>
+          </>
   );
 }
