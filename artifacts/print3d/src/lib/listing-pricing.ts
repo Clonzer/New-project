@@ -29,23 +29,17 @@ export function buildListingPriceInsights(listings: Listing[]) {
 
     const delta = (listing.basePrice - average) / average;
 
-    if (delta <= -0.12) {
-      insights.set(listing.id, {
-        label: "Good deal",
-        detail: `${Math.round(Math.abs(delta) * 100)}% below similar ${listing.category.toLowerCase()} listings`,
-        tone: "good",
-      });
-      continue;
-    }
+    const insight: ListingPriceInsight = {
+      label: delta <= -0.12 ? "Good deal" : delta >= 0.18 ? "Premium price" : "Fair price",
+      detail: delta <= -0.12
+        ? `${Math.round(Math.abs(delta) * 100)}% below similar ${listing.category.toLowerCase()} listings`
+        : delta >= 0.18
+        ? `${Math.round(delta * 100)}% above similar ${listing.category.toLowerCase()} listings`
+        : "In line with similar listings on Synthix",
+      tone: delta <= -0.12 ? "good" : delta >= 0.18 ? "premium" : "fair",
+    };
 
-    if (delta >= 0.18) {
-      insights.set(listing.id, {
-        label: "Premium price",
-        detail: `${Math.round(delta * 100)}% above similar ${listing.category.toLowerCase()} listings`,
-        tone: "premium",
-      });
-      continue;
-    }
+    insights.set(listing.id, insight);
 
     insights.set(listing.id, {
       label: "Fair price",

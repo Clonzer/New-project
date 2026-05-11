@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { ReportButton } from "@/components/shared/ReportButton";
 import { useToast } from "@/hooks/use-toast";
 import { addToCart } from "@/lib/cart-storage";
-import type { ListingPriceInsight } from "@/lib/listing-pricing";
+import type { ListingPriceInsight, getDisplayPrice } from "@/lib/listing-pricing";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -43,6 +43,9 @@ export function ListingCard({
   const { formatPrice } = useLocalePreferences();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  
+  // Calculate display price with Stripe fees
+  const displayPrice = getDisplayPrice(listing, { hasStripeFee: true });
   const ship = listing.shippingCost ?? 0;
   const isOutOfStock = listing.trackStock && listing.stockQuantity === 0;
   const isLowStock = listing.trackStock && listing.stockQuantity && listing.stockQuantity <= 5 && listing.stockQuantity > 0;
@@ -148,8 +151,13 @@ export function ListingCard({
           <div className="text-right">
             <p className="text-xs text-zinc-300">from</p>
             <p className="font-display font-bold text-lg text-primary text-glow-primary">
-              {formatPrice(listing.basePrice || 0)}
+              {formatPrice(displayPrice.displayPrice || 0)}
             </p>
+            {displayPrice.stripeFee && displayPrice.stripeFee > 0 && (
+              <p className="text-xs text-zinc-400 mt-1">
+                +${formatPrice(displayPrice.stripeFee)} processing fee
+              </p>
+            )}
           </div>
         </div>
       </div>
