@@ -1,5 +1,5 @@
 -- Fix foreign key relationship between orders and users tables - Simplified Version
--- This migration fixes the buyer_id relationship that's causing API errors
+-- This migration fixes the buyer_id relationship with minimal SQL
 
 -- Drop existing foreign key constraints if they exist
 ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_buyer_id_fkey;
