@@ -30,83 +30,129 @@ export interface FavoriteWithDetails extends FavoriteItem {
 
 // Get all favorites for a user with details
 export async function getUserFavorites(userId: string): Promise<FavoriteWithDetails[]> {
-  const { data, error } = await supabase
+  // First get the basic favorites data
+  const { data: favorites, error: favoritesError } = await supabase
     .from('favorites')
-    .select(`
-      *,
-      shops:shop_id (
-        id,
-        shop_name,
-        description,
-        banner_url,
-        owner:users!shops_owner_id_fkey (
-          display_name
-        ),
-        reviews!shop_id (
-          rating
-        )
-      ),
-      listings:item_id (
-        id,
-        title,
-        description,
-        base_price,
-        images,
-        shop:shops!listings_shop_id_fkey (
-          shop_name
-        )
-      )
-    `)
+    .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching favorites:', error);
-    throw error;
+  if (favoritesError) {
+    console.error('Error fetching favorites:', favoritesError);
+    throw favoritesError;
   }
 
-  // Transform the data to a consistent format
-  return data?.map(favorite => {
-    if (favorite.item_type === 'shop' && favorite.shops) {
-      const shop = favorite.shops;
-      const avgRating = shop.reviews?.length > 0 
-        ? shop.reviews.reduce((sum, review) => sum + review.rating, 0) / shop.reviews.length 
-        : 0;
+  if (!favorites || favorites.length === 0) {
+    return [];
+  }
 
-      return {
-        ...favorite,
-        name: shop.shop_name,
-        description: shop.description,
-        image: shop.banner_url,
-        owner: shop.owner?.display_name,
-        rating: avgRating,
-        review_count: shop.reviews?.length || 0,
-        specialties: [] // Would need to be populated from shop data
-      };
-    } else if (favorite.item_type === 'product' && favorite.listings) {
-      const listing = favorite.listings;
-      return {
-        ...favorite,
-        name: listing.title,
-        description: listing.description,
-        image: listing.images?.[0],
-        price: listing.base_price,
-        shop: listing.shop?.shop_name
-      };
-    } else if (favorite.item_type === 'service' && favorite.listings) {
-      const listing = favorite.listings;
-      return {
-        ...favorite,
-        name: listing.title,
-        description: listing.description,
-        image: listing.images?.[0],
-        price: listing.base_price,
-        provider: listing.shop?.shop_name,
-        delivery_time: "2-3 days" // Would need to be populated from service data
-      };
+  // Transform the data to a consistent format by fetching details separately
+  const favoritesWithDetails: FavoriteWithDetails[] = [];
+
+  for (const favorite of favorites) {
+    try {
+      if (favorite.item_type === 'shop') {
+        // Fetch shop data from users table
+        const { data: shopData, error: shopError } = await supabase
+          .from('users')
+          .select(`
+            id,
+            display_name,
+            shop_name,
+            description,
+            banner_url,
+            avatar_url
+          `)
+          .eq('id', favorite.item_id)
+          .single();
+
+        if (shopError) {
+          console.error('Error fetching shop details:', shopError);
+          continue;
+        }
+
+        // Fetch reviews for this shop
+        const { data: reviews, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('rating')
+          .eq('shop_id', favorite.item_id);
+
+        const avgRating = reviews && reviews.length > 0 
+          ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+          : 0;
+
+        favoritesWithDetails.push({
+          ...favorite,
+          name: shopData.shop_name || shopData.display_name,
+          description: shopData.description || '',
+          image: shopData.banner_url || shopData.avatar_url,
+          owner: shopData.display_name,
+          rating: avgRating,
+          review_count: reviews?.length || 0,
+          specialties: [] // Would need to be populated from shop data
+        });
+
+      } else if (favorite.item_type === 'product' || favorite.item_type === 'service') {
+        // Fetch listing data
+        const { data: listingData, error: listingError } = await supabase
+          .from('listings')
+          .select(`
+            id,
+            title,
+            description,
+            price,
+            images,
+            seller_id,
+            listing_type
+          `)
+          .eq('id', favorite.item_id)
+          .single();
+
+        if (listingError) {
+          console.error('Error fetching listing details:', listingError);
+          continue;
+        }
+
+        // Fetch seller info
+        const { data: sellerData, error: sellerError } = await supabase
+          .from('users')
+          .select('shop_name, display_name')
+          .eq('id', listingData.seller_id)
+          .single();
+
+        if (sellerError) {
+          console.error('Error fetching seller details:', sellerError);
+          continue;
+        }
+
+        const baseItem = {
+          ...favorite,
+          name: listingData.title,
+          description: listingData.description,
+          image: listingData.images?.[0],
+          price: listingData.price,
+        };
+
+        if (favorite.item_type === 'product') {
+          favoritesWithDetails.push({
+            ...baseItem,
+            shop: sellerData.shop_name || sellerData.display_name
+          });
+        } else {
+          favoritesWithDetails.push({
+            ...baseItem,
+            provider: sellerData.shop_name || sellerData.display_name,
+            delivery_time: "2-3 days" // Would need to be populated from service data
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error processing favorite item:', favorite, error);
+      continue;
     }
-    return favorite;
-  }) || [];
+  }
+
+  return favoritesWithDetails;
 }
 
 // Add an item to favorites
