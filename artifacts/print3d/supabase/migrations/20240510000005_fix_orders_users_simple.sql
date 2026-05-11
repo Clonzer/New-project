@@ -75,6 +75,18 @@ BEGIN
         AND column_name = 'buyer_id'
         AND data_type = 'uuid'
     ) THEN
+        -- Drop existing constraint if it exists
+        IF EXISTS (
+            SELECT 1 FROM information_schema.table_constraints 
+            WHERE table_name = 'orders' 
+            AND constraint_name = 'orders_buyer_id_fkey'
+            AND constraint_type = 'FOREIGN KEY'
+        ) THEN
+            ALTER TABLE orders DROP CONSTRAINT orders_buyer_id_fkey;
+            RAISE NOTICE 'Dropped existing buyer_id foreign key constraint';
+        END IF;
+        
+        -- Create new constraint
         ALTER TABLE orders ADD CONSTRAINT orders_buyer_id_fkey 
             FOREIGN KEY (buyer_id) REFERENCES auth.users(id) ON DELETE SET NULL;
         RAISE NOTICE 'Created buyer_id foreign key to auth.users';
