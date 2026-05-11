@@ -85,18 +85,7 @@ export default function Shop() {
         setLoadingSeller(true);
         const { data, error } = await supabase
           .from('users')
-          .select(`
-            id,
-            display_name,
-            shop_name,
-            bio,
-            location,
-            avatar_url,
-            banner_url,
-            accepting_orders,
-            shop_mode,
-            created_at
-          `)
+          .select('id,display_name,shop_name,bio,location,avatar_url,banner_url,accepting_orders,shop_mode,created_at')
           .eq('id', shopId)
           .single();
         if (data && !error) {
