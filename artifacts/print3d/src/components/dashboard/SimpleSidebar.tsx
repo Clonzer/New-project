@@ -97,16 +97,21 @@ export function SimpleSidebar() {
   const [location] = useLocation();
   const { user, refreshUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [acceptingOrders, setAcceptingOrders] = useState(user?.acceptingOrders ?? true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleMouseEnter = () => {
-    setIsExpanded(true);
+    // Don't interfere with touch state on mobile
+    if (window.innerWidth >= 1024) {
+      setIsExpanded(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    setIsExpanded(false);
+    // Don't interfere with touch state on mobile
+    if (window.innerWidth >= 1024) {
+      setIsExpanded(false);
+    }
   };
 
   const handleTouchStart = () => {
@@ -172,7 +177,7 @@ export function SimpleSidebar() {
       <motion.div 
         className="fixed left-0 top-0 z-[50] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 h-screen overflow-hidden group"
         initial={{ width: "60px" }}
-        whileHover={{ width: isExpanded ? "60px" : "260px" }}
+        whileHover={{ width: "260px" }}
         animate={{ width: isExpanded ? "260px" : "60px" }}
         transition={{ 
           type: "spring", 
@@ -186,8 +191,8 @@ export function SimpleSidebar() {
       >
         <div className="flex flex-col h-full pt-16 pb-2">
           {/* Mobile tap indicator */}
-          <div className="lg:hidden flex justify-center py-2">
-            <div className="w-8 h-1 bg-zinc-600 rounded-full opacity-50"></div>
+          <div className={`lg:hidden flex justify-center py-2 transition-opacity ${isExpanded ? 'opacity-0' : 'opacity-50'}`}>
+            <div className="w-8 h-1 bg-zinc-600 rounded-full"></div>
           </div>
           {/* User Info */}
           <div className="px-3 py-3 border-b border-zinc-800">
