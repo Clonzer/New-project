@@ -86,8 +86,11 @@ BEGIN
     END IF;
 END $$;
 
+-- Drop existing shipping_labels policy if it exists
+DROP POLICY IF EXISTS "Sellers can view their shipping labels" ON shipping_labels;
+
 -- Recreate shipping_labels policy that depends on seller_id
-CREATE POLICY IF NOT EXISTS "Sellers can view their shipping labels" ON shipping_labels
+CREATE POLICY "Sellers can view their shipping labels" ON shipping_labels
     FOR SELECT USING auth.uid() = sellers.user_id;
 
 -- Create indexes for performance
