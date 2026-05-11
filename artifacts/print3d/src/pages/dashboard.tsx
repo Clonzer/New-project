@@ -301,11 +301,6 @@ export default function DashboardWithSidebar() {
                 <Crown className="w-4 h-4 mr-2" />
                 Buy Sponsorship
               </Button>
-              <Link href="/pricing#sponsorships">
-                <Button variant="outline" size="sm" className="border-zinc-600 text-zinc-400 hover:text-white hover:bg-zinc-800">
-                  Learn More
-                </Button>
-              </Link>
             </div>
           </div>
         </CardContent>

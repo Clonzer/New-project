@@ -532,8 +532,8 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
           serviceType: listing.service_type,
           sellerId: listing.seller_id,
           sellerName: listing.sellers?.store_name || 'Unknown Seller',
-          isActive: listing.is_active,
-          views: listing.views,
+          isActive: listing.is_active !== false,
+          views: listing.views || 0,
           createdAt: listing.created_at,
           updatedAt: listing.updated_at,
         }));
