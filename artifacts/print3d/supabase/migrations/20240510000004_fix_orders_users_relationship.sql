@@ -92,7 +92,7 @@ DROP POLICY IF EXISTS "Sellers can view their shipping labels" ON shipping_label
 -- Recreate shipping_labels policy that depends on seller_id
 CREATE POLICY "Sellers can view their shipping labels" ON shipping_labels
     FOR SELECT 
-        auth.uid() = sellers.user_id 
+        (auth.uid()) = sellers.user_id 
     FROM sellers;
 
 -- Create indexes for performance
