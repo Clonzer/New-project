@@ -678,6 +678,21 @@ export default function DashboardWithSidebar() {
     </div>
   );
 
+  const handleAddEquipment = () => {
+    console.log('Add equipment clicked');
+    // TODO: Implement add equipment functionality
+  };
+
+  const handleEditEquipment = (equipmentId: string) => {
+    console.log('Edit equipment:', equipmentId);
+    // TODO: Implement edit equipment functionality
+  };
+
+  const handleDeleteEquipment = (equipmentId: string) => {
+    console.log('Delete equipment:', equipmentId);
+    // TODO: Implement delete equipment functionality
+  };
+
   const renderEquipment = () => (
     <div className="space-y-6">
       <div>
@@ -813,11 +828,11 @@ export default function DashboardWithSidebar() {
                   </div>
 
                   <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditEquipment(printer.id)}>
                       <Settings className="w-4 h-4 mr-1" />
                       Configure
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => console.log('View equipment details:', printer.id)}>
                       <Eye className="w-4 h-4 mr-1" />
                       Details
                     </Button>
