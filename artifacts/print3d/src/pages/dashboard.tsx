@@ -72,31 +72,9 @@ export default function DashboardWithSidebar() {
     ));
   };
 
-  // Handle sponsorship purchase
-  const handleSponsorshipPurchase = async () => {
-    try {
-      const { data, error } = await createSponsorshipCheckoutSession();
-      
-      if (error) {
-        toast({
-          title: "Sponsorship Error",
-          description: "Unable to start sponsorship purchase. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Sponsorship purchase error:", error);
-      toast({
-        title: "Purchase Error",
-        description: "Failed to process sponsorship purchase.",
-        variant: "destructive"
-      });
-    }
+  // Handle sponsorship purchase - navigate to sponsorship purchase page
+  const handleSponsorshipPurchase = () => {
+    window.location.href = '/sponsorship/purchase';
   };
   
   // Calculate completion progress
