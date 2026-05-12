@@ -1005,7 +1005,7 @@ export function VendorDashboard() {
                       <li>Priority support</li>
                       <li>Advanced analytics</li>
                     </ul>
-                    <NeonButton glowColor="purple" className="w-full mt-auto">Select Gold</NeonButton>
+                    <NeonButton glowColor="orange" className="w-full mt-auto">Select Gold</NeonButton>
                   </div>
                   <div className="border border-zinc-800 rounded-xl p-6 flex flex-col items-center text-center">
                     <h3 className="text-xl font-semibold text-white mb-2">Silver</h3>
