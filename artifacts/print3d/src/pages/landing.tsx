@@ -93,8 +93,8 @@ export default function Landing() {
       title: listing.title,
       subtitle: `$${listing.price || listing.basePrice}`,
       image: listing.images?.[0] || listing.imageUrl,
-      rating: listing.rating || "4.8",
-      views: listing.views?.toString() || "0",
+      rating: listing.rating || null,
+      views: listing.views?.toString() || null,
       sellerName: listing.sellerName,
       tags: listing.tags || [],
       link: `/listings/${listing.id}`
@@ -106,8 +106,8 @@ export default function Landing() {
       type: "maker",
       title: user.displayName || user.name || `Maker ${index + 1}`,
       subtitle: user.role || "Professional Seller",
-      rating: user.rating || "4.9",
-      views: user.orders?.toString() || "0",
+      rating: user.rating || null,
+      views: user.orders?.toString() || null,
       image: user.avatarUrl,
       banner: user.bannerUrl,
       tags: user.tags || [],
@@ -298,31 +298,14 @@ export default function Landing() {
                               <Tag className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">$50 - $100</span>
                             </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
                                 minPrice === "100" && !maxPrice ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
-                              onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}
-                            >
-                              <Tag className="w-3 h-3 flex-shrink-0" />
+                              onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}>
+                              <DollarSign className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">$100+</span>
                             </div>
                           </div>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Main Filters */}
-                    <div className="flex flex-col gap-2">
-                      <div className="relative group/item">
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                            filterType === "all" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("all")}
-                        >
-                          <div className="relative">
                             <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
                             {isSidebarExpanded && (
                               <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
@@ -579,22 +562,6 @@ export default function Landing() {
                                         className="w-full h-full object-cover"
                                       />
                                     </div>
-                                  ) : (
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/25">
-                                      {item.title?.charAt(0) || "S"}
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="text-white font-bold text-sm truncate">{item.title}</h4>
-                                    <p className="text-zinc-300 text-xs truncate">{item.subtitle}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            // Product card
-                            <>
-                              {item.image ? (
                                 <img 
                                   src={item.image} 
                                   alt={item.title}
@@ -633,14 +600,18 @@ export default function Landing() {
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                <span className="text-white text-xs font-medium">{item.rating}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Eye className="w-3 h-3 text-zinc-400" />
-                                <span className="text-zinc-400 text-xs">{item.views}</span>
-                              </div>
+                              {item.rating && (
+                                <div className="flex items-center gap-2">
+                                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                  <span className="text-white text-xs font-medium">{item.rating}</span>
+                                </div>
+                              )}
+                              {item.views && (
+                                <div className="flex items-center gap-1">
+                                  <Eye className="w-3 h-3 text-zinc-400" />
+                                  <span className="text-zinc-400 text-xs">{item.views}</span>
+                                </div>
+                              )}
                               <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
                             </div>
                           </div>
