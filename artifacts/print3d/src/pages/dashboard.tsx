@@ -18,7 +18,7 @@ import {
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
   BarChart3, Calendar, Filter, Search, Image, FileText,
   CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight,
-  MessageSquare, ShoppingCart, Crown, Zap, Rocket
+  MessageSquare, ShoppingCart, Crown, Zap, Rocket, Trash
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -745,18 +745,20 @@ export default function DashboardWithSidebar() {
   );
 
   const handleAddEquipment = () => {
-    console.log('Add equipment clicked');
-    // TODO: Implement add equipment functionality
+    window.location.href = '/equipment';
   };
 
   const handleEditEquipment = (equipmentId: string) => {
-    console.log('Edit equipment:', equipmentId);
-    // TODO: Implement edit equipment functionality
+    window.location.href = `/equipment/${equipmentId}`;
   };
 
   const handleDeleteEquipment = (equipmentId: string) => {
-    console.log('Delete equipment:', equipmentId);
-    // TODO: Implement delete equipment functionality
+    if (window.confirm('Are you sure you want to delete this equipment? This action cannot be undone.')) {
+      // TODO: Add actual delete API call
+      console.log('Delete equipment:', equipmentId);
+      // For now, just remove from UI - implement API call later
+      window.location.reload();
+    }
   };
 
   const renderEquipment = () => (
@@ -898,9 +900,13 @@ export default function DashboardWithSidebar() {
                       <Settings className="w-4 h-4 mr-1" />
                       Configure
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => console.log('View equipment details:', printer.id)}>
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = `/equipment/${printer.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
                       Details
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDeleteEquipment(printer.id)}>
+                      <Trash className="w-4 h-4 mr-1" />
+                      Delete
                     </Button>
                   </div>
                 </div>
