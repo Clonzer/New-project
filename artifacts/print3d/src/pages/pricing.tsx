@@ -198,7 +198,7 @@ export default function Pricing() {
       return;
     }
     const seatParam = planId === "enterprise" && seats ? `&seats=${seats}` : "";
-    window.location.href = `/api/payments/stripe/checkout?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}${seatParam}&successPath=/dashboard?checkout=success&plan=${planId}`;
+    window.location.href = `/api/payments/checkout-session?plan=${planId}&billing=${yearly ? "yearly" : "monthly"}${seatParam}&successPath=/dashboard?checkout=success&plan=${planId}`;
   };
 
   const startProfileSponsorship = async () => {
