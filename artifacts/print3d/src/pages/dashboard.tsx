@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import {
-  useListOrders, useListListings, useListPrinters, useListReviews,
+  useListOrders, useListListings, useListPrinters, useListReviews, useUpdateUser,
 } from "@/lib/workspace-stub";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,16 +12,37 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "wouter";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
+import { Input } from "@/components/ui/input";
+import { NeonButton } from "@/components/ui/neon-button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { authChangePassword, authConfirmEmailVerification, authRequestEmailVerification } from "@/lib/auth-api";
+import { EmailVerificationForm } from "@/components/auth/EmailVerificationForm";
+import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
+import { Switch } from "@/components/ui/switch";
 import {
   Package, Plus, Printer as PrinterIcon, Settings, TrendingUp,
   Clock, CheckCircle2, Truck, XCircle, AlertCircle, Eye,
   DollarSign, Users, Star, Heart, ArrowUpRight, ArrowDownRight,
   BarChart3, Calendar, Filter, Search, Image, FileText,
   CreditCard as PaymentIcon, Shield, Store as StoreIcon, User, ChevronRight,
-  MessageSquare, ShoppingCart, Crown, Zap, Rocket, Trash
+  MessageSquare, ShoppingCart, Crown, Zap, Rocket, Trash, Bell, ChevronRight as ChevronRightIcon,
+  CreditCard as CreditCardIcon, Eye as EyeIcon, FileText as FileTextIcon, MessageSquareText, Shield as ShieldIcon,
+  User as UserIcon, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle as CheckCircleIcon,
+  AlertCircle as AlertCircleIcon, Camera, Upload, X, Wallet, TrendingUp as TrendingUpIcon, Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import {
+  COUNTRY_OPTIONS,
+  CURRENCY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  countryCodeToFlag,
+  persistLocalePreferences,
+  useLocalePreferences,
+} from "@/lib/locale-preferences";
+import { getPaymentConfig } from "@/lib/payments-api";
+import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
+import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { SimpleSidebar } from "@/components/dashboard/SimpleSidebar";
 import { RevenueTrendChart } from "@/components/analytics/RevenueTrendChart";
 import { OrderStatusChart } from "@/components/analytics/OrderStatusChart";
@@ -51,10 +72,75 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function DashboardWithSidebar() {
-  const { user } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const { toast } = useToast();
+  const updateUser = useUpdateUser();
   const [activeSection, setActiveSection] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Settings state
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
+  const [paymentEnabled, setPaymentEnabled] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isRequestingVerification, setIsRequestingVerification] = useState(false);
+  const [isConfirmingVerification, setIsConfirmingVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [customTagDraft, setCustomTagDraft] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [notificationPreferences, setNotificationPreferences] = useState({
+    newOrders: true,
+    customRequests: true,
+    messages: true,
+    reviews: true,
+    promotions: false,
+    accountUpdates: true,
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [form, setForm] = useState({
+    displayName: user?.displayName ?? "",
+    bio: user?.bio ?? "",
+    location: user?.location ?? "",
+    avatarUrl: user?.avatarUrl ?? "",
+    countryCode: user?.countryCode ?? "GB",
+    languageCode: user?.languageCode ?? "en-GB",
+    currencyCode: user?.currencyCode ?? "GBP",
+    sellerTags: user?.sellerTags ?? [],
+    shopName: user?.shopName ?? "",
+    bannerUrl: user?.bannerUrl ?? "",
+    shopAnnouncement: user?.shopAnnouncement ?? "",
+    brandStory: user?.brandStory ?? "",
+    websiteUrl: user?.websiteUrl ?? "",
+    instagramHandle: user?.instagramHandle ?? "",
+    supportEmail: user?.supportEmail ?? "",
+    tiktokHandle: user?.tiktokHandle ?? "",
+    xHandle: user?.xHandle ?? "",
+    shopMode: user?.shopMode ?? "open",
+    defaultShippingCost: user?.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
+    shippingRegions: user?.shippingRegions ?? "",
+    sellingRegions: user?.sellingRegions ?? [],
+    shippingPolicy: user?.shippingPolicy ?? "",
+    domesticShippingCost: user?.domesticShippingCost != null ? String(user.domesticShippingCost) : "",
+    europeShippingCost: user?.europeShippingCost != null ? String(user.europeShippingCost) : "",
+    northAmericaShippingCost: user?.northAmericaShippingCost != null ? String(user.northAmericaShippingCost) : "",
+    internationalShippingCost: user?.internationalShippingCost != null ? String(user.internationalShippingCost) : "",
+    freeShippingThreshold: user?.freeShippingThreshold != null ? String(user.freeShippingThreshold) : "",
+    localPickupEnabled: !!user?.localPickupEnabled,
+    taxRate: user?.taxRate != null ? String(user.taxRate) : "",
+    processingDaysMin: user?.processingDaysMin != null ? String(user.processingDaysMin) : "1",
+    processingDaysMax: user?.processingDaysMax != null ? String(user.processingDaysMax) : "7",
+    returnPolicy: user?.returnPolicy ?? "",
+    customOrderPolicy: user?.customOrderPolicy ?? "",
+    // Color customization
+    primaryColor: user?.primaryColor ?? "#8b5cf6",
+    accentColor: user?.accentColor ?? "#06b6d4",
+    backgroundColor: user?.backgroundColor ?? "#09090b",
+    textColor: user?.textColor ?? "#ffffff",
+  });
   
   // Store setup guide state
   const [setupTasks, setSetupTasks] = useState([
@@ -157,7 +243,7 @@ export default function DashboardWithSidebar() {
       const hash = window.location.hash;
       if (typeof hash === 'string') {
         const hashValue = hash.slice(1);
-        if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews'].includes(hashValue)) {
+        if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews', 'settings'].includes(hashValue)) {
           setActiveSection(hashValue);
         } else if (!hashValue) {
           setActiveSection('overview');
@@ -175,6 +261,206 @@ export default function DashboardWithSidebar() {
       window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
+
+  // Settings useEffect hooks
+  useEffect(() => {
+    if (!user) return;
+    setForm({
+      displayName: user.displayName ?? "",
+      bio: user.bio ?? "",
+      location: user.location ?? "",
+      avatarUrl: user.avatarUrl ?? "",
+      countryCode: user.countryCode ?? "GB",
+      languageCode: user.languageCode ?? "en-GB",
+      currencyCode: user.currencyCode ?? "GBP",
+      sellerTags: user.sellerTags ?? [],
+      shopName: user.shopName ?? "",
+      bannerUrl: user.bannerUrl ?? "",
+      shopAnnouncement: user.shopAnnouncement ?? "",
+      brandStory: user.brandStory ?? "",
+      websiteUrl: user.websiteUrl ?? "",
+      instagramHandle: user.instagramHandle ?? "",
+      supportEmail: user.supportEmail ?? "",
+      tiktokHandle: (user as any).tiktokHandle ?? "",
+      xHandle: (user as any).xHandle ?? "",
+      shopMode: user.shopMode ?? "open",
+      defaultShippingCost: user.defaultShippingCost != null ? String(user.defaultShippingCost) : "",
+      shippingRegions: user.shippingRegions ?? "",
+      sellingRegions: user.sellingRegions ?? [],
+      shippingPolicy: user.shippingPolicy ?? "",
+      domesticShippingCost: user.domesticShippingCost != null ? String(user.domesticShippingCost) : "",
+      europeShippingCost: user.europeShippingCost != null ? String(user.europeShippingCost) : "",
+      northAmericaShippingCost: user.northAmericaShippingCost != null ? String(user.northAmericaShippingCost) : "",
+      internationalShippingCost: user.internationalShippingCost != null ? String(user.internationalShippingCost) : "",
+      freeShippingThreshold: user.freeShippingThreshold != null ? String(user.freeShippingThreshold) : "",
+      localPickupEnabled: !!user.localPickupEnabled,
+      taxRate: user.taxRate != null ? String(user.taxRate) : "",
+      processingDaysMin: user.processingDaysMin != null ? String(user.processingDaysMin) : "1",
+      processingDaysMax: user.processingDaysMax != null ? String(user.processingDaysMax) : "7",
+      returnPolicy: user.returnPolicy ?? "",
+      customOrderPolicy: user.customOrderPolicy ?? "",
+      // Color customization
+      primaryColor: (user as any).primaryColor ?? "#8b5cf6",
+      accentColor: (user as any).accentColor ?? "#06b6d4",
+      backgroundColor: (user as any).backgroundColor ?? "#09090b",
+      textColor: (user as any).textColor ?? "#ffffff",
+    });
+  }, [user]);
+
+  useEffect(() => {
+    getPaymentConfig()
+      .then((result) => setPaymentEnabled(result.checkoutEnabled))
+      .catch(() => setPaymentEnabled(false));
+  }, []);
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
+
+  // Settings handler functions
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      const shipping = form.defaultShippingCost.trim() === "" ? null : parseFloat(form.defaultShippingCost);
+      const domesticShippingCost = form.domesticShippingCost.trim() === "" ? null : parseFloat(form.domesticShippingCost);
+      const europeShippingCost = form.europeShippingCost.trim() === "" ? null : parseFloat(form.europeShippingCost);
+      const northAmericaShippingCost = form.northAmericaShippingCost.trim() === "" ? null : parseFloat(form.northAmericaShippingCost);
+      const internationalShippingCost = form.internationalShippingCost.trim() === "" ? null : parseFloat(form.internationalShippingCost);
+      const freeShippingThreshold = form.freeShippingThreshold.trim() === "" ? null : parseFloat(form.freeShippingThreshold);
+      const taxRate = form.taxRate.trim() === "" ? null : parseFloat(form.taxRate);
+      const processingDaysMin = form.processingDaysMin.trim() === "" ? null : parseInt(form.processingDaysMin, 10);
+      const processingDaysMax = form.processingDaysMax.trim() === "" ? null : parseInt(form.processingDaysMax, 10);
+      await updateUser.mutateAsync({
+        userId: user.id,
+        data: {
+          displayName: form.displayName.trim(),
+          bio: form.bio.trim() || null,
+          location: form.location.trim() || null,
+          avatarUrl: form.avatarUrl.trim() || null,
+          countryCode: form.countryCode.trim() || null,
+          languageCode: form.languageCode.trim() || null,
+          currencyCode: form.currencyCode.trim() || null,
+          sellerTags: form.sellerTags,
+          shopName: form.shopName.trim() || null,
+          bannerUrl: form.bannerUrl.trim() || null,
+          shopAnnouncement: form.shopAnnouncement.trim() || null,
+          brandStory: form.brandStory.trim() || null,
+          websiteUrl: form.websiteUrl.trim() || null,
+          instagramHandle: form.instagramHandle.trim() || null,
+          supportEmail: form.supportEmail.trim() || null,
+          tiktokHandle: form.tiktokHandle.trim() || null,
+          xHandle: form.xHandle.trim() || null,
+          shopMode: form.shopMode,
+          defaultShippingCost: shipping != null && Number.isFinite(shipping) ? shipping : null,
+          shippingRegions: form.shippingRegions.trim() || null,
+          sellingRegions: form.sellingRegions,
+          shippingPolicy: form.shippingPolicy.trim() || null,
+          domesticShippingCost: domesticShippingCost != null && Number.isFinite(domesticShippingCost) ? domesticShippingCost : null,
+          europeShippingCost: europeShippingCost != null && Number.isFinite(europeShippingCost) ? europeShippingCost : null,
+          northAmericaShippingCost: northAmericaShippingCost != null && Number.isFinite(northAmericaShippingCost) ? northAmericaShippingCost : null,
+          internationalShippingCost: internationalShippingCost != null && Number.isFinite(internationalShippingCost) ? internationalShippingCost : null,
+          freeShippingThreshold: freeShippingThreshold != null && Number.isFinite(freeShippingThreshold) ? freeShippingThreshold : null,
+          localPickupEnabled: form.localPickupEnabled,
+          taxRate: taxRate != null && Number.isFinite(taxRate) ? taxRate : null,
+          processingDaysMin: processingDaysMin != null && Number.isFinite(processingDaysMin) ? processingDaysMin : null,
+          processingDaysMax: processingDaysMax != null && Number.isFinite(processingDaysMax) ? processingDaysMax : null,
+          returnPolicy: form.returnPolicy.trim() || null,
+          customOrderPolicy: form.customOrderPolicy.trim() || null,
+          // Color customization
+          primaryColor: form.primaryColor,
+          accentColor: form.accentColor,
+          backgroundColor: form.backgroundColor,
+          textColor: form.textColor,
+        },
+      });
+      persistLocalePreferences({
+        countryCode: form.countryCode,
+        languageCode: form.languageCode,
+        currencyCode: form.currencyCode,
+      });
+      await refreshUser();
+      toast({ title: "Settings saved", description: "Your account details were updated." });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: getApiErrorMessageWithSupport(error, "saving your settings"),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updatePassword = async () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: "Passwords do not match",
+        description: "Enter the same new password twice.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      setIsUpdatingPassword(true);
+      await authChangePassword(passwordForm.currentPassword, passwordForm.newPassword);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      toast({ title: "Password updated", description: "Use the new password next time you sign in." });
+    } catch (error) {
+      toast({
+        title: "Password update failed",
+        description: getApiErrorMessageWithSupport(error, "updating your password"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const sendVerificationCode = async () => {
+    try {
+      setIsRequestingVerification(true);
+      const result = await authRequestEmailVerification();
+      toast({
+        title: result.alreadyVerified ? "Email already verified" : "Verification code sent",
+        description: result.alreadyVerified
+          ? "This account is already verified."
+          : `A 6-digit code was sent to ${result.email ?? "your email address"}.`,
+      });
+      if (!result.alreadyVerified) {
+        setResendCountdown(60); // Start 60 second countdown
+      }
+      await refreshUser();
+    } catch (error) {
+      toast({
+        title: "Could not send verification code",
+        description: getApiErrorMessageWithSupport(error, "sending email verification"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsRequestingVerification(false);
+    }
+  };
+
+  const confirmVerificationCode = async () => {
+    try {
+      setIsConfirmingVerification(true);
+      await authConfirmEmailVerification(verificationCode.trim());
+      setVerificationCode("");
+      await refreshUser();
+      toast({ title: "Email verified", description: "Seller features are now fully enabled for this account." });
+    } catch (error) {
+      toast({
+        title: "Verification failed",
+        description: getApiErrorMessageWithSupport(error, "verifying your email"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsConfirmingVerification(false);
+    }
+  };
 
   const renderOverview = () => (
     <div className="space-y-8">
@@ -1500,6 +1786,194 @@ export default function DashboardWithSidebar() {
     </div>
   );
 
+  const renderSettings = () => {
+    const isSeller = user?.role === "seller" || user?.role === "both";
+    const isVerified = !!user?.emailVerifiedAt;
+    const planTier = user?.planTier ?? "starter";
+    const { fxSource, fxUpdatedAt } = useLocalePreferences();
+
+    return (
+      <div className="space-y-8">
+        {/* Settings Header */}
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Settings</h2>
+          <p className="text-zinc-400">Manage your account, preferences, and shop settings</p>
+        </div>
+
+        {/* Profile Section */}
+        <div className="glass-panel rounded-2xl border border-white/10 p-8 backdrop-blur-xl">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-3">
+              <User className="w-6 h-6 text-primary" />
+              Profile Information
+            </h3>
+            <p className="text-zinc-400">Manage your personal information and public profile</p>
+          </div>
+
+          {/* Avatar Section */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20 mt-6">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent p-[3px]">
+                  <div className="w-full h-full rounded-full bg-zinc-900 overflow-hidden">
+                    {form.avatarUrl ? (
+                      <img src={form.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
+                        {user?.displayName?.charAt(0) ?? "?"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <label className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/80 transition-colors border-2 border-zinc-900">
+                  <Camera className="w-4 h-4 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 6 * 1024 * 1024) {
+                        toast({ title: "Image too large", description: "Use an image under 6MB.", variant: "destructive" });
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setForm((current) => ({
+                          ...current,
+                          avatarUrl: typeof reader.result === "string" ? reader.result : current.avatarUrl,
+                        }));
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-white font-semibold mb-1">Profile Picture</h4>
+                <p className="text-zinc-400 text-sm mb-3">Click the camera icon to upload a new avatar</p>
+                <div className="flex gap-2">
+                  <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+                    <Upload className="w-3 h-3 mr-1" />
+                    Drag & Drop Supported
+                  </Badge>
+                  <Badge variant="outline" className="border-white/20">
+                    Max 6MB
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Basic Info */}
+          <div className="grid gap-4 lg:grid-cols-3 mt-6">
+            <div>
+              <label className="block text-sm text-zinc-400 mb-1.5">Country</label>
+              <Select
+                value={form.countryCode}
+                onValueChange={(value) => {
+                  const nextCountry = COUNTRY_OPTIONS.find((option) => option.code === value);
+                  setForm((current) => ({
+                    ...current,
+                    countryCode: value,
+                    currencyCode: nextCountry?.defaultCurrency ?? current.currencyCode,
+                    languageCode: nextCountry?.defaultLanguage ?? current.languageCode,
+                  }));
+                }}
+              >
+                <SelectTrigger className="w-full bg-black/60 border-white/10 text-white">
+                  <SelectValue>
+                    {countryCodeToFlag(form.countryCode)} {COUNTRY_OPTIONS.find(o => o.code === form.countryCode)?.label}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRY_OPTIONS.map((option) => (
+                    <SelectItem key={option.code} value={option.code}>
+                      {countryCodeToFlag(option.code)} {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm text-zinc-400 mb-1.5">Language</label>
+              <select
+                value={form.languageCode}
+                onChange={(event) => setForm((current) => ({ ...current, languageCode: event.target.value }))}
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-zinc-400 mb-1.5">Currency</label>
+              <select
+                value={form.currencyCode}
+                onChange={(event) => setForm((current) => ({ ...current, currencyCode: event.target.value }))}
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                {CURRENCY_OPTIONS.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.code} - {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2 mt-4">
+            <div>
+              <label className="block text-sm text-zinc-400 mb-1.5">Display Name</label>
+              <Input
+                value={form.displayName}
+                onChange={(event) => setForm((current) => ({ ...current, displayName: event.target.value }))}
+                placeholder="Your name"
+                className="bg-black/30 border-white/10 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-zinc-400 mb-1.5">Location</label>
+              <Input
+                value={form.location}
+                onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
+                placeholder="City, Country"
+                className="bg-black/30 border-white/10 text-white"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm text-zinc-400 mb-1.5">Bio</label>
+            <textarea
+              value={form.bio}
+              onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
+              placeholder="Tell the community about yourself..."
+              rows={4}
+              className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2 mt-6">
+            <Button 
+              onClick={() => setShowProfilePreview(true)}
+              className="px-6 py-2 rounded-xl border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" /> Preview Profile
+            </Button>
+            <NeonButton glowColor="primary" onClick={handleSave} disabled={updateUser.isPending}>
+              {updateUser.isPending ? "Saving..." : "Save Changes"}
+            </NeonButton>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
@@ -1514,6 +1988,8 @@ export default function DashboardWithSidebar() {
         return renderAnalytics();
       case 'reviews':
         return renderReviews();
+      case 'settings':
+        return renderSettings();
       default:
         return renderOverview();
     }
@@ -1536,6 +2012,13 @@ export default function DashboardWithSidebar() {
             {renderContent()}
           </motion.div>
         </div>
+
+        {/* Profile Preview Modal */}
+        <ProfilePreviewModal
+          isOpen={showProfilePreview}
+          onOpenChange={setShowProfilePreview}
+          user={form}
+        />
       </div>
     </TooltipProvider>
   );

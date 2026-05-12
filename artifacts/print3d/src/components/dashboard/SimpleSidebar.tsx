@@ -89,7 +89,7 @@ const navItems: NavItem[] = [
     label: "Account Settings",
     icon: Settings,
     description: "Manage your profile and shop preferences",
-    path: "/settings"
+    path: "/dashboard#settings"
   }
 ];
 
