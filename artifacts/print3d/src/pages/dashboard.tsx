@@ -1790,7 +1790,6 @@ export default function DashboardWithSidebar() {
     const isSeller = user?.role === "seller" || user?.role === "both";
     const isVerified = !!user?.emailVerifiedAt;
     const planTier = user?.planTier ?? "starter";
-    const { fxSource, fxUpdatedAt } = useLocalePreferences();
 
     return (
       <div className="space-y-8">
