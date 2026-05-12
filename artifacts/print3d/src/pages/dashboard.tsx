@@ -1970,6 +1970,44 @@ export default function DashboardWithSidebar() {
             </NeonButton>
           </div>
         </div>
+
+        {/* Policies Section */}
+        <div className="glass-panel rounded-2xl border border-white/10 p-8 backdrop-blur-xl">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-3">
+              <FileText className="w-6 h-6 text-primary" />
+              Policies
+            </h3>
+            <p className="text-zinc-400">Review our terms, privacy, and cookie policies</p>
+          </div>
+
+          <div className="space-y-4 mt-6">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <h4 className="text-lg font-semibold text-white mb-2">Terms of Service</h4>
+              <p className="text-sm text-zinc-300 mb-3">Read our terms of service to understand your rights and responsibilities when using Synthix.</p>
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                <FileText className="w-4 h-4 mr-2" />
+                View Terms of Service
+              </Button>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <h4 className="text-lg font-semibold text-white mb-2">Privacy Policy</h4>
+              <p className="text-sm text-zinc-300 mb-3">Learn how we collect, use, and protect your personal information.</p>
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                <FileText className="w-4 h-4 mr-2" />
+                View Privacy Policy
+              </Button>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <h4 className="text-lg font-semibold text-white mb-2">Cookie Policy</h4>
+              <p className="text-sm text-zinc-300 mb-3">Understand how we use cookies and similar technologies to enhance your experience.</p>
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                <FileText className="w-4 h-4 mr-2" />
+                View Cookie Policy
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
