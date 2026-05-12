@@ -287,10 +287,10 @@ export function SimpleSidebar() {
                       }`} />
                     </div>
                     <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
-                      <p className="text-sm font-semibold text-white truncate mb-1">
+                      <p className="text-sm font-semibold text-white truncate">
                         {item.label}
                       </p>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-zinc-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity delay-100">
                         {item.description}
                       </p>
                     </div>
@@ -313,8 +313,8 @@ export function SimpleSidebar() {
                 <HelpCircle className="w-4 h-4 text-zinc-400" />
               </div>
               <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
-                <p className="text-sm font-semibold text-white mb-1">Help & Support</p>
-                <p className="text-xs text-zinc-400">Get help and contact support</p>
+                <p className="text-sm font-semibold text-white">Help & Support</p>
+                <p className="text-xs text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">Get help and contact support</p>
               </div>
             </div>
           </div>
