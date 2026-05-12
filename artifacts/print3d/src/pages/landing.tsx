@@ -2,6 +2,8 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { ModernProductCard } from "@/components/shared/ModernProductCard";
+import { ModernShopCard } from "@/components/shared/ModernShopCard";
 import { 
   Search, 
   Star, 
@@ -84,65 +86,34 @@ export default function Landing() {
   console.log("Listings loading:", listings.isLoading);
   console.log("Users loading:", users.isLoading);
 
-  // Combine listings and users from real database
-  const marketplaceItems = [
-    // Real listings
-    ...(listings.data?.listings?.map(listing => ({
-      ...listing,
-      type: "product",
-      title: listing.title,
-      subtitle: `$${listing.price || listing.basePrice}`,
-      image: listing.images?.[0] || listing.imageUrl,
-      rating: listing.rating || null,
-      views: listing.views?.toString() || null,
-      sellerName: listing.sellerName,
-      tags: listing.tags || [],
-      link: `/listings/${listing.id}`
-    })) || []),
-    
-    // Real users (sellers)
-    ...(users.data?.users?.map(user => ({
-      ...user,
-      type: "maker",
-      title: user.displayName || user.name,
-      subtitle: user.role || "Professional Seller",
-      rating: user.rating || null,
-      views: user.orders?.toString() || null,
-      image: user.avatarUrl,
-      banner: user.bannerUrl,
-      tags: user.tags || [],
-      link: `/shop/${user.id}`
-    })) || [])
-  ];
+  // Transform listings for ModernProductCard
+  const transformedListings = listings.data?.listings?.map(listing => ({
+    ...listing,
+    sellerRating: listing.rating,
+    sellerReviewCount: listing.reviewCount,
+    sellerAcceptingOrders: listing.accepting_orders
+  })) || [];
 
-  console.log("Marketplace items count:", marketplaceItems.length);
+  // Transform users for ModernShopCard  
+  const transformedUsers = users.data?.users?.map(user => ({
+    ...user,
+    displayName: user.displayName || user.store_name,
+    shopName: user.store_name,
+    avatarUrl: user.avatar_url || user.avatarUrl,
+    accepting_orders: user.accepting_orders
+  })) || [];
 
-  // Filter items based on type, category, and price
-  const filteredItems = marketplaceItems.filter(item => {
-    // Type filter
-    if (filterType === "shops") return item.type === "maker";
-    if (filterType === "models") return item.type === "product";
-    
-    // Category filter
-    if (selectedCategory !== "all") {
-      const itemCategory = item.category || item.tags?.[0]?.toLowerCase() || "";
-      if (!itemCategory.includes(selectedCategory.replace("-", ""))) {
-        return false;
-      }
-    }
-    
-    // Price filter
-    if (minPrice || maxPrice) {
-      const itemPrice = parseFloat(item.price || item.hourlyRate || "0");
-      if (minPrice && itemPrice < parseFloat(minPrice)) return false;
-      if (maxPrice && itemPrice > parseFloat(maxPrice)) return false;
-    }
-    
-    return true; // "all" shows everything
-  });
+  console.log("Marketplace items count:", transformedListings.length + transformedUsers.length);
+
+  // Filter items based on type
+  const showProducts = filterType === "all" || filterType === "models";
+  const showShops = filterType === "all" || filterType === "shops";
+  
+  const filteredProducts = showProducts ? transformedListings : [];
+  const filteredShops = showShops ? transformedUsers : [];
 
   console.log("Filter type:", filterType);
-  console.log("Filtered items count:", filteredItems.length);
+  console.log("Filtered items count:", filteredProducts.length + filteredShops.length);
 
   
   return (
@@ -380,115 +351,50 @@ export default function Landing() {
                 </motion.div>
               </div>
 
-              {/* Products Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {filteredItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -10 }}
-                    className="group"
-                  >
-                    <Link href={item.link}>
-                      <div className={`bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 h-full ${item.type === "maker" ? "md:col-span-2" : ""}`}>
-                        <div className={`bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden ${item.type === "maker" ? "md:aspect-[3/2]" : "aspect-[3/2]"}`}>
-                          {item.type === "maker" ? (
-                            // Enhanced Maker card with banner and avatar
-                            <>
-                              {item.banner ? (
-                                <img 
-                                  src={item.banner} 
-                                  alt={`${item.title} banner`}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-orange-600/20 to-pink-600/20" />
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
-                              
-                              {/* Shop info overlay */}
-                              <div className="absolute bottom-0 left-0 right-0 p-3">
-                                <div className="flex items-center gap-3">
-                                  {item.image ? (
-                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 border-2 border-orange-500/50 shadow-lg shadow-orange-500/25">
-                                      <img 
-                                        src={item.image} 
-                                        alt={item.title}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  ) : null}
-                                  <div className="flex-1">
-                                    <h4 className="text-white font-bold text-sm mb-1">{item.title}</h4>
-                                    <p className="text-zinc-400 text-xs">{item.subtitle}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            // Product card
-                            <>
-                              {item.image ? (
-                                <img 
-                                  src={item.image} 
-                                  alt={item.title}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Package className="w-12 h-12 text-zinc-600" />
-                                </div>
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </>
-                          )}
-                        </div>
-                        <div className="p-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <h3 className="text-white font-bold text-base mb-1 line-clamp-1">{item.title}</h3>
-                              <p className="text-zinc-400 text-xs">{item.subtitle}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
-                                  {item.type}
-                                </Badge>
-                                {item.sellerName && (
-                                  <span className="text-zinc-400 text-xs">by {item.sellerName}</span>
-                                )}
-                                {item.tags && item.tags.length > 0 && (
-                                  <div className="flex gap-1 flex-wrap">
-                                    {item.tags.slice(0, 2).map((tag, tagIndex) => (
-                                      <span key={tagIndex} className="text-zinc-500 text-xs bg-zinc-800 px-2 py-1 rounded">
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {item.rating && (
-                                <div className="flex items-center gap-2">
-                                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                                  <span className="text-white text-xs font-medium">{item.rating}</span>
-                                </div>
-                              )}
-                              {item.views && (
-                                <div className="flex items-center gap-1">
-                                  <Eye className="w-3 h-3 text-zinc-400" />
-                                  <span className="text-zinc-400 text-xs">{item.views}</span>
-                                </div>
-                              )}
-                              <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-orange-400 transition-colors" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+              {/* Products and Shops Grid */}
+              <div className="space-y-8">
+                {/* Products Section */}
+                {filteredProducts.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4">Featured Products</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {filteredProducts.map((listing, index) => (
+                        <motion.div
+                          key={listing.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ y: -10 }}
+                        >
+                          <ModernProductCard 
+                            listing={listing}
+                            sellerAcceptingOrders={listing.accepting_orders}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Shops Section */}
+                {filteredShops.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4">Top Shops</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredShops.map((shop, index) => (
+                        <motion.div
+                          key={shop.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ y: -10 }}
+                        >
+                          <ModernShopCard seller={shop} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </section>
