@@ -125,6 +125,32 @@ export default function DashboardWithSidebar() {
     ? safeReviews.reduce((sum, review) => sum + (review.rating || 0), 0) / safeReviews.length
     : 0;
 
+  // Calculate percentage changes based on actual data
+  const calculatePercentageChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  // For now, calculate based on order count trends (replace with real historical data when available)
+  const recentOrders = safeOrders.filter(order => {
+    const orderDate = new Date(order.created_at);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return orderDate >= thirtyDaysAgo;
+  }).length;
+
+  const olderOrders = safeOrders.filter(order => {
+    const orderDate = new Date(order.created_at);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return orderDate >= sixtyDaysAgo && orderDate < thirtyDaysAgo;
+  }).length;
+
+  const revenueChange = calculatePercentageChange(recentOrders, olderOrders);
+  const ordersChange = calculatePercentageChange(recentOrders, olderOrders);
+
   // Get active section from hash and listen for hash changes
   useEffect(() => {
     const handleHashChange = () => {
@@ -185,7 +211,7 @@ export default function DashboardWithSidebar() {
               </div>
               <div className="flex items-center text-green-400 text-sm">
                 <ArrowUpRight className="w-4 h-4 mr-1" />
-                12%
+                {revenueChange > 0 ? '+' : ''}{revenueChange.toFixed(1)}%
               </div>
             </div>
             <div>
@@ -213,7 +239,7 @@ export default function DashboardWithSidebar() {
               </div>
               <div className="flex items-center text-blue-400 text-sm">
                 <ArrowUpRight className="w-4 h-4 mr-1" />
-                8%
+                {ordersChange > 0 ? '+' : ''}{ordersChange.toFixed(1)}%
               </div>
             </div>
             <div>
