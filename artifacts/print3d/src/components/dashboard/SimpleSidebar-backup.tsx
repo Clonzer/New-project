@@ -271,15 +271,13 @@ export function SimpleSidebar() {
                     key={item.id}
                     onClick={() => {
                       if (item.path.startsWith('/dashboard#')) {
-                        // For dashboard sections, update hash
                         const section = item.path.replace('/dashboard#', '');
                         window.location.hash = section;
                       } else {
-                        // For other routes, use wouter navigation
                         window.location.href = item.path;
                       }
                     }}
-                    className={`w-full flex items-center justify-center group-hover:justify-start px-1 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                       active
                         ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
                         : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
@@ -292,17 +290,19 @@ export function SimpleSidebar() {
                         active ? "text-orange-300" : "text-zinc-400"
                       }`} />
                     </div>
-                    <div className="flex-1 min-w-0 opacity-0 transition-opacity ml-3 hidden group-hover:block">
-                      <p className="text-sm font-semibold text-white truncate">
-                        {item.label}
-                      </p>
-                      <p className={`text-xs text-zinc-400 leading-relaxed transition-opacity delay-100 ${
-                        isExpanded ? 'opacity-100' : 'opacity-0'
-                      }`}>
-                        {item.description}
-                      </p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
+                    {isExpanded && (
+                      <div className="flex-1 min-w-0 ml-3">
+                        <p className="text-sm font-semibold text-white truncate">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-zinc-400 leading-relaxed opacity-100">
+                          {item.description}
+                        </p>
+                      </div>
+                    )}
+                    {isExpanded && (
+                      <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+                    )}
                   </div>
                 );
               })}
@@ -315,19 +315,17 @@ export function SimpleSidebar() {
               onClick={() => {
                 window.location.href = '/help';
               }}
-              className="flex items-center justify-center group-hover:justify-start px-2 py-2 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer group"
+              className="flex items-center px-3 py-2 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200 cursor-pointer"
             >
               <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
                 <HelpCircle className="w-4 h-4 text-zinc-400" />
               </div>
-              <div className="flex-1 opacity-0 transition-opacity ml-3 hidden group-hover:block">
-                <p className="text-sm font-semibold text-white">Help & Support</p>
-                <p className={`text-xs text-zinc-400 transition-opacity delay-100 ${
-                  isExpanded ? 'opacity-100' : 'opacity-0'
-                }`}>
-                  Get help and contact support
-                </p>
-              </div>
+              {isExpanded && (
+                <div className="flex-1 ml-3">
+                  <p className="text-sm font-semibold text-white">Help & Support</p>
+                  <p className="text-xs text-zinc-400">Get help and contact support</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
