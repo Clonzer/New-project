@@ -118,7 +118,11 @@ export default function Listings() {
           </div>
 
           {showFilters ? (
-            <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div 
+              className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5 relative z-50"
+              onClick={(e) => e.stopPropagation()}
+              onWheel={(e) => e.stopPropagation()}
+            >
               <div className="mb-5">
                 <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500">Sort By</label>
                 <div className="mt-3 flex flex-wrap gap-2">
