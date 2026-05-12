@@ -21,7 +21,9 @@ import {
   HelpCircle,
   Plus,
   Edit,
-  FileText
+  FileText,
+  Briefcase,
+  Trophy
 } from "lucide-react";
 
 interface NavItem {
@@ -178,7 +180,9 @@ export function DashboardSidebar() {
                   }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-200 ${
+                    isExpanded ? 'opacity-100' : 'opacity-0'
+                  }`}>
                     {item.label}
                   </span>
                   {item.children && (
@@ -225,7 +229,9 @@ export function DashboardSidebar() {
           <Link href="/dashboard/help">
             <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-zinc-700/50 text-zinc-400 hover:text-white transition-all duration-200">
               <HelpCircle className="w-5 h-5 flex-shrink-0" />
-              <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-200 ${
+                isExpanded ? 'opacity-100' : 'opacity-0'
+              }`}>
                 Help & Support
               </span>
             </a>

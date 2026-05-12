@@ -119,9 +119,9 @@ export function SellerCard({
   }, [seller.id]);
 
   return (
-    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-zinc-600/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(107,114,128,0.15)] relative overflow-hidden">
+    <div className="group block glass-panel p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)] hover:-translate-y-1 relative overflow-hidden">
         {/* Glow effect behind */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/20 group-hover:via-accent/20 group-hover:to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-accent/0 to-primary/0 group-hover:from-primary/10 group-hover:via-accent/10 group-hover:to-primary/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 z-0" />
         
         <div className="relative z-10">
           {isSponsored && (
@@ -170,7 +170,7 @@ export function SellerCard({
                 </div>
               </div>
               <div>
-                <h3 className="font-display font-bold text-lg text-white group-hover:text-accent transition-colors">
+                <h3 className="font-display font-bold text-lg text-white group-hover:text-primary transition-colors">
                   {shopName}
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
@@ -267,12 +267,12 @@ export function SellerCard({
 
           <div className="mt-5 flex gap-2">
             <Link href={`/shop/${seller.id}`} className="flex-1">
-              <Button className="w-full rounded-xl">View shop</Button>
+              <Button className="w-full rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border border-primary/30 hover:border-primary/50 text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all duration-300">View shop</Button>
             </Link>
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+              className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-primary/30 transition-all duration-300"
               onClick={() => {
                 const added = toggleComparedShop({
                   id: Number(seller.id),
