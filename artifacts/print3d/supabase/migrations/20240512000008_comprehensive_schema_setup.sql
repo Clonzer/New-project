@@ -231,6 +231,45 @@ CREATE TABLE IF NOT EXISTS favorites (
     UNIQUE(user_id, item_id, item_type)
 );
 
+-- Add missing columns to favorites table only if table exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'favorites'
+    ) THEN
+        -- Add user_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'favorites' 
+            AND column_name = 'user_id'
+        ) THEN
+            ALTER TABLE favorites ADD COLUMN user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added user_id column to favorites table';
+        END IF;
+        
+        -- Add item_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'favorites' 
+            AND column_name = 'item_id'
+        ) THEN
+            ALTER TABLE favorites ADD COLUMN item_id UUID NOT NULL;
+            RAISE NOTICE 'Added item_id column to favorites table';
+        END IF;
+        
+        -- Add item_type column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'favorites' 
+            AND column_name = 'item_type'
+        ) THEN
+            ALTER TABLE favorites ADD COLUMN item_type TEXT DEFAULT 'listing';
+            RAISE NOTICE 'Added item_type column to favorites table';
+        END IF;
+    END IF;
+END $$;
+
 -- =============================================
 -- CARTS TABLE - Shopping cart
 -- =============================================
@@ -256,6 +295,35 @@ CREATE TABLE IF NOT EXISTS cart_items (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add missing columns to cart_items table only if table exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'cart_items'
+    ) THEN
+        -- Add cart_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'cart_items' 
+            AND column_name = 'cart_id'
+        ) THEN
+            ALTER TABLE cart_items ADD COLUMN cart_id UUID REFERENCES carts(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added cart_id column to cart_items table';
+        END IF;
+        
+        -- Add listing_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'cart_items' 
+            AND column_name = 'listing_id'
+        ) THEN
+            ALTER TABLE cart_items ADD COLUMN listing_id UUID REFERENCES listings(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added listing_id column to cart_items table';
+        END IF;
+    END IF;
+END $$;
+
 -- =============================================
 -- REVIEWS TABLE - Product reviews
 -- =============================================
@@ -270,6 +338,45 @@ CREATE TABLE IF NOT EXISTS reviews (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(listing_id, reviewer_id)
 );
+
+-- Add missing columns to reviews table only if table exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'reviews'
+    ) THEN
+        -- Add listing_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'reviews' 
+            AND column_name = 'listing_id'
+        ) THEN
+            ALTER TABLE reviews ADD COLUMN listing_id UUID REFERENCES listings(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added listing_id column to reviews table';
+        END IF;
+        
+        -- Add reviewer_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'reviews' 
+            AND column_name = 'reviewer_id'
+        ) THEN
+            ALTER TABLE reviews ADD COLUMN reviewer_id UUID REFERENCES users(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added reviewer_id column to reviews table';
+        END IF;
+        
+        -- Add rating column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'reviews' 
+            AND column_name = 'rating'
+        ) THEN
+            ALTER TABLE reviews ADD COLUMN rating INTEGER CHECK (rating >= 1 AND rating <= 5);
+            RAISE NOTICE 'Added rating column to reviews table';
+        END IF;
+    END IF;
+END $$;
 
 -- =============================================
 -- MESSAGES TABLE - Direct messaging
@@ -293,6 +400,35 @@ CREATE TABLE IF NOT EXISTS messages (
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add missing columns to messages table only if table exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'messages'
+    ) THEN
+        -- Add thread_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'messages' 
+            AND column_name = 'thread_id'
+        ) THEN
+            ALTER TABLE messages ADD COLUMN thread_id UUID REFERENCES message_threads(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added thread_id column to messages table';
+        END IF;
+        
+        -- Add sender_id column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'messages' 
+            AND column_name = 'sender_id'
+        ) THEN
+            ALTER TABLE messages ADD COLUMN sender_id UUID REFERENCES users(id) ON DELETE CASCADE;
+            RAISE NOTICE 'Added sender_id column to messages table';
+        END IF;
+    END IF;
+END $$;
 
 -- =============================================
 -- INDEXES - Performance optimization
