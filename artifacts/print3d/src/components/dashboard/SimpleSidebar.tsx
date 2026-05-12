@@ -208,8 +208,13 @@ export function SimpleSidebar() {
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
-              ) : null}
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0">
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0">
+                  {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
+                </div>
+              )}
+              {/* Hidden fallback for when image fails to load */}
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0 hidden">
                 {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
               </div>
               <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
