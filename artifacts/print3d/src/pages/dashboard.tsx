@@ -116,7 +116,7 @@ export default function DashboardWithSidebar() {
 
   // Ensure data is not null and is an array
   const safeOrders = Array.isArray(orders) ? orders : [];
-  const safeListings = Array.isArray(listings) ? listings : [];
+  const safeListings = Array.isArray(listings?.listings) ? listings.listings : (Array.isArray(listings) ? listings : []);
   const safePrinters = Array.isArray(printers) ? printers : [];
   const safeReviews = Array.isArray(reviews) ? reviews : [];
 

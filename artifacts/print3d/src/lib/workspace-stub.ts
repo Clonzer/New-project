@@ -820,7 +820,7 @@ export function useListOrders(options?: { userId?: string | number }) {
             price,
             images
           ),
-          auth.users!buyer_id (
+          users!buyer_id (
             id,
             display_name,
             username,
@@ -1019,7 +1019,7 @@ export function useListReviews(options?: { userId?: string | number }) {
         .from('reviews')
         .select(`
           *,
-          users!reviewer_id (
+          profiles!reviewer_id (
             id,
             display_name,
             username
