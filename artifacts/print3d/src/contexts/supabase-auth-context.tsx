@@ -87,13 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (authData.user) {
           const userMetadata = authData.user.user_metadata || {};
           // Try multiple possible avatar sources
-          const avatarUrl = userMetadata.avatar_url || 
-                           userMetadata.avatarUrl || 
-                           userMetadata.avatar || 
-                           userMetadata.picture ||
-                           userMetadata.image_url ||
-                           userMetadata.image ||
-                           null;
+          const avatarUrl = userMetadata.avatar_url || userMetadata.avatarUrl || userMetadata.avatar || userMetadata.picture || userMetadata.image_url || userMetadata.image || null;
           console.log('Auth metadata avatar sources:', {
             avatar_url: userMetadata.avatar_url,
             avatarUrl: userMetadata.avatarUrl,
