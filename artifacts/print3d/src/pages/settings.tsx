@@ -977,6 +977,13 @@ export default function Settings() {
           </div>
         </div>
       </main>
+
+      {/* Profile Preview Modal */}
+      <ProfilePreviewModal
+        isOpen={showProfilePreview}
+        onOpenChange={setShowProfilePreview}
+        user={form}
+      />
     </div>
   );
 }
