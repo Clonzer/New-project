@@ -54,8 +54,7 @@ export default function ProductOrder() {
   const lineShipping = listing?.shippingCost && listing.shippingCost > 0
     ? listing.shippingCost * quantity
     : shippingEstimate.cost;
-  const platformFee = subtotal * 0.1;
-  const total = subtotal + platformFee + lineShipping;
+  const total = subtotal + lineShipping;
 
   const handleSubmit = async () => {
     if (!user) {
@@ -220,10 +219,6 @@ export default function ProductOrder() {
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-400">Subtotal ({quantity} item{quantity > 1 ? 's' : ''})</span>
                       <span className="text-white">{formatPrice(subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Platform Fee (10%)</span>
-                      <span className="text-white">{formatPrice(platformFee)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-400">Shipping</span>
