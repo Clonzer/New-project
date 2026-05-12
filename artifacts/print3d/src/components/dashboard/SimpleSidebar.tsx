@@ -288,10 +288,10 @@ export function SimpleSidebar() {
                     </div>
                     <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
                       <p className="text-sm font-semibold text-white truncate">
-                        {item.label}
+                        {isExpanded ? item.label : item.description}
                       </p>
                       <p className="text-xs text-zinc-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                        {item.description}
+                        {isExpanded ? item.description : ""}
                       </p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
