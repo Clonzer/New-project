@@ -46,7 +46,7 @@ function transformListing(listing: any) {
   };
 }
 import { Footer } from "@/components/layout/Footer";
-import { ListingCard } from "@/components/shared/ListingCard";
+import { ModernProductCard } from "@/components/shared/ModernProductCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { Badge } from "@/components/ui/badge";
@@ -561,7 +561,7 @@ export default function Shop() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {listings?.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} sellerAcceptingOrders={seller?.accepting_orders} />
+                    <ModernProductCard key={listing.id} listing={listing} priceInsight={priceInsights.get(listing.id)} sellerAcceptingOrders={seller?.accepting_orders} />
                   ))}
                 </div>
               )}

@@ -1,5 +1,5 @@
 import { Footer } from "@/components/layout/Footer";
-import { SellerCard } from "@/components/shared/SellerCard";
+import { ModernShopCard } from "@/components/shared/ModernShopCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOMeta, MarketplaceStructuredData, StructuredData, generateBreadcrumbSchema } from "@/components/seo";
@@ -104,7 +104,7 @@ export default function Explore() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {sortedSellers.slice(0, 8).map((seller: any) => (
                   <div key={seller.id} className="relative">
-                    <SellerCard seller={seller} />
+                    <ModernShopCard seller={seller} />
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-white text-xs font-bold flex items-center gap-1">
                       <Zap className="w-3 h-3" />
                       Featured
@@ -202,7 +202,7 @@ export default function Explore() {
               ) : sortedSellers.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {sortedSellers.map((seller) => (
-                    <SellerCard key={seller.id} seller={seller} />
+                    <ModernShopCard key={seller.id} seller={seller} />
                   ))}
                 </div>
               ) : (

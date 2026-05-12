@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { useSearch, Link } from "wouter";
 import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
 import { useListSellers, useListListings } from "@/lib/workspace-api-mock";
-import { SellerCard } from "@/components/shared/SellerCard";
-import { ListingCard } from "@/components/shared/ListingCard";
+import { ModernShopCard } from "@/components/shared/ModernShopCard";
+import { ModernProductCard } from "@/components/shared/ModernProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
 
@@ -84,7 +85,7 @@ export default function SearchPage() {
               ) : sellers.length === 0 ? (
                 <p className="text-zinc-500 col-span-full">No makers match this search.</p>
               ) : (
-                sellers.map((seller) => <SellerCard key={seller.id} seller={seller} />)
+                sellers.map((seller) => <ModernShopCard key={seller.id} seller={seller} />)
               )}
             </div>
           </section>
@@ -107,7 +108,7 @@ export default function SearchPage() {
               ) : listings.length === 0 ? (
                 <p className="text-zinc-500 col-span-full">No listings match this search.</p>
               ) : (
-                listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
+                listings.map((listing) => <ModernProductCard key={listing.id} listing={listing} />)
               )}
             </div>
           </section>

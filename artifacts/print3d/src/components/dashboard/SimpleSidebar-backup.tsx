@@ -217,18 +217,24 @@ export function SimpleSidebar() {
               <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/25 flex-shrink-0 hidden">
                 {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
               </div>
-              <div className="min-w-0 flex-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-white font-semibold text-sm truncate">
+              <div className="min-w-0 flex-1 opacity-0 transition-opacity">
+                <p className={`text-white font-semibold text-sm truncate transition-opacity ${
+                  isExpanded ? 'opacity-100' : 'opacity-0'
+                }`}>
                   {user?.displayName || user?.username || "User"}
                 </p>
-                <p className="text-zinc-400 text-xs truncate">
+                <p className={`text-zinc-400 text-xs truncate transition-opacity ${
+                  isExpanded ? 'opacity-100' : 'opacity-0'
+                }`}>
                   {user?.email || "user@example.com"}
                 </p>
-                <div className="flex items-center gap-2 mt-1">
+                <div className={`flex items-center gap-2 mt-1 transition-opacity ${
+                  isExpanded ? 'opacity-100' : 'opacity-0'
+                }`}>
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                   <span className="text-xs text-green-400">Online</span>
                 </div>
-                
+              </div>  
                 {/* Accepting Orders Toggle */}
                 <div className="flex items-center justify-between mt-2 p-2 bg-zinc-800/50 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -286,11 +292,13 @@ export function SimpleSidebar() {
                         active ? "text-orange-300" : "text-zinc-400"
                       }`} />
                     </div>
-                    <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
+                    <div className="flex-1 min-w-0 opacity-0 transition-opacity ml-3 hidden group-hover:block">
                       <p className="text-sm font-semibold text-white truncate">
                         {item.label}
                       </p>
-                      <p className="text-xs text-zinc-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity delay-100">
+                      <p className={`text-xs text-zinc-400 leading-relaxed transition-opacity delay-100 ${
+                        isExpanded ? 'opacity-100' : 'opacity-0'
+                      }`}>
                         {item.description}
                       </p>
                     </div>
@@ -312,9 +320,13 @@ export function SimpleSidebar() {
               <div className="p-2 rounded-lg bg-zinc-700/50 flex-shrink-0">
                 <HelpCircle className="w-4 h-4 text-zinc-400" />
               </div>
-              <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
+              <div className="flex-1 opacity-0 transition-opacity ml-3 hidden group-hover:block">
                 <p className="text-sm font-semibold text-white">Help & Support</p>
-                <p className="text-xs text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">Get help and contact support</p>
+                <p className={`text-xs text-zinc-400 transition-opacity delay-100 ${
+                  isExpanded ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  Get help and contact support
+                </p>
               </div>
             </div>
           </div>
