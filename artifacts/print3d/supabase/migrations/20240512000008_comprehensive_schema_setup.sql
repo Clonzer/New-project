@@ -159,28 +159,42 @@ CREATE TABLE IF NOT EXISTS listings (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add missing listing columns
+-- Add missing listing columns only if table exists
 DO $$
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'listings' 
-        AND column_name = 'rating'
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'listings'
     ) THEN
-        ALTER TABLE listings ADD COLUMN rating DECIMAL(3,2) DEFAULT 0.00;
-        RAISE NOTICE 'Added rating column to listings table';
-    END IF;
-END $$;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'listings' 
-        AND column_name = 'review_count'
-    ) THEN
-        ALTER TABLE listings ADD COLUMN review_count INTEGER DEFAULT 0;
-        RAISE NOTICE 'Added review_count column to listings table';
+        -- Add rating column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'rating'
+        ) THEN
+            ALTER TABLE listings ADD COLUMN rating DECIMAL(3,2) DEFAULT 0.00;
+            RAISE NOTICE 'Added rating column to listings table';
+        END IF;
+        
+        -- Add review_count column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'review_count'
+        ) THEN
+            ALTER TABLE listings ADD COLUMN review_count INTEGER DEFAULT 0;
+            RAISE NOTICE 'Added review_count column to listings table';
+        END IF;
+        
+        -- Add base_price column if it doesn't exist
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'base_price'
+        ) THEN
+            ALTER TABLE listings ADD COLUMN base_price DECIMAL(10,2) DEFAULT 0.00;
+            RAISE NOTICE 'Added base_price column to listings table';
+        END IF;
     END IF;
 END $$;
 
@@ -290,36 +304,106 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_plan_tier ON users(plan_tier);
 CREATE INDEX IF NOT EXISTS idx_users_location ON users(location);
 
--- Listings table indexes
-CREATE INDEX IF NOT EXISTS idx_listings_seller_id ON listings(seller_id);
-CREATE INDEX IF NOT EXISTS idx_listings_category ON listings(category);
-CREATE INDEX IF NOT EXISTS idx_listings_price ON listings(base_price);
-CREATE INDEX IF NOT EXISTS idx_listings_rating ON listings(rating);
-CREATE INDEX IF NOT EXISTS idx_listings_created_at ON listings(created_at);
-CREATE INDEX IF NOT EXISTS idx_listings_is_active ON listings(is_active);
+-- Listings table indexes (only create if table and columns exist)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'listings'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_listings_seller_id ON listings(seller_id);
+        
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'category'
+        ) THEN
+            CREATE INDEX IF NOT EXISTS idx_listings_category ON listings(category);
+        END IF;
+        
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'base_price'
+        ) THEN
+            CREATE INDEX IF NOT EXISTS idx_listings_price ON listings(base_price);
+        END IF;
+        
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'listings' 
+            AND column_name = 'rating'
+        ) THEN
+            CREATE INDEX IF NOT EXISTS idx_listings_rating ON listings(rating);
+        END IF;
+        
+        CREATE INDEX IF NOT EXISTS idx_listings_created_at ON listings(created_at);
+        CREATE INDEX IF NOT EXISTS idx_listings_is_active ON listings(is_active);
+    END IF;
+END $$;
 
--- Orders table indexes
-CREATE INDEX IF NOT EXISTS idx_orders_buyer_id ON orders(buyer_id);
-CREATE INDEX IF NOT EXISTS idx_orders_seller_id ON orders(seller_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+-- Orders table indexes (only create if table exists)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'orders'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_orders_buyer_id ON orders(buyer_id);
+        CREATE INDEX IF NOT EXISTS idx_orders_seller_id ON orders(seller_id);
+        CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+        CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+    END IF;
+END $$;
 
--- Favorites table indexes
-CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id);
-CREATE INDEX IF NOT EXISTS idx_favorites_item_id ON favorites(item_id);
+-- Favorites table indexes (only create if table exists)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'favorites'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id);
+        CREATE INDEX IF NOT EXISTS idx_favorites_item_id ON favorites(item_id);
+    END IF;
+END $$;
 
--- Cart items indexes
-CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
-CREATE INDEX IF NOT EXISTS idx_cart_items_listing_id ON cart_items(listing_id);
+-- Cart items indexes (only create if table exists)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'cart_items'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
+        CREATE INDEX IF NOT EXISTS idx_cart_items_listing_id ON cart_items(listing_id);
+    END IF;
+END $$;
 
--- Reviews table indexes
-CREATE INDEX IF NOT EXISTS idx_reviews_listing_id ON reviews(listing_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_reviewer_id ON reviews(reviewer_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating);
+-- Reviews table indexes (only create if table exists)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'reviews'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_reviews_listing_id ON reviews(listing_id);
+        CREATE INDEX IF NOT EXISTS idx_reviews_reviewer_id ON reviews(reviewer_id);
+        CREATE INDEX IF NOT EXISTS idx_reviews_rating ON reviews(rating);
+    END IF;
+END $$;
 
--- Messages table indexes
-CREATE INDEX IF NOT EXISTS idx_messages_thread_id ON messages(thread_id);
-CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
-CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
+-- Messages table indexes (only create if table exists)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'messages'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_messages_thread_id ON messages(thread_id);
+        CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
+        CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
+    END IF;
+END $$;
 
 RAISE NOTICE 'Comprehensive schema setup completed successfully';
