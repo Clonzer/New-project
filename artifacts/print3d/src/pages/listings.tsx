@@ -174,6 +174,16 @@ export default function Listings() {
                 {cat}
               </button>
             ))}
+            <button
+              onClick={() => setSelectedCategory("All")}
+              className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 ${
+                selectedCategory === "All"
+                  ? "bg-gradient-to-r from-primary to-accent text-white shadow-[0_0_12px_rgba(139,92,246,0.5)] border border-primary/50"
+                  : "glass-panel border border-white/10 text-zinc-300 hover:text-white hover:border-primary/50"
+              }`}
+            >
+              All Categories
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
