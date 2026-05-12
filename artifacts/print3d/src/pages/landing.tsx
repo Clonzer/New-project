@@ -84,10 +84,10 @@ export default function Landing() {
   console.log("Listings loading:", listings.isLoading);
   console.log("Users loading:", users.isLoading);
 
-  // Combine and mix listings and users from real database
+  // Combine listings and users from real database
   const marketplaceItems = [
     // Real listings
-    ...(listings.data?.listings?.slice(0, 8).map(listing => ({
+    ...(listings.data?.listings?.map(listing => ({
       ...listing,
       type: "product",
       title: listing.title,
@@ -101,10 +101,10 @@ export default function Landing() {
     })) || []),
     
     // Real users (sellers)
-    ...(users.data?.users?.slice(0, 4).map((user, index) => ({
+    ...(users.data?.users?.map(user => ({
       ...user,
       type: "maker",
-      title: user.displayName || user.name || `Maker ${index + 1}`,
+      title: user.displayName || user.name,
       subtitle: user.role || "Professional Seller",
       rating: user.rating || null,
       views: user.orders?.toString() || null,
@@ -113,7 +113,7 @@ export default function Landing() {
       tags: user.tags || [],
       link: `/shop/${user.id}`
     })) || [])
-  ].sort(() => Math.random() - 0.5); // Shuffle all items
+  ];
 
   console.log("Marketplace items count:", marketplaceItems.length);
 

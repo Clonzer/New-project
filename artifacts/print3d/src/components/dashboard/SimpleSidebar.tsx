@@ -97,8 +97,6 @@ export function SimpleSidebar() {
   const [location] = useLocation();
   const { user, refreshUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [acceptingOrders, setAcceptingOrders] = useState(user?.acceptingOrders ?? true);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleMouseEnter = () => {
     // Don't interfere with touch state on mobile
@@ -133,44 +131,6 @@ export function SimpleSidebar() {
     return location === path || location.startsWith(path + "/");
   };
 
-  const handleToggleAcceptingOrders = async () => {
-    if (!user?.id || isUpdating) return;
-    
-    setIsUpdating(true);
-    try {
-      const newValue = !acceptingOrders;
-      
-      // Update database
-      const { error } = await supabase
-        .from('users')
-        .update({ accepting_orders: newValue })
-        .eq('id', user.id);
-      
-      if (error) throw error;
-      
-      // Update local state
-      setAcceptingOrders(newValue);
-      
-      // Refresh user data to get updated state
-      if (refreshUser) {
-        await refreshUser();
-      }
-    } catch (error) {
-      console.error('Error updating accepting orders status:', error);
-      // Revert on error
-      setAcceptingOrders(!acceptingOrders);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  // Update local state when user data changes
-  useEffect(() => {
-    if (user?.acceptingOrders !== undefined) {
-      setAcceptingOrders(user.acceptingOrders);
-    }
-  }, [user?.acceptingOrders]);
-
   return (
     <>
       {/* Sidebar - Now visible on all screen sizes */}
@@ -194,6 +154,7 @@ export function SimpleSidebar() {
           <div className={`lg:hidden flex justify-center py-2 transition-opacity ${isExpanded ? 'opacity-0' : 'opacity-50'}`}>
             <div className="w-8 h-1 bg-zinc-600 rounded-full"></div>
           </div>
+          
           {/* User Info */}
           <div className="px-3 py-3 border-b border-zinc-800">
             <div className="flex items-center gap-3">
@@ -228,27 +189,6 @@ export function SimpleSidebar() {
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                   <span className="text-xs text-green-400">Online</span>
                 </div>
-                
-                {/* Accepting Orders Toggle */}
-                <div className="flex items-center justify-between mt-2 p-2 bg-zinc-800/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-3 h-3 text-zinc-400" />
-                    <span className="text-xs text-zinc-300">Accepting Orders</span>
-                  </div>
-                  <button
-                    onClick={handleToggleAcceptingOrders}
-                    disabled={isUpdating}
-                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
-                      acceptingOrders ? 'bg-green-600' : 'bg-zinc-600'
-                    } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                  >
-                    <span
-                      className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform ${
-                        acceptingOrders ? 'translate-x-4' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -273,7 +213,7 @@ export function SimpleSidebar() {
                         window.location.href = item.path;
                       }
                     }}
-                    className={`w-full flex items-center justify-center group-hover:justify-start px-1 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center justify-center group-hover:justify-start px-2 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                       active
                         ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
                         : "hover:bg-zinc-700/50 text-zinc-300 hover:text-white"
@@ -288,10 +228,10 @@ export function SimpleSidebar() {
                     </div>
                     <div className="flex-1 min-w-0 opacity-0 group-hover:opacity-100 transition-opacity ml-3 hidden group-hover:block">
                       <p className="text-sm font-semibold text-white truncate">
-                        {isExpanded ? item.label : item.description}
+                        {item.label}
                       </p>
                       <p className="text-xs text-zinc-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                        {isExpanded ? item.description : ""}
+                        {item.description}
                       </p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:block" />
