@@ -9,15 +9,15 @@ import { useSearch } from "wouter";
 import { buildListingPriceInsights } from "@/lib/listing-pricing";
 import { sortByRanking, enhanceWithSponsorship, type SponsorTier } from "@/utils/sponsored-ranking";
 
-const CATEGORIES = ["All", "Mechanical", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture"];
+const CATEGORIES = ["All", "Parts", "Miniatures", "Cosplay", "Functional", "Art", "Jewelry", "Architecture", "Mechanical"];
 
 export default function Listings() {
   const rawSearch = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
   const [maxPrice, setMaxPrice] = useState("");
-  const { data, isLoading } = useListListings({ limit: 50 });
 
   useEffect(() => {
     const qs = rawSearch.startsWith("?") ? rawSearch.slice(1) : rawSearch;
@@ -62,9 +62,22 @@ export default function Listings() {
     // Enhance with sponsorship data
     const enhanced = enhanceWithSponsorship(filtered, sponsoredListingIds);
     
-    // Sort by ranking (sponsors + performance get higher placement)
-    return sortByRanking(enhanced);
-  }, [data?.listings, searchTerm, selectedCategory, maxPrice, sponsoredListingIds]);
+    // Sort based on selected option
+    const sorted = [...enhanced].sort((a, b) => {
+      // Find original items for sorting properties
+      const originalA = data?.listings?.find(item => item.id === a.id);
+      const originalB = data?.listings?.find(item => item.id === b.id);
+      
+      if (sortBy === "newest") return 0; // Keep original order (newest first)
+      if (sortBy === "price-low") return (originalA?.basePrice || 0) - (originalB?.basePrice || 0);
+      if (sortBy === "price-high") return (originalB?.basePrice || 0) - (originalA?.basePrice || 0);
+      if (sortBy === "rating") return (originalB?.rating || 0) - (originalA?.rating || 0);
+      return 0;
+    });
+    
+    // Apply ranking for sponsored items (overrides sort for sponsors)
+    return sortByRanking(sorted);
+  }, [data?.listings, searchTerm, selectedCategory, maxPrice, sortBy, sponsoredListingIds]);
   
   const priceInsights = filteredListings.length > 0 ? buildListingPriceInsights(filteredListings) : new Map();
 
@@ -105,17 +118,43 @@ export default function Listings() {
 
           {showFilters ? (
             <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5">
-              <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500">Max base price</label>
-              <div className="mt-3 max-w-xs">
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={maxPrice}
-                  onChange={(event) => setMaxPrice(event.target.value)}
-                  placeholder="e.g. 40"
-                  className="h-11 rounded-xl bg-black/20 border-white/10 text-white"
-                />
+              <div className="mb-5">
+                <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500">Sort By</label>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[
+                    { value: "newest", label: "Newest" },
+                    { value: "price-low", label: "Price: Low to High" },
+                    { value: "price-high", label: "Price: High to Low" },
+                    { value: "rating", label: "Highest Rated" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSortBy(option.value)}
+                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                        sortBy === option.value
+                          ? "border-primary/50 bg-primary/20 text-white"
+                          : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500">Max base price</label>
+                <div className="mt-3 max-w-xs">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={maxPrice}
+                    onChange={(event) => setMaxPrice(event.target.value)}
+                    placeholder="e.g. 40"
+                    className="h-11 rounded-xl bg-black/20 border-white/10 text-white"
+                  />
+                </div>
               </div>
             </div>
           ) : null}
