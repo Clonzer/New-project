@@ -112,6 +112,7 @@ export default function Listings() {
                 className="h-12 px-4 rounded-xl glass-panel border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors"
               >
                 <SlidersHorizontal className="w-5 h-5" />
+                Filters
               </button>
             </div>
           </div>
