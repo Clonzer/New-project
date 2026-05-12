@@ -112,7 +112,7 @@ export default function DashboardWithSidebar() {
   const pendingOrders = safeOrders.filter(order => order.status === 'pending').length;
   const completedOrders = safeOrders.filter(order => order.status === 'delivered').length;
 
-  const recentOrders = Array.isArray(safeOrders) ? safeOrders.slice(0, 8) : [];
+  const recentOrdersList = Array.isArray(safeOrders) ? safeOrders.slice(0, 8) : [];
   const topListings = safeListings.length > 0 ? safeListings.slice(0, 6) : [];
   const recentReviews = safeReviews.length > 0 ? safeReviews.slice(0, 5) : [];
 
@@ -449,14 +449,14 @@ export default function DashboardWithSidebar() {
             </Button>
           </CardHeader>
           <CardContent>
-            {recentOrders.length === 0 ? (
+            {recentOrdersList.length === 0 ? (
               <div className="text-center py-8">
                 <Package className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
                 <p className="text-zinc-400">No recent orders</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {recentOrders.map((order) => (
+                {recentOrdersList.map((order) => (
                   <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/50 hover:bg-zinc-800/70 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center">
