@@ -298,225 +298,82 @@ export default function Landing() {
                               <Tag className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">$50 - $100</span>
                             </div>
+                            
+                            <div 
+                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
                                 minPrice === "100" && !maxPrice ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
                               }`}
-                              onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}>
+                              onClick={() => {setMinPrice("100"); setMaxPrice(""); setPriceDropdownOpen(false);}}
+                            >
                               <DollarSign className="w-3 h-3 flex-shrink-0" />
                               <span className="text-xs">$100+</span>
-                            </div>
-                          </div>
-                        </div>
-                            <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                            {isSidebarExpanded && (
-                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                All Items
-                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">All</span>
-                        </div>
-                      </div>
-                       
-                      <div className="relative group/item">
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                            filterType === "shops" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("shops")}
-                        >
-                          <div className="relative">
-                            <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                            {isSidebarExpanded && (
-                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                Shops
-                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Shops</span>
-                        </div>
-                      </div>
-                       
-                      <div className="relative group/item">
-                        <div 
-                          className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                            filterType === "models" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
-                          }`}
-                          onClick={() => setFilterType("models")}
-                        >
-                          <div className="relative">
-                            <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                            {isSidebarExpanded && (
-                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                Items
-                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Items</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Categories Dropdown */}
-                    <div className="relative">
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                        onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                      >
-                        <div className="relative">
-                          <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                          {isSidebarExpanded && (
-                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                              Categories
-                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Categories</span>
-                        <ChevronDown className={`w-3 h-3 text-zinc-400 w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200 transform ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
-                      </div>
-                      
-                      {categoryDropdownOpen && (
-                        <div className="absolute left-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg p-3 shadow-lg z-50 w-48">
-                          <div className="text-white text-sm font-medium mb-2">Categories</div>
-                          <div className="space-y-1">
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "3d-print" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("3d-print"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Package className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">3D Printing</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "laser" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("laser"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Zap className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Laser Cutting</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "cnc" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("cnc"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Wrench className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">CNC Machining</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "electronics" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("electronics"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Cpu className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Electronics</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "design" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("design"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Palette className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Design Services</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "tools" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("tools"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Hammer className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Tools & Equipment</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "art" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("art"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Brush className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Art & Crafts</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "automotive" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("automotive"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Car className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Automotive</span>
-                            </div>
-                            
-                            <div 
-                              className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
-                                selectedCategory === "medical" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700 text-zinc-300"
-                              }`}
-                              onClick={() => {setSelectedCategory("medical"); setCategoryDropdownOpen(false);}}
-                            >
-                              <Heart className="w-3 h-3 flex-shrink-0" />
-                              <span className="text-xs">Medical</span>
                             </div>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Store Functions */}
-                    <div className="flex flex-col gap-2">
-                      {/* My Orders Button */}
-                      <div className="relative group/item">
-                        <div 
-                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                          onClick={() => navigateWithAuth('/dashboard/orders')}
-                        >
-                          <div className="relative">
-                            <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                            {isSidebarExpanded && (
-                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                My Orders
-                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">My Orders</span>
+                    {/* Navigation Items */}
+                    <div className="relative group/item">
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "all" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("all")}
+                      >
+                        <div className="relative">
+                          <Grid3x3 className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              All Items
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                       
-                      {/* Favorites Button */}
-                      <div className="relative group/item">
-                        <div 
-                          className="flex items-center gap-2 cursor-pointer hover:bg-zinc-700 rounded p-2 transition-colors"
-                          onClick={() => navigateWithAuth('/dashboard/favorites')}
-                        >
-                          <div className="relative">
-                            <Heart className="w-4 h-4 text-zinc-300 flex-shrink-0" />
-                            {isSidebarExpanded && (
-                              <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                Favorites
-                                <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Favorites</span>
-                        </div>
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">All</span>
                       </div>
                     </div>
-                    
+                       
+                    <div className="relative group/item">
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "shops" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("shops")}
+                      >
+                        <div className="relative">
+                          <Users className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              Shops
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Shops</span>
+                      </div>
+                    </div>
+                       
+                    <div className="relative group/item">
+                      <div 
+                        className={`flex items-center gap-2 cursor-pointer rounded p-2 transition-colors ${
+                          filterType === "models" ? "bg-orange-600/20 text-orange-300" : "hover:bg-zinc-700"
+                        }`}
+                        onClick={() => setFilterType("models")}
+                      >
+                        <div className="relative">
+                          <Package className="w-4 h-4 text-zinc-300 flex-shrink-0" />
+                          {isSidebarExpanded && (
+                            <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-zinc-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              Items
+                              <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-zinc-800"></div>
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-white text-xs whitespace-nowrap w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-200">Items</span>
+                      </div>
+                    </div>
+
                     {/* Bottom spacing to ensure scrolling */}
                     <div className="h-8"></div>
                   </div>
@@ -562,6 +419,18 @@ export default function Landing() {
                                         className="w-full h-full object-cover"
                                       />
                                     </div>
+                                  ) : null}
+                                  <div className="flex-1">
+                                    <h4 className="text-white font-bold text-sm mb-1">{item.title}</h4>
+                                    <p className="text-zinc-400 text-xs">{item.subtitle}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            // Product card
+                            <>
+                              {item.image ? (
                                 <img 
                                   src={item.image} 
                                   alt={item.title}
