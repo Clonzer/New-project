@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "wouter";
 import { createSponsorshipCheckoutSession } from "@/lib/payments-api";
 import {
@@ -158,12 +159,19 @@ export default function DashboardWithSidebar() {
           <p className="text-zinc-400">Track your business performance and manage your shop</p>
         </div>
         {user?.role === 'seller' && (
-          <Link href="/storefront/edit">
-            <Button variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
-              <StoreIcon className="w-4 h-4 mr-2" />
-              Edit Storefront
-            </Button>
-          </Link>
+          <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="/storefront/edit">
+                    <Button variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                      <StoreIcon className="w-4 h-4 mr-2" />
+                      Edit Storefront
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Customize your shop appearance and branding</p>
+                </TooltipContent>
+              </Tooltip>
         )}
       </div>
 
@@ -181,9 +189,18 @@ export default function DashboardWithSidebar() {
               </div>
             </div>
             <div>
-              <p className="text-zinc-400 text-sm mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-white">${totalRevenue.toFixed(2)}</p>
-              <p className="text-xs text-zinc-500 mt-1">Last 30 days</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <p className="text-zinc-400 text-sm mb-1">Total Revenue</p>
+                    <p className="text-2xl font-bold text-white">${totalRevenue.toFixed(2)}</p>
+                    <p className="text-xs text-zinc-500 mt-1">Last 30 days</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Total revenue from all completed orders in the last 30 days</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </CardContent>
         </Card>
@@ -200,9 +217,18 @@ export default function DashboardWithSidebar() {
               </div>
             </div>
             <div>
-              <p className="text-zinc-400 text-sm mb-1">Total Orders</p>
-              <p className="text-2xl font-bold text-white">{safeOrders.length}</p>
-              <p className="text-xs text-zinc-500 mt-1">{completedOrders} completed</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <p className="text-zinc-400 text-sm mb-1">Total Orders</p>
+                    <p className="text-2xl font-bold text-white">{safeOrders.length}</p>
+                    <p className="text-xs text-zinc-500 mt-1">{completedOrders} completed</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Total orders received and completed orders count</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </CardContent>
         </Card>
@@ -219,9 +245,18 @@ export default function DashboardWithSidebar() {
               </div>
             </div>
             <div>
-              <p className="text-zinc-400 text-sm mb-1">Equipment</p>
-              <p className="text-2xl font-bold text-white">{activeEquipmentCount}/{safePrinters.length}</p>
-              <p className="text-xs text-zinc-500 mt-1">Online and ready</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <p className="text-zinc-400 text-sm mb-1">Equipment</p>
+                    <p className="text-2xl font-bold text-white">{activeEquipmentCount}/{safePrinters.length}</p>
+                    <p className="text-xs text-zinc-500 mt-1">Online and ready</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Number of active printers vs total registered equipment</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </CardContent>
         </Card>
@@ -238,9 +273,18 @@ export default function DashboardWithSidebar() {
               </div>
             </div>
             <div>
-              <p className="text-zinc-400 text-sm mb-1">Average Rating</p>
-              <p className="text-2xl font-bold text-white">{averageRating.toFixed(1)}</p>
-              <p className="text-xs text-zinc-500 mt-1">{safeReviews.length} reviews</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <p className="text-zinc-400 text-sm mb-1">Average Rating</p>
+                    <p className="text-2xl font-bold text-white">{averageRating.toFixed(1)}</p>
+                    <p className="text-xs text-zinc-500 mt-1">{safeReviews.length} reviews</p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Your average customer rating and total number of reviews</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </CardContent>
         </Card>
@@ -276,13 +320,20 @@ export default function DashboardWithSidebar() {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Button 
-                onClick={handleSponsorshipPurchase}
-                className="bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-medium px-6"
-              >
-                <Crown className="w-4 h-4 mr-2" />
-                Buy Sponsorship
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    onClick={handleSponsorshipPurchase}
+                    className="bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white font-medium px-6"
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Buy Sponsorship
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Get featured placements and boost your visibility</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </CardContent>
@@ -318,11 +369,18 @@ export default function DashboardWithSidebar() {
                   }`}
                 >
                   <div className="pt-1">
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={() => handleTaskToggle(task.id)}
-                      className="w-4 h-4"
-                    />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Checkbox
+                          checked={task.completed}
+                          onCheckedChange={() => handleTaskToggle(task.id)}
+                          className="w-4 h-4"
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Mark this task as completed</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link href={task.link}>
@@ -835,12 +893,19 @@ export default function DashboardWithSidebar() {
           <h2 className="text-2xl font-bold text-white">Listings Management</h2>
           <p className="text-zinc-400">Manage your products and services</p>
         </div>
-        <Link href="/create-listing">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Listing
-          </Button>
-        </Link>
+        <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href="/create-listing">
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Listing
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add a new product or service to your shop</p>
+            </TooltipContent>
+          </Tooltip>
       </div>
 
       {/* Listings Stats */}
@@ -1423,21 +1488,23 @@ export default function DashboardWithSidebar() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <SimpleSidebar />
-      
-      {/* Main Content */}
-      <div className="ml-16 group-hover:ml-64 p-4 md:p-8 transition-all duration-300 pt-4">
-        <motion.div
-          key={activeSection}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="max-w-7xl mx-auto"
-        >
-          {renderContent()}
-        </motion.div>
+    <TooltipProvider>
+      <div className="min-h-screen bg-zinc-950">
+        <SimpleSidebar />
+        
+        {/* Main Content */}
+        <div className="ml-16 group-hover:ml-64 p-4 md:p-8 transition-all duration-300 pt-4">
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="max-w-7xl mx-auto"
+          >
+            {renderContent()}
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
