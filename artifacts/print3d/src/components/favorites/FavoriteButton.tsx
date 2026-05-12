@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -28,11 +28,11 @@ export function FavoriteButton({
   const [isLoading, setIsLoading] = useState(false);
 
   // Check favorite status on mount
-  useState(() => {
+  useEffect(() => {
     if (user?.id) {
       isFavorite(user.id, itemId, itemType).then(setIsFavorite);
     }
-  });
+  }, [user?.id, itemId, itemType]);
 
   const handleToggleFavorite = async () => {
     if (!user?.id) {
