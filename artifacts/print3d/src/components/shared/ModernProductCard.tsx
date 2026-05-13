@@ -91,7 +91,7 @@ export function ModernProductCard({
 
   return (
     <Link href={`/listings/${listing.id}`} className="block group">
-      <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-gray-200 group-hover:-translate-y-2">
+      <div className="relative bg-zinc-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-zinc-700 hover:border-zinc-600 group-hover:-translate-y-2">
         
         {/* Image Section with Overlay */}
         <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
@@ -182,10 +182,10 @@ export function ModernProductCard({
 
           {/* Price Badge */}
           <div className="absolute bottom-3 left-3">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200">
-              <p className="text-xs text-gray-500 font-medium">from</p>
-              <p className="text-lg font-bold text-gray-900">
-                {formatPrice(listing.basePrice || 0)}
+            <div className="bg-zinc-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-zinc-700">
+              <p className="text-xs text-zinc-400 font-medium">from</p>
+              <p className="text-lg font-bold text-white">
+                {formatPrice((listing.basePrice || 0) + 1)}
               </p>
             </div>
           </div>
@@ -195,7 +195,7 @@ export function ModernProductCard({
         <div className="p-4 space-y-3">
           {/* Title */}
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <h3 className="font-semibold text-white text-lg line-clamp-2 group-hover:text-blue-400 transition-colors">
               {listing.title}
             </h3>
             
@@ -203,7 +203,7 @@ export function ModernProductCard({
             <div className="flex items-center gap-2 mt-2">
               <Link 
                 href={`/shop/${listing.sellerId || listing.id}`} 
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-2 text-sm text-zinc-300 hover:text-blue-400 transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
                 <span className="font-medium">{listing.sellerName || 'Unknown Shop'}</span>
@@ -213,7 +213,7 @@ export function ModernProductCard({
                 {listing.sellerRating && typeof listing.sellerRating === 'number' && (
                   <div className="flex items-center gap-1">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs text-zinc-300">
                       {listing.sellerRating.toFixed(1)} ({listing.sellerReviewCount || 0})
                     </span>
                   </div>
@@ -233,14 +233,14 @@ export function ModernProductCard({
           )}
 
           {/* Key Info */}
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-zinc-300">
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
               <span>{listing.estimatedDaysMin || 1}-{listing.estimatedDaysMax || 7} days</span>
             </div>
             <div className="flex items-center gap-1">
               <Truck className="w-4 h-4" />
-              <span>{listing.shippingCost > 0 ? `+$${listing.shippingCost}` : 'Free'}</span>
+              <span>{listing.shippingCost > 0 ? `+$${listing.shippingCost}` : 'Free shipping'}</span>
             </div>
           </div>
 
@@ -248,12 +248,12 @@ export function ModernProductCard({
           {listing.tags && listing.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {listing.tags.slice(0, 3).map(tag => (
-                <span key={tag} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                <span key={tag} className="text-xs px-2 py-1 bg-zinc-700 text-zinc-300 rounded-full">
                   {tag}
                 </span>
               ))}
               {listing.tags.length > 3 && (
-                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                <span className="text-xs px-2 py-1 bg-zinc-700 text-zinc-300 rounded-full">
                   +{listing.tags.length - 3}
                 </span>
               )}
