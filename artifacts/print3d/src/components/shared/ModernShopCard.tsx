@@ -13,7 +13,8 @@ import {
   Award,
   Users,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  Clock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -330,7 +331,7 @@ export function ModernShopCard({
         {/* Action Buttons */}
         <div className="flex gap-3">
           <Link href={`/shop/${seller.id}`} className="flex-1">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+            <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
               <ExternalLink className="w-4 h-4" />
               Visit Shop
             </Button>

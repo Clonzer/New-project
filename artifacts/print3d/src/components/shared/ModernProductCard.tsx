@@ -281,7 +281,7 @@ export function ModernProductCard({
                     "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1.5",
                     isOutOfStock
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
+                      : "bg-orange-600 text-white hover:bg-orange-700 shadow-md hover:shadow-lg"
                   )}
                 >
                   <ShoppingCart className="w-4 h-4" />
@@ -307,7 +307,7 @@ export function ModernProductCard({
                   }
                   setLocation(`/messages?userId=${listing.sellerId}&listingId=${listing.id}`);
                 }}
-                className="w-full py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-lg text-sm font-semibold bg-orange-600 text-white hover:bg-orange-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-1.5"
               >
                 <MessageSquare className="w-4 h-4" />
                 Request Job
