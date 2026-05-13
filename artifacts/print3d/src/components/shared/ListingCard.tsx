@@ -149,7 +149,7 @@ export function ListingCard({
           <div className="text-right">
             <p className="text-xs text-zinc-300">from</p>
             <p className="font-display font-bold text-lg text-primary text-glow-primary">
-              {formatPrice(listing.basePrice || 0)}
+              {formatPrice((listing.basePrice || 0) + 1)}
             </p>
           </div>
         </div>
