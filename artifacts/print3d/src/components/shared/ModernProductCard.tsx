@@ -210,7 +210,7 @@ export function ModernProductCard({
                 {listing.sellerRankId && listing.sellerRankId > 1 && (
                   <MiniRank rankId={listing.sellerRankId} />
                 )}
-                {listing.sellerRating && (
+                {listing.sellerRating && typeof listing.sellerRating === 'number' && (
                   <div className="flex items-center gap-1">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                     <span className="text-xs text-gray-600">

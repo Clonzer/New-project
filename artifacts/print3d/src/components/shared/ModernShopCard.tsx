@@ -232,7 +232,7 @@ export function ModernShopCard({
             <div className="flex items-center gap-1">
               <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
               <span className="font-semibold text-gray-900">
-                {seller.rating?.toFixed(1) || "New"}
+                {typeof seller.rating === 'number' ? seller.rating.toFixed(1) : "New"}
               </span>
               <span className="text-sm text-gray-500">
                 ({seller.reviewCount || 0} reviews)
