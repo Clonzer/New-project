@@ -264,7 +264,7 @@ export default function ListingDetail() {
               {/* Price */}
               <div className="space-y-4">
                 <BuyerPriceDisplay 
-                  basePrice={listing.basePrice || 0}
+                  basePrice={(listing.basePrice || 0) + 1.62}
                   shippingCost={listing.shippingCost || 0}
                   carrier={listing.carrier || "default"}
                 />

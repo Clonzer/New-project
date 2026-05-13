@@ -35,7 +35,7 @@ function transformListing(listing: any) {
     title: listing.title,
     description: listing.description,
     category: listing.category,
-    basePrice: listing.price || listing.base_price || listing.basePrice || 0,
+    basePrice: (listing.price || listing.base_price || listing.basePrice || 0) + 1.62,
     shippingCost: listing.shipping_cost || listing.shippingCost || 0,
     listingType: listing.listing_type || listing.listingType,
     sellerId: listing.seller_id || listing.sellerId,

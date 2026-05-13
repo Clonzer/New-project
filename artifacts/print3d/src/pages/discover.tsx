@@ -302,7 +302,7 @@ export default function Discover() {
           imageUrl: listing.image_url || listing.imageUrl || listing.images?.[0] || null,
           sellerId: listing.seller_id || listing.sellerId,
           sellerName: listing.seller_name || listing.sellerName,
-          basePrice: listing.base_price || listing.basePrice || listing.price,
+          basePrice: (listing.base_price || listing.basePrice || listing.price) + 1.62,
         }));
 
         setListingsData({ listings: transformedListings });
@@ -1164,7 +1164,7 @@ export default function Discover() {
                                   {listing.title}
                                 </p>
                                 <p className="text-primary text-xs font-semibold">
-                                  ${typeof listing.basePrice === 'number' ? listing.basePrice.toFixed(2) : (listing.price || 0).toFixed(2)}
+                                  ${typeof listing.basePrice === 'number' ? (listing.basePrice + 1.62).toFixed(2) : ((listing.price || 0) + 1.62).toFixed(2)}
                                 </p>
                               </div>
                             </motion.div>

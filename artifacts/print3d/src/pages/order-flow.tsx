@@ -74,7 +74,7 @@ export default function OrderFlow() {
   }, [form, listing]);
 
   const isCatalogOrder = Boolean(listingId && listing);
-  const unitPrice = isCatalogOrder ? listing?.basePrice ?? 0 : Math.max(0, form.watch("proposedUnitPrice") ?? 0);
+  const unitPrice = isCatalogOrder ? (listing?.basePrice ?? 0) + 1.62 : Math.max(0, form.watch("proposedUnitPrice") ?? 0);
   const quantity = form.watch("quantity") || 1;
   const subtotal = unitPrice * quantity;
   const shippingEstimate = seller
