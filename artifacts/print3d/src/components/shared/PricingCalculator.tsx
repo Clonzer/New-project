@@ -53,35 +53,26 @@ const CARRIER_LABEL_FEES: Record<string, number> = {
 };
 
 export function calculateFees(basePrice: number, shippingCost: number = 0, carrier: string = "default"): FeeBreakdown {
-  const labelFee = CARRIER_LABEL_FEES[carrier.toLowerCase()] ?? CARRIER_LABEL_FEES.default;
-  const stripePercentage = 0.029; // 2.9%
-  const stripeFixed = 0.30;       // $0.30
-  const platformFeePercentage = 0.05; // 5% platform fee
+  const flatFee = 1.00; // Flat £1 fee added to buyer price
   
   // Subtotal before fees
   const subtotal = basePrice + shippingCost;
   
-  // Calculate fees on the total
-  const stripeFee = (subtotal * stripePercentage) + stripeFixed;
-  const platformFee = subtotal * platformFeePercentage;
-  const totalFees = labelFee + stripeFee + platformFee;
+  // What buyer pays (base + shipping + flat fee)
+  const buyerPrice = subtotal + flatFee;
   
-  // What buyer pays (base + shipping + fees)
-  const buyerPrice = subtotal + totalFees;
-  
-  // What seller earns (base - platform fee - label fee)
-  // Stripe fee is paid by buyer but processed through platform
-  const sellerEarnings = basePrice - platformFee - labelFee;
+  // What seller earns (base price - no fees deducted from seller)
+  const sellerEarnings = basePrice;
   
   return {
     basePrice,
-    labelFee,
-    stripeFee,
+    labelFee: 0,
+    stripeFee: 0,
     shippingCost,
-    totalFees,
+    totalFees: flatFee,
     buyerPrice,
     sellerEarnings,
-    platformFee,
+    platformFee: 0,
   };
 }
 
@@ -99,8 +90,8 @@ export function BuyerPriceDisplay({
   const fees = useMemo(() => calculateFees(basePrice, shippingCost, carrier), [basePrice, shippingCost, carrier]);
   const carrierName = carrier.charAt(0).toUpperCase() + carrier.slice(1);
   
-  // Shipping includes: actual shipping + label fee + platform fee + stripe fee
-  const totalShipping = shippingCost + fees.labelFee + fees.platformFee + fees.stripeFee;
+  // Shipping includes: actual shipping + flat fee
+  const totalShipping = shippingCost + fees.totalFees;
   const totalPrice = basePrice + totalShipping;
   
   return (
@@ -113,15 +104,15 @@ export function BuyerPriceDisplay({
             <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
           </div>
           
-          {/* Shipping (includes all fees) */}
+          {/* Shipping (includes flat fee) */}
           <div className="flex justify-between items-center">
             <Tooltip>
               <TooltipTrigger className="flex items-center gap-1 text-zinc-400 hover:text-zinc-300 transition-colors cursor-help">
-                <span>Shipping & Fees</span>
+                <span>Shipping & Fee</span>
                 <Info className="w-3 h-3" />
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs">
-                <p>Includes shipping, label fee, payment processing, and platform fee</p>
+                <p>Includes shipping cost and £1 platform fee</p>
               </TooltipContent>
             </Tooltip>
             <span className="text-white">+${totalShipping.toFixed(2)}</span>
@@ -181,51 +172,19 @@ export function PricingCalculator({
             )}
             
             <div className="border-t border-white/10 pt-2 space-y-2">
-              {/* Label Fee */}
+              {/* Flat Fee */}
               <div className="flex justify-between items-center">
                 <Tooltip>
                   <TooltipTrigger className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors cursor-help">
-                    <Package className="w-3.5 h-3.5" />
-                    <span>Label Fee ({carrierName})</span>
+                    <Info className="w-3.5 h-3.5" />
+                    <span>Platform Fee</span>
                     <Info className="w-3 h-3" />
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-xs">
-                    <p>Carrier label generation fee. USPS/UPS/FedEx typically free, DHL ~$0.05</p>
+                    <p>A flat £1 fee is added to the buyer's price. You keep your full listed price.</p>
                   </TooltipContent>
                 </Tooltip>
-                <span className="text-zinc-500">
-                  {fees.labelFee === 0 ? "FREE" : `$${fees.labelFee.toFixed(2)}`}
-                </span>
-              </div>
-              
-              {/* Stripe Fee */}
-              <div className="flex justify-between items-center">
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors cursor-help">
-                    <CreditCard className="w-3.5 h-3.5" />
-                    <span>Payment Processing</span>
-                    <Info className="w-3 h-3" />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs">
-                    <p>Stripe fee: 2.9% + $0.30 per transaction</p>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-zinc-500">${fees.stripeFee.toFixed(2)}</span>
-              </div>
-              
-              {/* Platform Fee */}
-              <div className="flex justify-between items-center">
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors cursor-help">
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>Platform Fee (5%)</span>
-                    <Info className="w-3 h-3" />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs">
-                    <p>Platform fee to maintain marketplace infrastructure</p>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-zinc-500">${fees.platformFee.toFixed(2)}</span>
+                <span className="text-zinc-500">+$1.00</span>
               </div>
             </div>
             
@@ -240,6 +199,10 @@ export function PricingCalculator({
                 <span className="text-emerald-400 font-medium">You Earn</span>
                 <span className="text-lg font-bold text-emerald-400">${fees.sellerEarnings.toFixed(2)}</span>
               </div>
+              
+              <p className="text-xs text-zinc-500 mt-2 text-center">
+                £1 platform fee added to buyer price
+              </p>
             </div>
           </div>
         )}
