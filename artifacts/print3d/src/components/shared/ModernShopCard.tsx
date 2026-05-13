@@ -76,8 +76,8 @@ export function ModernShopCard({
   const [fetchedAvatarUrl, setFetchedAvatarUrl] = useState<string | null>(null);
   
   // Common seller data
-  const shopName = seller.shopName || seller.store_name || 'Unknown Shop';
-  const displayName = seller.displayName || seller.display_name || shopName;
+  const shopName = seller.displayName || seller.display_name || seller.shopName || seller.store_name || 'Unknown Shop';
+  const displayName = shopName;
 
   // Fetch avatar if not provided
   useEffect(() => {
@@ -130,16 +130,17 @@ export function ModernShopCard({
   };
 
   const getStatusIndicator = () => {
-    if (seller.accepting_orders === false) {
+    const isAccepting = seller.accepting_orders !== false;
+    if (!isAccepting) {
       return (
-        <div className="flex items-center gap-1 text-red-600">
+        <div className="flex items-center gap-1 text-red-400">
           <XCircle className="w-4 h-4" />
           <span className="text-sm font-medium">Not Accepting Orders</span>
         </div>
       );
     }
     return (
-      <div className="flex items-center gap-1 text-green-600">
+      <div className="flex items-center gap-1 text-green-400">
         <CheckCircle className="w-4 h-4" />
         <span className="text-sm font-medium">Accepting Orders</span>
       </div>
@@ -147,7 +148,7 @@ export function ModernShopCard({
   };
 
   return (
-    <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-gray-200 group-hover:-translate-y-2">
+    <div className="group bg-zinc-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-zinc-700 hover:border-zinc-600 group-hover:-translate-y-2">
       
       {/* Header Section */}
       <div className="relative h-32 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-6">
@@ -200,11 +201,11 @@ export function ModernShopCard({
             </div>
             
             {/* Status Indicator */}
-            <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-white border-2 border-white shadow-md flex items-center justify-center">
+            <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-zinc-900 border-2 border-zinc-800 shadow-md flex items-center justify-center">
               {seller.accepting_orders === false ? (
-                <XCircle className="w-4 h-4 text-red-500" />
+                <XCircle className="w-4 h-4 text-red-400" />
               ) : (
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="w-4 h-4 text-green-400" />
               )}
             </div>
           </div>
@@ -231,10 +232,10 @@ export function ModernShopCard({
             )}
             <div className="flex items-center gap-1">
               <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-white">
                 {typeof seller.rating === 'number' ? seller.rating.toFixed(1) : "New"}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-zinc-400">
                 ({seller.reviewCount || 0} reviews)
               </span>
             </div>
@@ -244,18 +245,18 @@ export function ModernShopCard({
             itemType="profile"
             itemId={String(seller.id)}
             itemName={shopName}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-zinc-400 hover:text-zinc-200 transition-colors"
           />
         </div>
 
         {/* Status */}
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg">
           {getStatusIndicator()}
           {getShopModeBadge()}
         </div>
 
         {/* Bio */}
-        <p className="text-gray-600 text-sm line-clamp-2">
+        <p className="text-zinc-300 text-sm line-clamp-2">
           {seller.bio || "Professional 3D printing and fabrication services. Quality work with fast turnaround times."}
         </p>
 
@@ -263,12 +264,12 @@ export function ModernShopCard({
         {(seller.sellerTags || seller.seller_tags)?.length ? (
           <div className="flex flex-wrap gap-1">
             {(seller.sellerTags || seller.seller_tags || []).slice(0, 3).map((tag: string) => (
-              <span key={tag} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+              <span key={tag} className="text-xs px-2 py-1 bg-zinc-700 text-zinc-300 rounded-full">
                 {tag}
               </span>
             ))}
             {(seller.sellerTags || seller.seller_tags || []).length > 3 && (
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+              <span className="text-xs px-2 py-1 bg-zinc-700 text-zinc-300 rounded-full">
                 +{(seller.sellerTags || seller.seller_tags || []).length - 3}
               </span>
             )}
@@ -276,35 +277,35 @@ export function ModernShopCard({
         ) : null}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-3 gap-4 p-4 bg-zinc-900/50 rounded-lg">
           <div className="text-center">
-            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-blue-100 rounded-lg">
-              <Printer className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-blue-900/50 rounded-lg">
+              <Printer className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="font-bold text-gray-900">
+            <p className="font-bold text-white">
               {seller.printerCount || seller.printer_count || 0}
             </p>
-            <p className="text-xs text-gray-500">Equipment</p>
+            <p className="text-xs text-zinc-400">Equipment</p>
           </div>
           
           <div className="text-center">
-            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-green-100 rounded-lg">
-              <Package className="w-5 h-5 text-green-600" />
+            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-green-900/50 rounded-lg">
+              <Package className="w-5 h-5 text-green-400" />
             </div>
-            <p className="font-bold text-gray-900">
+            <p className="font-bold text-white">
               {seller.totalPrints || seller.total_prints || 0}
             </p>
-            <p className="text-xs text-gray-500">Orders</p>
+            <p className="text-xs text-zinc-400">Orders</p>
           </div>
           
           <div className="text-center">
-            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-purple-100 rounded-lg">
-              <Award className="w-5 h-5 text-purple-600" />
+            <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-purple-900/50 rounded-lg">
+              <Award className="w-5 h-5 text-purple-400" />
             </div>
-            <p className="font-bold text-gray-900">
+            <p className="font-bold text-white">
               {seller.totalXp || 0}
             </p>
-            <p className="text-xs text-gray-500">XP Points</p>
+            <p className="text-xs text-zinc-400">XP Points</p>
           </div>
         </div>
 
@@ -312,13 +313,13 @@ export function ModernShopCard({
         {seller.responseTime || seller.completionRate ? (
           <div className="flex gap-4 text-sm">
             {seller.responseTime && (
-              <div className="flex items-center gap-1 text-gray-600">
+              <div className="flex items-center gap-1 text-zinc-300">
                 <Clock className="w-4 h-4" />
                 <span>{seller.responseTime}h avg response</span>
               </div>
             )}
             {seller.completionRate && (
-              <div className="flex items-center gap-1 text-gray-600">
+              <div className="flex items-center gap-1 text-zinc-300">
                 <TrendingUp className="w-4 h-4" />
                 <span>{seller.completionRate}% completion</span>
               </div>
@@ -338,7 +339,7 @@ export function ModernShopCard({
           <Button
             type="button"
             variant="outline"
-            className="rounded-lg border-gray-200 bg-white hover:bg-gray-50 transition-all duration-200"
+            className="rounded-lg border-zinc-600 bg-zinc-900 hover:bg-zinc-800 text-white transition-all duration-200"
             onClick={() => {
               const added = toggleComparedShop({
                 id: Number(seller.id),
@@ -365,7 +366,7 @@ export function ModernShopCard({
         {/* Compare Status */}
         {isCompared && (
           <div className="text-center">
-            <p className="text-xs text-blue-600 font-medium">Pinned for comparison</p>
+            <p className="text-xs text-blue-400 font-medium">Pinned for comparison</p>
           </div>
         )}
       </div>
