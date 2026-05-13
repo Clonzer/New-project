@@ -263,11 +263,9 @@ export default function ListingDetail() {
 
               {/* Price */}
               <div className="space-y-4">
-                <BuyerPriceDisplay 
-                  basePrice={listing.basePrice || 0}
-                  shippingCost={listing.shippingCost || 0}
-                  carrier={listing.carrier || "default"}
-                />
+                <div className="text-4xl font-bold text-white">
+                  ${listing.basePrice?.toFixed(2) || '0.00'}
+                </div>
                 
                 {/* Shipping Info */}
                 {listing.carrier && (
