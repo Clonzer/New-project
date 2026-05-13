@@ -267,7 +267,7 @@ export function SellerCard({
 
           <div className="mt-5 flex gap-2">
             <Link href={`/shop/${seller.id}`} className="flex-1">
-              <Button className="w-full rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border border-primary/30 hover:border-primary/50 text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all duration-300">View shop</Button>
+              <Button className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border border-orange-400/50 hover:border-orange-400 text-white hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all duration-300">View shop</Button>
             </Link>
             <Button
               type="button"

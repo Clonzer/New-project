@@ -235,7 +235,7 @@ export function ListingCard({
                 className={`flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition-all border flex items-center justify-center gap-1.5 ${
                   isOutOfStock
                     ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
-                    : "bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border-primary/30 hover:border-primary/50"
+                    : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-orange-400/50 hover:border-orange-400"
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" /> Cart
@@ -260,7 +260,7 @@ export function ListingCard({
                 }
                 setLocation(`/messages?userId=${listing.sellerId}&listingId=${listing.id}`);
               }}
-              className="w-full py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 border bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/40 hover:to-primary/30 border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 border bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-orange-400/50 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] flex items-center justify-center gap-1.5"
             >
               <MessageSquare className="w-4 h-4" /> Request Job
             </button>
@@ -274,7 +274,7 @@ export function ListingCard({
                 className={`w-full py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 border ${
                   isOutOfStock
                     ? "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed opacity-50"
-                    : "bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/40 hover:to-primary/30 border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-1.5"
+                    : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-orange-400/50 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)] flex items-center justify-center gap-1.5"
                 }`}
               >
                 {isOutOfStock ? "Out of Stock" : "Order Print"}
