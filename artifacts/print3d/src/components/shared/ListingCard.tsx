@@ -149,7 +149,7 @@ export function ListingCard({
           <div className="text-right">
             <p className="text-xs text-zinc-300">from</p>
             <p className="font-display font-bold text-lg text-primary text-glow-primary">
-              {formatPrice((listing.basePrice || 0) + 1)}
+              {formatPrice((listing.basePrice || 0) + 1.62)}
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@ export function ListingCard({
                   <MiniRank rankId={listing.sellerRankId} />
                 )}
               </div>
-              <div className="text-lg font-bold text-white">{formatPrice((listing.basePrice || 0) + 1)}</div>
+              <div className="text-lg font-bold text-white">{formatPrice((listing.basePrice || 0) + 1.62)}</div>
             </div>
             <div className="flex items-center gap-2 text-sm text-zinc-400">
               <Clock className="w-4 h-4" />

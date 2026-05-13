@@ -82,7 +82,7 @@ export default function Cart() {
     return lines.filter((line) => !ids.has(line.listingId)).map((line) => line.listingId);
   }, [lines, listingsData]);
 
-  const subtotal = rows.reduce((sum, { line, listing }) => sum + (listing.basePrice + 1) * line.quantity, 0);
+  const subtotal = rows.reduce((sum, { line, listing }) => sum + (listing.basePrice + 1.62) * line.quantity, 0);
   const shippingTotal = rows.reduce(
     (sum, { line, listing }) => sum + (listing.shippingCost ?? 0) * line.quantity,
     0,
@@ -200,7 +200,7 @@ export default function Cart() {
                             <p className="font-semibold text-white truncate">{listing.title}</p>
                             <p className="text-xs text-zinc-500 mb-2">by {listing.sellerName}</p>
                             <p className="text-sm text-zinc-400 mb-3">
-                              {formatPrice(listing.basePrice + 1)} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
+                              {formatPrice(listing.basePrice + 1.62)} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
                             </p>
                             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
                               <div className="flex items-center gap-2">

@@ -46,7 +46,7 @@ export default function ProductOrder() {
   });
 
   // Calculate price
-  const basePrice = (listing?.basePrice || 0) + 1; // Add £1 fee
+  const basePrice = (listing?.basePrice || 0) + 1.62; // Add £1 fee
   const subtotal = basePrice * quantity;
   const shippingEstimate = seller
     ? getShippingEstimate(seller, countryCode, subtotal, listing?.shippingCost)
@@ -163,7 +163,7 @@ export default function ProductOrder() {
                   <div className="flex-grow">
                     <h2 className="text-xl font-bold text-white mb-1">{listing?.title}</h2>
                     <p className="text-zinc-400 text-sm mb-2 line-clamp-2">{listing?.description}</p>
-                    <p className="text-primary font-bold">{formatPrice((listing?.basePrice || 0) + 1)} each</p>
+                    <p className="text-primary font-bold">{formatPrice((listing?.basePrice || 0) + 1.62)} each</p>
                   </div>
                 </div>
               </div>
