@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { MiniRank } from "@/components/rank/RankBadge";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { calculateFees } from "@/components/shared/PricingCalculator";
 
 interface ModernProductCardProps {
   listing: Listing & { 
@@ -68,9 +67,6 @@ export function ModernProductCard({
   const { formatPrice } = useLocalePreferences();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  
-  const flatFee = 1.00;
-  const buyerPrice = (listing.basePrice || 0) + (listing.shippingCost || 0) + flatFee;
   
   const isOutOfStock = listing.trackStock && listing.stockQuantity === 0;
   const isLowStock = listing.trackStock && listing.stockQuantity && listing.stockQuantity <= 5 && listing.stockQuantity > 0;
@@ -189,7 +185,7 @@ export function ModernProductCard({
             <div className="bg-zinc-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-zinc-700">
               <p className="text-xs text-zinc-400 font-medium">from</p>
               <p className="text-lg font-bold text-white">
-                {formatPrice(buyerPrice)}
+                {formatPrice(listing.basePrice || 0)}
               </p>
             </div>
           </div>
