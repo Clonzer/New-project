@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { format } from "date-fns";
-import { supabase } from "@/lib/supabase";
+import { useLocalePreferences } from "@/lib/locale-preferences";
+import { calculateSubtotal, FIXED_FEE_AMOUNT } from "@/lib/pricing";
 import {
   Calendar,
   CheckCircle2,
@@ -33,7 +34,7 @@ function transformListing(listing: any) {
     title: listing.title,
     description: listing.description,
     category: listing.category,
-    basePrice: (listing.price || listing.base_price || listing.basePrice || 0) + 1.62,
+    basePrice: (listing.price || listing.base_price || listing.basePrice || 0) + 1.62 + FIXED_FEE_AMOUNT,
     shippingCost: listing.shipping_cost || listing.shippingCost || 0,
     listingType: listing.listing_type || listing.listingType,
     sellerId: listing.seller_id || listing.sellerId,

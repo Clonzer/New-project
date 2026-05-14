@@ -1280,7 +1280,7 @@ export default function DashboardWithSidebar() {
                 
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-lg font-bold text-white">${(listing.basePrice || listing.price || 0) + 1.62}</p>
+                    <p className="text-lg font-bold text-white">${(listing.basePrice || listing.price || 0) + 1.62 + 1}</p>
                     <p className="text-xs text-zinc-400">{listing.listingType || listing.listing_type || 'product'}</p>
                   </div>
                   <div className="text-right">

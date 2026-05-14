@@ -53,7 +53,7 @@ export function calculatePlatformFee(input: PricingInput): number {
 }
 
 /**
- * Calculate the total price including platform fee and shipping
+ * Calculate the total price including platform fee, fixed fee, and shipping
  */
 export function calculateTotal(input: PricingInput): number {
   const subtotal = calculateSubtotal(input);
@@ -61,7 +61,7 @@ export function calculateTotal(input: PricingInput): number {
   const shippingCost = getShippingCost(input);
   const quantity = input.quantity ?? 1;
   
-  return subtotal + platformFee + (shippingCost * quantity);
+  return subtotal + platformFee + FIXED_FEE_AMOUNT + (shippingCost * quantity);
 }
 
 /**

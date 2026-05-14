@@ -14,7 +14,7 @@ import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-err
 import { readCart, writeCart, CART_CHANGE_EVENT, CartLine, setLineQuantity, removeFromCart, clearCart } from "@/lib/cart-storage";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { useLocalePreferences } from "@/lib/locale-preferences";
-import { calculateSubtotal, calculatePlatformFee, calculateTotal } from "@/lib/pricing";
+import { calculateSubtotal, calculatePlatformFee, calculateTotal, FIXED_FEE_AMOUNT } from "@/lib/pricing";
 import { Box, ShoppingBag, Trash2, ArrowRight, Package, CreditCard, Truck, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -117,6 +117,7 @@ export default function Cart() {
         items: rows.map(({ line, listing }) => ({
           listingId: listing.id,
           quantity: line.quantity,
+          unitPrice: listing.basePrice,
         })),
       });
       window.location.href = session.url;
@@ -267,10 +268,14 @@ export default function Cart() {
                         <span>Platform fee (10%)</span>
                         <span>{formatPrice(platformFee)}</span>
                       </div>
+                      <div className="flex justify-between">
+                        <span>Fixed fee</span>
+                        <span>{formatPrice(FIXED_FEE_AMOUNT)}</span>
+                      </div>
                     </div>
                     <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-zinc-700 mb-6">
                       <span>Total</span>
-                      <span className="text-orange-400">{formatPrice(grandTotal)}</span>
+                      <span className="text-orange-400">{formatPrice(grandTotal + FIXED_FEE_AMOUNT)}</span>
                     </div>
                     <div className="mb-6">
                       <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-2">

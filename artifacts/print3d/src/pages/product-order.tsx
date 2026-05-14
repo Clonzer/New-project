@@ -11,7 +11,7 @@ import { getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { canSellerShipToCountry, getShippingEstimate } from "@/lib/shipping-profile";
 import { useGetListing, useGetUser, getGetListingQueryKey, getGetUserQueryKey } from "@/lib/workspace-api-mock";
-import { calculateSubtotal, calculatePlatformFee, calculateTotal } from "@/lib/pricing";
+import { calculateSubtotal, calculatePlatformFee, calculateTotal, FIXED_FEE_AMOUNT } from "@/lib/pricing";
 import { 
   ShieldCheck, 
   Package, 
@@ -99,6 +99,7 @@ export default function ProductOrder() {
           {
             listingId: listing!.id,
             quantity,
+            unitPrice: listing!.basePrice,
             notes: notes || null,
           },
         ],
@@ -226,13 +227,17 @@ export default function ProductOrder() {
                       <span className="text-white">{formatPrice(platformFee)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
+                      <span className="text-zinc-400">Fixed fee</span>
+                      <span className="text-white">{formatPrice(FIXED_FEE_AMOUNT)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
                       <span className="text-zinc-400">Shipping</span>
                       <span className="text-white">{formatPrice(lineShipping)}</span>
                     </div>
                     <div className="pt-4 border-t border-white/10">
                       <div className="flex justify-between">
                         <span className="text-lg font-bold text-white">Total</span>
-                        <span className="text-lg font-bold text-primary">{formatPrice(total)}</span>
+                        <span className="text-lg font-bold text-primary">{formatPrice(total + FIXED_FEE_AMOUNT)}</span>
                       </div>
                     </div>
                   </div>
