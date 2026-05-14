@@ -185,7 +185,7 @@ export function ModernProductCard({
             <div className="bg-zinc-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-zinc-700">
               <p className="text-xs text-zinc-400 font-medium">from</p>
               <p className="text-lg font-bold text-white">
-                {formatPrice(listing.basePrice || 0)}
+                {formatPrice((listing.basePrice || 0) * 1.05 + 1)}
               </p>
             </div>
           </div>

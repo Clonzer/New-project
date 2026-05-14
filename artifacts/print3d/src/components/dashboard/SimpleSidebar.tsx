@@ -97,6 +97,7 @@ export function SimpleSidebar() {
   const [location] = useLocation();
   const { user, refreshUser } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const handleMouseEnter = () => {
     // Don't interfere with touch state on mobile
@@ -219,6 +220,8 @@ export function SimpleSidebar() {
                         window.location.href = item.path;
                       }
                     }}
+                    onMouseEnter={() => setHoveredItem(item.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
                     className={`w-full flex items-center px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                       active
                         ? "bg-orange-600/20 text-orange-300 border border-orange-500/30"
@@ -237,9 +240,11 @@ export function SimpleSidebar() {
                         <p className="text-sm font-semibold text-white truncate">
                           {item.label}
                         </p>
-                        <p className="text-xs text-zinc-400 leading-relaxed opacity-100">
-                          {item.description}
-                        </p>
+                        {hoveredItem === item.id && (
+                          <p className="text-xs text-zinc-400 leading-relaxed opacity-100 animate-in fade-in slide-in-from-top-1 duration-200">
+                            {item.description}
+                          </p>
+                        )}
                       </div>
                     )}
                     {isExpanded && (

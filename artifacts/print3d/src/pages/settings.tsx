@@ -19,19 +19,20 @@ import {
   useLocalePreferences,
 } from "@/lib/locale-preferences";
 import { getPaymentConfig } from "@/lib/payments-api";
+import { getWalletBalance, getPayoutHistory, requestPayout } from "@/services/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
 import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X, Wallet, TrendingUp, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
+import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "policies", label: "Policies", icon: FileText },
-  { id: "payment", label: "Payments", icon: CreditCard },
-  { id: "wallet", label: "Wallet", icon: Wallet },
-  { id: "transactions", label: "Transactions", icon: TrendingUp },
+  { id: "seller-earnings", label: "Seller Earnings", icon: Wallet },
+  { id: "buyer-finances", label: "Buyer Finances", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "accounts", label: "Accounts", icon: User },
@@ -46,6 +47,10 @@ export default function Settings() {
   const [activeSection, setActiveSection] = useState("profile");
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [paymentEnabled, setPaymentEnabled] = useState(false);
+  const [walletBalance, setWalletBalance] = useState({ available: 0, pending: 0, total: 0 });
+  const [payoutHistory, setPayoutHistory] = useState<any[]>([]);
+  const [payoutAmount, setPayoutAmount] = useState("");
+  const [isRequestingPayout, setIsRequestingPayout] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isRequestingVerification, setIsRequestingVerification] = useState(false);
   const [isConfirmingVerification, setIsConfirmingVerification] = useState(false);
@@ -156,6 +161,87 @@ export default function Settings() {
       .then((result) => setPaymentEnabled(result.checkoutEnabled))
       .catch(() => setPaymentEnabled(false));
   }, []);
+
+  useEffect(() => {
+    if (activeSection === "seller-earnings" && user?.id) {
+      fetchWalletData();
+    }
+  }, [activeSection, user?.id]);
+
+  const fetchWalletData = async () => {
+    if (!user?.id) return;
+
+    try {
+      const [balanceResult, historyResult] = await Promise.all([
+        getWalletBalance(user.id),
+        getPayoutHistory(user.id),
+      ]);
+
+      if (balanceResult.success && balanceResult.data) {
+        setWalletBalance({
+          available: balanceResult.data.available,
+          pending: balanceResult.data.pending,
+          total: balanceResult.data.available + balanceResult.data.pending,
+        });
+      }
+
+      if (historyResult.success && historyResult.data?.payouts) {
+        setPayoutHistory(historyResult.data.payouts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch wallet data:", error);
+    }
+  };
+
+  const handleRequestPayout = async () => {
+    if (!user?.id) return;
+
+    const amount = parseFloat(payoutAmount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid payout amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > walletBalance.available) {
+      toast({
+        title: "Insufficient balance",
+        description: "You can only payout your available balance",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRequestingPayout(true);
+    try {
+      const result = await requestPayout(user.id, amount, "");
+      if (result.success) {
+        toast({
+          title: "Payout requested",
+          description: "Your payout request has been submitted",
+        });
+        setPayoutAmount("");
+        fetchWalletData();
+      } else {
+        toast({
+          title: "Payout failed",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Payout failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRequestingPayout(false);
+    }
+  };
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.split('?')[1] || '');
@@ -610,73 +696,11 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeSection === "payment" && (
+                {activeSection === "buyer-finances" && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Payments</h2>
-                    <div className="rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-5 text-sm text-cyan-100">
-                      <p className="font-semibold text-white">Current plan: {planTier}</p>
-                      <p className="mt-1 text-cyan-50/80">
-                        Owner accounts can upgrade users into `pro`, `elite`, or `enterprise` from the private admin panel.
-                      </p>
-                    </div>
-                    <div
-                      className={`p-4 rounded-xl text-sm border ${
-                        paymentEnabled
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
-                          : "bg-yellow-500/10 border-yellow-500/20 text-yellow-200"
-                      }`}
-                    >
-                      <p className="font-medium mb-1">
-                        {paymentEnabled ? "Stripe checkout is live" : "Stripe checkout is not configured yet"}
-                      </p>
-                      <p>
-                        {paymentEnabled
-                          ? "Users will be redirected to Stripe for secure payment before orders are created."
-                          : "Add the Stripe environment variables on Render to enable live checkout."}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-sm text-zinc-300 space-y-2">
-                      <p>Provider: Stripe Checkout</p>
-                      <p>Payments are captured before an order enters the seller workflow.</p>
-                      <p>Platform fee: 10% of each order subtotal.</p>
-                      <p>FX pricing: {fxSource === "live" ? "Live exchange rates" : "Fallback exchange rates"}{fxUpdatedAt && fxUpdatedAt !== "static" ? ` (updated ${fxUpdatedAt})` : ""}</p>
-                    </div>
-                    {planTier === "enterprise" ? (
-                      <div className="rounded-2xl border border-primary/20 bg-primary/10 p-5 text-sm text-zinc-200">
-                        <p className="font-semibold text-white">Enterprise seller tooling enabled</p>
-                        <p className="mt-2">
-                          This account can be treated as a managed enterprise seller for custom onboarding, negotiated fees, and direct support.
-                        </p>
-                      </div>
-                    ) : null}
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">Render setup checklist</h3>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-zinc-300">
-                        {[
-                          "DATABASE_URL",
-                          "JWT_SECRET",
-                          "STRIPE_SECRET_KEY",
-                          "STRIPE_WEBHOOK_SECRET",
-                          "GOOGLE_CLIENT_ID",
-                          "VITE_GOOGLE_CLIENT_ID",
-                          "SMTP_HOST",
-                          "SMTP_PORT",
-                          "SMTP_USER",
-                          "SMTP_PASS",
-                          "SMTP_FROM",
-                        ].map((item) => (
-                          <div key={item} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs">
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                      <p className="mt-4 text-sm text-zinc-400">
-                        Stripe webhook URL: <span className="text-zinc-200">{appOrigin}/api/payments/stripe/webhook</span>
-                      </p>
-                      <p className="mt-2 text-sm text-zinc-400">
-                        In Stripe, subscribe the webhook to <span className="text-zinc-200">checkout.session.completed</span> and <span className="text-zinc-200">checkout.session.expired</span>.
-                      </p>
-                    </div>
+                    <h2 className="text-xl font-bold text-white">Buyer Finances</h2>
+                    <p className="text-sm text-zinc-400">Manage your payment methods and purchase history</p>
+                    <PaymentMethods />
                   </div>
                 )}
 
@@ -839,24 +863,75 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeSection === "wallet" && (
+                {activeSection === "seller-earnings" && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-white">Wallet & Balance</h2>
                     <p className="text-sm text-zinc-400">View your available balance and earnings</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                       <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 rounded-2xl border border-emerald-500/20">
                         <p className="text-sm text-emerald-400 mb-1">Available Balance</p>
-                        <p className="text-3xl font-bold text-white">$0.00</p>
+                        <p className="text-3xl font-bold text-white">${walletBalance.available.toFixed(2)}</p>
                       </div>
                       <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
                         <p className="text-sm text-zinc-400 mb-1">Pending Earnings</p>
-                        <p className="text-3xl font-bold text-white">$0.00</p>
+                        <p className="text-3xl font-bold text-white">${walletBalance.pending.toFixed(2)}</p>
                       </div>
                       <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
                         <p className="text-sm text-zinc-400 mb-1">Total Earnings</p>
-                        <p className="text-3xl font-bold text-white">$0.00</p>
+                        <p className="text-3xl font-bold text-white">${walletBalance.total.toFixed(2)}</p>
                       </div>
                     </div>
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                      <h3 className="text-lg font-semibold text-white mb-4">Request Payout</h3>
+                      <p className="text-zinc-400 mb-4">Withdraw your available balance to your connected bank account.</p>
+                      <div className="flex gap-3">
+                        <Input
+                          type="number"
+                          value={payoutAmount}
+                          onChange={(e) => setPayoutAmount(e.target.value)}
+                          placeholder="Amount"
+                          className="bg-black/30 border-white/10 text-white max-w-xs"
+                        />
+                        <Button
+                          onClick={handleRequestPayout}
+                          disabled={isRequestingPayout || walletBalance.available <= 0}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          {isRequestingPayout ? "Processing..." : "Request Payout"}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-zinc-500 mt-2">
+                        Minimum payout: $25.00 • Available: ${walletBalance.available.toFixed(2)}
+                      </p>
+                    </div>
+                    {payoutHistory.length > 0 && (
+                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                        <h3 className="text-lg font-semibold text-white mb-4">Payout History</h3>
+                        <div className="space-y-3">
+                          {payoutHistory.map((payout) => (
+                            <div key={payout.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                              <div>
+                                <p className="text-white font-medium">${payout.amount.toFixed(2)}</p>
+                                <p className="text-xs text-zinc-400">
+                                  {new Date(payout.createdAt).toLocaleDateString()} • {payout.status}
+                                </p>
+                              </div>
+                              <Badge
+                                variant={
+                                  payout.status === "paid"
+                                    ? "default"
+                                    : payout.status === "pending"
+                                    ? "secondary"
+                                    : "destructive"
+                                }
+                              >
+                                {payout.status}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
                       <h3 className="text-lg font-semibold text-white mb-4">Payout Settings</h3>
                       <p className="text-zinc-400">Connect your bank account to receive payouts automatically every week.</p>
@@ -864,19 +939,6 @@ export default function Settings() {
                   </div>
                 )}
 
-                {activeSection === "transactions" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Transaction History</h2>
-                    <p className="text-sm text-zinc-400">View all your sales, purchases, and payouts</p>
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-                      <div className="text-center py-12">
-                        <TrendingUp className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                        <p className="text-zinc-400">No transactions yet</p>
-                        <p className="text-sm text-zinc-500 mt-2">Your sales and purchases will appear here</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {activeSection === "accounts" && (
                   <div className="space-y-6">
