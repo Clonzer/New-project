@@ -87,21 +87,25 @@ export default function Landing() {
   console.log("Users loading:", users.isLoading);
 
   // Transform listings for ModernProductCard
-  const transformedListings = listings.data?.listings?.map(listing => ({
-    ...listing,
-    sellerRating: listing.rating,
-    sellerReviewCount: listing.reviewCount,
-    sellerAcceptingOrders: listing.accepting_orders
-  })) || [];
+  const transformedListings = Array.isArray(listings.data?.listings) 
+    ? listings.data.listings.map(listing => ({
+        ...listing,
+        sellerRating: listing.rating,
+        sellerReviewCount: listing.reviewCount,
+        sellerAcceptingOrders: listing.accepting_orders
+      }))
+    : [];
 
   // Transform users for ModernShopCard  
-  const transformedUsers = users.data?.users?.map(user => ({
-    ...user,
-    displayName: user.displayName || user.store_name,
-    shopName: user.store_name,
-    avatarUrl: user.avatar_url || user.avatarUrl,
-    accepting_orders: user.accepting_orders
-  })) || [];
+  const transformedUsers = Array.isArray(users.data?.users)
+    ? users.data.users.map(user => ({
+        ...user,
+        displayName: user.displayName || user.store_name,
+        shopName: user.store_name,
+        avatarUrl: user.avatar_url || user.avatarUrl,
+        accepting_orders: user.accepting_orders
+      }))
+    : [];
 
   console.log("Marketplace items count:", transformedListings.length + transformedUsers.length);
 

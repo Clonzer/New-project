@@ -3,6 +3,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import {
   useListOrders, useListListings, useListPrinters, useListReviews, useUpdateUser,
+  useListEquipmentGroups, useCreateEquipmentGroup, useUpdateEquipmentGroup, useDeleteEquipmentGroup,
+  useUpdatePrinter, useDeletePrinter,
 } from "@/lib/workspace-stub";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,6 +53,7 @@ import { CustomerGrowthChart } from "@/components/analytics/CustomerGrowthChart"
 import { EquipmentUtilizationChart } from "@/components/analytics/EquipmentUtilizationChart";
 import { AnalyticsUpgradePrompt } from "@/components/analytics/AnalyticsUpgradePrompt";
 import { canAccessAnalytics } from "@/lib/plan-utils";
+import { Equipment } from "@/components/dashboard/Equipment";
 
 const STATUS_CONFIG = {
   pending: { label: "Pending", color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock },
@@ -88,6 +91,15 @@ export default function DashboardWithSidebar() {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [customTagDraft, setCustomTagDraft] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  
+  // Equipment groups state
+  const [showAddEquipmentGroup, setShowAddEquipmentGroup] = useState(false);
+  const [editingEquipmentGroup, setEditingEquipmentGroup] = useState<any>(null);
+  const [showAddPrinter, setShowAddPrinter] = useState(false);
+  const [editingPrinter, setEditingPrinter] = useState<any>(null);
+  const [togglingPrinterId, setTogglingPrinterId] = useState<string | null>(null);
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string | null>(null);
+  
   const [notificationPreferences, setNotificationPreferences] = useState({
     newOrders: true,
     customRequests: true,
@@ -175,6 +187,7 @@ export default function DashboardWithSidebar() {
   const { data: listings = [], isLoading: listingsLoading } = useListListings({ userId: user?.id });
   const { data: printers = [], isLoading: printersLoading } = useListPrinters({ userId: user?.id });
   const { data: reviews = [], isLoading: reviewsLoading } = useListReviews({ userId: user?.id });
+  const { data: equipmentGroups = [], isLoading: groupsLoading } = useListEquipmentGroups({ userId: user?.id });
   
   console.log('Dashboard listings data:', listings);
   console.log('Dashboard listings loading:', listingsLoading);
@@ -1047,161 +1060,108 @@ export default function DashboardWithSidebar() {
     }
   };
 
+  // Equipment groups handlers
+  const handleDeleteEquipmentGroup = async (groupId: string) => {
+    if (window.confirm('Are you sure you want to delete this equipment group?')) {
+      try {
+        await useDeleteEquipmentGroup().mutateAsync({ groupId });
+        toast({ title: "Equipment group deleted" });
+      } catch (error) {
+        toast({
+          title: "Failed to delete equipment group",
+          description: getApiErrorMessageWithSupport(error, "deleting the equipment group"),
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleAssignToGroup = async (printerId: string, groupId: string | null) => {
+    setTogglingPrinterId(printerId);
+    try {
+      await useUpdatePrinter().mutateAsync({
+        printerId,
+        data: { equipmentGroupId: groupId },
+      });
+      toast({ title: "Equipment group updated" });
+    } catch (error) {
+      toast({
+        title: "Failed to update equipment group",
+        description: getApiErrorMessageWithSupport(error, "updating the equipment group"),
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingPrinterId(null);
+    }
+  };
+
+  const togglePrinter = async (printerId: string, newStatus: string) => {
+    setTogglingPrinterId(printerId);
+    try {
+      await useUpdatePrinter().mutateAsync({
+        printerId,
+        data: { status: newStatus },
+      });
+      toast({ title: "Equipment status updated" });
+    } catch (error) {
+      toast({
+        title: "Failed to update equipment status",
+        description: getApiErrorMessageWithSupport(error, "updating the equipment status"),
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingPrinterId(null);
+    }
+  };
+
+  const removePrinter = async (printerId: string) => {
+    setDeletingPrinterId(printerId);
+    try {
+      await useDeletePrinter().mutateAsync({ printerId });
+      toast({ title: "Equipment removed" });
+    } catch (error) {
+      toast({
+        title: "Failed to remove equipment",
+        description: getApiErrorMessageWithSupport(error, "removing the equipment"),
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingPrinterId(null);
+    }
+  };
+
+  const handleUpdateEquipmentStatus = async (printerId: string, status: string) => {
+    try {
+      await useUpdatePrinter().mutateAsync({
+        printerId,
+        data: { status },
+      });
+      toast({ title: "Equipment status updated" });
+    } catch (error) {
+      toast({
+        title: "Failed to update equipment status",
+        description: getApiErrorMessageWithSupport(error, "updating the equipment status"),
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderEquipment = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white">Equipment Management</h2>
-        <p className="text-zinc-400">Manage your printers, tools, and equipment</p>
-      </div>
-
-      {/* Equipment Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-              </div>
-              <div>
-                <p className="text-zinc-400 text-xs">Active</p>
-                <p className="text-xl font-bold text-white">{equipmentStatus.active || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-yellow-500/10">
-                <Clock className="w-4 h-4 text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-zinc-400 text-xs">Maintenance</p>
-                <p className="text-xl font-bold text-white">{equipmentStatus.maintenance || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-red-500/10">
-                <XCircle className="w-4 h-4 text-red-400" />
-              </div>
-              <div>
-                <p className="text-zinc-400 text-xs">Offline</p>
-                <p className="text-xl font-bold text-white">{equipmentStatus.inactive || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900/50 border-zinc-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <PrinterIcon className="w-4 h-4 text-blue-400" />
-              </div>
-              <div>
-                <p className="text-zinc-400 text-xs">Total Equipment</p>
-                <p className="text-xl font-bold text-white">{safePrinters.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Equipment List */}
-      <Card className="bg-zinc-900/50 border-zinc-800">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-white">All Equipment</CardTitle>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Equipment
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {safePrinters.length === 0 ? (
-            <div className="text-center py-12">
-              <PrinterIcon className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No equipment registered</h3>
-              <p className="text-zinc-400 mb-6">Add your first printer or equipment</p>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Equipment
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {safePrinters.map((printer) => (
-                <div key={printer.id} className="border border-zinc-800 rounded-lg p-6 hover:border-zinc-700 transition-colors">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                        <PrinterIcon className="w-6 h-6 text-blue-400" />
-                      </div>
-                      <div>
-                        <p className="text-white font-medium">{printer.name}</p>
-                        <p className="text-zinc-400 text-sm">
-                          {printer.brand} {printer.model}
-                        </p>
-                      </div>
-                    </div>
-                    <StatusBadge status={printer.status} />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Technology:</span>
-                      <span className="text-white">{printer.technology}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Build Volume:</span>
-                      <span className="text-white">{printer.build_volume}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Hourly Rate:</span>
-                      <span className="text-white">${printer.price_per_hour}/hr</span>
-                    </div>
-                    {printer.materials && printer.materials.length > 0 && (
-                      <div>
-                        <p className="text-zinc-400 text-sm mb-2">Materials:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {Array.isArray(printer.materials) ? printer.materials.slice(0, 3).map((material, index) => (
-                            <Badge key={index} variant="outline" className="text-xs bg-zinc-800 border-zinc-700 text-zinc-300">
-                              {material}
-                            </Badge>
-                          )) : null}
-                          {printer.materials.length > 3 && (
-                            <Badge variant="outline" className="text-xs bg-zinc-800 border-zinc-700 text-zinc-300">
-                              +{printer.materials.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditEquipment(printer.id)}>
-                      <Settings className="w-4 h-4 mr-1" />
-                      Configure
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = `/equipment/${printer.id}`}>
-                      <Eye className="w-4 h-4 mr-1" />
-                      Details
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDeleteEquipment(printer.id)}>
-                      <Trash className="w-4 h-4 mr-1" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <Equipment
+      myEquipmentGroups={equipmentGroups}
+      myPrinters={safePrinters}
+      setShowAddEquipmentGroup={setShowAddEquipmentGroup}
+      setEditingEquipmentGroup={setEditingEquipmentGroup}
+      handleDeleteEquipmentGroup={handleDeleteEquipmentGroup}
+      setShowAddPrinter={setShowAddPrinter}
+      setEditingPrinter={setEditingPrinter}
+      handleAssignToGroup={handleAssignToGroup}
+      togglingPrinterId={togglingPrinterId}
+      togglePrinter={togglePrinter}
+      deletingPrinterId={deletingPrinterId}
+      removePrinter={removePrinter}
+      handleUpdateEquipmentStatus={handleUpdateEquipmentStatus}
+    />
   );
 
   const renderListings = () => (

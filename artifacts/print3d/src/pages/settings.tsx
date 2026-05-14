@@ -420,39 +420,32 @@ export default function Settings() {
             <p className="text-zinc-400">Manage your account, preferences, and shop settings</p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-            {/* Sidebar Navigation */}
-            <aside className="shrink-0">
-              <nav className="glass-panel sticky top-24 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-xl">
-                <div className="p-2">
-                  {SECTIONS.map((section, index) => {
-                    const Icon = section.icon;
-                    return (
-                      <button
-                        key={section.id}
-                        onClick={() => setActiveSection(section.id)}
-                        className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
-                          activeSection === section.id
-                            ? "bg-gradient-to-r from-primary/80 to-primary/60 text-white border border-primary/50 shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-                            : "text-zinc-400 hover:text-white hover:bg-orange-500/20 border border-transparent"
-                        }`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <Icon className="w-4 h-4" />
-                          {section.label}
-                        </span>
-                        <ChevronRight className={`w-4 h-4 transition-transform ${
-                          activeSection === section.id ? "rotate-90" : "opacity-50"
-                        }`} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </nav>
-            </aside>
+          <div className="space-y-6">
+            {/* Tab Navigation */}
+            <nav className="glass-panel rounded-2xl border border-white/10 overflow-hidden backdrop-blur-xl">
+              <div className="flex overflow-x-auto p-2 gap-2">
+                {SECTIONS.map((section) => {
+                  const Icon = section.icon;
+                  return (
+                    <button
+                      key={section.id}
+                      onClick={() => setActiveSection(section.id)}
+                      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 whitespace-nowrap ${
+                        activeSection === section.id
+                          ? "bg-gradient-to-r from-primary/80 to-primary/60 text-white border border-primary/50 shadow-lg shadow-primary/20"
+                          : "text-zinc-400 hover:text-white hover:bg-orange-500/20 border border-transparent"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {section.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
 
             {/* Main Content */}
-            <div className="min-w-0">
+            <div>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeSection}
