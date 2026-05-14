@@ -128,6 +128,14 @@ export async function customFetch<T>(
   if (url.includes('/api/sponsorships/purchase')) {
     baseData.expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   }
+  if (url.includes('/api/payments/checkout-session')) {
+    baseData.url = 'https://checkout.stripe.com/c/pay/mock-checkout-session-id';
+    baseData.sessionId = 'cs_mock_session_id';
+  }
+  if (url.includes('/api/payments/sponsorship/checkout-session')) {
+    baseData.url = 'https://checkout.stripe.com/c/pay/mock-sponsorship-session-id';
+    baseData.sessionId = 'cs_mock_sponsorship_session_id';
+  }
 
   // Create mock response object
   const mockResponse: MockResponse = {

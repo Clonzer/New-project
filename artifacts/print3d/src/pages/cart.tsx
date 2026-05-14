@@ -11,17 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage, getApiErrorMessageWithSupport } from "@/lib/api-error";
-import {
-  clearCart,
-  readCart,
-  removeFromCart,
-  setLineQuantity,
-  type CartLine,
-  writeCart,
-  CART_CHANGE_EVENT,
-} from "@/lib/cart-storage";
+import { readCart, writeCart, CART_CHANGE_EVENT, CartLine, setLineQuantity, removeFromCart, clearCart } from "@/lib/cart-storage";
 import { createCheckoutSession } from "@/lib/payments-api";
 import { useLocalePreferences } from "@/lib/locale-preferences";
+import { calculateSubtotal, calculatePlatformFee, calculateTotal } from "@/lib/pricing";
 import { Box, ShoppingBag, Trash2, ArrowRight, Package, CreditCard, Truck, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -82,13 +75,19 @@ export default function Cart() {
     return lines.filter((line) => !ids.has(line.listingId)).map((line) => line.listingId);
   }, [lines, listingsData]);
 
-  const subtotal = rows.reduce((sum, { line, listing }) => sum + (listing.basePrice + 1.62) * line.quantity, 0);
+  const subtotal = rows.reduce((sum, { line, listing }) => {
+    return sum + calculateSubtotal({ basePrice: listing.basePrice, quantity: line.quantity });
+  }, 0);
   const shippingTotal = rows.reduce(
-    (sum, { line, listing }) => sum + (listing.shippingCost ?? 0) * line.quantity,
+    (sum, { line, listing }) => sum + calculateTotal({ basePrice: listing.basePrice, shippingCost: listing.shippingCost, quantity: line.quantity }) - calculateSubtotal({ basePrice: listing.basePrice, quantity: line.quantity }) - calculatePlatformFee({ basePrice: listing.basePrice, quantity: line.quantity }),
     0,
   );
-  const platformFee = subtotal * 0.1;
-  const grandTotal = subtotal + shippingTotal + platformFee;
+  const platformFee = rows.reduce((sum, { line, listing }) => {
+    return sum + calculatePlatformFee({ basePrice: listing.basePrice, quantity: line.quantity });
+  }, 0);
+  const grandTotal = rows.reduce((sum, { line, listing }) => {
+    return sum + calculateTotal({ basePrice: listing.basePrice, shippingCost: listing.shippingCost, quantity: line.quantity });
+  }, 0);
 
   const checkout = async () => {
     if (!user) {
@@ -200,7 +199,7 @@ export default function Cart() {
                             <p className="font-semibold text-white truncate">{listing.title}</p>
                             <p className="text-xs text-zinc-500 mb-2">by {listing.sellerName}</p>
                             <p className="text-sm text-zinc-400 mb-3">
-                              {formatPrice(listing.basePrice + 1.62)} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
+                              {formatPrice(calculateSubtotal({ basePrice: listing.basePrice, quantity: 1 }))} each - shipping {formatPrice(listing.shippingCost ?? 0)} / unit
                             </p>
                             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
                               <div className="flex items-center gap-2">

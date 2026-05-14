@@ -11,6 +11,7 @@ import { getApiErrorMessageWithSupport } from "@/lib/api-error";
 import { useLocalePreferences } from "@/lib/locale-preferences";
 import { canSellerShipToCountry, getShippingEstimate } from "@/lib/shipping-profile";
 import { useGetListing, useGetUser, getGetListingQueryKey, getGetUserQueryKey } from "@/lib/workspace-api-mock";
+import { calculateSubtotal, calculatePlatformFee, calculateTotal } from "@/lib/pricing";
 import { 
   ShieldCheck, 
   Package, 
@@ -45,16 +46,16 @@ export default function ProductOrder() {
     },
   });
 
-  // Calculate price
-  const basePrice = (listing?.basePrice || 0) * 1.05 + 1; // Add £1 fee and 5% platform fee
-  const subtotal = basePrice * quantity;
+  // Calculate price using centralized pricing
+  const subtotal = calculateSubtotal({ basePrice: listing?.basePrice || 0, quantity });
+  const platformFee = calculatePlatformFee({ basePrice: listing?.basePrice || 0, quantity });
   const shippingEstimate = seller
     ? getShippingEstimate(seller, countryCode, subtotal, listing?.shippingCost)
     : { zone: "default", cost: 0 };
   const lineShipping = listing?.shippingCost && listing.shippingCost > 0
     ? listing.shippingCost * quantity
     : shippingEstimate.cost;
-  const total = subtotal + lineShipping;
+  const total = calculateTotal({ basePrice: listing?.basePrice || 0, shippingCost: listing?.shippingCost || 0, quantity });
 
   const handleSubmit = async () => {
     if (!user) {
@@ -163,7 +164,7 @@ export default function ProductOrder() {
                   <div className="flex-grow">
                     <h2 className="text-xl font-bold text-white mb-1">{listing?.title}</h2>
                     <p className="text-zinc-400 text-sm mb-2 line-clamp-2">{listing?.description}</p>
-                    <p className="text-primary font-bold">{formatPrice((listing?.basePrice || 0) * 1.05 + 1)} each</p>
+                    <p className="text-primary font-bold">{formatPrice(calculateSubtotal({ basePrice: listing?.basePrice || 0, quantity: 1 }))} each</p>
                   </div>
                 </div>
               </div>
@@ -219,6 +220,10 @@ export default function ProductOrder() {
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-400">Subtotal ({quantity} item{quantity > 1 ? 's' : ''})</span>
                       <span className="text-white">{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-zinc-400">Platform fee (10%)</span>
+                      <span className="text-white">{formatPrice(platformFee)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-400">Shipping</span>
