@@ -129,7 +129,21 @@ export async function customFetch<T>(
     baseData.expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
   }
   if (url.includes('/api/payments/checkout-session')) {
-    baseData.url = 'https://checkout.stripe.com/c/pay/mock-checkout-session-id';
+    // Calculate total from items for testing
+    const body = options?.body ? JSON.parse(options.body as string) : {};
+    const items = body.items || [];
+    let subtotal = 0;
+    items.forEach((item: any) => {
+      subtotal += (item.unitPrice || 0) * item.quantity;
+    });
+    const platformFee = subtotal * 0.10;
+    const fixedFee = 1.00;
+    const shippingTotal = items.reduce((sum: number, item: any) => {
+      return sum + ((item.shippingCost || 0) * item.quantity);
+    }, 0);
+    const total = subtotal + platformFee + fixedFee + shippingTotal;
+    
+    baseData.url = `https://checkout.stripe.com/c/pay/mock-session?amount=${total.toFixed(2)}`;
     baseData.sessionId = 'cs_mock_session_id';
   }
   if (url.includes('/api/payments/sponsorship/checkout-session')) {

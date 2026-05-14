@@ -100,6 +100,7 @@ export default function ProductOrder() {
             listingId: listing!.id,
             quantity,
             unitPrice: listing!.basePrice,
+            shippingCost: listing!.shippingCost,
             notes: notes || null,
           },
         ],

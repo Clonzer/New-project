@@ -1,4 +1,5 @@
 import { customFetch } from "@/lib/workspace-api-mock";
+import { supabase } from "@/lib/supabase";
 
 export type CheckoutItemPayload = {
   listingId?: number | null;
@@ -10,6 +11,7 @@ export type CheckoutItemPayload = {
   color?: string | null;
   quantity: number;
   unitPrice?: number | null;
+  shippingCost?: number | null;
 };
 
 export async function getPaymentConfig() {
@@ -38,11 +40,16 @@ export async function createCheckoutSession(input: {
   successPath?: string;
   cancelPath?: string;
 }) {
-  return customFetch<{ url: string; sessionId: string }>("/api/payments/checkout-session", {
-    method: "POST",
-    body: JSON.stringify(input),
-    credentials: "include",
+  // Call Supabase Edge Function for real Stripe checkout
+  const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+    body: input,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as { url: string; sessionId: string };
 }
 
 export async function createSponsorshipCheckoutSession(input: {

@@ -118,6 +118,7 @@ export default function Cart() {
           listingId: listing.id,
           quantity: line.quantity,
           unitPrice: listing.basePrice,
+          shippingCost: listing.shippingCost,
         })),
       });
       window.location.href = session.url;
