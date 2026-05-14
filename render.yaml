@@ -16,7 +16,7 @@ services:
       - key: VITE_SUPABASE_ANON_KEY
         sync: false  # Set this in Render dashboard
       - key: VITE_STRIPE_PUBLISHABLE_KEY
-        sync: false  # Set this in Render dashboard
+        value: pk_live_51QDVz1GzFIXRBNGdB4FPN2cWTu5lUElCSdvC5rcXj1N6orXdY7xRniI0U2EviAlo2DZz9SyfzJzALLfy0Yu81aCJ00nnItkhzb
     headers:
       - path: /*
         name: Cache-Control
