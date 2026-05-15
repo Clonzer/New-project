@@ -52,6 +52,7 @@ import DashboardHelp from "@/pages/dashboard-help";
 import ServiceMarketplace from "@/pages/service-marketplace";
 import AuthCallback from "@/pages/auth-callback";
 import Favorites from "@/pages/favorites";
+import Storefront from "@/pages/storefront";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -169,6 +170,7 @@ function Router() {
       <Route path="/create-listing" component={CreateListingPage} />
       <Route path="/listings/:id/edit" component={EditListingPage} />
       <Route path="/favorites" component={Favorites} />
+      <Route path="/storefront" component={Storefront} />
       <Route path="/admin" component={Admin} />
       <Route path="/help" component={Help} />
       <Route path="/terms" component={TermsPage} />
