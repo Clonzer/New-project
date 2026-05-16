@@ -1808,6 +1808,17 @@ export default function DashboardWithSidebar() {
               <li>• 10% platform fee on all transactions</li>
               <li>• Real-time transaction tracking</li>
             </ul>
+            <div className="pt-4 border-t border-white/10">
+              <p className="text-sm text-zinc-400 mb-3">Don't have a Stripe account?</p>
+              <Button 
+                variant="outline" 
+                className="w-full border-primary/50 text-primary hover:bg-primary/10"
+                onClick={() => window.open('https://stripe.com', '_blank')}
+              >
+                <CreditCardIcon className="w-4 h-4 mr-2" />
+                Create Stripe Account
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
