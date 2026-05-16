@@ -20,6 +20,18 @@ const stripeClient = new Stripe(stripeSecretKey, {
 const webhookSecrets = Deno.env.get('STRIPE_WEBHOOK_SECRET')?.split(',') || [];
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'authorization, content-type, stripe-signature',
+      },
+    });
+  }
+
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -30,9 +42,12 @@ Deno.serve(async (req) => {
     const signature = req.headers.get('stripe-signature');
 
     if (!signature) {
-      return new Response(JSON.stringify({ error: 'No signature' }), { 
-        status: 400, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'No signature' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
@@ -57,9 +72,12 @@ Deno.serve(async (req) => {
     
     if (!verified) {
       console.error('Webhook signature verification failed: No valid secret found');
-      return new Response(JSON.stringify({ error: 'Invalid signature' }), { 
-        status: 400, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
@@ -114,15 +132,24 @@ Deno.serve(async (req) => {
         .eq('stripe_session_id', session.id);
     }
 
-    return new Response(JSON.stringify({ received: true }), { 
-      status: 200, 
-      headers: { 'Content-Type': 'application/json' } 
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
     });
   } catch (error) {
     console.error('Webhook error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
     );
   }
 });

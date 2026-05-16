@@ -15,6 +15,18 @@ const stripeClient = new Stripe(stripeSecretKey, {
 });
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'authorization, content-type',
+      },
+    });
+  }
+
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -23,9 +35,12 @@ Deno.serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
@@ -33,9 +48,12 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), { 
-        status: 401, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
@@ -84,24 +102,38 @@ Deno.serve(async (req) => {
 
     if (dbError) {
       console.error('Database error:', dbError);
-      return new Response(JSON.stringify({ error: 'Failed to store account' }), { 
-        status: 500, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Failed to store account' }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       });
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         accountId: account.id,
         status: account.status,
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
     );
   } catch (error) {
     console.error('Error creating connected account:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
     );
   }
 });
