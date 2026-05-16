@@ -16,7 +16,8 @@ const stripeClient = new Stripe(stripeSecretKey, {
 });
 
 // TODO: Set STRIPE_WEBHOOK_SECRET in Supabase secrets
-const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+// For multiple webhooks, separate with comma: secret1,secret2
+const webhookSecrets = Deno.env.get('STRIPE_WEBHOOK_SECRET')?.split(',') || [];
 
 Deno.serve(async (req) => {
   try {
@@ -37,14 +38,25 @@ Deno.serve(async (req) => {
 
     // Verify webhook signature
     let event;
-    try {
-      event = stripeClient.webhooks.constructEvent(
-        body,
-        signature,
-        webhookSecret || ''
-      );
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+    let verified = false;
+    
+    for (const secret of webhookSecrets) {
+      try {
+        event = stripeClient.webhooks.constructEvent(
+          body,
+          signature,
+          secret.trim()
+        );
+        verified = true;
+        break;
+      } catch (err) {
+        // Try next secret
+        continue;
+      }
+    }
+    
+    if (!verified) {
+      console.error('Webhook signature verification failed: No valid secret found');
       return new Response(JSON.stringify({ error: 'Invalid signature' }), { 
         status: 400, 
         headers: { 'Content-Type': 'application/json' } 

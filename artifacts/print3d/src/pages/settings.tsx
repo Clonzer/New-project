@@ -21,7 +21,7 @@ import {
 import { getPaymentConfig } from "@/lib/payments-api";
 import { getWalletBalance, getPayoutHistory, requestPayout } from "@/services/payments-api";
 import { SHOP_TAG_OPTIONS } from "@/lib/shop-tags";
-import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X, Wallet, TrendingUp, Image, Stripe } from "lucide-react";
+import { Bell, ChevronRight, CreditCard, Eye, FileText, MessageSquareText, Shield, User, Palette, Globe, Mail, Instagram, Settings as SettingsIcon, CheckCircle, AlertCircle, Camera, Upload, X, Wallet, TrendingUp, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
