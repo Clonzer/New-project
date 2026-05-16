@@ -27,13 +27,10 @@ import { ProfilePreviewModal } from "@/components/shared/ProfilePreviewModal";
 import { PaymentMethods } from "@/components/dashboard/PaymentMethods";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { StripeConnectOnboarding } from "@/components/stripe/StripeConnectOnboarding";
-import { StripeProductCreation } from "@/components/stripe/StripeProductCreation";
 
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "policies", label: "Policies", icon: FileText },
-  { id: "stripe-connect", label: "Stripe Connect", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "accounts", label: "Accounts", icon: User },
@@ -853,32 +850,6 @@ export default function Settings() {
                       <p className="text-sm text-emerald-200">
                         ✓ <strong>All feedback is valuable.</strong> Even a one-line suggestion helps us prioritize what matters most to our community.
                       </p>
-                    </div>
-                  </div>
-                )}
-
-                {activeSection === "stripe-connect" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white">Stripe Connect</h2>
-                    <p className="text-sm text-zinc-400">Connect your Stripe account to receive payments and create products</p>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <StripeConnectOnboarding />
-                      <StripeProductCreation />
-                    </div>
-
-                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                      <h3 className="text-lg font-semibold text-white mb-4">About Stripe Connect</h3>
-                      <p className="text-zinc-400 mb-4">
-                        Stripe Connect allows you to accept payments and manage your finances securely. 
-                        Once you complete onboarding, you can create products and start selling.
-                      </p>
-                      <ul className="text-sm text-zinc-400 space-y-2">
-                        <li>• Secure payment processing</li>
-                        <li>• Automatic payouts to your bank account</li>
-                        <li>• 10% platform fee on all transactions</li>
-                        <li>• Real-time transaction tracking</li>
-                      </ul>
                     </div>
                   </div>
                 )}

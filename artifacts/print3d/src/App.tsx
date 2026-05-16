@@ -53,6 +53,7 @@ import ServiceMarketplace from "@/pages/service-marketplace";
 import AuthCallback from "@/pages/auth-callback";
 import Favorites from "@/pages/favorites";
 import Storefront from "@/pages/storefront";
+import StripeConnect from "@/pages/stripe-connect";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -171,6 +172,7 @@ function Router() {
       <Route path="/listings/:id/edit" component={EditListingPage} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/storefront" component={Storefront} />
+      <Route path="/stripe-connect" component={StripeConnect} />
       <Route path="/admin" component={Admin} />
       <Route path="/help" component={Help} />
       <Route path="/terms" component={TermsPage} />

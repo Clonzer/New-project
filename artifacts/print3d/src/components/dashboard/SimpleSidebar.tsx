@@ -78,6 +78,13 @@ const navItems: NavItem[] = [
     path: "/dashboard#reviews"
   },
   {
+    id: "stripe-connect",
+    label: "Stripe Connect",
+    icon: CreditCard,
+    description: "Manage payments and create products",
+    path: "/stripe-connect"
+  },
+  {
     id: "favorites",
     label: "Saved Items",
     icon: Heart,
