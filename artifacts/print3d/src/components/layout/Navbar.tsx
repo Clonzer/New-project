@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown, Zap, Star, Rocket, DollarSign, TrendingUp, Settings } from "lucide-react";
+import { Search, Menu, ShoppingCart, User as UserIcon, X, Bell, MessageSquare, GitCompareArrows, Flag, HelpCircle, Mail, Crown, ChevronDown, Zap, Star, Rocket, DollarSign, TrendingUp, Settings, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -324,6 +324,15 @@ export function Navbar() {
                     {notificationCount > 99 ? "99+" : notificationCount}
                   </span>
                 ) : null}
+              </Button>
+            </Link>
+          ) : null}
+
+          {/* Stripe Connect Link - For sellers */}
+          {isSeller ? (
+            <Link href="/dashboard#stripe-connect">
+              <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex relative bg-gradient-to-r from-orange-500/10 to-pink-500/10 hover:from-orange-500/20 hover:to-pink-500/20 border border-orange-500/20">
+                <CreditCard className="w-5 h-5 text-orange-400" />
               </Button>
             </Link>
           ) : null}

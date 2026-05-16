@@ -54,6 +54,8 @@ import { EquipmentUtilizationChart } from "@/components/analytics/EquipmentUtili
 import { AnalyticsUpgradePrompt } from "@/components/analytics/AnalyticsUpgradePrompt";
 import { canAccessAnalytics } from "@/lib/plan-utils";
 import { Equipment } from "@/components/dashboard/Equipment";
+import { StripeConnectOnboarding } from "@/components/stripe/StripeConnectOnboarding";
+import { StripeProductCreation } from "@/components/stripe/StripeProductCreation";
 
 const STATUS_CONFIG = {
   pending: { label: "Pending", color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", icon: Clock },
@@ -256,7 +258,7 @@ export default function DashboardWithSidebar() {
       const hash = window.location.hash;
       if (typeof hash === 'string') {
         const hashValue = hash.slice(1);
-        if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews', 'settings'].includes(hashValue)) {
+        if (hashValue && ['overview', 'orders', 'equipment', 'listings', 'analytics', 'reviews', 'stripe-connect', 'settings'].includes(hashValue)) {
           setActiveSection(hashValue);
         } else if (!hashValue) {
           setActiveSection('overview');
@@ -475,8 +477,34 @@ export default function DashboardWithSidebar() {
     }
   };
 
-  const renderOverview = () => (
-    <div className="space-y-8">
+  const renderOverview = () => {
+  return (
+    <div className="space-y-6">
+      {/* Stripe Connect CTA */}
+      <Card className="bg-gradient-to-br from-orange-500/10 to-pink-500/10 border border-orange-500/20">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <CreditCardIcon className="h-6 w-6 text-orange-400" />
+                <h3 className="text-lg font-bold text-white">Start Accepting Payments with Stripe</h3>
+              </div>
+              <p className="text-zinc-400 text-sm mb-4">
+                Connect your Stripe account to receive payments for your 3D printing services and products. 
+                Secure, fast, and reliable payment processing.
+              </p>
+              <Button 
+                onClick={() => setActiveSection('stripe-connect')}
+                className="bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+              >
+                <CreditCardIcon className="w-4 h-4 mr-2" />
+                Set Up Stripe Connect
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Dashboard Header with Edit Storefront Button */}
       <div className="flex items-center justify-between">
         <div>
@@ -869,6 +897,7 @@ export default function DashboardWithSidebar() {
       </div>
     </div>
   );
+};
 
   const renderOrders = () => (
     <div className="space-y-6">
@@ -1746,6 +1775,45 @@ export default function DashboardWithSidebar() {
     </div>
   );
 
+  const renderStripeConnect = () => {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-primary to-accent rounded-xl">
+            <CreditCardIcon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Stripe Connect</h1>
+            <p className="text-sm text-zinc-400">Connect your Stripe account to receive payments and create products</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <StripeConnectOnboarding />
+          <StripeProductCreation />
+        </div>
+
+        <Card className="bg-white/5 border border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white">About Stripe Connect</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-zinc-400">
+              Stripe Connect allows you to accept payments and manage your finances securely. 
+              Once you complete onboarding, you can create products and start selling.
+            </p>
+            <ul className="text-sm text-zinc-400 space-y-2">
+              <li>• Secure payment processing</li>
+              <li>• Automatic payouts to your bank account</li>
+              <li>• 10% platform fee on all transactions</li>
+              <li>• Real-time transaction tracking</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   const renderSettings = () => {
     const isSeller = user?.role === "seller" || user?.role === "both";
     const isVerified = !!user?.emailVerifiedAt;
@@ -1985,6 +2053,8 @@ export default function DashboardWithSidebar() {
         return renderAnalytics();
       case 'reviews':
         return renderReviews();
+      case 'stripe-connect':
+        return renderStripeConnect();
       case 'settings':
         return renderSettings();
       default:

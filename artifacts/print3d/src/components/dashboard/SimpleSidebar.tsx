@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
     label: "Stripe Connect",
     icon: CreditCard,
     description: "Manage payments and create products",
-    path: "/stripe-connect"
+    path: "/dashboard#stripe-connect"
   },
   {
     id: "favorites",
