@@ -33,7 +33,7 @@ import { StripeProductCreation } from "@/components/stripe/StripeProductCreation
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "policies", label: "Policies", icon: FileText },
-  { id: "stripe-connect", label: "Stripe Connect", icon: Stripe },
+  { id: "stripe-connect", label: "Stripe Connect", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "feedback", label: "Feedback", icon: MessageSquareText },
   { id: "accounts", label: "Accounts", icon: User },
