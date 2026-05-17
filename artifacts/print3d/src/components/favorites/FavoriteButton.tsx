@@ -3,7 +3,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { isFavorite, toggleFavorite } from "@/lib/favorites-api";
+import { isFavorite as checkIsFavorite, toggleFavorite } from "@/lib/favorites-api";
 
 interface FavoriteButtonProps {
   itemId: string;
@@ -30,7 +30,7 @@ export function FavoriteButton({
   // Check favorite status on mount
   useEffect(() => {
     if (user?.id) {
-      isFavorite(user.id, itemId, itemType).then(setIsFavorite);
+      checkIsFavorite(user.id, itemId, itemType).then(setIsFavorite);
     }
   }, [user?.id, itemId, itemType]);
 
