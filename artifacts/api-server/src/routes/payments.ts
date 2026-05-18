@@ -5,6 +5,7 @@ import { checkoutSessionsTable, listingsTable, ordersTable, usersTable, teamMemb
 import { type AuthedRequest, requireAuth } from "../lib/auth";
 import {
   createStripeCheckoutSession,
+  createStripeConnectCheckoutSession,
   getAppUrl,
   isStripeConfigured,
   verifyStripeWebhookSignature,
@@ -386,6 +387,7 @@ router.post("/payments/checkout-session", requireAuth, async (req: AuthedRequest
     }
     const drafts = await buildDrafts(req.body?.items as CheckoutItemInput[], shippingAddress, buyer.countryCode);
     const amountTotal = Number(drafts.reduce((sum, draft) => sum + draft.totalPrice, 0).toFixed(2));
+    const totalPlatformFee = Number(drafts.reduce((sum, draft) => sum + draft.platformFee, 0).toFixed(2));
 
     const appUrl = getAppUrl();
     if (!appUrl) {
@@ -395,18 +397,57 @@ router.post("/payments/checkout-session", requireAuth, async (req: AuthedRequest
       });
       return;
     }
-    const stripeSession = await createStripeCheckoutSession({
+
+    // Group drafts by seller to handle multi-vendor checkout
+    const draftsBySeller = new Map<number, NormalizedOrderDraft[]>();
+    for (const draft of drafts) {
+      if (!draftsBySeller.has(draft.sellerId)) {
+        draftsBySeller.set(draft.sellerId, []);
+      }
+      draftsBySeller.get(draft.sellerId)!.push(draft);
+    }
+
+    // For now, we'll handle single-vendor checkout with Stripe Connect
+    // Multi-vendor checkout would require separate payment intents per seller
+    if (draftsBySeller.size > 1) {
+      res.status(400).json({
+        error: "multi_vendor_not_supported",
+        message: "Multi-vendor checkout is not yet supported. Please checkout with one seller at a time.",
+      });
+      return;
+    }
+
+    const [sellerId, sellerDrafts] = draftsBySeller.entries().next().value;
+    const [seller] = await db.select().from(usersTable).where(eq(usersTable.id, sellerId));
+
+    // Check if seller has active Stripe Connect account
+    if (!seller?.stripeConnectId || seller.stripeAccountStatus !== "active") {
+      res.status(400).json({
+        error: "seller_not_ready",
+        message: "This seller does not have a payment method configured. Please contact the seller.",
+      });
+      return;
+    }
+
+    // Calculate platform fee in cents
+    const applicationFeeAmount = Math.round(totalPlatformFee * 100);
+
+    // Create Stripe Connect checkout session with destination charges
+    const stripeSession = await createStripeConnectCheckoutSession({
+      accountId: seller.stripeConnectId,
       customerEmail: buyer.email,
       successUrl: `${appUrl}${successPath.startsWith("/") ? successPath : `/${successPath}`}`,
       cancelUrl: `${appUrl}${cancelPath.startsWith("/") ? cancelPath : `/${cancelPath}`}`,
-      lineItems: drafts.map((draft) => ({
+      lineItems: sellerDrafts.map((draft) => ({
         name: draft.title,
         description: draft.listingId ? "Catalog order" : "Custom fabrication order",
-        quantity: draft.quantity,
         unitAmountCents: Math.round((draft.totalPrice / draft.quantity) * 100),
+        quantity: draft.quantity,
       })),
+      applicationFeeAmount,
       metadata: {
         buyerId: String(req.auth!.userId),
+        sellerId: String(sellerId),
       },
     });
 
@@ -544,9 +585,112 @@ router.post("/payments/stripe/webhook", async (req, res) => {
 
   const event = JSON.parse(rawBody.toString("utf8")) as {
     type?: string;
-    data?: { object?: { id?: string } };
+    data?: { object?: { id?: string; account?: string } };
   };
 
+  // Handle Stripe Connect account events
+  if (event.type === "account.updated") {
+    const accountId = event.data?.object?.id;
+    if (!accountId) {
+      res.status(400).json({ error: "invalid_payload", message: "Webhook payload missing account id." });
+      return;
+    }
+
+    // Update user's Stripe Connect status
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.stripeConnectId, accountId));
+
+    if (user) {
+      const accountData = event.data.object as any;
+      let newStatus: "not_started" | "pending" | "active" | "restricted" | "disabled" = "pending";
+
+      if (accountData.details_submitted && accountData.charges_enabled && accountData.payouts_enabled) {
+        newStatus = "active";
+      } else if (accountData.details_submitted) {
+        newStatus = "restricted";
+      } else if (accountData.requirements?.disabled_reason) {
+        newStatus = "disabled";
+      }
+
+      await db
+        .update(usersTable)
+        .set({ stripeAccountStatus: newStatus })
+        .where(eq(usersTable.id, user.id));
+    }
+
+    res.status(200).json({ ok: true });
+    return;
+  }
+
+  // Handle payment intent events for Connect
+  if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.payment_failed") {
+    const paymentIntent = event.data?.object as any;
+    const paymentIntentId = paymentIntent?.id;
+    
+    if (paymentIntentId) {
+      // Update order status based on payment intent
+      const [order] = await db
+        .select()
+        .from(ordersTable)
+        .where(eq(ordersTable.stripePaymentIntentId, paymentIntentId));
+
+      if (order) {
+        if (event.type === "payment_intent.succeeded") {
+          await db
+            .update(ordersTable)
+            .set({ 
+              stripeChargeId: paymentIntent.latest_charge || paymentIntent.charges?.data?.[0]?.id || null,
+            })
+            .where(eq(ordersTable.id, order.id));
+        } else if (event.type === "payment_intent.payment_failed") {
+          // Handle failed payment - could update order status or notify seller
+          await createNotification({
+            userId: order.buyerId,
+            type: "system",
+            title: "Payment failed",
+            body: `Your payment for order #${order.id} failed. Please try again.`,
+            url: `/dashboard?order=${order.id}`,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({ ok: true });
+    return;
+  }
+
+  // Handle charge refunded events
+  if (event.type === "charge.refunded") {
+    const charge = event.data?.object as any;
+    const chargeId = charge?.id;
+    
+    if (chargeId) {
+      const [order] = await db
+        .select()
+        .from(ordersTable)
+        .where(eq(ordersTable.stripeChargeId, chargeId));
+
+      if (order) {
+        // Notify seller about refund
+        await createNotification({
+          userId: order.sellerId,
+          type: "system",
+          title: "Order refunded",
+          body: `Order #${order.id} has been refunded.`,
+          url: `/dashboard?order=${order.id}`,
+        });
+
+        // Could also update order status to 'refunded' if you add that status
+      }
+    }
+
+    res.status(200).json({ ok: true });
+    return;
+  }
+
+  // Handle checkout session events (existing logic)
   const sessionId = event.data?.object?.id;
   if (!sessionId) {
     res.status(400).json({ error: "invalid_payload", message: "Webhook payload missing session id." });
@@ -572,6 +716,10 @@ router.post("/payments/stripe/webhook", async (req, res) => {
         .from(usersTable)
         .where(eq(usersTable.id, checkoutSession.buyerId));
 
+      // Extract Stripe payment intent ID from the checkout session event
+      const paymentIntentId = (event.data as any)?.object?.payment_intent;
+      const chargeId = (event.data as any)?.object?.payment_intent?.latest_charge || (event.data as any)?.object?.payment_intent;
+
       const orderValues = payload.map((draft) => ({
         buyerId: checkoutSession.buyerId,
         sellerId: draft.sellerId,
@@ -588,6 +736,8 @@ router.post("/payments/stripe/webhook", async (req, res) => {
         totalPrice: draft.totalPrice,
         status: "pending" as const,
         shippingAddress: checkoutSession.shippingAddress,
+        stripePaymentIntentId: paymentIntentId || null,
+        stripeChargeId: chargeId || null,
       }));
       const insertedOrders = await db.insert(ordersTable).values(orderValues).returning();
 

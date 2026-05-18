@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 
 export const userRoleEnum = pgEnum("user_role", ["buyer", "seller", "both"]);
 export const shopModeEnum = pgEnum("shop_mode", ["catalog", "open", "both"]);
+export const stripeAccountStatusEnum = pgEnum("stripe_account_status", ["not_started", "pending", "active", "restricted", "disabled"]);
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -72,6 +73,9 @@ export const usersTable = pgTable("users", {
   // Store visibility and order acceptance toggles
   storeVisible: boolean("store_visible").notNull().default(true), // Is the shop visible to public
   acceptingOrders: boolean("accepting_orders").notNull().default(true), // Is the shop currently accepting orders
+  // Stripe Connect fields for split payments
+  stripeConnectId: text("stripe_connect_id").unique(), // Stripe Connect Account ID
+  stripeAccountStatus: stripeAccountStatusEnum("stripe_account_status").notNull().default("not_started"), // Status of Stripe Connect account
 });
 
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, joinedAt: true });

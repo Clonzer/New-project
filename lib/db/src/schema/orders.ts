@@ -25,6 +25,9 @@ export const ordersTable = pgTable("orders", {
   estimatedDelivery: timestamp("estimated_delivery"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Stripe Connect fields for split payments
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(), // Stripe Payment Intent ID
+  stripeChargeId: text("stripe_charge_id").unique(), // Stripe Charge ID
 });
 
 export const insertOrderSchema = createInsertSchema(ordersTable).omit({ id: true, createdAt: true, updatedAt: true });

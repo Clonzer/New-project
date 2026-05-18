@@ -19,6 +19,7 @@ import badgesRouter from "./badges";
 import sponsorshipsRouter from "./sponsorships";
 import statsRouter from "./stats";
 import cronRouter from "./cron";
+import stripeConnectRouter from "./stripe-connect";
 
 const router: IRouter = Router();
 
@@ -35,6 +36,7 @@ router.use(supportRouter);
 router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);
+router.use(stripeConnectRouter);
 router.use("/contests", contestsRouter);
 router.use("/equipment", equipmentRouter);
 router.use("/files", filesRouter);
