@@ -54,6 +54,7 @@ import { EquipmentUtilizationChart } from "@/components/analytics/EquipmentUtili
 import { AnalyticsUpgradePrompt } from "@/components/analytics/AnalyticsUpgradePrompt";
 import { canAccessAnalytics } from "@/lib/plan-utils";
 import { Equipment } from "@/components/dashboard/Equipment";
+import { StoreStatusToggle } from "@/components/dashboard/StoreStatusToggle";
 import { StripeConnectOnboarding } from "@/components/stripe/StripeConnectOnboarding";
 import { StripeProductCreation } from "@/components/stripe/StripeProductCreation";
 
@@ -504,6 +505,9 @@ export default function DashboardWithSidebar() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Store Status Toggle */}
+      {user?.role === 'seller' && <StoreStatusToggle />}
 
       {/* Dashboard Header with Edit Storefront Button */}
       <div className="flex items-center justify-between">
