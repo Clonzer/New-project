@@ -15,7 +15,7 @@ const router: IRouter = Router();
 
 // POST /api/stripe-connect/onboarding/start
 // Creates a Stripe Connect Express account and returns the onboarding link
-router.post("/stripe-connect/onboarding/start", requireAuth, async (req: AuthedRequest, res) => {
+router.post("/onboarding/start", requireAuth, async (req: AuthedRequest, res) => {
   if (!isStripeConfigured()) {
     res.status(503).json({
       error: "payments_unavailable",
@@ -119,7 +119,7 @@ router.post("/stripe-connect/onboarding/start", requireAuth, async (req: AuthedR
 
 // GET /api/stripe-connect/onboarding/status
 // Returns the current status of the user's Stripe Connect account
-router.get("/stripe-connect/onboarding/status", requireAuth, async (req: AuthedRequest, res) => {
+router.get("/onboarding/status", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
     if (!user) {
@@ -165,7 +165,7 @@ router.get("/stripe-connect/onboarding/status", requireAuth, async (req: AuthedR
 
 // POST /api/stripe-connect/onboarding/refresh
 // Generates a new onboarding link for an existing account
-router.post("/stripe-connect/onboarding/refresh", requireAuth, async (req: AuthedRequest, res) => {
+router.post("/onboarding/refresh", requireAuth, async (req: AuthedRequest, res) => {
   if (!isStripeConfigured()) {
     res.status(503).json({
       error: "payments_unavailable",
@@ -213,7 +213,7 @@ router.post("/stripe-connect/onboarding/refresh", requireAuth, async (req: Authe
 
 // GET /api/stripe-connect/onboarding/return
 // Handles the return from Stripe onboarding and updates account status
-router.get("/stripe-connect/onboarding/return", requireAuth, async (req: AuthedRequest, res) => {
+router.get("/onboarding/return", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
     if (!user) {

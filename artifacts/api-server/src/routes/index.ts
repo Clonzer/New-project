@@ -36,7 +36,7 @@ router.use(supportRouter);
 router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);
-router.use(stripeConnectRouter);
+router.use("/stripe-connect", stripeConnectRouter);
 router.use("/contests", contestsRouter);
 router.use("/equipment", equipmentRouter);
 router.use("/files", filesRouter);
