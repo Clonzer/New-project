@@ -44,7 +44,7 @@ export default function StorefrontPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load all products
       const { data: productsData, error: productsError } = await supabase
         .from('stripe_products')
@@ -57,16 +57,8 @@ export default function StorefrontPage() {
         setProducts(productsData || []);
       }
 
-      // Load all connected accounts
-      const { data: accountsData, error: accountsError } = await supabase
-        .from('stripe_connected_accounts')
-        .select('*');
-
-      if (accountsError) {
-        console.error('Error loading accounts:', accountsError);
-      } else {
-        setAccounts(accountsData || []);
-      }
+      // Note: Connected accounts are now managed via the users table and API server
+      // The old stripe_connected_accounts table is no longer used
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -86,28 +78,26 @@ export default function StorefrontPage() {
       }
 
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session-connect`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            priceId: product.stripe_price_id,
+
+      const response = await fetch('/api/payments/checkout-session', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          draftIds: [],
+          customOrder: {
+            productId: product.id,
             quantity: 1,
-            stripeAccountId: product.stripe_account_id,
-          }),
-        }
-      );
+          },
+        }),
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create checkout session');
+        throw new Error(result.message || 'Failed to create checkout session');
       }
 
       // Redirect to Stripe checkout
@@ -131,8 +121,9 @@ export default function StorefrontPage() {
   };
 
   const getSellerName = (accountId: string) => {
-    const account = accounts.find(a => a.stripe_account_id === accountId);
-    return account?.display_name || 'Unknown Seller';
+    // Since we removed the old accounts table, we'll just return a placeholder
+    // In the future, this should fetch from the users table via the API
+    return 'Seller';
   };
 
   if (loading) {

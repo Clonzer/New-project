@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,7 @@ export function StripeProductCreation() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [accountData, setAccountData] = useState<any>(null);
+  const [accountStatus, setAccountStatus] = useState<any>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -27,26 +26,25 @@ export function StripeProductCreation() {
 
   const loadAccountStatus = async () => {
     try {
-      const { data, error } = await supabase
-        .from('stripe_connected_accounts')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
+      const response = await fetch('/api/stripe-connect/onboarding/status', {
+        method: 'GET',
+        credentials: 'include',
+      });
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading account:', error);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to load account status');
       }
 
-      if (data) {
-        setAccountData(data);
-      }
-    } catch (error) {
+      setAccountStatus(result);
+    } catch (error: any) {
       console.error('Error loading account status:', error);
     }
   };
 
   const createProduct = async () => {
-    if (!accountData?.onboarding_complete) {
+    if (!accountStatus?.hasAccount || accountStatus?.status !== 'active') {
       toast({
         title: "Account not ready",
         description: "Please complete Stripe onboarding before creating products",
@@ -57,32 +55,27 @@ export function StripeProductCreation() {
 
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
       const priceInCents = Math.round(parseFloat(price) * 100);
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-stripe-product`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name,
-            description,
-            priceInCents,
-            currency,
-            stripeAccountId: accountData.stripe_account_id,
-          }),
-        }
-      );
+
+      const response = await fetch('/api/stripe-connect/products/create', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          priceInCents,
+          currency,
+          accountId: accountStatus.accountId,
+        }),
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create product');
+        throw new Error(result.message || 'Failed to create product');
       }
 
       toast({
@@ -105,7 +98,7 @@ export function StripeProductCreation() {
     }
   };
 
-  if (!accountData?.onboarding_complete) {
+  if (!accountStatus?.hasAccount || accountStatus?.status !== 'active') {
     return (
       <Card className="glass-panel border border-white/10">
         <CardContent className="flex items-center justify-center py-12">
