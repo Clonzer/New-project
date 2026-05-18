@@ -45,6 +45,10 @@ export function getAppUrl(): string | null {
   return null;
 }
 
+export function getPlatformStripeAccountId(): string | null {
+  return process.env["STRIPE_PLATFORM_ACCOUNT_ID"]?.trim() || null;
+}
+
 export type StripeCheckoutLineItem = {
   name: string;
   description?: string | null;
@@ -59,54 +63,45 @@ export async function createStripeCheckoutSession(params: {
   lineItems: StripeCheckoutLineItem[];
   metadata?: Record<string, string>;
 }) {
-  const secretKey = getRequiredEnv("STRIPE_SECRET_KEY");
-  const body = new URLSearchParams();
-  body.set("mode", "payment");
-  body.set("success_url", params.successUrl);
-  body.set("cancel_url", params.cancelUrl);
-  body.set("customer_email", params.customerEmail);
-  body.set("billing_address_collection", "required");
-  body.set("shipping_address_collection[allowed_countries][0]", "US");
-  body.set("shipping_address_collection[allowed_countries][1]", "GB");
-  body.set("shipping_address_collection[allowed_countries][2]", "CA");
-  body.set("shipping_address_collection[allowed_countries][3]", "AU");
+  const stripe = getStripe();
+  const platformAccountId = getPlatformStripeAccountId();
 
-  params.lineItems.forEach((item, index) => {
-    body.set(`line_items[${index}][price_data][currency]`, "usd");
-    body.set(`line_items[${index}][price_data][unit_amount]`, String(item.unitAmountCents));
-    body.set(`line_items[${index}][price_data][product_data][name]`, item.name);
-    if (item.description) {
-      body.set(`line_items[${index}][price_data][product_data][description]`, item.description);
-    }
-    body.set(`line_items[${index}][quantity]`, String(item.quantity));
-  });
-
-  Object.entries(params.metadata ?? {}).forEach(([key, value]) => {
-    body.set(`metadata[${key}]`, value);
-  });
-
-  const response = await fetch(`${STRIPE_API_BASE}/checkout/sessions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${secretKey}`,
-      "Content-Type": "application/x-www-form-urlencoded",
+  const lineItemsParams = params.lineItems.map((item) => ({
+    price_data: {
+      currency: "usd",
+      unit_amount: item.unitAmountCents,
+      product_data: {
+        name: item.name,
+        description: item.description || undefined,
+      },
     },
-    body,
-  });
+    quantity: item.quantity,
+  }));
 
-  const data = (await response.json()) as {
-    id?: string;
-    url?: string;
-    error?: { message?: string };
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    mode: "payment",
+    customer_email: params.customerEmail,
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+    line_items: lineItemsParams,
+    metadata: params.metadata,
   };
 
-  if (!response.ok || !data.id || !data.url) {
-    throw new Error(data.error?.message || `Stripe session creation failed with ${response.status}.`);
+  // If platform account ID is set, use Stripe Connect for platform payments
+  if (platformAccountId) {
+    sessionParams.payment_intent_data = {
+      transfer_data: {
+        destination: platformAccountId,
+      },
+      metadata: params.metadata,
+    };
   }
 
+  const session = await stripe.checkout.sessions.create(sessionParams);
+
   return {
-    id: data.id,
-    url: data.url,
+    id: session.id,
+    url: session.url!,
   };
 }
 
