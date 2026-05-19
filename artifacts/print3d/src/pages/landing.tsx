@@ -145,13 +145,13 @@ export default function Landing() {
         <main className="flex-grow">
           {/* Hero Section */}
           <section className="bg-zinc-950">
-            <div className="container mx-auto pl-20 pr-4 py-4">
+            <div className="container mx-auto pl-4 sm:pl-6 lg:pl-20 pr-4 py-4">
             </div>
           </section>
 
           {/* Featured Products Section */}
           <section className="bg-zinc-950 pt-0">
-            <div className="container mx-auto pl-20 pr-4 pt-2 pb-16">
+            <div className="container mx-auto pl-4 sm:pl-6 lg:pl-20 pr-4 pt-2 pb-16">
               {/* Featured Section */}
               <div className="mb-8">
                 <div className="text-center mb-8">
@@ -174,8 +174,8 @@ export default function Landing() {
               </div>
 
               {/* Enhanced Vertical Icon Bar */}
-              <div className="mb-6 relative">
-                <motion.div 
+              <div className="mb-6 relative hidden lg:block">
+                <motion.div
                   ref={sidebarRef}
                   className="fixed left-0 top-0 z-[60] bg-zinc-900/95 backdrop-blur-sm border-r border-zinc-800 p-2 group"
                   initial={{ width: "48px", height: "100vh" }}
@@ -356,12 +356,12 @@ export default function Landing() {
               </div>
 
               {/* Products and Shops Grid */}
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Products Section */}
                 {filteredProducts.length > 0 && (
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-4">Featured Products</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Featured Products</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                       {filteredProducts.map((listing, index) => (
                         <motion.div
                           key={listing.id}
@@ -370,7 +370,7 @@ export default function Landing() {
                           transition={{ delay: index * 0.1 }}
                           whileHover={{ y: -10 }}
                         >
-                          <ModernProductCard 
+                          <ModernProductCard
                             listing={listing}
                             sellerAcceptingOrders={listing.accepting_orders}
                           />
@@ -383,8 +383,8 @@ export default function Landing() {
                 {/* Shops Section */}
                 {filteredShops.length > 0 && (
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-4">Top Shops</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Top Shops</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                       {filteredShops.map((shop, index) => (
                         <motion.div
                           key={shop.id}
