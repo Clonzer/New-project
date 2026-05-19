@@ -1,0 +1,7 @@
+packages:
+  - 'lib/*'
+  - 'artifacts/api-server'
+  - 'artifacts/print3d'
+
+catalog:
+  '@tanstack/react-query': ^5.71.0
