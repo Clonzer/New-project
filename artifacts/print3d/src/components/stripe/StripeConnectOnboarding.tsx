@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,21 +22,26 @@ export function StripeConnectOnboarding() {
   const loadAccountStatus = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/stripe-connect/onboarding/status', {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const { data, error } = await supabase
+        .from('users')
+        .select('stripe_connect_id, stripe_account_status')
+        .eq('id', user?.id)
+        .single();
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to load account status');
+      if (error) {
+        console.error('Error loading account status:', error);
+        return;
       }
 
-      setAccountStatus(result);
+      if (data) {
+        setAccountStatus({
+          hasAccount: !!data.stripe_connect_id,
+          accountId: data.stripe_connect_id,
+          status: data.stripe_account_status,
+        });
+      }
     } catch (error: any) {
       console.error('Error loading account status:', error);
-      // Don't show toast on initial load failure
     } finally {
       setLoading(false);
     }
@@ -44,15 +50,25 @@ export function StripeConnectOnboarding() {
   const startOnboarding = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/stripe-connect/onboarding/start', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(
+        `${apiUrl}/stripe-connect/onboarding/start`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }
+      );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to start onboarding');
+        throw new Error(result.error || 'Failed to start onboarding');
       }
 
       // Redirect to Stripe onboarding
@@ -71,15 +87,25 @@ export function StripeConnectOnboarding() {
   const refreshOnboarding = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/stripe-connect/onboarding/refresh', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(
+        `${apiUrl}/stripe-connect/onboarding/refresh`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }
+      );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to refresh onboarding');
+        throw new Error(result.error || 'Failed to refresh onboarding');
       }
 
       // Redirect to Stripe onboarding
