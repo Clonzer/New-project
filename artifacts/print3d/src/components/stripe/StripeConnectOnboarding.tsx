@@ -63,13 +63,17 @@ export function StripeConnectOnboarding() {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
+      if (!token) {
+        throw new Error('Not authenticated.');
+      }
 
       const apiUrl = resolveApiUrl();
       const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/start`, window.location.origin).href;
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: 'include',
       });
@@ -97,13 +101,17 @@ export function StripeConnectOnboarding() {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
+      if (!token) {
+        throw new Error('Not authenticated.');
+      }
 
       const apiUrl = resolveApiUrl();
       const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/refresh`, window.location.origin).href;
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: 'include',
       });

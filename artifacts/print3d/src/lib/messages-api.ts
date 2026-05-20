@@ -4,10 +4,19 @@ const API_BASE_URL = (typeof import.meta !== "undefined" && (import.meta as any)
   ? String((import.meta as any).env.VITE_API_URL).replace(/\/+$/, "")
   : "";
 
+function getLegacyAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("authToken");
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const trimmedBase = API_BASE_URL.replace(/\/+$/, "");
   const url = path.startsWith("http://") || path.startsWith("https://")
     ? path
-    : `${API_BASE_URL || ""}${path}`;
+    : trimmedBase
+      ? `${trimmedBase}${trimmedBase.endsWith("/api") && normalizedPath.startsWith("/api") ? normalizedPath.slice(4) : normalizedPath}`
+      : normalizedPath;
 
   const response = await fetch(url, {
     credentials: "include",
@@ -66,7 +75,8 @@ export type MessageThreadDetail = {
 
 export async function listMessageThreads(search?: string): Promise<{ threads: MessageThreadSummary[] }> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
+  const authToken = getLegacyAuthToken() || session?.access_token;
+  if (!authToken) {
     return { threads: [] };
   }
 
@@ -74,7 +84,7 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
   const data = await apiFetch<{ threads: MessageThreadSummary[] }>(`/api/messages/threads${query}`, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   });
 
@@ -83,14 +93,15 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
 
 export async function getMessageThread(threadId: number): Promise<{ thread: MessageThreadDetail }> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
+  const authToken = getLegacyAuthToken() || session?.access_token;
+  if (!authToken) {
     throw new Error("Not authenticated");
   }
 
   const data = await apiFetch<{ thread: MessageThreadDetail }>(`/api/messages/threads/${threadId}`, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   });
 
@@ -99,14 +110,15 @@ export async function getMessageThread(threadId: number): Promise<{ thread: Mess
 
 export async function createMessageThread(participantId: number, message?: string): Promise<{ threadId: number }> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
+  const authToken = getLegacyAuthToken() || session?.access_token;
+  if (!authToken) {
     throw new Error("Not authenticated");
   }
 
   const data = await apiFetch<{ threadId: number }>("/api/messages/threads", {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
     body: JSON.stringify({ participantId, message }),
   });
@@ -116,7 +128,8 @@ export async function createMessageThread(participantId: number, message?: strin
 
 export async function sendThreadMessage(threadId: number, body: string): Promise<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) {
+  const authToken = getLegacyAuthToken() || session?.access_token;
+  if (!authToken) {
     throw new Error("Not authenticated");
   }
 
@@ -125,7 +138,7 @@ export async function sendThreadMessage(threadId: number, body: string): Promise
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${session.access_token}`,
+        Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({ body }),
     },

@@ -1,4 +1,11 @@
-const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+
+function buildApiUrl(path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE_URL.endsWith("/api") && normalizedPath.startsWith("/api")
+    ? `${API_BASE_URL}${normalizedPath.slice(4)}`
+    : `${API_BASE_URL}${normalizedPath}`;
+}
 
 export type CheckoutItemPayload = {
   listingId?: number | null;
@@ -30,7 +37,7 @@ export async function getSponsorshipOptions() {
 }
 
 async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = apiBase ? `${apiBase}${path}` : path;
+  const url = API_BASE_URL ? buildApiUrl(path) : path;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(init?.headers as Record<string, string> | undefined),
