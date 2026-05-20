@@ -10,12 +10,14 @@ const app: Express = express();
 // CORS: set CORS_ORIGINS="https://app.example.com,https://www.example.com" in production.
 // credentials: true allows httpOnly cookies + Authorization from SPA.
 const corsOrigins = process.env["CORS_ORIGINS"]?.split(",").map((s) => s.trim()).filter(Boolean);
-app.use(
-  cors({
-    origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
-    credentials: true,
-  }),
-);
+const corsConfig = {
+  origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig));
 app.use(cookieParser());
 app.use("/api/payments/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "10mb" }));

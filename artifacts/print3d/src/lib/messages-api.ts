@@ -1,5 +1,34 @@
 import { supabase } from "@/lib/supabase";
 
+const API_BASE_URL = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL)
+  ? String((import.meta as any).env.VITE_API_URL).replace(/\/+$/, "")
+  : "";
+
+async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = path.startsWith("http://") || path.startsWith("https://")
+    ? path
+    : `${API_BASE_URL || ""}${path}`;
+
+  const response = await fetch(url, {
+    credentials: "include",
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers as Record<string, string> | undefined),
+    },
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : {};
+
+  if (!response.ok) {
+    const errorMessage = data?.message || data?.error || response.statusText || "Request failed.";
+    throw new Error(errorMessage);
+  }
+
+  return data as T;
+}
+
 export type MessageThreadSummary = {
   id: number;
   counterpart: {
@@ -36,216 +65,71 @@ export type MessageThreadDetail = {
 };
 
 export async function listMessageThreads(search?: string): Promise<{ threads: MessageThreadSummary[] }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-
-  // Get threads where user is participant
-  const { data: participations, error: partError } = await supabase
-    .from('message_thread_participants')
-    .select('thread_id')
-    .eq('user_id', user.id);
-
-  if (partError) {
-    console.warn('Could not load message thread participants:', partError);
-    return { threads: [] };
-  }
-  if (!participations?.length) return { threads: [] };
-
-  const threadIds = participations.map(p => p.thread_id);
-
-  // Get thread details with last message
-  const { data: threads, error } = await supabase
-    .from('message_threads')
-    .select(`
-      id,
-      updated_at,
-      message_thread_participants!inner(user_id, profiles:user_id(id, username, display_name, avatar_url)),
-      messages!message_thread_id_fkey(id, body, created_at, sender_id, is_read)
-    `)
-    .in('id', threadIds)
-    .order('updated_at', { ascending: false });
-
-  if (error) {
-    console.warn('Could not load message threads:', error);
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
     return { threads: [] };
   }
 
-  const formattedThreads: MessageThreadSummary[] = threads?.map(thread => {
-    const otherParticipant = thread.message_thread_participants
-      ?.find((p: any) => p.user_id !== user.id);
-    
-    const lastMsg = thread.messages?.[0];
-    const unreadCount = thread.messages?.filter((m: any) => m.sender_id !== user.id && !m.is_read).length || 0;
+  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+  const data = await apiFetch<{ threads: MessageThreadSummary[] }>(`/api/messages/threads${query}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
 
-    return {
-      id: thread.id,
-      counterpart: otherParticipant ? {
-        id: otherParticipant.profiles?.id,
-        username: otherParticipant.profiles?.username,
-        displayName: otherParticipant.profiles?.display_name,
-        avatarUrl: otherParticipant.profiles?.avatar_url,
-      } : null,
-      lastMessage: lastMsg ? {
-        id: lastMsg.id,
-        body: lastMsg.body,
-        createdAt: lastMsg.created_at,
-        senderId: lastMsg.sender_id,
-      } : null,
-      unreadCount,
-      updatedAt: thread.updated_at,
-    };
-  }) || [];
-
-  return { threads: formattedThreads };
+  return { threads: data.threads || [] };
 }
 
 export async function getMessageThread(threadId: number): Promise<{ thread: MessageThreadDetail }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error("Not authenticated");
+  }
 
-  // Check user is participant
-  const { data: participation } = await supabase
-    .from('message_thread_participants')
-    .select('user_id')
-    .eq('thread_id', threadId)
-    .eq('user_id', user.id)
-    .single();
-
-  if (!participation) throw new Error("Not authorized to view this thread");
-
-  // Get thread with all messages
-  const { data: thread, error } = await supabase
-    .from('message_threads')
-    .select(`
-      id,
-      message_thread_participants!inner(user_id, profiles:user_id(id, username, display_name, avatar_url)),
-      messages!message_thread_id_fkey(id, body, sender_id, is_read, created_at)
-    `)
-    .eq('id', threadId)
-    .single();
-
-  if (error) throw error;
-
-  const otherParticipant = thread.message_thread_participants
-    ?.find((p: any) => p.user_id !== user.id);
-
-  // Mark messages as read
-  await supabase
-    .from('messages')
-    .update({ is_read: true })
-    .eq('thread_id', threadId)
-    .neq('sender_id', user.id)
-    .eq('is_read', false);
-
-  return {
-    thread: {
-      id: thread.id,
-      counterpart: otherParticipant ? {
-        id: otherParticipant.profiles?.id,
-        username: otherParticipant.profiles?.username,
-        displayName: otherParticipant.profiles?.display_name,
-        avatarUrl: otherParticipant.profiles?.avatar_url,
-      } : null,
-      messages: thread.messages?.map((m: any) => ({
-        id: m.id,
-        body: m.body,
-        senderId: m.sender_id,
-        isRead: m.is_read,
-        createdAt: m.created_at,
-      })) || [],
+  const data = await apiFetch<{ thread: MessageThreadDetail }>(`/api/messages/threads/${threadId}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
     },
-  };
+  });
+
+  return data;
 }
 
 export async function createMessageThread(participantId: number, message?: string): Promise<{ threadId: number }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-
-  // Check if thread already exists
-  const { data: existing } = await supabase
-    .from('message_thread_participants')
-    .select('thread_id')
-    .eq('user_id', user.id);
-
-  const userThreads = existing?.map(e => e.thread_id) || [];
-
-  if (userThreads.length > 0) {
-    const { data: otherParticipant } = await supabase
-      .from('message_thread_participants')
-      .select('thread_id')
-      .eq('user_id', participantId)
-      .in('thread_id', userThreads);
-
-    const commonThread = otherParticipant?.[0]?.thread_id;
-    if (commonThread) {
-      // Thread exists, add message if provided
-      if (message) {
-        await supabase.from('messages').insert({
-          thread_id: commonThread,
-          sender_id: user.id,
-          body: message,
-        });
-      }
-      return { threadId: commonThread };
-    }
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error("Not authenticated");
   }
 
-  // Create new thread
-  const { data: thread, error } = await supabase
-    .from('message_threads')
-    .insert({})
-    .select('id')
-    .single();
+  const data = await apiFetch<{ threadId: number }>("/api/messages/threads", {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ participantId, message }),
+  });
 
-  if (error || !thread) throw error || new Error("Failed to create thread");
-
-  // Add participants
-  await supabase.from('message_thread_participants').insert([
-    { thread_id: thread.id, user_id: user.id },
-    { thread_id: thread.id, user_id: participantId },
-  ]);
-
-  // Add initial message if provided
-  if (message) {
-    await supabase.from('messages').insert({
-      thread_id: thread.id,
-      sender_id: user.id,
-      body: message,
-    });
-  }
-
-  return { threadId: thread.id };
+  return data;
 }
 
 export async function sendThreadMessage(threadId: number, body: string): Promise<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error("Not authenticated");
+  }
 
-  const { data: message, error } = await supabase
-    .from('messages')
-    .insert({
-      thread_id: threadId,
-      sender_id: user.id,
-      body,
-    })
-    .select('id, body, sender_id, is_read, created_at')
-    .single();
-
-  if (error || !message) throw error || new Error("Failed to send message");
-
-  // Update thread updated_at
-  await supabase
-    .from('message_threads')
-    .update({ updated_at: new Date().toISOString() })
-    .eq('id', threadId);
-
-  return {
-    message: {
-      id: message.id,
-      body: message.body,
-      senderId: message.sender_id,
-      isRead: message.is_read,
-      createdAt: message.created_at,
+  const data = await apiFetch<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }>(
+    `/api/messages/threads/${threadId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ body }),
     },
-  };
+  );
+
+  return data;
 }
