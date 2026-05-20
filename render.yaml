@@ -1,28 +1,33 @@
 services:
-  # Static Site - React Frontend
-  - type: static
+  - type: web
     name: synthix
     runtime: node
-    rootDir: artifacts/print3d
+    rootDir: .
     buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
-    publishDir: artifacts/print3d/dist
+    startCommand: pnpm run start:backend
     envVars:
       - key: NODE_VERSION
         value: "20"
       - key: NPM_CONFIG_FROZEN_LOCKFILE
         value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
       - key: VITE_SUPABASE_URL
-        sync: false  # Set this in Render dashboard
+        sync: false
       - key: VITE_SUPABASE_ANON_KEY
-        sync: false  # Set this in Render dashboard
+        sync: false
       - key: VITE_STRIPE_PUBLISHABLE_KEY
-        value: pk_live_51QDVz1GzFIXRBNGdB4FPN2cWTu5lUElCSdvC5rcXj1N6orXdY7xRniI0U2EviAlo2DZz9SyfzJzALLfy0Yu81aCJ00nnItkhzb
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache
-    # SPA routing - all routes serve index.html
-    redirects:
-      - source: /*
-        destination: /index.html
-        type: rewrite
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PLATFORM_ACCOUNT_ID
+        sync: false
+    healthCheckPath: /api

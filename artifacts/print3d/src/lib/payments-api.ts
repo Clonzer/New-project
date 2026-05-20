@@ -1,4 +1,4 @@
-import { customFetch } from "@/lib/workspace-api-mock";
+const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 export type CheckoutItemPayload = {
   listingId?: number | null;
@@ -14,9 +14,7 @@ export type CheckoutItemPayload = {
 };
 
 export async function getPaymentConfig() {
-  return customFetch<{ provider: string; checkoutEnabled: boolean }>("/api/payments/config", {
-    credentials: "include",
-  });
+  return fetchApi<{ provider: string; checkoutEnabled: boolean }>("/api/payments/config");
 }
 
 export type SponsorshipOption = {
@@ -28,9 +26,42 @@ export type SponsorshipOption = {
 };
 
 export async function getSponsorshipOptions() {
-  return customFetch<{ options: SponsorshipOption[] }>("/api/payments/sponsorship-options", {
+  return fetchApi<{ options: SponsorshipOption[] }>("/api/payments/sponsorship-options");
+}
+
+async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = apiBase ? `${apiBase}${path}` : path;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+
+  const response = await fetch(url, {
     credentials: "include",
+    ...init,
+    headers,
   });
+
+  const text = await response.text();
+  let data: any = {};
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      data = { text };
+    }
+  }
+
+  if (!response.ok) {
+    const errorMessage = data?.message || data?.error || response.statusText || "Request failed.";
+    const error = new Error(errorMessage);
+    (error as any).status = response.status;
+    (error as any).response = data;
+    throw error;
+  }
+
+  return data as T;
 }
 
 export async function createCheckoutSession(input: {
@@ -39,11 +70,9 @@ export async function createCheckoutSession(input: {
   successPath?: string;
   cancelPath?: string;
 }) {
-  // Use mock API for now (calculates correct amount with fees)
-  return customFetch<{ url: string; sessionId: string }>("/api/payments/checkout-session", {
+  return fetchApi<{ url: string; sessionId: string }>("/api/payments/checkout-session", {
     method: "POST",
     body: JSON.stringify(input),
-    credentials: "include",
   });
 }
 
@@ -56,9 +85,8 @@ export async function createSponsorshipCheckoutSession(input: {
   cancelPath?: string;
   metadata?: Record<string, any>;
 }) {
-  return customFetch<{ url: string; sessionId: string }>("/api/payments/sponsorship/checkout-session", {
+  return fetchApi<{ url: string; sessionId: string }>("/api/payments/sponsorship/checkout-session", {
     method: "POST",
     body: JSON.stringify(input),
-    credentials: "include",
   });
 }
