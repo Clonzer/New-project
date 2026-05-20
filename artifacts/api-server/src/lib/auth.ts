@@ -5,11 +5,15 @@ import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 
 const JWT_SECRET = process.env["JWT_SECRET"]?.trim() || "dev-only-change-in-production";
+const SUPABASE_JWT_SECRET = process.env["SUPABASE_JWT_SECRET"]?.trim() || null;
 const USING_FALLBACK_JWT_SECRET = JWT_SECRET === "dev-only-change-in-production";
 const OWNER_EMAILS = new Set(["evanhuelin8@gmail.com", "evanhuelin@gmail.com"]);
 
 if (USING_FALLBACK_JWT_SECRET) {
   console.warn("JWT_SECRET is missing or blank; using the built-in fallback secret. Set JWT_SECRET on Render.");
+}
+if (!SUPABASE_JWT_SECRET) {
+  console.warn("SUPABASE_JWT_SECRET is not configured. Backend will not verify Supabase auth tokens.");
 }
 
 export type AuthClaims = {
@@ -39,14 +43,25 @@ export function getTokenFromRequest(req: Request): string | null {
 }
 
 export function verifyAccessToken(token: string): AuthClaims | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+  function parseJwtSecret(secret: string): AuthClaims | null {
+    const decoded = jwt.verify(token, secret);
     if (typeof decoded === "string") return null;
-    const userId = Number(decoded.sub);
+    const userId = Number((decoded as any).sub);
     if (!Number.isFinite(userId) || userId <= 0) return null;
-    const email = typeof decoded.email === "string" ? decoded.email : "";
+    const email = typeof (decoded as any).email === "string" ? (decoded as any).email : "";
     return { userId, email };
+  }
+
+  try {
+    return parseJwtSecret(JWT_SECRET);
   } catch {
+    if (SUPABASE_JWT_SECRET) {
+      try {
+        return parseJwtSecret(SUPABASE_JWT_SECRET);
+      } catch {
+        return null;
+      }
+    }
     return null;
   }
 }
