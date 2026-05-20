@@ -45,7 +45,10 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
     .select('thread_id')
     .eq('user_id', user.id);
 
-  if (partError) throw partError;
+  if (partError) {
+    console.warn('Could not load message thread participants:', partError);
+    return { threads: [] };
+  }
   if (!participations?.length) return { threads: [] };
 
   const threadIds = participations.map(p => p.thread_id);
@@ -62,7 +65,10 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
     .in('id', threadIds)
     .order('updated_at', { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.warn('Could not load message threads:', error);
+    return { threads: [] };
+  }
 
   const formattedThreads: MessageThreadSummary[] = threads?.map(thread => {
     const otherParticipant = thread.message_thread_participants

@@ -837,11 +837,23 @@ export function useListOrders(options?: { userId?: string | number }) {
       }
 
       const { data: ordersData, error: fetchError } = await query;
+      let loadedOrders = ordersData;
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.warn("Order query failed, falling back to basic select:", fetchError);
+        const { data: fallbackOrders, error: fallbackError } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (fallbackError) {
+          throw fallbackError;
+        }
+        loadedOrders = fallbackOrders;
+      }
       
       // Transform the data to match the expected format
-      const transformedOrders = (ordersData || []).map((order: any) => ({
+      const transformedOrders = (loadedOrders || []).map((order: any) => ({
         id: order.id,
         buyer_id: order.buyer_id,
         seller_id: order.seller_id,
