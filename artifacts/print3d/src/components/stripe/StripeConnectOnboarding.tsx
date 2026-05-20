@@ -13,6 +13,14 @@ export function StripeConnectOnboarding() {
   const [loading, setLoading] = useState(false);
   const [accountStatus, setAccountStatus] = useState<any>(null);
 
+  function resolveApiUrl() {
+    const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
+    const apiUrl = rawApiUrl.replace(/\/+$/, "");
+    return apiUrl.startsWith("http://") || apiUrl.startsWith("https://") || apiUrl.startsWith("/")
+      ? apiUrl
+      : `/${apiUrl}`;
+  }
+
   useEffect(() => {
     if (user) {
       loadAccountStatus();
@@ -52,7 +60,7 @@ export function StripeConnectOnboarding() {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
 
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const apiUrl = resolveApiUrl();
       const response = await fetch(
         `${apiUrl}/stripe-connect/onboarding/start`,
         {
@@ -89,7 +97,7 @@ export function StripeConnectOnboarding() {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
 
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const apiUrl = resolveApiUrl();
       const response = await fetch(
         `${apiUrl}/stripe-connect/onboarding/refresh`,
         {

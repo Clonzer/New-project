@@ -1792,9 +1792,8 @@ export default function DashboardWithSidebar() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
           <StripeConnectOnboarding />
-          <StripeProductCreation />
         </div>
 
         <Card className="bg-white/5 border border-white/10">
