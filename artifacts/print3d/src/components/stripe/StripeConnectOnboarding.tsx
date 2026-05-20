@@ -15,10 +15,14 @@ export function StripeConnectOnboarding() {
 
   function resolveApiUrl() {
     const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
-    const apiUrl = rawApiUrl.replace(/\/+$/, "");
-    return apiUrl.startsWith("http://") || apiUrl.startsWith("https://") || apiUrl.startsWith("/")
-      ? apiUrl
-      : `/${apiUrl}`;
+    if (!rawApiUrl) {
+      return "/api";
+    }
+    if (rawApiUrl.startsWith("http://") || rawApiUrl.startsWith("https://")) {
+      return rawApiUrl.replace(/\/+$/, "");
+    }
+
+    return new URL(rawApiUrl.replace(/\/+$/, ""), window.location.origin).pathname;
   }
 
   useEffect(() => {
