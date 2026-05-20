@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, AlertCircle, ArrowRight, ExternalLink, RefreshCw } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw } from "lucide-react";
 
 export function StripeConnectOnboarding() {
   const { user, refreshUser } = useAuth();
@@ -61,17 +61,14 @@ export function StripeConnectOnboarding() {
       const { data: { session } } = await supabase.auth.getSession();
 
       const apiUrl = resolveApiUrl();
-      const response = await fetch(
-        `${apiUrl}/stripe-connect/onboarding/start`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        }
-      );
+      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/start`, window.location.origin).href;
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        credentials: 'include',
+      });
 
       const result = await response.json();
 
@@ -98,17 +95,14 @@ export function StripeConnectOnboarding() {
       const { data: { session } } = await supabase.auth.getSession();
 
       const apiUrl = resolveApiUrl();
-      const response = await fetch(
-        `${apiUrl}/stripe-connect/onboarding/refresh`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        }
-      );
+      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/refresh`, window.location.origin).href;
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        credentials: 'include',
+      });
 
       const result = await response.json();
 
