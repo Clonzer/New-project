@@ -24,7 +24,7 @@ export function StripeProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      const response = await fetch("/api/create-payment-intent", {
+      const response = await fetch("/api/payments/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

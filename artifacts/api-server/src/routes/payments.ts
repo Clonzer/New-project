@@ -6,6 +6,7 @@ import { type AuthedRequest, requireAuth } from "../lib/auth";
 import {
   createStripeCheckoutSession,
   createStripeConnectCheckoutSession,
+  createStripePaymentIntent,
   getAppUrl,
   isStripeConfigured,
   verifyStripeWebhookSignature,
@@ -249,6 +250,52 @@ async function buildDrafts(items: CheckoutItemInput[], shippingAddress: string, 
 
 router.get("/payments/config", (_req, res) => {
   res.json({ provider: "stripe", checkoutEnabled: isStripeConfigured() });
+});
+
+router.post("/payments/create-payment-intent", requireAuth, async (req: AuthedRequest, res) => {
+  if (!isStripeConfigured()) {
+    res.status(503).json({
+      error: "payments_unavailable",
+      message: "Stripe is not configured yet. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and APP_URL.",
+    });
+    return;
+  }
+
+  const amountCents = Number(req.body?.amountCents ?? req.body?.amount ?? 0);
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    res.status(400).json({ error: "invalid_amount", message: "A valid amount in cents is required." });
+    return;
+  }
+
+  try {
+    const [buyer] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+    if (!buyer) {
+      res.status(404).json({ error: "not_found", message: "Buyer account not found." });
+      return;
+    }
+
+    const metadata = typeof req.body?.metadata === "object" && req.body?.metadata !== null
+      ? Object.entries(req.body.metadata).reduce((meta, [key, value]) => {
+          if (typeof value === "string") meta[key] = value;
+          return meta;
+        }, {} as Record<string, string>)
+      : undefined;
+
+    const paymentIntent = await createStripePaymentIntent({
+      amountCents,
+      currency: "usd",
+      customerEmail: buyer.email,
+      metadata,
+    });
+
+    res.status(201).json({
+      clientSecret: paymentIntent.clientSecret,
+      paymentIntentId: paymentIntent.paymentIntentId,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not create payment intent.";
+    res.status(400).json({ error: "payment_intent_error", message });
+  }
 });
 
 router.get("/payments/sponsorship-options", (_req, res) => {

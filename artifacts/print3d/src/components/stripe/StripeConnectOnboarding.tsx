@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -7,23 +7,66 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2, AlertCircle, ArrowRight, ExternalLink, RefreshCw } from "lucide-react";
 
+type StripeAccountStatus = {
+  hasAccount: boolean;
+  accountId?: string;
+  status?: string;
+  detailsSubmitted?: boolean;
+  chargesEnabled?: boolean;
+  payoutsEnabled?: boolean;
+};
+
+const resolveApiUrl = () => {
+  const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
+  if (!rawApiUrl) return "/api";
+  if (rawApiUrl.startsWith("http://") || rawApiUrl.startsWith("https://")) {
+    return rawApiUrl.replace(/\/+$/, "");
+  }
+  return new URL(rawApiUrl.replace(/\/+$/, ""), window.location.origin).pathname;
+};
+
+const buildApiUrl = (path: string) => {
+  const apiUrl = resolveApiUrl();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return new URL(`${apiUrl}${normalizedPath}`, window.location.origin).href;
+};
+
+const getAuthToken = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return typeof window !== "undefined"
+    ? session?.access_token || localStorage.getItem("authToken") || null
+    : session?.access_token || null;
+};
+
+const fetchStripeOnboarding = async (path: string, init: RequestInit = {}) => {
+  const token = await getAuthToken();
+  if (!token) {
+    throw new Error("Not authenticated.");
+  }
+
+  const response = await fetch(buildApiUrl(path), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(init.headers as Record<string, string> | undefined),
+    },
+    credentials: "include",
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result?.error || result?.message || "Failed to load Stripe onboarding status.");
+  }
+
+  return result;
+};
+
 export function StripeConnectOnboarding() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [accountStatus, setAccountStatus] = useState<any>(null);
-
-  function resolveApiUrl() {
-    const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
-    if (!rawApiUrl) {
-      return "/api";
-    }
-    if (rawApiUrl.startsWith("http://") || rawApiUrl.startsWith("https://")) {
-      return rawApiUrl.replace(/\/+$/, "");
-    }
-
-    return new URL(rawApiUrl.replace(/\/+$/, ""), window.location.origin).pathname;
-  }
+  const [accountStatus, setAccountStatus] = useState<StripeAccountStatus | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -31,60 +74,31 @@ export function StripeConnectOnboarding() {
     }
   }, [user]);
 
-  const loadAccountStatus = async () => {
+  const loadAccountStatus = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('users')
-        .select('stripe_connect_id, stripe_account_status')
-        .eq('id', user?.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading account status:', error);
-        return;
-      }
-
-      if (data) {
-        setAccountStatus({
-          hasAccount: !!data.stripe_connect_id,
-          accountId: data.stripe_connect_id,
-          status: data.stripe_account_status,
-        });
-      }
+      const result = await fetchStripeOnboarding("/stripe-connect/onboarding/status");
+      setAccountStatus({
+        hasAccount: result.hasAccount,
+        accountId: result.accountId,
+        status: result.status,
+        detailsSubmitted: result.detailsSubmitted,
+        chargesEnabled: result.chargesEnabled,
+        payoutsEnabled: result.payoutsEnabled,
+      });
     } catch (error: any) {
-      console.error('Error loading account status:', error);
+      console.error("Error loading account status:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const startOnboarding = async () => {
+  const startOnboarding = useCallback(async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
-      if (!token) {
-        throw new Error('Not authenticated.');
-      }
-
-      const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/start`, window.location.origin).href;
-      const response = await fetch(requestUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
+      const result = await fetchStripeOnboarding("/stripe-connect/onboarding/start", {
+        method: "POST",
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to start onboarding');
-      }
-
-      // Redirect to Stripe onboarding
       window.location.href = result.url;
     } catch (error: any) {
       toast({
@@ -95,34 +109,14 @@ export function StripeConnectOnboarding() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const refreshOnboarding = async () => {
+  const refreshOnboarding = useCallback(async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
-      if (!token) {
-        throw new Error('Not authenticated.');
-      }
-
-      const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/refresh`, window.location.origin).href;
-      const response = await fetch(requestUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
+      const result = await fetchStripeOnboarding("/stripe-connect/onboarding/refresh", {
+        method: "POST",
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to refresh onboarding');
-      }
-
-      // Redirect to Stripe onboarding
       window.location.href = result.url;
     } catch (error: any) {
       toast({
@@ -133,16 +127,16 @@ export function StripeConnectOnboarding() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const refreshStatus = async () => {
+  const refreshStatus = useCallback(async () => {
     await loadAccountStatus();
     await refreshUser?.();
     toast({
       title: "Status updated",
       description: "Your account status has been refreshed.",
     });
-  };
+  }, [loadAccountStatus, refreshUser, toast]);
 
   if (loading && !accountStatus) {
     return (
@@ -154,7 +148,6 @@ export function StripeConnectOnboarding() {
     );
   }
 
-  // No account exists
   if (!accountStatus || !accountStatus.hasAccount) {
     return (
       <Card className="glass-panel border border-white/10">
@@ -164,7 +157,7 @@ export function StripeConnectOnboarding() {
         <CardContent className="space-y-4">
           <p className="text-zinc-400">
             Connect your Stripe Express account to start receiving payments for your products.
-            You'll be redirected to Stripe to complete the onboarding process.
+            You&apos;ll be redirected to Stripe to complete the onboarding process.
           </p>
 
           <Button
@@ -189,17 +182,15 @@ export function StripeConnectOnboarding() {
     );
   }
 
-  // Account exists
-  const isActive = accountStatus.status === 'active';
-  const isPending = accountStatus.status === 'pending';
-  const isRestricted = accountStatus.status === 'restricted';
+  const isActive = accountStatus.status === "active";
+  const isPending = accountStatus.status === "pending";
 
   return (
     <Card className="glass-panel border border-white/10">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white">Stripe Connect Account</CardTitle>
-          <Badge 
+          <Badge
             variant={isActive ? "default" : "secondary"}
             className={isActive ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
           >
@@ -213,12 +204,12 @@ export function StripeConnectOnboarding() {
             <span className="text-zinc-400">Account ID</span>
             <span className="text-white font-medium text-sm">{accountStatus.accountId?.slice(0, 8)}...</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Status</span>
             <span className="text-white font-medium capitalize">{accountStatus.status}</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Details Submitted</span>
             {accountStatus.detailsSubmitted ? (
@@ -227,7 +218,7 @@ export function StripeConnectOnboarding() {
               <AlertCircle className="h-5 w-5 text-yellow-500" />
             )}
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Charges Enabled</span>
             {accountStatus.chargesEnabled ? (
@@ -236,7 +227,7 @@ export function StripeConnectOnboarding() {
               <AlertCircle className="h-5 w-5 text-yellow-500" />
             )}
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Payouts Enabled</span>
             {accountStatus.payoutsEnabled ? (

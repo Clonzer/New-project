@@ -20,6 +20,7 @@ import sponsorshipsRouter from "./sponsorships";
 import statsRouter from "./stats";
 import cronRouter from "./cron";
 import stripeConnectRouter from "./stripe-connect";
+import testUtilsRouter from "./test-utils";
 
 const router: IRouter = Router();
 
@@ -37,6 +38,8 @@ router.use(adminRouter);
 router.use(reviewsRouter);
 router.use(sellersRouter);
 router.use("/stripe-connect", stripeConnectRouter);
+// Mount test utilities (only active when ENABLE_TEST_ROUTES=1)
+router.use(testUtilsRouter);
 router.use("/contests", contestsRouter);
 router.use("/equipment", equipmentRouter);
 router.use("/files", filesRouter);

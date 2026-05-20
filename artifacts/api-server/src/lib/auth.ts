@@ -17,7 +17,8 @@ if (!SUPABASE_JWT_SECRET) {
 }
 
 export type AuthClaims = {
-  userId: number;
+  userId?: number;
+  subject?: string;
   email: string;
 };
 
@@ -46,9 +47,20 @@ export function verifyAccessToken(token: string): AuthClaims | null {
   function parseJwtSecret(secret: string): AuthClaims | null {
     const decoded = jwt.verify(token, secret);
     if (typeof decoded === "string") return null;
-    const userId = Number((decoded as any).sub);
-    if (!Number.isFinite(userId) || userId <= 0) return null;
+    const rawSub = (decoded as any).sub;
     const email = typeof (decoded as any).email === "string" ? (decoded as any).email : "";
+
+    if (!email) return null;
+    if (typeof rawSub === "string") {
+      const numericId = Number(rawSub);
+      if (Number.isFinite(numericId) && numericId > 0) {
+        return { userId: numericId, email };
+      }
+      return { subject: rawSub, email };
+    }
+
+    const userId = Number(rawSub);
+    if (!Number.isFinite(userId) || userId <= 0) return null;
     return { userId, email };
   }
 
@@ -74,19 +86,57 @@ export function signAccessToken(user: { id: number; email: string }, expiresIn: 
   );
 }
 
-export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
+export async function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
   const raw = getTokenFromRequest(req);
   if (!raw) {
     res.status(401).json({ error: "unauthorized", message: "Authentication required." });
     return;
   }
+
   const claims = verifyAccessToken(raw);
   if (!claims) {
     res.status(401).json({ error: "unauthorized", message: "Session expired or invalid token." });
     return;
   }
-  req.auth = claims;
-  next();
+
+  if (claims.userId) {
+    req.auth = claims;
+    next();
+    return;
+  }
+
+  if (claims.subject) {
+    try {
+      let [user] = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.authProviderSubject, claims.subject))
+        .limit(1);
+
+      if (!user) {
+        [user] = await db
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.email, claims.email))
+          .limit(1);
+      }
+
+      if (!user) {
+        res.status(401).json({ error: "unauthorized", message: "Authentication required." });
+        return;
+      }
+
+      req.auth = { userId: user.id, email: claims.email };
+      next();
+      return;
+    } catch (error) {
+      console.error("requireAuth lookup failed", error);
+      res.status(500).json({ error: "server_error", message: "Could not verify authentication." });
+      return;
+    }
+  }
+
+  res.status(401).json({ error: "unauthorized", message: "Authentication required." });
 }
 
 export async function requireVerifiedSeller(req: AuthedRequest, res: Response, next: NextFunction) {

@@ -4,9 +4,10 @@ const API_BASE_URL = (typeof import.meta !== "undefined" && (import.meta as any)
   ? String((import.meta as any).env.VITE_API_URL).replace(/\/+$/, "")
   : "";
 
-function getLegacyAuthToken(): string | null {
+async function getAuthToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("authToken");
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || localStorage.getItem("authToken");
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
@@ -74,8 +75,7 @@ export type MessageThreadDetail = {
 };
 
 export async function listMessageThreads(search?: string): Promise<{ threads: MessageThreadSummary[] }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authToken = getLegacyAuthToken() || session?.access_token;
+  const authToken = await getAuthToken();
   if (!authToken) {
     return { threads: [] };
   }
@@ -92,8 +92,7 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
 }
 
 export async function getMessageThread(threadId: number): Promise<{ thread: MessageThreadDetail }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authToken = getLegacyAuthToken() || session?.access_token;
+  const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
   }
@@ -109,8 +108,7 @@ export async function getMessageThread(threadId: number): Promise<{ thread: Mess
 }
 
 export async function createMessageThread(participantId: number, message?: string): Promise<{ threadId: number }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authToken = getLegacyAuthToken() || session?.access_token;
+  const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
   }
@@ -127,8 +125,7 @@ export async function createMessageThread(participantId: number, message?: strin
 }
 
 export async function sendThreadMessage(threadId: number, body: string): Promise<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authToken = getLegacyAuthToken() || session?.access_token;
+  const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
   }

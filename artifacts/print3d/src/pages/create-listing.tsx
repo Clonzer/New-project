@@ -30,6 +30,7 @@ import {
 import { useCreateListing, useListListings } from "@/lib/workspace-stub";
 import { useListEquipment, useListEquipmentGroups, useListShippingProfiles } from "@/lib/workspace-stub";
 import type { Equipment, EquipmentGroup } from "@/lib/workspace-api-mock";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { canCreateListing, getPlanLimits, getPlanDisplayName, PLAN_LIMITS } from "@/lib/plan-utils";
 
@@ -293,11 +294,14 @@ export default function CreateListing() {
         const formDataUpload = new FormData();
         formDataUpload.append("file", file);
 
+        const { data: { session } } = await supabase.auth.getSession();
+        const authToken = session?.access_token || localStorage.getItem("authToken");
+
         const response = await fetch("/api/files/upload", {
           method: "POST",
           body: formDataUpload,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          Authorization: `Bearer ${authToken}`,
           },
         });
 
@@ -328,11 +332,14 @@ export default function CreateListing() {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || localStorage.getItem("authToken");
+
       const response = await fetch("/api/files/upload", {
         method: "POST",
         body: formDataUpload,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        Authorization: `Bearer ${authToken}`,
         },
       });
 

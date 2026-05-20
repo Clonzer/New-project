@@ -13,7 +13,7 @@ function getStripe(): Stripe {
       throw new Error("STRIPE_SECRET_KEY must be configured.");
     }
     stripeInstance = new Stripe(secretKey, {
-      apiVersion: "2025-01-27.acacia",
+      apiVersion: "2025-02-24.acacia",
     });
   }
   return stripeInstance;
@@ -182,6 +182,31 @@ export async function createStripeAccountLink(params: {
   });
 
   return { url: accountLink.url };
+}
+
+export async function createStripePaymentIntent(params: {
+  amountCents: number;
+  currency?: string;
+  customerEmail?: string;
+  metadata?: Record<string, string>;
+}): Promise<{ paymentIntentId: string; clientSecret: string }> {
+  const stripe = getStripe();
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: params.amountCents,
+    currency: params.currency ?? "usd",
+    metadata: params.metadata,
+    receipt_email: params.customerEmail || undefined,
+    payment_method_types: ["card"],
+  });
+
+  if (!paymentIntent.client_secret) {
+    throw new Error("Stripe did not return a payment client secret.");
+  }
+
+  return {
+    paymentIntentId: paymentIntent.id,
+    clientSecret: paymentIntent.client_secret,
+  };
 }
 
 export async function getStripeAccountStatus(accountId: string): Promise<{

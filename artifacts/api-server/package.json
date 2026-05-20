@@ -8,6 +8,7 @@
     "build": "tsx ./build.ts",
     "build:render": "tsx ./build.ts",
     "start": "node ./dist/index.cjs",
+    "smoke-test:stripe": "ENABLE_TEST_ROUTES=1 tsx ./tests/stripe-smoke-test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

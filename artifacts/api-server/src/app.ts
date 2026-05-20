@@ -17,7 +17,7 @@ const corsConfig = {
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 };
 app.use(cors(corsConfig));
-app.options("*", cors(corsConfig));
+
 app.use(cookieParser());
 app.use("/api/payments/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "10mb" }));

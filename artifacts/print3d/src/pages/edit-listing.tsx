@@ -214,11 +214,14 @@ export default function EditListing() {
         const formDataUpload = new FormData();
         formDataUpload.append("file", file);
 
+        const { data: { session } } = await supabase.auth.getSession();
+        const authToken = session?.access_token || localStorage.getItem("authToken");
+
         const response = await fetch("/api/files/upload", {
           method: "POST",
           body: formDataUpload,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
