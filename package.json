@@ -8,6 +8,7 @@
     "build:render": "pnpm run typecheck && pnpm run build:frontend",
     "build:frontend": "pnpm --filter @workspace/print3d build",
     "build:backend": "pnpm --filter @workspace/api-server build",
+    "dev": "pnpm -r --parallel --filter @workspace/api-server --filter @workspace/print3d dev",
     "contests:manage": "pnpm --filter @workspace/scripts run contests:manage",
     "contests:process-winners": "pnpm --filter @workspace/scripts run contests:process-winners",
     "db:migrate": "pnpm --filter @workspace/scripts run migrate",

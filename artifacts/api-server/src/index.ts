@@ -1,5 +1,12 @@
-import "dotenv/config";
-import app from "./app";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
+
+const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
+const rootEnvPath = path.resolve(currentFileDir, "../../../.env");
+dotenv.config({ path: rootEnvPath });
+
+const { default: app } = await import("./app");
 
 const rawPort = process.env["PORT"];
 
