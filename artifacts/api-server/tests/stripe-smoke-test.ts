@@ -26,7 +26,7 @@ async function run() {
   const intentUrl = `${API_BASE}/api/payments/create-payment-intent`;
   // Create a test user via test route (requires ENABLE_TEST_ROUTES=1)
   const testUserEmail = `smoke+${Date.now()}@example.com`;
-  const createUrl = `${API_BASE}/_test/create-user`;
+  const createUrl = `${API_BASE}/api/_test/create-user`;
   const { response: createRes, body: createBody } = await fetchJson(createUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

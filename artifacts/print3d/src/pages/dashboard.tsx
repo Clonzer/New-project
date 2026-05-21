@@ -1802,14 +1802,14 @@ export default function DashboardWithSidebar() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-zinc-400">
-              Stripe Connect allows you to accept payments and manage your finances securely. 
-              Once you complete onboarding, you can create products and start selling.
+              Stripe Connect handles all payment and payout flows for your seller account.
+              Complete Express onboarding and then use the Stripe Dashboard for fund management, payouts, and account details.
             </p>
             <ul className="text-sm text-zinc-400 space-y-2">
-              <li>• Secure payment processing</li>
-              <li>• Automatic payouts to your bank account</li>
-              <li>• 10% platform fee on all transactions</li>
-              <li>• Real-time transaction tracking</li>
+              <li>• Secure payment processing through Stripe</li>
+              <li>• Stripe manages payouts directly to your bank</li>
+              <li>• Platform fee is collected automatically per sale</li>
+              <li>• Use Stripe Dashboard for all fund related activity</li>
             </ul>
           </CardContent>
         </Card>
