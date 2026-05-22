@@ -9,7 +9,10 @@
     "build": "vite build --config vite.config.ts --mode production",
     "build:cloudflare": "vite build --config vite.config.ts --mode production",
     "build:render": "vite build --config vite.config.ts",
-    "serve": "vite preview --config vite.config.ts --host 0.0.0.0"
+    "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
+    "supabase:login": "npx supabase login",
+    "supabase:link": "npx supabase link --project-ref hegixxfxymvwlcenuewx",
+    "supabase:deploy-stripe": "npx supabase functions deploy create-connected-account --project-ref hegixxfxymvwlcenuewx && npx supabase functions deploy create-account-link --project-ref hegixxfxymvwlcenuewx && npx supabase functions deploy get-account-status --project-ref hegixxfxymvwlcenuewx"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^6.3.0",

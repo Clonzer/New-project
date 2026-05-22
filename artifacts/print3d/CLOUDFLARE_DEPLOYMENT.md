@@ -40,20 +40,37 @@ Go to **Project Settings → Edge Functions → Secrets** and add:
 
 ### 1.3 Deploy Edge Functions
 
-Install [Supabase CLI](https://supabase.com/docs/guides/cli) if needed, then from repo root:
+#### Option A — Supabase Dashboard (no CLI install)
 
-```bash
-cd artifacts/print3d
-supabase login
-supabase link --project-ref hegixxfxymvwlcenuewx
-supabase functions deploy create-connected-account
-supabase functions deploy create-account-link
-supabase functions deploy get-account-status
-supabase functions deploy create-stripe-product
-supabase functions deploy stripe-webhook
+1. Open [Supabase Dashboard](https://supabase.com/dashboard) → project **hegixxfxymvwlcenuewx** → **Edge Functions**.
+2. For each function (`create-connected-account`, `create-account-link`, `get-account-status`):
+   - Click the function (or **Deploy new**).
+   - Copy the matching folder from your repo:  
+     `artifacts/print3d/supabase/functions/<function-name>/index.ts`
+   - Paste into the online editor (or connect GitHub if available).
+   - Click **Deploy**.
+3. Confirm **Secrets** include `STRIPE_SECRET_KEY` and `SITE_URL`.
+
+#### Option B — CLI via `npx` (Windows: `supabase` command not in PATH)
+
+From PowerShell (no global install needed):
+
+```powershell
+cd artifacts\print3d
+npx supabase login
+npx supabase link --project-ref hegixxfxymvwlcenuewx
+pnpm run supabase:deploy-stripe
 ```
 
-Or deploy each function from the Dashboard: **Edge Functions → Deploy**.
+Or one function at a time:
+
+```powershell
+npx supabase functions deploy create-connected-account --project-ref hegixxfxymvwlcenuewx
+npx supabase functions deploy create-account-link --project-ref hegixxfxymvwlcenuewx
+npx supabase functions deploy get-account-status --project-ref hegixxfxymvwlcenuewx
+```
+
+Optional global install: `npm install -g supabase` then use `supabase` directly.
 
 ### 1.4 Allow browser calls (CORS)
 
