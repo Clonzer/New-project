@@ -33,8 +33,10 @@ Go to **Project Settings → Edge Functions → Secrets** and add:
 
 | Secret | Value |
 |--------|--------|
-| `STRIPE_SECRET_KEY` | `sk_live_...` or `sk_test_...` from Stripe Dashboard |
+| `STRIPE_SECRET_KEY` | **Secret key** from [Stripe → API keys](https://dashboard.stripe.com/apikeys) — must start with `sk_test_` or `sk_live_` (not `pk_`, not `your_key_here`) |
 | `SITE_URL` | `https://synthixgroup.co.uk` |
+
+If logs show `Invalid API Key provided: your_key*here`, the secret is still a placeholder — replace it and redeploy functions.
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (Settings → API) |
 
 `SUPABASE_URL` is injected automatically for functions.

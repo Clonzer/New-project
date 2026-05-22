@@ -1,6 +1,6 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,9 +8,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
 };
 
-const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
-if (!stripeSecretKey) {
-  throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
+const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+if (!stripeSecretKey || stripeSecretKey.includes("your_key") || !stripeSecretKey.startsWith("sk_")) {
+  throw new Error(
+    "STRIPE_SECRET_KEY is missing or still a placeholder. Set a real sk_test_ or sk_live_ key in Supabase → Edge Functions → Secrets.",
+  );
 }
 
 const stripeClient = new Stripe(stripeSecretKey, {
