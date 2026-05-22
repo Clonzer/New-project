@@ -86,14 +86,12 @@ Deno.serve(async (req) => {
     );
 
     if (profileError) {
-      console.error("Profile upsert failed:", profileError);
-      return jsonResponse({
-        error: "Failed to prepare user profile",
-        details: profileError.message,
-      }, 500);
+      console.warn("Profile upsert skipped (continuing):", profileError.message);
     }
 
-    const account = await stripeClient.accounts.create({
+    let account;
+    try {
+      account = await stripeClient.accounts.create({
       type: "express",
       country,
       email: contactEmail,
@@ -105,7 +103,12 @@ Deno.serve(async (req) => {
       business_profile: {
         url: `${siteUrl}/dashboard`,
       },
-    });
+      });
+    } catch (stripeError) {
+      const message = stripeError instanceof Error ? stripeError.message : "Stripe account creation failed";
+      console.error("Stripe accounts.create failed:", stripeError);
+      return jsonResponse({ error: message }, 500);
+    }
 
     const { error: dbError } = await supabase.from("stripe_connected_accounts").insert({
       user_id: user.id,

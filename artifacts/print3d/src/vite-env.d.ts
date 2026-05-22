@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string;
   readonly VITE_APP_URL: string;
   readonly VITE_STRIPE_CONNECT_PROVIDER: string;
+  readonly VITE_ENABLE_EXPRESS_API: string;
   readonly BASE_URL: string;
 }
 

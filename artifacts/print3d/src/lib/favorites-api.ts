@@ -198,11 +198,15 @@ export async function isFavorite(userId: string, itemId: string, itemType: 'shop
     .eq('user_id', userId)
     .eq('item_id', itemId)
     .eq('item_type', itemType)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+  if (error) {
+    // 406 happens when .single() is used with 0 rows; maybeSingle avoids that.
+    if (error.code === 'PGRST116') {
+      return false;
+    }
     console.error('Error checking favorite status:', error);
-    throw error;
+    return false;
   }
 
   return !!data;

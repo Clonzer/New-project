@@ -37,3 +37,15 @@ export function buildApiUrl(path: string): string {
 
   return `${base}${normalizedPath}`;
 }
+
+/** Cloudflare/static hosting has no Express /api — avoid fetching HTML error pages. */
+export function isExpressApiEnabled(): boolean {
+  const flag = String(import.meta.env.VITE_ENABLE_EXPRESS_API ?? "").trim().toLowerCase();
+  if (flag === "true" || flag === "1") return true;
+  if (flag === "false" || flag === "0") return false;
+
+  const connectProvider = String(import.meta.env.VITE_STRIPE_CONNECT_PROVIDER ?? "supabase")
+    .trim()
+    .toLowerCase();
+  return connectProvider === "express";
+}

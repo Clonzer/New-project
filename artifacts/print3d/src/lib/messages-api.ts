@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { isExpressApiEnabled } from "@/lib/api-url";
 import { withApiFetchOptions } from "@/lib/api-fetch";
 
 const configuredApiBase = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL)
@@ -21,6 +22,24 @@ async function getAuthToken(): Promise<string | null> {
   return session?.access_token || localStorage.getItem("authToken");
 }
 
+function parseJsonBody<T>(text: string, response: Response): T {
+  if (text.trim().startsWith("<!DOCTYPE") || text.trim().startsWith("<html")) {
+    throw new Error(
+      "Messages API returned HTML instead of JSON. Remove VITE_API_URL on Cloudflare or set VITE_ENABLE_EXPRESS_API=false.",
+    );
+  }
+
+  if (!text) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new SyntaxError(`Messages API returned non-JSON (${response.status}).`);
+  }
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const trimmedBase = API_BASE_URL.replace(/\/+$/, "");
@@ -33,16 +52,17 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, withApiFetchOptions(url, {
     ...init,
     headers: {
+      Accept: "application/json",
       "Content-Type": "application/json",
       ...(init?.headers as Record<string, string> | undefined),
     },
   }));
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
+  const data = parseJsonBody<Record<string, unknown>>(text, response);
 
   if (!response.ok) {
-    const errorMessage = data?.message || data?.error || response.statusText || "Request failed.";
+    const errorMessage = (data?.message as string) || (data?.error as string) || response.statusText || "Request failed.";
     throw new Error(errorMessage);
   }
 
@@ -85,6 +105,10 @@ export type MessageThreadDetail = {
 };
 
 export async function listMessageThreads(search?: string): Promise<{ threads: MessageThreadSummary[] }> {
+  if (!isExpressApiEnabled()) {
+    return { threads: [] };
+  }
+
   const authToken = await getAuthToken();
   if (!authToken) {
     return { threads: [] };
@@ -107,13 +131,17 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
 }
 
 export async function getMessageThread(threadId: number): Promise<{ thread: MessageThreadDetail }> {
+  if (!isExpressApiEnabled()) {
+    throw new Error("Messaging requires the Express API (not available on Cloudflare-only hosting).");
+  }
+
   const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
   }
 
   const data = await apiFetch<{ thread: MessageThreadDetail }>(`/api/messages/threads/${threadId}`, {
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
@@ -123,13 +151,17 @@ export async function getMessageThread(threadId: number): Promise<{ thread: Mess
 }
 
 export async function createMessageThread(participantId: number, message?: string): Promise<{ threadId: number }> {
+  if (!isExpressApiEnabled()) {
+    throw new Error("Messaging requires the Express API (not available on Cloudflare-only hosting).");
+  }
+
   const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
   }
 
   const data = await apiFetch<{ threadId: number }>("/api/messages/threads", {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
@@ -140,6 +172,10 @@ export async function createMessageThread(participantId: number, message?: strin
 }
 
 export async function sendThreadMessage(threadId: number, body: string): Promise<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }> {
+  if (!isExpressApiEnabled()) {
+    throw new Error("Messaging requires the Express API (not available on Cloudflare-only hosting).");
+  }
+
   const authToken = await getAuthToken();
   if (!authToken) {
     throw new Error("Not authenticated");
@@ -148,7 +184,7 @@ export async function sendThreadMessage(threadId: number, body: string): Promise
   const data = await apiFetch<{ message: { id: number; body: string; senderId: number; isRead: boolean; createdAt: string } }>(
     `/api/messages/threads/${threadId}/messages`,
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
