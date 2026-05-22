@@ -4,7 +4,17 @@ import { supabase } from "@/lib/supabase";
 // @ts-ignore - Vite handles this
 const STRIPE_PUBLISHABLE_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY) ? (import.meta as any).env.VITE_STRIPE_PUBLISHABLE_KEY : '';
 // @ts-ignore
-const API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) ? (import.meta as any).env.VITE_API_URL : '/api';
+const rawApiBase = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) ? (import.meta as any).env.VITE_API_URL : '/api';
+const API_BASE_URL = (() => {
+  if (typeof window === 'undefined') return rawApiBase;
+  const normalized = String(rawApiBase).replace(/\/+$/, "");
+  if (window.location.host !== new URL(normalized, window.location.origin).host) {
+    if (normalized.startsWith('http://localhost') || normalized.startsWith('http://127.0.0.1') || normalized.startsWith('https://localhost') || normalized.startsWith('https://127.0.0.1')) {
+      return window.location.origin.replace(/\/+$/, "");
+    }
+  }
+  return normalized;
+})();
 
 // Payment Method Types
 export interface PaymentMethod {

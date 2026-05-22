@@ -42,6 +42,11 @@ export function getAppUrl(): string | null {
     return renderUrl.replace(/\/$/, "");
   }
 
+  const cloudflareUrl = process.env["URL"]?.trim() || process.env["CF_PAGES_URL"]?.trim() || process.env["CLOUDFLARE_URL"]?.trim();
+  if (cloudflareUrl) {
+    return cloudflareUrl.replace(/\/$/, "");
+  }
+
   return null;
 }
 

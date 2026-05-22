@@ -19,6 +19,11 @@ export function StripeConnectOnboarding() {
       return "/api";
     }
     if (rawApiUrl.startsWith("http://") || rawApiUrl.startsWith("https://")) {
+      if (typeof window !== "undefined" && window.location.host !== new URL(rawApiUrl, window.location.origin).host) {
+        if (rawApiUrl.startsWith("http://localhost") || rawApiUrl.startsWith("http://127.0.0.1") || rawApiUrl.startsWith("https://localhost") || rawApiUrl.startsWith("https://127.0.0.1")) {
+          return "/api";
+        }
+      }
       return rawApiUrl.replace(/\/+$/, "");
     }
 
@@ -33,9 +38,8 @@ export function StripeConnectOnboarding() {
 
   async function getAuthToken() {
     const { data: { session } } = await supabase.auth.getSession();
-    return typeof window !== 'undefined'
-      ? localStorage.getItem('authToken') || session?.access_token || null
-      : session?.access_token || null;
+    // Always use the current session token for auth
+    return session?.access_token || null;
   }
 
   const loadAccountStatus = async () => {
@@ -78,8 +82,7 @@ export function StripeConnectOnboarding() {
   const startOnboarding = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
+      const token = await getAuthToken();
       if (!token) {
         throw new Error('Not authenticated.');
       }
@@ -116,8 +119,7 @@ export function StripeConnectOnboarding() {
   const refreshOnboarding = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || session?.access_token : session?.access_token;
+      const token = await getAuthToken();
       if (!token) {
         throw new Error('Not authenticated.');
       }

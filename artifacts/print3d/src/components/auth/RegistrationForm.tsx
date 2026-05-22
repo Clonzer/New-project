@@ -147,6 +147,31 @@ export function RegistrationForm({
       // Set flag to show tutorial for new users
       localStorage.setItem('showTutorial', 'true');
 
+      // Auto-create Stripe Connect account
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (token) {
+          const apiUrl = import.meta.env.VITE_API_URL || '/api';
+          const response = await fetch(`${apiUrl}/stripe-connect/auto-create`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.ok) {
+            const stripeData = await response.json();
+            console.log('Stripe Connect account auto-created:', stripeData);
+          } else {
+            console.error('Failed to auto-create Stripe account:', response.status);
+          }
+        }
+      } catch (stripeError) {
+        console.error("Failed to auto-create Stripe Connect account:", stripeError);
+        // Don't block registration if Stripe account creation fails
+      }
+
       // Auto-create message thread with admin
       try {
         const adminUser = usersData?.users.find((u: any) => u.email === ADMIN_EMAIL);

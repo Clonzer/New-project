@@ -1,12 +1,8 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 
-const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
-const rootEnvPath = path.resolve(currentFileDir, "../../../.env");
+const rootEnvPath = path.resolve(process.cwd(), ".env");
 dotenv.config({ path: rootEnvPath });
-
-const { default: app } = await import("./app");
 
 const rawPort = process.env["PORT"];
 
@@ -22,6 +18,15 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+async function startServer() {
+  const { default: app } = await import("./app");
+
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Failed to start server", error);
+  process.exit(1);
 });

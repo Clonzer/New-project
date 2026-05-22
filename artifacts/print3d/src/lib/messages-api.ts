@@ -1,8 +1,18 @@
 import { supabase } from "@/lib/supabase";
 
-const API_BASE_URL = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL)
+const configuredApiBase = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL)
   ? String((import.meta as any).env.VITE_API_URL).replace(/\/+$/, "")
   : "";
+
+const API_BASE_URL = (() => {
+  if (!configuredApiBase) return "";
+  if (typeof window !== "undefined" && window.location.host !== new URL(configuredApiBase, window.location.origin).host) {
+    if (configuredApiBase.startsWith("http://localhost") || configuredApiBase.startsWith("http://127.0.0.1") || configuredApiBase.startsWith("https://localhost") || configuredApiBase.startsWith("https://127.0.0.1")) {
+      return window.location.origin.replace(/\/+$/, "");
+    }
+  }
+  return configuredApiBase;
+})();
 
 async function getAuthToken(): Promise<string | null> {
   if (typeof window === "undefined") return null;

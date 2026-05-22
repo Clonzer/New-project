@@ -14,7 +14,17 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 function getApiBase(): string {
   const configured = import.meta.env.VITE_API_URL?.trim();
   if (configured) {
-    return configured.replace(/\/$/, "");
+    const normalized = configured.replace(/\/+$/, "");
+    if (typeof window !== "undefined" && window.location.host !== new URL(normalized, window.location.origin).host) {
+      const hostname = window.location.hostname;
+      if (hostname === "localhost" || hostname === "127.0.0.1") {
+        return normalized;
+      }
+      if (normalized.startsWith("http://localhost") || normalized.startsWith("http://127.0.0.1") || normalized.startsWith("https://localhost") || normalized.startsWith("https://127.0.0.1")) {
+        return window.location.origin;
+      }
+    }
+    return normalized;
   }
   if (typeof window !== "undefined") {
     return window.location.origin.replace(/\/$/, "");

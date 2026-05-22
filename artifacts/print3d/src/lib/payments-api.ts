@@ -1,4 +1,13 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const configuredApiBase = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const API_BASE_URL = (() => {
+  if (!configuredApiBase) return "";
+  if (typeof window !== "undefined" && window.location.host !== new URL(configuredApiBase, window.location.origin).host) {
+    if (configuredApiBase.startsWith("http://localhost") || configuredApiBase.startsWith("http://127.0.0.1") || configuredApiBase.startsWith("https://localhost") || configuredApiBase.startsWith("https://127.0.0.1")) {
+      return window.location.origin.replace(/\/+$/, "");
+    }
+  }
+  return configuredApiBase;
+})();
 
 function buildApiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

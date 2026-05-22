@@ -31,12 +31,6 @@ router.post("/onboarding/start", requireAuth, async (req: AuthedRequest, res) =>
       return;
     }
 
-    // Check if user is a seller
-    if (user.role !== "seller" && user.role !== "both") {
-      res.status(403).json({ error: "forbidden", message: "Only sellers can create Stripe Connect accounts." });
-      return;
-    }
-
     // Check if user already has a Stripe Connect account
     if (user.stripeConnectId) {
       // If account exists but not active, return existing onboarding link
@@ -249,6 +243,60 @@ router.get("/onboarding/return", requireAuth, async (req: AuthedRequest, res) =>
     const appUrl = getAppUrl();
     const redirectUrl = appUrl ? `${appUrl}/settings?section=payment&stripe=error` : "/settings";
     res.redirect(303, redirectUrl);
+  }
+});
+
+// POST /api/stripe-connect/auto-create
+// Automatically creates a Stripe Connect account (used during signup)
+router.post("/auto-create", requireAuth, async (req: AuthedRequest, res) => {
+  if (!isStripeConfigured()) {
+    res.status(503).json({
+      error: "payments_unavailable",
+      message: "Stripe is not configured.",
+    });
+    return;
+  }
+
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
+    if (!user) {
+      res.status(404).json({ error: "not_found", message: "User not found." });
+      return;
+    }
+
+    // If account already exists, just return its info
+    if (user.stripeConnectId) {
+      res.status(200).json({
+        accountId: user.stripeConnectId,
+        status: user.stripeAccountStatus,
+        message: "Account already exists",
+      });
+      return;
+    }
+
+    // Create new Stripe Connect account
+    const { accountId } = await createStripeConnectAccount({
+      email: user.email,
+      countryCode: user.countryCode || "US",
+      businessType: "individual",
+    });
+
+    // Update user with Stripe Connect account ID
+    await db
+      .update(usersTable)
+      .set({
+        stripeConnectId: accountId,
+        stripeAccountStatus: "pending",
+      })
+      .where(eq(usersTable.id, req.auth!.userId));
+
+    res.status(201).json({
+      accountId,
+      status: "pending",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not auto-create Stripe Connect account.";
+    res.status(400).json({ error: "stripe_error", message });
   }
 });
 

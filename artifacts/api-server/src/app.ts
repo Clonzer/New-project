@@ -66,8 +66,11 @@ app.use(apiErrorHandler);
 function resolveFrontendDistPath() {
   const runtimeEntry = process.argv[1] ? path.dirname(process.argv[1]) : process.cwd();
   const candidates = [
+    path.resolve(process.cwd(), "artifacts", "print3d", "dist"),
     path.resolve(process.cwd(), "artifacts", "print3d", "dist", "public"),
+    path.resolve(runtimeEntry, "..", "..", "print3d", "dist"),
     path.resolve(runtimeEntry, "..", "..", "print3d", "dist", "public"),
+    path.resolve(runtimeEntry, "..", "..", "..", "artifacts", "print3d", "dist"),
     path.resolve(runtimeEntry, "..", "..", "..", "artifacts", "print3d", "dist", "public"),
   ];
 
