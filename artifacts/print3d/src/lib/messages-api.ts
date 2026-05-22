@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { withApiFetchOptions } from "@/lib/api-fetch";
 
 const configuredApiBase = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL)
   ? String((import.meta as any).env.VITE_API_URL).replace(/\/+$/, "")
@@ -29,14 +30,13 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
       ? `${trimmedBase}${trimmedBase.endsWith("/api") && normalizedPath.startsWith("/api") ? normalizedPath.slice(4) : normalizedPath}`
       : normalizedPath;
 
-  const response = await fetch(url, {
-    credentials: "include",
+  const response = await fetch(url, withApiFetchOptions(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers as Record<string, string> | undefined),
     },
-  });
+  }));
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : {};
@@ -91,14 +91,19 @@ export async function listMessageThreads(search?: string): Promise<{ threads: Me
   }
 
   const query = search ? `?search=${encodeURIComponent(search)}` : "";
-  const data = await apiFetch<{ threads: MessageThreadSummary[] }>(`/api/messages/threads${query}`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
+  try {
+    const data = await apiFetch<{ threads: MessageThreadSummary[] }>(`/api/messages/threads${query}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
 
-  return { threads: data.threads || [] };
+    return { threads: data.threads || [] };
+  } catch (error) {
+    console.warn("Messages API unavailable:", error);
+    return { threads: [] };
+  }
 }
 
 export async function getMessageThread(threadId: number): Promise<{ thread: MessageThreadDetail }> {

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { buildApiUrl } from "@/lib/api-url";
+import { withApiFetchOptions } from "@/lib/api-fetch";
 
 export type StripeConnectAccountView = {
   hasAccount: boolean;
@@ -48,7 +49,9 @@ async function invokeSupabaseFunction<T>(name: string, init?: RequestInit): Prom
     : { error: await response.text() };
 
   if (!response.ok) {
-    const message = payload?.message || payload?.error || `Request failed (${response.status}).`;
+    const message = payload?.details
+      ? `${payload?.error || "Request failed"}: ${payload.details}`
+      : payload?.message || payload?.error || `Request failed (${response.status}).`;
     const error = new Error(message) as Error & { status?: number };
     error.status = response.status;
     throw error;
@@ -116,11 +119,11 @@ export async function fetchStripeConnectAccountStatus(): Promise<StripeConnectAc
   }
 
   const token = await getAccessToken();
-  const response = await fetch(buildApiUrl("/api/stripe-connect/account-status"), {
+  const statusUrl = buildApiUrl("/api/stripe-connect/account-status");
+  const response = await fetch(statusUrl, withApiFetchOptions(statusUrl, {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
+  }));
 
   const result = await readExpressJson<{
     hasAccount: boolean;
@@ -174,11 +177,11 @@ export async function startStripeConnectOnboarding(input?: {
   }
 
   const token = await getAccessToken();
-  const response = await fetch(buildApiUrl("/api/stripe-connect/onboarding/start"), {
+  const startUrl = buildApiUrl("/api/stripe-connect/onboarding/start");
+  const response = await fetch(startUrl, withApiFetchOptions(startUrl, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
+  }));
 
   return readExpressJson(response);
 }
@@ -190,11 +193,11 @@ export async function refreshStripeConnectOnboarding(): Promise<{ url: string }>
   }
 
   const token = await getAccessToken();
-  const response = await fetch(buildApiUrl("/api/stripe-connect/onboarding/refresh"), {
+  const refreshUrl = buildApiUrl("/api/stripe-connect/onboarding/refresh");
+  const response = await fetch(refreshUrl, withApiFetchOptions(refreshUrl, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
+  }));
 
   return readExpressJson(response);
 }

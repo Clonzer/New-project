@@ -1,139 +1,138 @@
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
+import "@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import Stripe from "https://esm.sh/stripe@14.21.0";
+import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 
-// Initialize Stripe client with secret key from environment
-// TODO: Set STRIPE_SECRET_KEY in Supabase secrets
-const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
+};
+
+const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
 if (!stripeSecretKey) {
-  throw new Error('STRIPE_SECRET_KEY is not set in environment variables');
+  throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
 }
 
 const stripeClient = new Stripe(stripeSecretKey, {
-  apiVersion: '2026-04-22.dahlia',
+  apiVersion: "2023-10-16",
 });
 
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'authorization, content-type',
-      },
-    });
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    
+
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+      return jsonResponse({ error: "Invalid token" }, 401);
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const displayName = body.displayName || user.user_metadata?.full_name || user.email;
+    const contactEmail = body.contactEmail || user.email;
+    const countryRaw = String(body.country || "GB").toUpperCase();
+    const country = countryRaw === "UK" ? "GB" : countryRaw;
+
+    const siteUrl = (Deno.env.get("SITE_URL") || Deno.env.get("APP_URL") || "https://synthixgroup.co.uk")
+      .replace(/\/$/, "");
+
+    const { data: existing } = await supabase
+      .from("stripe_connected_accounts")
+      .select("stripe_account_id, status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existing?.stripe_account_id) {
+      return jsonResponse({
+        accountId: existing.stripe_account_id,
+        status: existing.status || "pending",
       });
     }
 
-    const { displayName, contactEmail, country = 'us' } = await req.json();
+    const { error: profileError } = await supabase.from("users").upsert(
+      {
+        id: user.id,
+        email: user.email || contactEmail,
+        username: user.user_metadata?.username || user.email?.split("@")[0] || `user_${user.id.slice(0, 8)}`,
+        display_name: displayName,
+      },
+      { onConflict: "id" },
+    );
 
-    // Create Stripe Connect account using V2 API
-    const account = await stripeClient.v2.core.accounts.create({
-      display_name: displayName || user.email,
-      contact_email: contactEmail || user.email,
-      identity: {
-        country: country,
+    if (profileError) {
+      console.error("Profile upsert failed:", profileError);
+      return jsonResponse({
+        error: "Failed to prepare user profile",
+        details: profileError.message,
+      }, 500);
+    }
+
+    const account = await stripeClient.accounts.create({
+      type: "express",
+      country,
+      email: contactEmail,
+      business_type: "individual",
+      capabilities: {
+        transfers: { requested: true },
+        card_payments: { requested: true },
       },
-      dashboard: 'express',
-      defaults: {
-        responsibilities: {
-          fees_collector: 'application',
-          losses_collector: 'application',
-        },
-      },
-      configuration: {
-        recipient: {
-          capabilities: {
-            stripe_balance: {
-              stripe_transfers: {
-                requested: true,
-              },
-            },
-          },
-        },
+      business_profile: {
+        url: `${siteUrl}/dashboard`,
       },
     });
 
-    // Store account mapping in database
-    const { error: dbError } = await supabase
-      .from('stripe_connected_accounts')
-      .insert({
-        user_id: user.id,
-        stripe_account_id: account.id,
-        display_name: displayName || user.email,
-        contact_email: contactEmail || user.email,
-        country: country,
-        dashboard_type: 'express',
-        status: 'pending',
-        onboarding_complete: false,
-      });
+    const { error: dbError } = await supabase.from("stripe_connected_accounts").insert({
+      user_id: user.id,
+      stripe_account_id: account.id,
+      display_name: displayName,
+      contact_email: contactEmail,
+      country: country.toLowerCase(),
+      dashboard_type: "express",
+      status: "pending",
+      onboarding_complete: false,
+    });
 
     if (dbError) {
-      console.error('Database error:', dbError);
-      return new Response(JSON.stringify({ error: 'Failed to store account' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      console.error("Database error:", dbError);
+      return jsonResponse({
+        error: "Failed to store account",
+        details: dbError.message,
+      }, 500);
     }
 
-    return new Response(
-      JSON.stringify({
-        accountId: account.id,
-        status: account.status,
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return jsonResponse({
+      accountId: account.id,
+      status: "pending",
+    });
   } catch (error) {
-    console.error('Error creating connected account:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    console.error("Error creating connected account:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return jsonResponse({ error: message }, 500);
   }
 });

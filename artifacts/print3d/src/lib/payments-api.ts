@@ -1,4 +1,5 @@
 import { buildApiUrl, getApiBaseUrl } from "@/lib/api-url";
+import { withApiFetchOptions } from "@/lib/api-fetch";
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -16,7 +17,15 @@ export type CheckoutItemPayload = {
 };
 
 export async function getPaymentConfig() {
-  return fetchApi<{ provider: string; checkoutEnabled: boolean }>("/api/payments/config");
+  try {
+    return await fetchApi<{ provider: string; checkoutEnabled: boolean }>("/api/payments/config");
+  } catch (error) {
+    console.warn("Payments config API unavailable:", error);
+    return {
+      provider: "stripe",
+      checkoutEnabled: Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY),
+    };
+  }
 }
 
 export type SponsorshipOption = {
@@ -38,11 +47,10 @@ async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
     ...(init?.headers as Record<string, string> | undefined),
   };
 
-  const response = await fetch(url, {
-    credentials: "include",
+  const response = await fetch(url, withApiFetchOptions(url, {
     ...init,
     headers,
-  });
+  }));
 
   const text = await response.text();
   let data: any = {};
