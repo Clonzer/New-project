@@ -177,9 +177,10 @@ Run `pnpm run dev` from repo root (api-server + print3d).
 |---------|-----|
 | 405 on `/api/stripe-connect/*` | Set `VITE_STRIPE_CONNECT_PROVIDER=supabase` and redeploy Cloudflare |
 | 401 on Supabase functions | User not signed in, or wrong anon key |
-| 404 `No connected account` on first status check | Normal before onboarding; click Start |
-| 500 from `create-connected-account` | Check `STRIPE_SECRET_KEY` in Supabase secrets; confirm migration ran |
-| CORS error | Redeploy functions; check function URL matches `VITE_SUPABASE_URL` |
+| 404 on `get-account-status` | Normal before onboarding; click **Start Stripe Onboarding** |
+| 500 from `create-connected-account` | Redeploy function (latest uses Stripe v1 Express); set `STRIPE_SECRET_KEY`; run SQL migration |
+| CORS `Allow-Origin *` + credentials | Remove `VITE_API_URL` from Cloudflare (or redeploy latest frontend) |
+| Errors on `*.pages.dev` calling `synthixgroup.co.uk/api` | Preview host ≠ API host; test on production domain or unset `VITE_API_URL` for preview |
 | Table missing | Re-run SQL migration in Supabase |
 
 ---
