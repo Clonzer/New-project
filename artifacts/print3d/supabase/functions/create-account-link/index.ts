@@ -53,13 +53,17 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Invalid token" }, 401);
     }
 
-    const { data: accountData, error: dbError } = await supabase
-      .from("stripe_connected_accounts")
-      .select("stripe_account_id")
-      .eq("user_id", user.id)
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("stripe_connect_id")
+      .eq("id", user.id)
       .maybeSingle();
 
-    if (dbError || !accountData?.stripe_account_id) {
+    if (profileError) {
+      return jsonResponse({ error: "Could not read user profile", details: profileError.message }, 500);
+    }
+
+    if (!profile?.stripe_connect_id) {
       return jsonResponse({ error: "No connected account found" }, 404);
     }
 
@@ -67,7 +71,7 @@ Deno.serve(async (req) => {
       .replace(/\/$/, "");
 
     const accountLink = await stripeClient.accountLinks.create({
-      account: accountData.stripe_account_id,
+      account: profile.stripe_connect_id,
       type: "account_onboarding",
       refresh_url: `${siteUrl}/dashboard?section=payment&stripe=refresh`,
       return_url: `${siteUrl}/dashboard?section=payment&stripe=return`,

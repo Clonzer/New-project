@@ -19,12 +19,13 @@ The frontend uses `VITE_STRIPE_CONNECT_PROVIDER=supabase` (default) so it does *
 
 ## Part 1 — Supabase (do this first)
 
-### 1.1 Run the Stripe Connect migration
+### 1.1 Run SQL migrations (required)
 
 1. Open [Supabase Dashboard](https://supabase.com/dashboard) → your project → **SQL Editor**.
-2. Paste and run the file:  
-   `artifacts/print3d/supabase/migrations/20250515000000_add_stripe_connect.sql`
-3. Confirm table `stripe_connected_accounts` exists under **Table Editor**.
+2. Run **`20250622000001_users_stripe_connect_columns.sql`** (adds `stripe_connect_id` on `users`).
+3. Optional: run `20250515000000_add_stripe_connect.sql` only if you use the separate `stripe_connected_accounts` table.
+
+Edge functions store Connect accounts on **`public.users.stripe_connect_id`** (same as the dashboard UI).
 
 ### 1.2 Set Supabase secrets (Edge Functions)
 

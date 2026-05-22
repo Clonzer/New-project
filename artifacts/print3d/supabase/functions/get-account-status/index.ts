@@ -53,17 +53,24 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Invalid token" }, 401);
     }
 
-    const { data: accountData, error: dbError } = await supabase
-      .from("stripe_connected_accounts")
-      .select("*")
-      .eq("user_id", user.id)
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("stripe_connect_id, stripe_account_status, display_name, email")
+      .eq("id", user.id)
       .maybeSingle();
 
-    if (dbError || !accountData?.stripe_account_id) {
+    if (profileError) {
+      return jsonResponse({
+        error: "Could not read user profile",
+        details: profileError.message,
+      }, 500);
+    }
+
+    if (!profile?.stripe_connect_id) {
       return jsonResponse({ error: "No connected account found" }, 404);
     }
 
-    const account = await stripeClient.accounts.retrieve(accountData.stripe_account_id);
+    const account = await stripeClient.accounts.retrieve(profile.stripe_connect_id);
 
     const readyToReceivePayments = Boolean(account.charges_enabled && account.payouts_enabled);
     const onboardingComplete = Boolean(account.details_submitted);
@@ -76,24 +83,18 @@ Deno.serve(async (req) => {
           : "pending";
 
     await supabase
-      .from("stripe_connected_accounts")
-      .update({
-        status,
-        onboarding_complete: onboardingComplete,
-        capabilities: account.capabilities || {},
-        requirements: account.requirements || {},
-      })
-      .eq("user_id", user.id);
+      .from("users")
+      .update({ stripe_account_status: status })
+      .eq("id", user.id);
 
     return jsonResponse({
       accountId: account.id,
       status,
       readyToReceivePayments,
       onboardingComplete,
-      requirementsStatus: account.requirements?.disabled_reason || null,
-      displayName: accountData.display_name || account.business_profile?.name || account.email,
       chargesEnabled: account.charges_enabled,
       payoutsEnabled: account.payouts_enabled,
+      displayName: profile.display_name || account.business_profile?.name || profile.email,
     });
   } catch (error) {
     console.error("Error getting account status:", error);

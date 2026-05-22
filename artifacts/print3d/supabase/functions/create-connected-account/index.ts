@@ -56,53 +56,70 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const displayName = body.displayName || user.user_metadata?.full_name || user.email;
     const contactEmail = body.contactEmail || user.email;
+    if (!contactEmail) {
+      return jsonResponse({ error: "User email is required for Stripe Connect" }, 400);
+    }
+
     const countryRaw = String(body.country || "GB").toUpperCase();
     const country = countryRaw === "UK" ? "GB" : countryRaw;
 
     const siteUrl = (Deno.env.get("SITE_URL") || Deno.env.get("APP_URL") || "https://synthixgroup.co.uk")
       .replace(/\/$/, "");
 
-    const { data: existing } = await supabase
-      .from("stripe_connected_accounts")
-      .select("stripe_account_id, status")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (existing?.stripe_account_id) {
-      return jsonResponse({
-        accountId: existing.stripe_account_id,
-        status: existing.status || "pending",
-      });
-    }
+    const baseUsername =
+      user.user_metadata?.username ||
+      user.email?.split("@")[0] ||
+      `user_${user.id.slice(0, 8)}`;
 
     const { error: profileError } = await supabase.from("users").upsert(
       {
         id: user.id,
-        email: user.email || contactEmail,
-        username: user.user_metadata?.username || user.email?.split("@")[0] || `user_${user.id.slice(0, 8)}`,
+        email: contactEmail,
+        username: baseUsername,
         display_name: displayName,
       },
       { onConflict: "id" },
     );
 
     if (profileError) {
-      console.warn("Profile upsert skipped (continuing):", profileError.message);
+      console.warn("Profile upsert warning:", profileError.message);
+    }
+
+    const { data: profile, error: profileReadError } = await supabase
+      .from("users")
+      .select("stripe_connect_id, stripe_account_status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileReadError) {
+      return jsonResponse({
+        error: "Users table is missing Stripe columns",
+        details: profileReadError.message,
+        hint: "Run supabase/migrations/20250622000001_users_stripe_connect_columns.sql in the SQL editor",
+      }, 500);
+    }
+
+    if (profile?.stripe_connect_id) {
+      return jsonResponse({
+        accountId: profile.stripe_connect_id,
+        status: profile.stripe_account_status || "pending",
+      });
     }
 
     let account;
     try {
       account = await stripeClient.accounts.create({
-      type: "express",
-      country,
-      email: contactEmail,
-      business_type: "individual",
-      capabilities: {
-        transfers: { requested: true },
-        card_payments: { requested: true },
-      },
-      business_profile: {
-        url: `${siteUrl}/dashboard`,
-      },
+        type: "express",
+        country,
+        email: contactEmail,
+        business_type: "individual",
+        capabilities: {
+          transfers: { requested: true },
+          card_payments: { requested: true },
+        },
+        business_profile: {
+          url: `${siteUrl}/dashboard`,
+        },
       });
     } catch (stripeError) {
       const message = stripeError instanceof Error ? stripeError.message : "Stripe account creation failed";
@@ -110,22 +127,20 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: message }, 500);
     }
 
-    const { error: dbError } = await supabase.from("stripe_connected_accounts").insert({
-      user_id: user.id,
-      stripe_account_id: account.id,
-      display_name: displayName,
-      contact_email: contactEmail,
-      country: country.toLowerCase(),
-      dashboard_type: "express",
-      status: "pending",
-      onboarding_complete: false,
-    });
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        stripe_connect_id: account.id,
+        stripe_account_status: "pending",
+      })
+      .eq("id", user.id);
 
-    if (dbError) {
-      console.error("Database error:", dbError);
+    if (updateError) {
+      console.error("Failed to save stripe_connect_id on users:", updateError);
       return jsonResponse({
-        error: "Failed to store account",
-        details: dbError.message,
+        error: "Failed to save Stripe account on user profile",
+        details: updateError.message,
+        hint: "Run supabase/migrations/20250622000001_users_stripe_connect_columns.sql",
       }, 500);
     }
 
