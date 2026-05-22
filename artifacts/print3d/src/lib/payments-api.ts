@@ -1,20 +1,6 @@
-const configuredApiBase = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
-const API_BASE_URL = (() => {
-  if (!configuredApiBase) return "";
-  if (typeof window !== "undefined" && window.location.host !== new URL(configuredApiBase, window.location.origin).host) {
-    if (configuredApiBase.startsWith("http://localhost") || configuredApiBase.startsWith("http://127.0.0.1") || configuredApiBase.startsWith("https://localhost") || configuredApiBase.startsWith("https://127.0.0.1")) {
-      return window.location.origin.replace(/\/+$/, "");
-    }
-  }
-  return configuredApiBase;
-})();
+import { buildApiUrl, getApiBaseUrl } from "@/lib/api-url";
 
-function buildApiUrl(path: string) {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return API_BASE_URL.endsWith("/api") && normalizedPath.startsWith("/api")
-    ? `${API_BASE_URL}${normalizedPath.slice(4)}`
-    : `${API_BASE_URL}${normalizedPath}`;
-}
+const API_BASE_URL = getApiBaseUrl();
 
 export type CheckoutItemPayload = {
   listingId?: number | null;

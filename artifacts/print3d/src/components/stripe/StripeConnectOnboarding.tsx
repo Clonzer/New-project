@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2, AlertCircle, ArrowRight, ExternalLink, RefreshCw } from "lucide-react";
+import { buildApiUrl } from "@/lib/api-url";
 
 export function StripeConnectOnboarding() {
   const { user, refreshUser } = useAuth();
@@ -13,23 +14,6 @@ export function StripeConnectOnboarding() {
   const [loading, setLoading] = useState(false);
   const [accountStatus, setAccountStatus] = useState<any>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
-
-  function resolveApiUrl() {
-    const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
-    if (!rawApiUrl) {
-      return "/api";
-    }
-    if (rawApiUrl.startsWith("http://") || rawApiUrl.startsWith("https://")) {
-      if (typeof window !== "undefined" && window.location.host !== new URL(rawApiUrl, window.location.origin).host) {
-        if (rawApiUrl.startsWith("http://localhost") || rawApiUrl.startsWith("http://127.0.0.1") || rawApiUrl.startsWith("https://localhost") || rawApiUrl.startsWith("https://127.0.0.1")) {
-          return "/api";
-        }
-      }
-      return rawApiUrl.replace(/\/+$/, "");
-    }
-
-    return new URL(rawApiUrl.replace(/\/+$/, ""), window.location.origin).pathname;
-  }
 
   useEffect(() => {
     if (user) {
@@ -71,9 +55,7 @@ export function StripeConnectOnboarding() {
         return;
       }
 
-      const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/account-status`, window.location.origin).href;
-      const response = await fetch(requestUrl, {
+      const response = await fetch(buildApiUrl("/api/stripe-connect/account-status"), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -103,9 +85,7 @@ export function StripeConnectOnboarding() {
         throw new Error('Not authenticated.');
       }
 
-      const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/start`, window.location.origin).href;
-      const response = await fetch(requestUrl, {
+      const response = await fetch(buildApiUrl("/api/stripe-connect/onboarding/start"), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -136,9 +116,7 @@ export function StripeConnectOnboarding() {
         throw new Error('Not authenticated.');
       }
 
-      const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/refresh`, window.location.origin).href;
-      const response = await fetch(requestUrl, {
+      const response = await fetch(buildApiUrl("/api/stripe-connect/onboarding/refresh"), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/supabase-auth-context";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { buildApiUrl } from "@/lib/api-url";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 import { createMessageThread } from "@/lib/messages-api";
@@ -152,8 +153,7 @@ export function RegistrationForm({
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         if (token) {
-          const apiUrl = import.meta.env.VITE_API_URL || '/api';
-          const response = await fetch(`${apiUrl}/stripe-connect/auto-create`, {
+          const response = await fetch(buildApiUrl("/api/stripe-connect/auto-create"), {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
