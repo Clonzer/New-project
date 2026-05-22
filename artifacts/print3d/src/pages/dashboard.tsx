@@ -185,15 +185,11 @@ export default function DashboardWithSidebar() {
   const completionPercentage = (completedTasks / totalTasks) * 100;
   
   // Queries
-  console.log('Current user ID:', user?.id);
   const { data: orders = [], isLoading: ordersLoading } = useListOrders({ userId: user?.id });
   const { data: listings = [], isLoading: listingsLoading } = useListListings({ userId: user?.id });
   const { data: printers = [], isLoading: printersLoading } = useListPrinters({ userId: user?.id });
   const { data: reviews = [], isLoading: reviewsLoading } = useListReviews({ userId: user?.id });
   const { data: equipmentGroups = [], isLoading: groupsLoading } = useListEquipmentGroups({ userId: user?.id });
-  
-  console.log('Dashboard listings data:', listings);
-  console.log('Dashboard listings loading:', listingsLoading);
 
   // Ensure data is not null and is an array
   const safeOrders = Array.isArray(orders) ? orders : [];

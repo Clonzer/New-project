@@ -161,16 +161,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           acceptingOrders: (data as any).accepting_orders ?? true,
         } as User;
         
-        console.log('Setting user from DB fetch:', { 
-  avatarUrl: userData.avatarUrl, 
-  userId: userData.id,
-  source: 'database'
-});
-setUser(userData);
+        setUser(userData);
         
         // Cache user data in localStorage
         const cacheData = { ...userData, _cachedAt: Date.now() };
-        console.log('Caching user data:', { avatarUrl: cacheData.avatarUrl });
         localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cacheData));
       }
     } catch (error) {

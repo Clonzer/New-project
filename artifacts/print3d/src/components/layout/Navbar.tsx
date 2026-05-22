@@ -353,11 +353,6 @@ export function Navbar() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-accent p-[2px]">
                     <div className="w-full h-full rounded-full bg-card overflow-hidden flex items-center justify-center">
                       {(() => {
-                        console.log('Navbar rendering user avatar:', {
-                          avatarUrl: user.avatarUrl,
-                          userId: user.id,
-                          displayName: user.displayName
-                        });
                         return user.avatarUrl ? (
                           <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
                         ) : (

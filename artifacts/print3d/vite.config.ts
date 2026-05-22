@@ -10,6 +10,8 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH ?? "/";
+const rawApiProxyTarget = process.env.VITE_API_PROXY_TARGET ?? process.env.VITE_API_URL?.replace(/\/api\/?$/, "");
+const apiProxyTarget = rawApiProxyTarget?.startsWith("http") ? rawApiProxyTarget : "http://localhost:3000";
 
 export default defineConfig({
   base: basePath,
@@ -34,10 +36,13 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          radix: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
-          ui: ['framer-motion', 'lucide-react'],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (id.includes("@supabase")) return "supabase";
+          if (id.includes("@radix-ui")) return "radix";
+          if (id.includes("framer-motion") || id.includes("lucide-react")) return "ui";
+          if (id.includes("react") || id.includes("react-dom") || id.includes("@tanstack")) return "vendor";
+          return undefined;
         },
       },
     },
@@ -47,6 +52,13 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    proxy: {
+      "/api": {
+        target: apiProxyTarget,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

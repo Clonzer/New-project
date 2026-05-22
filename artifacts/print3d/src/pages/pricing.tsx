@@ -107,14 +107,12 @@ const PLANS = [
   },
 ] as const;
 
-// Animated background with gradient orbs
 function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-600/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-zinc-950" />
+    <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,#06111a_0%,#081521_44%,#0b1020_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(8,145,178,0.18),transparent_34%,rgba(99,102,241,0.12)_72%,transparent)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-zinc-950/80" />
     </div>
   );
 }

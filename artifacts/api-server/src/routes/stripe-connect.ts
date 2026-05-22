@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Response } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
@@ -111,9 +111,7 @@ router.post("/onboarding/start", requireAuth, async (req: AuthedRequest, res) =>
   }
 });
 
-// GET /api/stripe-connect/onboarding/status
-// Returns the current status of the user's Stripe Connect account
-router.get("/onboarding/status", requireAuth, async (req: AuthedRequest, res) => {
+async function sendAccountStatus(req: AuthedRequest, res: Response) {
   try {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.auth!.userId));
     if (!user) {
@@ -125,6 +123,14 @@ router.get("/onboarding/status", requireAuth, async (req: AuthedRequest, res) =>
       res.status(200).json({
         hasAccount: false,
         status: "not_started",
+      });
+      return;
+    }
+
+    if (!isStripeConfigured()) {
+      res.status(503).json({
+        error: "payments_unavailable",
+        message: "Stripe is not configured yet. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and APP_URL.",
       });
       return;
     }
@@ -155,7 +161,14 @@ router.get("/onboarding/status", requireAuth, async (req: AuthedRequest, res) =>
     const message = error instanceof Error ? error.message : "Could not fetch Stripe Connect status.";
     res.status(400).json({ error: "stripe_error", message });
   }
-});
+}
+
+// GET /api/stripe-connect/account-status
+// Returns the current status of the user's Stripe Connect account
+router.get("/account-status", requireAuth, sendAccountStatus);
+
+// Backward-compatible route used by older UI builds.
+router.get("/onboarding/status", requireAuth, sendAccountStatus);
 
 // POST /api/stripe-connect/onboarding/refresh
 // Generates a new onboarding link for an existing account

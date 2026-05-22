@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { 
   ChevronRight, 
   Sparkles, 
@@ -25,16 +24,9 @@ import {
   Lightbulb,
   Palette,
   Boxes,
-  Quote,
-  Eye,
-  Activity,
-  Rocket,
-  Target,
-  Crown,
-  Flame,
-  Globe,
-  ChevronDown
+  Quote
 } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedGradientBg } from "@/components/ui/animated-gradient-bg";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -44,99 +36,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SiteStats } from "@/components/shared/SiteStats";
 import { SEOMeta, MarketplaceStructuredData } from "@/components/seo";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
-  const categories = [
-    { value: "all", label: "All Categories", icon: Globe },
-    { value: "prototyping", label: "Prototyping", icon: Printer },
-    { value: "functional-parts", label: "Functional Parts", icon: Wrench },
-    { value: "miniatures", label: "Miniatures", icon: Heart },
-    { value: "cosplay-props", label: "Cosplay Props", icon: Lightbulb },
-    { value: "home-decor", label: "Home Decor", icon: Package },
-    { value: "jewelry", label: "Jewelry", icon: Boxes },
-    { value: "tech-accessories", label: "Tech Accessories", icon: Zap },
-    { value: "custom-orders", label: "Custom Orders", icon: MessageCircle }
-  ];
-
-  const categoryMap: { [key: string]: string } = {
-    "prototyping": "prototyping",
-    "functional-parts": "functional-parts",
-    "miniatures": "miniatures",
-    "cosplay-props": "cosplay-props",
-    "home-decor": "home-decor",
-    "jewelry": "jewelry",
-    "tech-accessories": "tech-accessories",
-    "custom-orders": "custom-orders"
-  };
-
-  const getCategoryText = (category: string) => {
-    switch(category) {
-      case "prototyping":
-        return {
-          title: "Prototyping Services",
-          description: "Find rapid prototyping and 3D printing services for your projects",
-          badge: "Prototyping"
-        };
-      case "functional-parts":
-        return {
-          title: "Functional Parts",
-          description: "Discover custom mechanical parts and functional components",
-          badge: "Functional"
-        };
-      case "miniatures":
-        return {
-          title: "Miniatures & Models",
-          description: "Browse detailed miniatures, gaming models, and collectibles",
-          badge: "Miniatures"
-        };
-      case "cosplay-props":
-        return {
-          title: "Cosplay Props",
-          description: "Get custom cosplay props and costume accessories",
-          badge: "Cosplay"
-        };
-      case "home-decor":
-        return {
-          title: "Home Decor",
-          description: "Find unique home decorations and artistic pieces",
-          badge: "Decor"
-        };
-      case "jewelry":
-        return {
-          title: "Custom Jewelry",
-          description: "Discover custom jewelry and wearable accessories",
-          badge: "Jewelry"
-        };
-      case "tech-accessories":
-        return {
-          title: "Tech Accessories",
-          description: "Browse tech gadgets and electronic accessories",
-          badge: "Tech"
-        };
-      case "custom-orders":
-        return {
-          title: "Custom Orders",
-          description: "Connect with makers for custom projects and commissions",
-          badge: "Custom"
-        };
-      default:
-        return {
-          title: "Everything",
-          description: "Browse all shops and models in one place",
-          badge: "All"
-        };
-    }
-  };
-
-  const currentCategoryText = getCategoryText(selectedCategory);
   return (
     <>
       <SEOMeta
@@ -159,97 +60,17 @@ export default function Home() {
       />
       <MarketplaceStructuredData />
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      {/* Enhanced Hero gradient with more dynamic effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950" />
-        
-        {/* Animated floating orbs */}
-        <motion.div 
-          animate={{ 
-            x: [0, 100, -100, 100, 0],
-            y: [0, -100, 100, -100, 0],
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-          className="absolute top-[20%] left-[15%] w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] rounded-full opacity-20 blur-[150px] bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-600"
-        />
-        
-        <motion.div 
-          animate={{ 
-            x: [0, -80, 80, -80, 0],
-            y: [0, 80, -80, 80, 0],
-          }}
-          transition={{ 
-            duration: 25, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-          className="absolute top-[10%] right-[15%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full opacity-15 blur-[120px] bg-gradient-to-bl from-cyan-400 via-teal-500 to-emerald-600"
-        />
-        
-        <motion.div 
-          animate={{ 
-            x: [60, -60, -60, 60, 0],
-            y: [-60, 60, -60, 60, 0],
-          }}
-          transition={{ 
-            duration: 30, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-          className="absolute bottom-[20%] left-[10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full opacity-25 blur-[100px] bg-gradient-to-tr from-orange-400 via-amber-500 to-yellow-600"
-        />
-        
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 0.8, 1.1, 1],
-            rotate: [0, 180, 360, 180, 0],
-          }}
-          transition={{ 
-            duration: 15, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-          className="absolute top-[35%] left-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full opacity-20 blur-[80px] bg-gradient-to-r from-yellow-400 via-orange-500 to-amber-500"
-        />
-        
-        {/* Enhanced noise and grid overlay */}
-        <div className="absolute inset-0 opacity-[0.04] bg-noise" />
-        <div className="absolute inset-0 opacity-[0.08]" style={{ 
-          backgroundImage: `linear-gradient(rgba(236,72,153,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.4) 1px, transparent 1px), linear-gradient(45deg, rgba(168,85,247,0.3) 1px, transparent 1px)`, 
-          backgroundSize: "80px 80px", 
-          animation: "grid 20s linear infinite" 
-        }} />
-        
-        {/* Particle effects */}
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              x: Math.random() * 100 - 50,
-              y: Math.random() * 100 - 50,
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 4,
-              repeat: Infinity,
-              delay: i * 0.5,
-            }}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            style={{
-              left: `${10 + i * 8}%`,
-              top: `${20 + (i % 3) * 15}%`,
-            }}
-          />
-        ))}
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#06111a_0%,#081521_44%,#0b1020_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(8,145,178,0.24),transparent_32%,rgba(99,102,241,0.16)_74%,transparent)] bg-[length:180%_180%] animate-gradient-shift" />
+        <div className="absolute inset-0 opacity-[0.03] bg-noise" />
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `linear-gradient(rgba(148,163,184,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.22) 1px, transparent 1px)`, backgroundSize: "60px 60px" }} />
       </div>
+      <Navbar />
 
       <main className="flex-grow relative z-10">
         <section className="relative pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent_42%)] pointer-events-none" />
 
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
@@ -262,86 +83,35 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-gradient-to-r from-orange-500/20 to-orange-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-orange-500/25"
+                className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-gradient-to-r from-pink-500/20 to-purple-600/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md shadow-lg shadow-pink-500/25"
               >
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span className="bg-gradient-to-r from-orange-300 to-orange-400 bg-clip-text text-transparent">Storefront marketplace</span>
+                <Sparkles className="w-4 h-4 text-pink-300" />
+                <span className="bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">Storefront marketplace</span>
               </motion.span>
-              <motion.h1 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="mt-8 text-5xl md:text-7xl lg:text-9xl font-display font-black text-white leading-[0.95] tracking-tight"
-              >
-                <span className="relative inline-block">
-                  <motion.span 
-                    animate={{ 
-                      backgroundPosition: ["0% 50%", "100% 50%"], 
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent"
-                    style={{ backgroundSize: "200% 100%" }}
-                  >
-                    Your 3D Printing Marketplace
-                  </motion.span>
-                  <span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent opacity-90">Marketplace</span>
+              <h1 className="mt-8 text-5xl md:text-7xl lg:text-8xl font-display font-black text-white leading-[0.95] tracking-tight">
+                Your 3D Printing{" "}
+                <span className="relative">
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Marketplace</span>
+                  <span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Marketplace</span>
                 </span>
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="mt-8 max-w-3xl mx-auto text-xl md:text-2xl text-zinc-300 leading-relaxed font-medium"
-              >
-                Connect with verified makers, buy ready-to-ship products, and order custom prints. 
-                <motion.span 
-                  animate={{ opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent font-bold"
-                >
-                  The easiest way to bring your ideas to life.
-                </motion.span>
-              </motion.p>
-              <div className="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                >
-                  <Link href="/explore">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 hover:from-cyan-600 hover:via-blue-600 hover:to-indigo-600 text-white shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 group border-0 relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                      <span className="relative flex items-center gap-3">
-                        <motion.span 
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                        >
-                          Browse makers 
-                        </motion.span>
-                        <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-3" />
-                      </span>
-                    </Button>
-                  </Link>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                >
-                  <Link href="/listings">
-                    <Button 
-                      size="lg" 
-                      variant="outline" 
-                      className="w-full sm:w-auto px-14 h-18 text-lg font-bold rounded-2xl border-2 border-orange-500/50 text-orange-300 hover:bg-orange-500/10 hover:border-orange-400 hover:text-orange-200 backdrop-blur-sm transition-all duration-300 relative overflow-hidden group"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-orange-500/20 to-orange-500/20 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
-                      <span className="relative z-10">Browse catalog</span>
-                    </Button>
-                  </Link>
-                </motion.div>
+              </h1>
+              <p className="mt-8 max-w-2xl mx-auto text-xl md:text-2xl text-zinc-300 leading-relaxed font-medium">
+                Connect with verified makers, buy ready-to-ship products, and order custom prints. <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent font-bold">The easiest way to bring your ideas to life.</span>
+              </p>
+              <div className="mt-12 flex flex-col sm:flex-row gap-5 justify-center">
+                <Link href="/explore">
+                  <Button size="lg" className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group border-0">
+                    <span className="flex items-center gap-3">
+                      Browse makers 
+                      <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2" />
+                    </span>
+                  </Button>
+                </Link>
+                <Link href="/listings">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-12 h-16 text-lg font-bold rounded-2xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:text-purple-200 backdrop-blur-sm transition-all duration-300">
+                    Browse catalog
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
@@ -359,36 +129,14 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <Badge variant="glass" className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
+              <Badge variant="glass" className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Discover
               </Badge>
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <h2 className="text-4xl md:text-5xl font-black text-white">
-                  Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
-                </h2>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="rounded-xl border-white/20 bg-white/5 hover:bg-white/10 text-white">
-                      {categories.find(cat => cat.value === selectedCategory)?.label}
-                      <ChevronDown className="w-4 h-4 ml-2" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="glass-card border-white/10 rounded-xl w-48">
-                    {categories.map((category) => (
-                      <DropdownMenuItem
-                        key={category.value}
-                        onClick={() => setSelectedCategory(category.value)}
-                        className="flex items-center gap-2 text-white hover:bg-white/10 cursor-pointer"
-                      >
-                        <category.icon className="w-4 h-4" />
-                        {category.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+                Explore <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Everything</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Everything</span></span>
+              </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
-                {currentCategoryText.description}
+                Browse all shops and models in one place
               </p>
             </motion.div>
 
@@ -398,15 +146,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Link href={`/explore-all?filter=shops${selectedCategory !== 'all' ? `&category=${selectedCategory}` : ''}`}>
-                  <Card className="bg-gradient-to-br from-cyan-600/30 via-blue-600/30 to-indigo-600/30 border-cyan-500/40 hover:border-cyan-400/60 hover:from-cyan-600/40 hover:via-blue-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30">
+                <Link href="/explore-all?filter=shops">
+                  <Card className="bg-gradient-to-br from-pink-600/30 via-purple-600/30 to-indigo-600/30 border-pink-500/40 hover:border-pink-400/60 hover:from-pink-600/40 hover:via-purple-600/40 hover:to-indigo-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30">
                     <CardContent className="p-8 text-center">
-                      <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                      <div className="w-20 h-20 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-pink-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                         <Users className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-3xl font-black text-white mb-3">Explore All Shops</h3>
                       <p className="text-zinc-200 mb-6 text-lg font-medium">Discover verified makers and their equipment</p>
-                      <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-orange-500/30 transition-all border-0">
+                      <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-7 rounded-2xl text-lg group-hover:shadow-2xl group-hover:shadow-pink-500/30 transition-all border-0">
                         Browse Shops <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </CardContent>
@@ -419,7 +167,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Link href={`/explore-all?filter=models${selectedCategory !== 'all' ? `&category=${selectedCategory}` : ''}`}>
+                <Link href="/explore-all?filter=models">
                   <Card className="bg-gradient-to-br from-cyan-600/30 via-teal-600/30 to-emerald-600/30 border-cyan-500/40 hover:border-cyan-400/60 hover:from-cyan-600/40 hover:via-teal-600/40 hover:to-emerald-600/40 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/30">
                     <CardContent className="p-8 text-center">
                       <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
@@ -438,9 +186,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 2: Enhanced Features with Stats */}
-        <section className="py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-orange-800/10 to-transparent opacity-30" />
+        {/* Section 2: Features */}
+        <section className="py-24">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -448,43 +195,15 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
-                <Crown className="w-3 h-3 mr-1" /> Platform Features
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+                <Sparkles className="w-3 h-3 mr-1" /> Platform Features
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Synthix</span></span>
+                Why Choose <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Synthix</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Synthix</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 The most trusted platform for 3D printing services and products
               </p>
-              
-              {/* Live Stats */}
-              <motion.div 
-                className="grid grid-cols-3 gap-8 max-w-4xl mx-auto mt-12"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                {[
-                  { number: "10,000+", label: "Active Makers", icon: Users, color: "from-emerald-400 via-teal-400 to-cyan-400" },
-                  { number: "50,000+", label: "Products Listed", icon: Package, color: "from-cyan-400 via-blue-400 to-indigo-400" },
-                  { number: "99.9%", label: "Success Rate", icon: CheckCircle, color: "from-amber-400 via-orange-400 to-red-400" }
-                ].map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="text-center"
-                  >
-                    <div className={`bg-gradient-to-r ${stat.color} rounded-2xl p-6 shadow-xl backdrop-blur-md`}>
-                      <stat.icon className="w-8 h-8 mx-auto text-white mb-2" />
-                      <div className="text-3xl font-black text-white">{stat.number}</div>
-                      <div className="text-sm text-zinc-200">{stat.label}</div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -493,43 +212,37 @@ export default function Home() {
                   icon: Shield,
                   title: "Verified Makers",
                   description: "All makers are thoroughly vetted for quality and reliability",
-                  color: "from-emerald-400 via-teal-400 to-cyan-400",
-                  badge: "100% Verified"
+                  color: "from-emerald-400 via-teal-400 to-cyan-400"
                 },
                 {
                   icon: Clock,
-                  title: "Lightning Fast",
-                  description: "Average 48-hour delivery with real-time tracking",
-                  color: "from-orange-400 via-orange-500 to-yellow-400",
-                  badge: "Express Delivery"
+                  title: "Fast Delivery",
+                  description: "Quick turnaround times with real-time tracking",
+                  color: "from-blue-400 via-indigo-400 to-purple-400"
                 },
                 {
                   icon: Award,
                   title: "Quality Guarantee",
-                  description: "100% satisfaction guarantee with free revisions",
-                  color: "from-amber-400 via-orange-400 to-red-400",
-                  badge: "Risk-Free"
+                  description: "100% satisfaction guarantee on all products and services",
+                  color: "from-amber-400 via-orange-400 to-red-400"
                 },
                 {
                   icon: Users,
                   title: "Community Driven",
-                  description: "Join 50,000+ satisfied customers and talented makers",
-                  color: "from-cyan-400 via-blue-400 to-indigo-400",
-                  badge: "5-Star Rated"
+                  description: "Join thousands of satisfied customers and talented makers",
+                  color: "from-purple-400 via-pink-400 to-rose-400"
                 },
                 {
                   icon: Zap,
                   title: "Instant Quotes",
                   description: "Get pricing instantly for custom projects",
-                  color: "from-yellow-400 via-amber-400 to-orange-400",
-                  badge: "AI-Powered"
+                  color: "from-yellow-400 via-amber-400 to-orange-400"
                 },
                 {
                   icon: Gem,
                   title: "Premium Materials",
-                  description: "Access to industry-leading filaments and resins",
-                  color: "from-orange-400 via-orange-500 to-yellow-400",
-                  badge: "Pro Grade"
+                  description: "Access to high-quality filaments and resins",
+                  color: "from-rose-400 via-pink-400 to-purple-400"
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -539,18 +252,10 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -6 }}
                 >
-                  <Card className="bg-black/40 border-white/10 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm relative">
-                    {feature.badge && (
-                      <div className="absolute top-4 right-4 z-20">
-                        <Badge className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
-                          {feature.badge}
-                        </Badge>
-                      </div>
-                    )}
+                  <Card className="bg-black/40 border-white/10 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full group overflow-hidden shadow-2xl backdrop-blur-sm">
                     <CardHeader>
-                      <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mb-5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative`}>
-                        <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <feature.icon className="w-10 h-10 text-white relative z-10" />
+                      <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mb-5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                        <feature.icon className="w-10 h-10 text-white" />
                       </div>
                       <CardTitle className="text-white text-2xl font-black">{feature.title}</CardTitle>
                     </CardHeader>
@@ -575,11 +280,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Boxes className="w-3 h-3 mr-1" /> Simple Process
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Works</span></span>
+                How It <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Works</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Works</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Get your 3D prints in three simple steps
@@ -617,7 +322,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   className="relative"
                 >
-                  <Card className="bg-black/40 border-zinc-800 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 h-full relative overflow-hidden shadow-2xl backdrop-blur-sm">
+                  <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 h-full relative overflow-hidden shadow-2xl backdrop-blur-sm">
                     <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${item.color}`} />
                     <CardHeader className="pt-8">
                       <div className="flex items-center gap-4 mb-4">
@@ -654,41 +359,28 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
-                <Palette className="w-3 h-3 mr-1" /> {currentCategoryText.badge} Category
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
+                <Palette className="w-3 h-3 mr-1" /> Browse by Category
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                {selectedCategory === 'all' ? (
-                  <>
-                    Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Categories</span></span>
-                  </>
-                ) : (
-                  <>
-                    <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">{currentCategoryText.title}</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">{currentCategoryText.title}</span></span>
-                  </>
-                )}
+                Popular <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Categories</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Categories</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
-                {selectedCategory === 'all' 
-                  ? "Find exactly what you need across our diverse range of 3D printing categories"
-                  : `Explore ${currentCategoryText.title.toLowerCase()} and find the perfect match for your needs`
-                }
+                Find exactly what you need across our diverse range of 3D printing categories
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-cyan-400 via-blue-400 to-indigo-400" },
+                { icon: Printer, title: "Prototyping", items: "2,500+ items", color: "from-pink-400 via-purple-400 to-indigo-400" },
                 { icon: Wrench, title: "Functional Parts", items: "1,800+ items", color: "from-cyan-400 via-teal-400 to-emerald-400" },
-                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-amber-400 via-orange-400 to-red-400" },
+                { icon: Heart, title: "Miniatures", items: "3,200+ items", color: "from-rose-400 via-pink-400 to-purple-400" },
                 { icon: Lightbulb, title: "Cosplay Props", items: "950+ items", color: "from-amber-400 via-orange-400 to-red-400" },
                 { icon: Package, title: "Home Decor", items: "1,500+ items", color: "from-purple-400 via-violet-400 to-indigo-400" },
                 { icon: Boxes, title: "Jewelry", items: "800+ items", color: "from-yellow-400 via-amber-400 to-orange-400" },
                 { icon: Zap, title: "Tech Accessories", items: "1,200+ items", color: "from-indigo-400 via-blue-400 to-cyan-400" },
                 { icon: MessageCircle, title: "Custom Orders", items: "Custom quotes", color: "from-teal-400 via-emerald-400 to-green-400" }
-              ].map((category, index) => {
-                const categoryValue = categoryMap[category.title.toLowerCase().replace(' ', '-')] || 'all';
-                return (
+              ].map((category, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -696,25 +388,21 @@ export default function Home() {
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   whileHover={{ scale: 1.03 }}
                 >
-                  <Link 
-                    href={`/explore-all?filter=models&category=${categoryValue}`}
-                    onClick={() => setSelectedCategory(categoryValue)}
-                  >
-                    <Card className="bg-black/40 border-zinc-800 hover:border-cyan-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
+                  <Link href="/listings">
+                    <Card className="bg-black/40 border-zinc-800 hover:border-pink-500/50 hover:bg-black/60 transition-all duration-300 cursor-pointer group overflow-hidden h-full shadow-xl backdrop-blur-sm">
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className={`w-14 h-14 bg-gradient-to-r ${category.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0`}>
                           <category.icon className="w-7 h-7 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-white font-bold text-xl group-hover:text-cyan-400 transition-colors">{category.title}</h3>
+                          <h3 className="text-white font-bold text-xl group-hover:text-pink-400 transition-colors">{category.title}</h3>
                           <p className="text-zinc-300 text-sm font-medium">{category.items}</p>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                 </motion.div>
-                );
-              })}
+              ))}
             </div>
           </div>
         </section>
@@ -728,11 +416,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <Badge className="mb-4 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-300 backdrop-blur-md">
+              <Badge className="mb-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 border-pink-500/30 text-pink-300 backdrop-blur-md">
                 <Star className="w-3 h-3 mr-1 fill-current" /> Testimonials
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-orange-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">Customers Say</span></span>
+                What Our <span className="relative"><span className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent blur-xl animate-pulse opacity-70">Customers Say</span><span className="relative bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Customers Say</span></span>
               </h2>
               <p className="text-xl text-zinc-300 max-w-2xl mx-auto font-medium">
                 Real reviews from real customers
@@ -805,10 +493,9 @@ export default function Home() {
         </section>
 
         {/* Section 6: CTA - Gradient Background */}
-        <section className="py-24 bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-600 relative overflow-hidden">
+        <section className="py-24 bg-[linear-gradient(135deg,rgba(8,145,178,0.9),rgba(79,70,229,0.86))] relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-          <div className="absolute top-[-20%] left-[10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full opacity-20 blur-[100px] bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 animate-pulse" />
-          <div className="absolute bottom-[-20%] right-[10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full opacity-20 blur-[80px] bg-gradient-to-tr from-cyan-400 via-teal-500 to-emerald-600 animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08),transparent_48%,rgba(255,255,255,0.06))]" />
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

@@ -472,7 +472,6 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
       setIsLoading(true);
       setError(null);
       try {
-        console.log('Fetching listings...');
         let query = supabase
           .from('listings')
           .select(`
@@ -489,10 +488,8 @@ export function useListListings(options?: { limit?: number; offset?: number; sel
 
         if (options?.userId) {
           // Filter by seller's user_id directly
-          console.log('Filtering listings by userId:', options.userId);
           query = query.eq('seller_id', options.userId);
         } else if (options?.sellerId) {
-          console.log('Filtering listings by sellerId:', options.sellerId);
           query = query.eq('seller_id', options.sellerId);
         }
 
@@ -795,6 +792,10 @@ export function useGetOrders() {
   return { data, isLoading, error };
 }
 
+function uniqueTruthy(values: Array<string | number | null | undefined>) {
+  return Array.from(new Set(values.filter(Boolean).map(String)));
+}
+
 export function useListOrders(options?: { userId?: string | number }) {
   const [data, setData] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -810,67 +811,56 @@ export function useListOrders(options?: { userId?: string | number }) {
         return;
       }
 
-      let query = supabase
+      const activeUserId = String(options?.userId ?? user.id);
+      const { data: ordersData, error: fetchError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          listings!listing_id (
-            id,
-            title,
-            price,
-            images
-          ),
-          users!buyer_id (
-            id,
-            display_name,
-            username,
-            email
-          )
-        `)
+        .select('*')
+        .or(`buyer_id.eq.${activeUserId},seller_id.eq.${activeUserId}`)
         .order('created_at', { ascending: false });
 
-      // Filter by user ID (either as buyer or seller)
-      if (options?.userId) {
-        query = query.or(`buyer_id.eq.${options.userId},seller_id.eq.${options.userId}`);
-      } else {
-        query = query.or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
-      }
-
-      const { data: ordersData, error: fetchError } = await query;
-      let loadedOrders = ordersData;
-
       if (fetchError) {
-        console.warn("Order query failed, falling back to basic select:", fetchError);
-        const { data: fallbackOrders, error: fallbackError } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (fallbackError) {
-          throw fallbackError;
-        }
-        loadedOrders = fallbackOrders;
+        throw fetchError;
       }
-      
-      // Transform the data to match the expected format
-      const transformedOrders = (loadedOrders || []).map((order: any) => ({
-        id: order.id,
-        buyer_id: order.buyer_id,
-        seller_id: order.seller_id,
-        listing_id: order.listing_id,
-        quantity: order.quantity || 1,
-        total_amount: order.total_amount || order.price,
-        status: order.status || 'pending',
-        tracking_number: order.tracking_number,
-        notes: order.notes,
-        created_at: order.created_at,
-        updated_at: order.updated_at,
-        listings: order.listings,
-        buyer: order.users,
-        // Add calculated fields
-        price: order.total_amount || order.price,
-        amount: order.total_amount || order.price,
-      }));
+
+      const loadedOrders = ordersData || [];
+      const listingIds = uniqueTruthy(loadedOrders.map((order: any) => order.listing_id));
+      const userIds = uniqueTruthy(loadedOrders.flatMap((order: any) => [order.buyer_id, order.seller_id]));
+
+      const [{ data: listingsData }, { data: usersData }] = await Promise.all([
+        listingIds.length
+          ? supabase.from('listings').select('id,title,price,images').in('id', listingIds)
+          : Promise.resolve({ data: [] as any[] }),
+        userIds.length
+          ? supabase.from('users').select('id,display_name,username,email').in('id', userIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const listingsById = new Map((listingsData || []).map((listing: any) => [String(listing.id), listing]));
+      const usersById = new Map((usersData || []).map((profile: any) => [String(profile.id), profile]));
+
+      const transformedOrders = loadedOrders.map((order: any) => {
+        const listing = order.listing_id ? listingsById.get(String(order.listing_id)) : null;
+        const buyer = order.buyer_id ? usersById.get(String(order.buyer_id)) : null;
+
+        return {
+          id: order.id,
+          buyer_id: order.buyer_id,
+          seller_id: order.seller_id,
+          listing_id: order.listing_id,
+          quantity: order.quantity || 1,
+          total_amount: order.total_amount || order.price,
+          status: order.status || 'pending',
+          tracking_number: order.tracking_number,
+          notes: order.notes,
+          created_at: order.created_at,
+          updated_at: order.updated_at,
+          listings: listing,
+          buyer,
+          users: buyer,
+          price: order.total_amount || order.price,
+          amount: order.total_amount || order.price,
+        };
+      });
 
       setData(transformedOrders);
     } catch (e) {

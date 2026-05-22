@@ -12,6 +12,7 @@ export function StripeConnectOnboarding() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [accountStatus, setAccountStatus] = useState<any>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   function resolveApiUrl() {
     const rawApiUrl = String(import.meta.env.VITE_API_URL || "/api").trim();
@@ -42,17 +43,36 @@ export function StripeConnectOnboarding() {
     return session?.access_token || null;
   }
 
+  async function readApiJson(response: Response) {
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text();
+      const message = text.trim().startsWith("<!DOCTYPE")
+        ? "The API route returned the app shell instead of JSON. Check that the backend is running and /api is routed to Express."
+        : text || `Unexpected response from the API (${response.status}).`;
+      throw new Error(message);
+    }
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || result.error || `Request failed with ${response.status}.`);
+    }
+
+    return result;
+  }
+
   const loadAccountStatus = async () => {
     try {
       setLoading(true);
+      setStatusError(null);
       const token = await getAuthToken();
       if (!token) {
-        console.error('Error loading account status: missing auth token');
+        setStatusError("Sign in to load Stripe account status.");
         return;
       }
 
       const apiUrl = resolveApiUrl();
-      const requestUrl = new URL(`${apiUrl}/stripe-connect/onboarding/status`, window.location.origin).href;
+      const requestUrl = new URL(`${apiUrl}/stripe-connect/account-status`, window.location.origin).href;
       const response = await fetch(requestUrl, {
         method: 'GET',
         headers: {
@@ -61,11 +81,7 @@ export function StripeConnectOnboarding() {
         credentials: 'include',
       });
 
-      const result = await response.json();
-      if (!response.ok) {
-        console.error('Error loading account status:', result);
-        return;
-      }
+      const result = await readApiJson(response);
 
       setAccountStatus({
         hasAccount: result.hasAccount,
@@ -73,7 +89,7 @@ export function StripeConnectOnboarding() {
         status: result.status,
       });
     } catch (error: any) {
-      console.error('Error loading account status:', error);
+      setStatusError(error.message || "Could not load Stripe account status.");
     } finally {
       setLoading(false);
     }
@@ -97,11 +113,7 @@ export function StripeConnectOnboarding() {
         credentials: 'include',
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to start onboarding');
-      }
+      const result = await readApiJson(response);
 
       // Redirect to Stripe onboarding
       window.location.href = result.url;
@@ -134,11 +146,7 @@ export function StripeConnectOnboarding() {
         credentials: 'include',
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to refresh onboarding');
-      }
+      const result = await readApiJson(response);
 
       // Redirect to Stripe onboarding
       window.location.href = result.url;
@@ -184,6 +192,12 @@ export function StripeConnectOnboarding() {
             Connect your Stripe Express account to start receiving payments for your products.
             You'll be redirected to Stripe to complete the onboarding process.
           </p>
+
+          {statusError && (
+            <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3 text-sm text-yellow-200">
+              {statusError}
+            </div>
+          )}
 
           <Button
             onClick={startOnboarding}
