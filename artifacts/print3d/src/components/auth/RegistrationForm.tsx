@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/supabase-auth-context";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { buildApiUrl } from "@/lib/api-url";
+import { autoCreateStripeConnectAccount } from "@/lib/stripe-connect-api";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
 import { createMessageThread } from "@/lib/messages-api";
@@ -150,23 +150,7 @@ export function RegistrationForm({
 
       // Auto-create Stripe Connect account
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
-        if (token) {
-          const response = await fetch(buildApiUrl("/api/stripe-connect/auto-create"), {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          if (response.ok) {
-            const stripeData = await response.json();
-            console.log('Stripe Connect account auto-created:', stripeData);
-          } else {
-            console.error('Failed to auto-create Stripe account:', response.status);
-          }
-        }
+        await autoCreateStripeConnectAccount();
       } catch (stripeError) {
         console.error("Failed to auto-create Stripe Connect account:", stripeError);
         // Don't block registration if Stripe account creation fails

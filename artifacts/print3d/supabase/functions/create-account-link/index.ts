@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     }
 
     // Get site URL from environment or use default
-    const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:3000';
+    const siteUrl = (Deno.env.get('SITE_URL') || Deno.env.get('APP_URL') || 'https://synthixgroup.co.uk').replace(/\/$/, '');
 
     // Create account link for onboarding using V2 API
     const accountLink = await stripeClient.v2.core.accountLinks.create({
@@ -84,8 +84,8 @@ Deno.serve(async (req) => {
         type: 'account_onboarding',
         account_onboarding: {
           configurations: ['recipient'],
-          refresh_url: `${siteUrl}/settings?refresh=true`,
-          return_url: `${siteUrl}/settings?onboarding=complete&accountId=${accountData.stripe_account_id}`,
+          refresh_url: `${siteUrl}/dashboard?section=payment&stripe=refresh`,
+          return_url: `${siteUrl}/dashboard?section=payment&stripe=return`,
         },
       },
     });
